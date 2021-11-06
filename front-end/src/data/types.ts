@@ -1,5 +1,5 @@
 export type UserID = string;
-export type Role = "projectManager" | "annotator" | "verifier" | "finance";
+export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
     id: UserID,
     projects: ProjectID[],
@@ -9,7 +9,7 @@ export type User = {
 };
 
 export type ProjectID = string;
-export type ProjectStatus = "inProgress" | "done"; // perhaps even more.
+export type ProjectStatus = 'inProgress' | 'done'; // perhaps even more.
 export type LandmarkSpecification = null; //! I don't know what this looks like yet.
 export type Project = {
     id: ProjectID,

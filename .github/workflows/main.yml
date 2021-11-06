@@ -36,6 +36,7 @@ jobs:
           npm i
           npm run-script build
           npm run-script test
+          npm run lint
   
   # This workflow contains an other job called "backend"
   backend:
