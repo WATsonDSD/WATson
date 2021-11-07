@@ -36,24 +36,3 @@ jobs:
           npm i
           npm run-script build
           npm run-script test
-  
-  # This workflow contains an other job called "backend"
-  backend:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        # Setup the working directory of the job
-        working-directory: ./back-end
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a set of commands using the runners shell
-      - name: Build back-end
-        # Change to npm i to npm ci?
-        run: |
-          npm i
-          npm run-script test
