@@ -18,6 +18,8 @@ export async function logIn(username: string, password: string): Promise<boolean
  * @returns the success of the logout operation.
  */
 export async function logOut(): Promise<boolean> {
+    if (!loggedIn)
+        throw Error('You need to call logIn before calling this function!');
     loggedIn = false;
     console.log(`Trying to log out but it's not implemented yet.`);
     return true;
