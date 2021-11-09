@@ -1,5 +1,5 @@
 export type UserID = string;
-export type Role = "projectManager" | "annotator" | "verifier" | "finance";
+export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
     id: UserID,
     projects: {
@@ -15,7 +15,7 @@ export type User = {
 };
 
 export type ProjectID = string;
-export type ProjectStatus = "inProgress" | "done"; // perhaps even more.
+export type ProjectStatus = 'inProgress' | 'done'; // perhaps even more.
 export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
@@ -34,7 +34,7 @@ export type Project = {
 }
 
 export type ImageID = string;
-export type ImageData = null; //TODO decide on a format for images.
+export type ImageData = null; // TODO decide on a format for images.
 export type Image = {
     id: ImageID,
     data: ImageData,
