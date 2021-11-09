@@ -2,7 +2,11 @@ export type UserID = string;
 export type Role = "projectManager" | "annotator" | "verifier" | "finance";
 export type User = {
     id: UserID,
-    projects: ProjectID[],
+    projects: {
+        id: ProjectID,
+        toAnnotate: ImageID[],
+        toVerify: AnnotatedImage[],
+    }[],
     name: string,
     email: string,
     role: Role,
@@ -10,7 +14,7 @@ export type User = {
 
 export type ProjectID = string;
 export type ProjectStatus = "inProgress" | "done"; // perhaps even more.
-export type LandmarkSpecification = null; //! I don't know what this looks like yet.
+export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
     users: UserID[],
@@ -19,4 +23,29 @@ export type Project = {
     endDate: Date,
     status: ProjectStatus,
     landmarks: LandmarkSpecification,
+    
+    images : {
+        toBeAnnotated: ImageID[],
+        toBeVerified: AnnotatedImage[],
+        done: AnnotatedImage[],
+    }
+}
+
+export type ImageID = string;
+export type ImageData = null; //TODO decide on a format for images.
+export type Image = {
+    id: ImageID,
+    data: ImageData,
+}
+
+export type AnnotationID = string;
+export type Point = {x: number, y: number, z: number}
+export type Annotation = {
+    id: AnnotationID,
+    [landmark: number] : Point
+}
+
+export type AnnotatedImage = {
+    image: ImageID,
+    annotation: AnnotationID,
 }

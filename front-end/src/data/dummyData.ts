@@ -1,4 +1,4 @@
-import { Project, User } from ".";
+import { Project, User, Image, Annotation } from ".";
 
 /*
     Some internally consistent dummy data.
@@ -12,18 +12,30 @@ export const Users = {
         name: 'Dummy User 1',
         email: 'user1@dummy.com',
         role: 'annotator',
-        projects: ['dummyProject1'],
+        projects: [
+            {
+                id: 'dummyProject1',
+                toAnnotate: [],
+                toVerify: [],
+            },
+        ],
     },
     'dummyLoggedInUserId': {
         id: 'dummyLoggedInUserId',
         name: 'Dummy Logged In User',
         email: 'loggedIn@dummy.com',
         role: 'annotator',
-        projects: ['dummyProject1'],
+        projects: [
+            {
+                id: 'dummyProject1',
+                toAnnotate: [],
+                toVerify: [],
+            },
+        ],
     } 
 } as {
     [id: string]: User,
-}
+};
 
 export const Projects = {
     'dummyProject1' : {
@@ -33,8 +45,35 @@ export const Projects = {
         startDate: new Date(),
         endDate: new Date(),
         status: 'inProgress',
-        landmarks: null,
+        landmarks: [0],
+        images: {
+            toBeAnnotated: ['image1'],
+            toBeVerified: [ {image: 'image2', annotation: 'annotation2'}],
+            done: [],
+        }
     }
 } as {
     [id: string]: Project,
-}
+};
+
+export const Images = {
+    'image1' : {
+        id: 'image1',
+        data: null,
+    },
+    'image2' : {
+        id: 'image1',
+        data: null,
+    },
+} as {
+    [id: string]: Image,
+};
+
+export const Annotations = {
+    'annotation2' : {
+        id: 'annotation2',
+        0 : {x: 1, y: 2, z: 3}
+    }
+} as {
+    [id: string]: Annotation,
+};
