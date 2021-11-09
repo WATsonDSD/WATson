@@ -27,12 +27,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
+      - name: Check out repository code
+        uses: actions/checkout@v2
       # Runs a set of commands using the runners shell
-      - name: Build front-end
-        # Change to npm i to npm ci?
-        run: |
-          npm i
-          npm run-script build
-          npm run-script test
+      - name: Install dependencies
+        run: npm i
+      - name: Check ESLint rules
+        run: npm run lint
+      - name: Build project
+        run: npm run-script build
+      - name: Run automated tests
+        run: npm run-script test
