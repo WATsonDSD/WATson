@@ -14,6 +14,6 @@ export async function findProjectById(id: ProjectID): Promise<Project>{
  */
 export async function getProjectsOfUser(user: User): Promise<Project[]> {
     return Promise.all(
-        user.projects.map( id => findProjectById(id))
+        Object.keys(user.projects).map( id => findProjectById(id))
     );
 }

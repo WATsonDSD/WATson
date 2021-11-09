@@ -1,4 +1,4 @@
-import { Project, User, Image, Annotation } from ".";
+import { Project, User, Image } from ".";
 
 /*
     Some internally consistent dummy data.
@@ -12,26 +12,26 @@ export const Users = {
         name: 'Dummy User 1',
         email: 'user1@dummy.com',
         role: 'annotator',
-        projects: [
-            {
-                id: 'dummyProject1',
+        projects: {
+            'dummyProject1': {
                 toAnnotate: [],
-                toVerify: [],
+                toVerify: ['image2'],
+                done: [],
             },
-        ],
+        }
     },
     'dummyLoggedInUserId': {
         id: 'dummyLoggedInUserId',
         name: 'Dummy Logged In User',
         email: 'loggedIn@dummy.com',
         role: 'annotator',
-        projects: [
-            {
-                id: 'dummyProject1',
-                toAnnotate: [],
+        projects: {
+            'dummyProject1': {
+                toAnnotate: ['image1'],
                 toVerify: [],
+                done: ['image2'],
             },
-        ],
+        },
     } 
 } as {
     [id: string]: User,
@@ -47,8 +47,8 @@ export const Projects = {
         status: 'inProgress',
         landmarks: [0],
         images: {
-            toBeAnnotated: ['image1'],
-            toBeVerified: [ {image: 'image2', annotation: 'annotation2'}],
+            toAnnotate: ['image1'],
+            toVerify: ['image2'],
             done: [],
         }
     }
@@ -62,18 +62,12 @@ export const Images = {
         data: null,
     },
     'image2' : {
-        id: 'image1',
+        id: 'image2',
         data: null,
+        annotation: {
+            0 : {x: 1, y: 2, z: 3},
+        }
     },
 } as {
     [id: string]: Image,
-};
-
-export const Annotations = {
-    'annotation2' : {
-        id: 'annotation2',
-        0 : {x: 1, y: 2, z: 3}
-    }
-} as {
-    [id: string]: Annotation,
 };
