@@ -23,7 +23,9 @@ const Sidebar = () => (
             return (
               <NavLink
                 to={href}
-                className="capitalize flex items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md" // 'bg-gray-200 text-gray-700' if active
+                 // 'bg-gray-200 text-gray-700' if active
+                className={(navData) => (navData.isActive ? 'capitalize flex items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md bg-gray-200 text-gray-700'
+                  : 'capitalize flex items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md')}
                 key={id ? `${id}` : ''}
                 id={id ? `${id}` : ''}
               >
