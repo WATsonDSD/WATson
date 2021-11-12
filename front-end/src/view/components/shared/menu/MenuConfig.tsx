@@ -28,8 +28,8 @@ export const links = [
   },
   {
     id: 4,
-    name: 'PageD',
-    href: '/pageD',
+    name: 'Dashboard',
+    href: '/dashboard',
     icon: <FaCalendarAlt className="w-5 h-5" />,
   },
 ];
