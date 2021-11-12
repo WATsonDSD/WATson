@@ -2,15 +2,18 @@ import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
 import { links } from './MenuConfig';
-import { findUserById } from '../../../../data/users';
 import { User } from '../../../../data/types';
+import { getLoggedInUser } from '../../../../data';
 
-class Sidebar extends React.Component<any, { user: Promise<User> }> {
+class Sidebar extends React.Component<any, { user: User | null }> {
   constructor(props: any) {
     super(props);
     this.state = {
-      user: Sidebar.getCurrentUser(),
+      user: null,
     };
+
+    getLoggedInUser()
+      .then((loggedInUser) => this.setState({ user: loggedInUser }));
   }
 
   // componentDidMount() {
@@ -18,11 +21,6 @@ class Sidebar extends React.Component<any, { user: Promise<User> }> {
   //     user: Sidebar.getCurrentUser(),
   //   });
   // }
-
-  static async getCurrentUser() {
-    const user = await findUserById('dummyUserId');
-    return user;
-  }
 
   render() {
     const { user } = this.state;
@@ -74,7 +72,7 @@ class Sidebar extends React.Component<any, { user: Promise<User> }> {
                 className="h-9 w-9 mx-2 object-center object-cover rounded-full"
               />
               <h4 className="mx-2 font-medium text-gray-800 hover:underline cursor-pointer">
-                {user.name}
+                { user ? user.name : 'loading...'}
                 {' '}
                 |
                 {' '}
