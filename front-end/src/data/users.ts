@@ -1,4 +1,4 @@
-import { Project } from '.';
+import { findProjectById, ProjectID } from '.';
 import { Users } from './dummyData';
 import { Role, User, UserID } from './types';
 
@@ -13,9 +13,9 @@ export async function findUserById(id: UserID): Promise<User> {
 /**
  * Finds and returns all users of a given project, regardless of role.
  */
-export async function getUsersOfProject(project: Project): Promise<User[]> {
+export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
   return Promise.all(
-    project.users.map((id) => findUserById(id)),
+    (await findProjectById(projectId)).users.map((id) => findUserById(id)),
   );
 }
 

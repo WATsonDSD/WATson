@@ -1,5 +1,6 @@
 import {
-  LandmarkSpecification, Project, ProjectID, User, UserID,
+  findUserById,
+  LandmarkSpecification, Project, ProjectID, UserID,
 } from '.';
 import { Projects } from './dummyData';
 
@@ -14,9 +15,9 @@ export async function findProjectById(id: ProjectID): Promise<Project> {
 /**
  * Finds and returns all projects of a user.
  */
-export async function getProjectsOfUser(user: User): Promise<Project[]> {
+export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
   return Promise.all(
-    Object.keys(user.projects).map((id) => findProjectById(id)),
+    Object.keys(await findProjectById(userId)).map((id) => findProjectById(id)),
   );
 }
 
@@ -52,4 +53,21 @@ export async function createProject(
     },
   };
   return id;
+}
+
+/**
+ * Adds the user (whatever the role) to the project.  
+ * If they are an annotator or a verifier, this function will not assign them any image.
+ */
+export async function addUserToProject(userId: UserID, projectId: ProjectID) {
+  const user = await findUserById(userId);
+  const project = await findProjectById(projectId);
+  if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
+
+  project.users.push(userId);
+  user.projects[projectId] = { // initally, the user is assigned no images.
+    toAnnotate: [],
+    toVerify: [],
+    done: [],
+  };
 }
