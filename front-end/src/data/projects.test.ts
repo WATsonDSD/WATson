@@ -1,7 +1,9 @@
 import {
+  addImageToProject,
   addUserToProject,
-  createProject, createUser, findProjectById, findUserById, ProjectID, UserID,
+  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
+import { findImageById, getImages } from './images';
 
 test('Can find created project', async () => {
   const id = await createProject('Test Project', 'The Flintstones', []);
@@ -25,4 +27,20 @@ describe('addUserToProject', () => {
     .resolves.toContain(userId));
 
   it('cant be done twice', async () => expect(addUserToProject(userId, projectId)).rejects.toThrow());
+});
+
+describe('addImageToProject', () => {
+  let projectId: ProjectID;
+  let imageId: ImageID;
+
+  beforeAll(async () => {
+    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', []);
+    imageId = await addImageToProject(null, projectId);
+  });
+
+  it('creates the image', async () => expect(findImageById(imageId).then((image) => image.id)).resolves.toBe(imageId));
+
+  it('adds the image to the project to be annotated', async () => expect(
+    getImages(projectId, 'toAnnotate').then((images) => images.findIndex((image) => image.id === imageId)),
+  ).resolves.toBeGreaterThanOrEqual(0));
 });

@@ -3,6 +3,13 @@ import {
   ImageID, Image, ProjectID, UserID, findUserById, findProjectById,
 } from '.';
 
+/*
+  Note: Notice that there is no method `createImage`.
+  This is because images exist only in the context of a project.
+    They are "weak entities", so to speak.
+  To create an Image, use addImageToProject.
+ */
+
 export async function findImageById(id: ImageID): Promise<Image> {
   const res = Images[id];
   if (!res) {

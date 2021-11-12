@@ -1,8 +1,8 @@
 import {
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
 } from '.';
-import { Projects } from './dummyData';
+import { Images, Projects } from './dummyData';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
   const res = Projects[id];
@@ -59,7 +59,7 @@ export async function createProject(
  * Adds the user (whatever the role) to the project.  
  * If they are an annotator or a verifier, this function will not assign them any image.
  */
-export async function addUserToProject(userId: UserID, projectId: ProjectID) {
+export async function addUserToProject(userId: UserID, projectId: ProjectID): Promise<void> {
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
@@ -70,4 +70,21 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID) {
     toVerify: [],
     done: [],
   };
+}
+
+/**
+ * Assigns an id to the image with the given `ImageData` and adds it to the project.
+ */
+export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
+  const imageId = new Date().toJSON(); // unique id's.
+  const project = await findProjectById(projectId);
+
+  Images[imageId] = {
+    id: imageId,
+    data,
+  };
+
+  project.images.toAnnotate.push(imageId);
+
+  return imageId;
 }
