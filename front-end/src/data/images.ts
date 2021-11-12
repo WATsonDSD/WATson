@@ -66,7 +66,7 @@ export async function saveAnnotation(
 
   // check if the image is waiting to be annotated.
   const imageIndex = project.images.toAnnotate.findIndex((id) => id === projectId);
-  if (imageIndex < 0) { throw Error('The image does not exist the the project'); }
+  if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
   const image = await findImageById(imageId);

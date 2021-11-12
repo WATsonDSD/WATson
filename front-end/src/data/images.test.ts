@@ -11,6 +11,10 @@ describe('addAnnotation', () => {
     3: { x: 1, y: 2, z: 3 },
     27: { x: 1, y: 2, z: 3 },
   } as Annotation;
+  const invalidAnnotation = {
+    0: { x: 1, y: 2, z: 3 },
+    3: { x: 1, y: 2, z: 3 },
+  } as Annotation;
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
     imageId = await addImageToProject(null, projectId);
@@ -24,4 +28,8 @@ describe('addAnnotation', () => {
 
   it('adds the image to toVerify', () => expect(getImages(projectId, 'toVerify').then((images) => images.findIndex((image) => image.id === imageId)))
     .resolves.toBeGreaterThanOrEqual(0));
+
+  it('reject invalid annotations', () => {
+    expect(saveAnnotation(invalidAnnotation, imageId, projectId)).rejects.toThrow();
+  });
 });
