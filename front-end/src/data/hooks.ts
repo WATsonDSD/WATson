@@ -46,6 +46,7 @@ export function useUserProjects(user: User): Project[] | null {
  * The hook returns `null` while waiting for `accessor`
  *  to resolve and returns the result after that.
  * @example
+ * // To pass a parameter, use a wrapper function.
  * useData( () => findUserById(id1))
  */
 export function useData<T>(accessor: () => Promise<T>) {
