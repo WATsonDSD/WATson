@@ -1,31 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Project, User } from './types';
-import {
-  getLoggedInUser, getProjectsOfUser, logIn,
-} from '.';
-
-export function useLoggedInUser(): User | null {
-  const [user, setUser] = useState<User| null>(null);
-
-  useEffect(() => {
-    logIn('TestUser', 'password123');
-    getLoggedInUser()
-      .then((loggedInUser) => setUser(loggedInUser));
-  }, []);
-
-  return user;
-}
-
-export function useUserProjects(user: User): Project[] | null {
-  const [projects, setUserProjects] = useState<Project[]| null>(null);
-
-  useEffect(() => {
-    getProjectsOfUser(user)
-      .then((userProjects) => setUserProjects(userProjects));
-  }, []);
-
-  return projects;
-}
 
 /*
     We can use this as a general purpose hook for now.
@@ -49,7 +22,7 @@ export function useUserProjects(user: User): Project[] | null {
  * // To pass a parameter, use a wrapper function.
  * useData( () => findUserById(id1))
  */
-export function useData<T>(accessor: () => Promise<T>) {
+export default function useData<T>(accessor: () => Promise<T>) {
   const [data, setData] = useState<T| null>(null);
 
   useEffect(() => {

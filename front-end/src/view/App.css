@@ -36,3 +36,33 @@
     transform: rotate(360deg);
   }
 }
+
+/* every element of the page */
+
+#main {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+/* all except the side menu */
+#main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: auto;
+
+}
+
+/* content without the header and footer  */
+#content {
+  display: flex;
+  flex: 1 0 auto;
+  padding: 1em;
+}
+
+
+#sideMenu {
+  justify-content: flex-start;
+  flex: 1 0 10%;
+}
