@@ -41,9 +41,10 @@ export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
     users: ['dummyUserId', 'dummyLoggedInUserId'],
+    name: 'Dummy Project 1',
     client: 'Dummy Client Inc.',
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: new Date().toJSON(),
+    endDate: '',
     status: 'inProgress',
     landmarks: [0],
     images: {

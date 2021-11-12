@@ -20,9 +20,10 @@ export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
     users: UserID[],
+    name: string,
     client: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     status: ProjectStatus,
     landmarks: LandmarkSpecification,
 
