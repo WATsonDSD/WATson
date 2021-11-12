@@ -9,7 +9,7 @@ const Card = (props: any) => {
   return (
 
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div className="w-full bg-black sahdow-lg flex flex-col">
+      <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
 
         <div className="flex justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.client}</p>
@@ -41,11 +41,11 @@ const Card = (props: any) => {
             </span>
             <span className="flex text-gray-400 w-full">
               <AiOutlineRise />
-              $
+              €
             </span>
             <span className="flex text-gray-400">
               <AiOutlineTeam />
-              22
+              {project.users.length}
             </span>
           </div>
         </div>

@@ -21,7 +21,7 @@ function Sidebar() {
         <div className="flex h-screen overflow-y-auto flex-col bg-white  w-64 px-4 py-8 border-r min-h-screen relative">
           <h2 className="text-3xl font-semibold text-gray-800">
             WAT
-            <span className="text-indigo-500 ml-1">son</span>
+            <span className="text-blue-500 ml-1">son</span>
           </h2>
           <div className="flex flex-col mt-6  justify-between flex-1">
             <nav className="text">
