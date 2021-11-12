@@ -48,8 +48,8 @@ export const Projects = {
     status: 'inProgress',
     landmarks: [0],
     images: {
-      toAnnotate: ['image1'],
-      toVerify: ['image2'],
+      toAnnotate: [{ imageId: 'image1', annotator: 'dummyLoggedInUserId' }],
+      toVerify: [{ imageId: 'image2', annotator: 'dummyLoggedInUserId', verifier: 'dummyUserId' }],
       done: [],
     },
   },

@@ -33,7 +33,7 @@ export async function getImages(
     return Promise.all(user.projects[projectID][status].map((id) => findImageById(id)));
   }
   const project = await findProjectById(projectID);
-  return Promise.all(project.images[status].map((id) => findImageById(id)));
+  return Promise.all(project.images[status].map((entry) => findImageById(entry.imageId)));
 }
 
 /**
@@ -65,7 +65,7 @@ export async function saveAnnotation(
   }
 
   // check if the image is waiting to be annotated.
-  const imageIndex = project.images.toAnnotate.findIndex((id) => id === projectId);
+  const imageIndex = project.images.toAnnotate.findIndex((entry) => entry.imageId === projectId);
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
@@ -73,6 +73,6 @@ export async function saveAnnotation(
   image.annotation = annotation;
 
   // move to toVerify
+  project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex], verifier: null });
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
-  project.images.toVerify.push(imageId);
 }

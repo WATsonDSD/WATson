@@ -28,9 +28,9 @@ export type Project = {
     landmarks: LandmarkSpecification,
 
     images: {
-        toAnnotate: ImageID[],
-        toVerify: ImageID[],
-        done: ImageID[],
+        toAnnotate: {imageId: ImageID, annotator: UserID | null}[],
+        toVerify: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
+        done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
     }
 }
 

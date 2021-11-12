@@ -74,6 +74,7 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 
 /**
  * Assigns an id to the image with the given `ImageData` and adds it to the project.
+ * ! This function does not assign an annotator (for now).
  */
 export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
   const imageId = new Date().toJSON(); // unique id's.
@@ -84,7 +85,7 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
     data,
   };
 
-  project.images.toAnnotate.push(imageId);
+  project.images.toAnnotate.push({ imageId, annotator: null });
 
   return imageId;
 }
