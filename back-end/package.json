@@ -7,6 +7,8 @@
     "init_couchdb": "node ./init_couchdb.js"
   },
   "dependencies": {
-    "pouchdb": "^7.2.2"
+    "@types/pouchdb": "^6.4.0",
+    "pouchdb": "^7.2.2",
+    "typescript": "^4.4.4"
   }
 }
