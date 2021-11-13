@@ -1,14 +1,17 @@
 {
   "name": "back-end",
-  "version": "1.0.0",
-  "type": "module",
+  "version": "1.0.4",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "init_couchdb": "node ./init_couchdb.js"
+    "build": "tsc",
+    "prepare": "npm run build",
+    "start": "npm run build && node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.13",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@types/pouchdb": "^6.4.0",
-    "pouchdb": "^7.2.2",
-    "typescript": "^4.4.4"
+    "sitka": "^1.0.5"
   }
 }
