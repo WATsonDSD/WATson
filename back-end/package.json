@@ -1,17 +1,19 @@
 {
   "name": "back-end",
   "version": "1.0.4",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
-    "start": "npm run build && node dist/index.js"
+    "start": "npm run build && node dist/index.js",
+    "init_db": "npm run build && node dist/init_db.js"
   },
   "devDependencies": {
-    "@types/node": "^16.4.13",
-    "ts-node": "^10.0.0",
+    "@types/pouchdb": "^6.4.0",
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@types/node": "^16.11.7",
+    "pouchdb": "^7.2.2",
     "sitka": "^1.0.5"
   }
 }
