@@ -28,13 +28,16 @@ export async function createUser(name: string, email: string, role: Role): Promi
   // unique Id's, should work for now.
   const id = new Date().toISOString();
 
-  Users[id] = {
+  const user = {
+    _id: id,
     id,
     name,
     email,
     role,
     projects: {}, // a new user has no projects.
   };
+
+  await usersDB.put(user);
 
   return id;
 }

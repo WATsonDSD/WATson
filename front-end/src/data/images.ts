@@ -2,7 +2,7 @@ import {
   ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
-import { usersDB } from './databases';
+import { imagesDB, projectsDB, usersDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -71,4 +71,8 @@ export async function saveAnnotation(
   // move to toVerify
   project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex], verifier: null });
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
+
+  // reflect the changes to the DB.
+  imagesDB.put(image);
+  projectsDB.put(project);
 }

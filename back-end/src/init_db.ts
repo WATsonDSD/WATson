@@ -1,4 +1,3 @@
-import PouchDB from "pouchdb";
 import { Users, Projects, Images } from "./data/dummyData.js";
 import { usersDB, projectsDB, imagesDB } from "./databases.js";
 

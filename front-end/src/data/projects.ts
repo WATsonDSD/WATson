@@ -2,8 +2,7 @@ import {
   findUserById,
   LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
 } from '.';
-import { projectsDB } from './databases';
-import { Images, Projects } from './dummyData';
+import { imagesDB, projectsDB, usersDB } from './databases';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
   return projectsDB.get(id);
@@ -34,7 +33,8 @@ export async function createProject(
 ) : Promise<ProjectID> {
   const id = new Date().toISOString(); // unique id's.
 
-  Projects[id] = {
+  const project = {
+    _id: id,
     id,
     users: [], // A newly created project has no users.
     name,
@@ -48,7 +48,9 @@ export async function createProject(
       toVerify: [],
       done: [],
     },
-  };
+  } as Project;
+
+  await projectsDB.put(project);
   return id;
 }
 
@@ -59,6 +61,7 @@ export async function createProject(
 export async function addUserToProject(userId: UserID, projectId: ProjectID): Promise<void> {
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
+
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
 
   project.users.push(userId);
@@ -67,6 +70,9 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     toVerify: [],
     done: [],
   };
+
+  projectsDB.put(project);
+  usersDB.put(user);
 }
 
 /**
@@ -77,12 +83,14 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   const imageId = new Date().toJSON(); // unique id's.
   const project = await findProjectById(projectId);
 
-  Images[imageId] = {
+  await imagesDB.put({
+    _id: imageId,
     id: imageId,
     data,
-  };
+  });
 
   project.images.toAnnotate.push({ imageId, annotator: null });
+  projectsDB.put(project);
 
   return imageId;
 }
