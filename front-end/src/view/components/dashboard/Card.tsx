@@ -4,17 +4,17 @@ import DropDown from './Dropdown';
 // import { Project } from '../../../data';
 
 const Card = (props: any) => {
-  const { project } = props;
+  const { project, actions } = props;
 
   return (
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="flex-initial">
       <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
 
         <div className="flex justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.client}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
-            <DropDown />
+            <DropDown elements={actions.map((element: any) => <span>{element.text}</span>)} />
           </div>
         </div>
         <div className="flex justify-between py-0">

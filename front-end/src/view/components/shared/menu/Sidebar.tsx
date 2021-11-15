@@ -8,7 +8,7 @@ import { links } from './MenuConfig';
 function Sidebar() {
   const user = useData(() => {
     logIn('testLogIn', 'pwd123');
-    return getLoggedInUser();
+    return getLoggedInUser('');
   });
 
   return (

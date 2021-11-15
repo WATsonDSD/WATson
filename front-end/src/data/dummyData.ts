@@ -31,6 +31,62 @@ export const Users = {
         toVerify: [],
         done: ['image2'],
       },
+      dummyProject2: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject3: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+    },
+  },
+  dummyLoggedInVUserId: {
+    id: 'dummyLoggedInUserId',
+    name: 'Dummy Logged In User',
+    email: 'loggedIn@dummy.com',
+    role: 'verifier',
+    projects: {
+      dummyProject1: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject2: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject3: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+    },
+  },
+  dummyLoggedInPMUserId: {
+    id: 'dummyLoggedInUserId',
+    name: 'Dummy Logged In User',
+    email: 'loggedIn@dummy.com',
+    role: 'projectManager',
+    projects: {
+      dummyProject1: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject2: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject3: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
     },
   },
 } as {
@@ -40,7 +96,35 @@ export const Users = {
 export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
-    users: ['dummyUserId', 'dummyLoggedInUserId'],
+    users: ['dummyUserId', 'dummyLoggedInUserId', 'dummyLoggedInVUserId', 'dummyLoggedInPMUserId'],
+    client: 'Dummy Client Inc.',
+    startDate: new Date(),
+    endDate: new Date(),
+    status: 'inProgress',
+    landmarks: [0],
+    images: {
+      toAnnotate: ['image1'],
+      toVerify: ['image2'],
+      done: [],
+    },
+  },
+  dummyProject2: {
+    id: 'dummyProject2',
+    users: ['dummyUserId', 'dummyLoggedInUserId', 'dummyLoggedInVUserId', 'dummyLoggedInPMUserId'],
+    client: 'Dummy Client Inc.',
+    startDate: new Date(),
+    endDate: new Date(),
+    status: 'inProgress',
+    landmarks: [0],
+    images: {
+      toAnnotate: ['image1'],
+      toVerify: ['image2'],
+      done: [],
+    },
+  },
+  dummyProject3: {
+    id: 'dummyProject3',
+    users: ['dummyUserId', 'dummyLoggedInUserId', 'dummyLoggedInVUserId', 'dummyLoggedInPMUserId'],
     client: 'Dummy Client Inc.',
     startDate: new Date(),
     endDate: new Date(),

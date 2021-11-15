@@ -9,6 +9,7 @@ function classNames(...classes: any) {
 
 const Dropdown = (props: any) => {
   const { text, elements } = props;
+  let counter = 0;
   return (
 
     <div className="Dropdown">
@@ -31,21 +32,24 @@ const Dropdown = (props: any) => {
         >
           <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
-              { elements?.map((element : JsxElement) => (
-                <Menu.Item>
-                  {({ active }) => (
-
-                    <span
-                      className={classNames(
-                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                        'block px-4 py-2 text-sm',
-                      )}
-                    >
-                      {element}
-                    </span>
-                  )}
-                </Menu.Item>
-              ))}
+              {elements?.map((element : JsxElement) => {
+                counter += 1;
+                return (
+                  <Menu.Item key={counter}>
+                    {({ active }) => (
+                      <span
+                        key={counter}
+                        className={classNames(
+                          active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                          'block px-4 py-2 text-sm',
+                        )}
+                      >
+                        {element}
+                      </span>
+                    )}
+                  </Menu.Item>
+                );
+              })}
 
             </div>
           </Menu.Items>
