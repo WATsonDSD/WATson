@@ -2,7 +2,7 @@ import {
   ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
-import { imagesDB, projectsDB, usersDB } from './databases';
+import { imagesDB, projectsDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -12,7 +12,7 @@ import { imagesDB, projectsDB, usersDB } from './databases';
  */
 
 export async function findImageById(id: ImageID): Promise<Image> {
-  return usersDB.get(id);
+  return imagesDB.get(id);
 }
 
 /**
@@ -61,7 +61,7 @@ export async function saveAnnotation(
   }
 
   // check if the image is waiting to be annotated.
-  const imageIndex = project.images.toAnnotate.findIndex((entry) => entry.imageId === projectId);
+  const imageIndex = project.images.toAnnotate.findIndex((entry) => entry.imageId === imageId);
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
@@ -73,6 +73,6 @@ export async function saveAnnotation(
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
 
   // reflect the changes to the DB.
-  imagesDB.put(image);
-  projectsDB.put(project);
+  await imagesDB.put(image);
+  await projectsDB.put(project);
 }

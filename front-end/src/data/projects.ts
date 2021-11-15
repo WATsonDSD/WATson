@@ -71,8 +71,8 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     done: [],
   };
 
-  projectsDB.put(project);
-  usersDB.put(user);
+  await projectsDB.put(project);
+  await usersDB.put(user);
 }
 
 /**
@@ -83,14 +83,14 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   const imageId = new Date().toJSON(); // unique id's.
   const project = await findProjectById(projectId);
 
+  project.images.toAnnotate.push({ imageId, annotator: null });
+
   await imagesDB.put({
     _id: imageId,
     id: imageId,
     data,
   });
 
-  project.images.toAnnotate.push({ imageId, annotator: null });
-  projectsDB.put(project);
-
+  await projectsDB.put(project);
   return imageId;
 }
