@@ -24,6 +24,7 @@
     "no-use-before-define": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
     "no-console": "off",
-    "linebreak-style": 0
-    }
+    "linebreak-style": 0,
+    "no-trailing-spaces": ["error", { "ignoreComments": true }]
+  }
 }
