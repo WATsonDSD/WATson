@@ -1,13 +1,9 @@
 import { findProjectById, ProjectID } from '.';
-import { Users } from './dummyData';
+import { usersDB } from './databases';
 import { Role, User, UserID } from './types';
 
 export async function findUserById(id: UserID): Promise<User> {
-  const res = Users[id];
-  if (!res) {
-    throw Error(`A user with id ${id} does not exist!`);
-  }
-  return res;
+  return usersDB.get(id);
 }
 
 /**

@@ -1,8 +1,8 @@
-import { Images } from './dummyData';
 import {
   ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
+import { usersDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -12,11 +12,7 @@ import {
  */
 
 export async function findImageById(id: ImageID): Promise<Image> {
-  const res = Images[id];
-  if (!res) {
-    throw Error(`An image with id ${id} does not exist!`);
-  }
-  return res;
+  return usersDB.get(id);
 }
 
 /**

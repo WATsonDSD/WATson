@@ -2,14 +2,11 @@ import {
   findUserById,
   LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
 } from '.';
+import { projectsDB } from './databases';
 import { Images, Projects } from './dummyData';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
-  const res = Projects[id];
-  if (!res) {
-    throw Error(`A project with id ${id} does not exist!`);
-  }
-  return res;
+  return projectsDB.get(id);
 }
 
 /**
