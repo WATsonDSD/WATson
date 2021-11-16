@@ -5,6 +5,8 @@ import {
 } from '.';
 import { findImageById, getImages } from './images';
 
+jest.mock('./databases');
+
 test('Can find created project', async () => {
   const id = await createProject('Test Project', 'The Flintstones', []);
   const name = findProjectById(id).then((project) => project.name);

@@ -3,6 +3,8 @@ import {
 } from '.';
 import { findImageById, getImages, saveAnnotation } from './images';
 
+jest.mock('./databases');
+
 describe('addAnnotation', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
