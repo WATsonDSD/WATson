@@ -1,6 +1,6 @@
 import { findProjectById, ProjectID } from '.';
 import { usersDB } from './databases';
-import { Role, User, UserID } from './types';
+import { Role, User, UserID } from '../../../shared';
 
 export async function findUserById(id: UserID): Promise<User> {
   return usersDB.get(id);

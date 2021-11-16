@@ -22,5 +22,11 @@
   },
   "include": [
     "src"
+  ],
+  "references": [
+    { 
+        "path": "../shared",
+        // "prepend": true,
+    }
   ]
 }
