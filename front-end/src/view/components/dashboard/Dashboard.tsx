@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   const projects = useData(async () => {
     const user = await getLoggedInUser(role);
-    return getProjectsOfUser(user);
+    return getProjectsOfUser(user.id);
   });
 
   const addProjectButton = (

@@ -119,6 +119,8 @@ export const Users = {
 export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
+    users: ['dummyUserId', 'dummyLoggedInUserId', 'dummyLoggedInVUserId', 'dummyLoggedInPMUserId'],
+    name: 'Dummy Project .',
     client: 'Dummy Client Inc.',
     startDate: new Date().toJSON(),
     endDate: '',
