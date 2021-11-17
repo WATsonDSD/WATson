@@ -1,7 +1,6 @@
 import { AiOutlineRise, AiOutlineTeam, AiOutlineRedo } from 'react-icons/ai';
 import React from 'react';
 import DropDown from './Dropdown';
-// import { Project } from '../../../data';
 
 const Card = (props: any) => {
   const { project, actions } = props;

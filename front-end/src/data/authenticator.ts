@@ -36,6 +36,8 @@ export async function getLoggedInUser(role: string | null): Promise<User> {
       return findUserById('dummyLoggedInVUserId');
     case 'projectManager':
       return findUserById('dummyLoggedInPMUserId');
+    case 'finance':
+      return findUserById('dummyLoggedInFUserId');
     default:
       return findUserById('dummyLoggedInUserId');
   }

@@ -66,6 +66,29 @@ export const Users = {
       },
     },
   },
+  dummyLoggedInFUserId: {
+    id: 'dummyLoggedInUserId',
+    name: 'Dummy Logged In User',
+    email: 'loggedIn@dummy.com',
+    role: 'finance',
+    projects: {
+      dummyProject1: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject2: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+      dummyProject3: {
+        toAnnotate: ['image1'],
+        toVerify: [],
+        done: ['image2'],
+      },
+    },
+  },
   dummyLoggedInPMUserId: {
     id: 'dummyLoggedInUserId',
     name: 'Dummy Logged In User',
