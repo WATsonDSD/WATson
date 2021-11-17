@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import template from './template.png';
-import { Annotation, Image } from '../data';
+import { Annotation, Image, ImageID } from '../data';
 import { findImageById } from '../data/images';
 
 const templateImage: Image = {
@@ -16,9 +16,29 @@ const templateImage: Image = {
   },
 };
 
-class AnnotationView extends React.Component<{ imageId: string }> {
-  // eslint-disable-next-line max-len
-  static nextLandmark(imageAnnotation: Annotation|undefined, templateAnnotation: Annotation|undefined): number|null {
+function AnnotationView(props: { imageId: ImageID }) {
+  const initialState: {
+    imageToAnnotate: Image,
+    landmarkId: number|null,
+    landmarkZ: number,
+  } = {
+    imageToAnnotate: templateImage,
+    landmarkId: null,
+    landmarkZ: 1,
+  };
+  const [state, setState] = useState(initialState);
+
+  useEffect(() => {
+    findImageById(props.imageId).then((result) => {
+      setState({
+        ...state,
+        imageToAnnotate: result,
+        landmarkId: nextLandmark(result.annotation, templateImage.annotation),
+      });
+    });
+  }, []);
+
+  const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
     if (templateAnnotation === undefined) return null;
     if (imageAnnotation === undefined) return 0;
 
@@ -26,96 +46,72 @@ class AnnotationView extends React.Component<{ imageId: string }> {
       (id: string) => imageAnnotation[+id] === undefined,
     );
     return strId === undefined ? null : +strId;
-  }
+  };
 
-  state = {
-    imageToAnnotate: templateImage,
-    landmarkId: 0,
-    landmarkZ: 1,
-  }
-
-  componentDidMount() {
-    const { imageId } = this.props;
-    findImageById(imageId).then((result) => {
-      // this.state.imageToAnnotate = { ...result, annotation: { 3: { x: 0.3, y: 0.4, z: 1 } } };
-      this.setState({
-        imageToAnnotate: result,
-        // eslint-disable-next-line max-len
-        landmarkId: AnnotationView.nextLandmark(result.annotation, templateImage.annotation),
+  const onImageClick = (ctx: any, event: MouseEvent) => {
+    if (templateImage.annotation && state.landmarkId != null) {
+      const x = event.clientX / ctx.canvas.width;
+      const y = event.clientY / ctx.canvas.height;
+      if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
+      state.imageToAnnotate.annotation[state.landmarkId] = { x, y, z: state.landmarkZ };
+      setState({
+        ...state,
+        landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
       });
-      this.forceUpdate();
-    });
-  }
+    } else {
+      alert('You annotated every landmark in this image');
+    }
+  };
 
-  render() {
-    const { imageToAnnotate, landmarkId, landmarkZ } = this.state;
+  const changeLandmarkType = (z: number) => {
+    setState({ ...state, landmarkZ: z });
+  };
 
-    const onImageClick = (ctx: any, event: MouseEvent) => {
-      if (templateImage.annotation) {
-        const x = event.clientX / ctx.canvas.width;
-        const y = event.clientY / ctx.canvas.height;
-        if (!imageToAnnotate.annotation) imageToAnnotate.annotation = {};
-        imageToAnnotate.annotation[landmarkId] = { x, y, z: landmarkZ };
-        this.setState({
-          // eslint-disable-next-line max-len
-          landmarkId: AnnotationView.nextLandmark(imageToAnnotate.annotation, templateImage.annotation),
-        });
-      } else {
-        alert('You annotated every landmark in this image');
-      }
-    };
-
-    const changeLandmarkType = (z: number) => {
-      this.setState({ landmarkZ: z });
-    };
-
-    return (
-      <div className="Annotation">
-        <div className="">
-          <AnnotatedImage image={imageToAnnotate} onClick={onImageClick} />
-          <div className="image-controller">
-            <button type="button" id="previous-image">Previous Image</button>
-            <button type="button" id="zoom-in">+</button>
-            <button type="button" id="zoom-out">-</button>
-            {/* <Slider id="change-contrast">Contrast</Slider>
-          <Slider id="change-brightness">Brighness</Slider> */}
-            <button type="button" id="next-image">Next Image</button>
-          </div>
-        </div>
-        <div className="annotation-controller">
-          <button type="button" id="undo">Undo</button>
-          <AnnotatedImage image={templateImage} highlightedLandmark={landmarkId} />
-          <div className="landmark-type">
-            Landmark Type
-            <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
-            <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
-            <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
-          </div>
-        </div>
-        <div className="landmark-list">
-          <ul>
-            {
-            imageToAnnotate.annotation
-              ? Object.entries(imageToAnnotate.annotation)
-                .map(([id, point]) => (
-                  <li>
-                    { id }
-                    : (
-                    {point.x}
-                    ,
-                    {point.y}
-                    ,
-                    {point.z}
-                    )
-                  </li>
-                ))
-              : 'Could not get landmarks'
-          }
-          </ul>
+  return (
+    <div className="Annotation">
+      <div className="">
+        <AnnotatedImage image={state.imageToAnnotate} onClick={onImageClick} />
+        <div className="image-controller">
+          <button type="button" id="previous-image">Previous Image</button>
+          <button type="button" id="zoom-in">+</button>
+          <button type="button" id="zoom-out">-</button>
+          {/* <Slider id="change-contrast">Contrast</Slider>
+        <Slider id="change-brightness">Brighness</Slider> */}
+          <button type="button" id="next-image">Next Image</button>
         </div>
       </div>
-    );
-  }
+      <div className="annotation-controller">
+        <button type="button" id="undo">Undo</button>
+        <AnnotatedImage image={templateImage} highlightedLandmark={state.landmarkId} />
+        <div className="landmark-type">
+          Landmark Type
+          <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
+          <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
+          <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
+        </div>
+      </div>
+      <div className="landmark-list">
+        <ul>
+          {
+            state.imageToAnnotate.annotation
+              ? Object.entries(state.imageToAnnotate.annotation).map(([id, point]) => (
+                <li>
+                  { id }
+                  : (
+                  {point.x}
+                  ,
+                  {point.y}
+                  ,
+                  {point.z}
+                  )
+                </li>
+              ))
+              : 'Could not get landmarks'
+          }
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 // Used for template image, image to annotate and image to verify.
@@ -154,7 +150,7 @@ function AnnotatedImage(props: {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context: any = (canvas || { getContext: (str: string) => { throw str; } }).getContext('2d');
+    const context: any = (canvas || { getContext: (s: string) => { throw s; } }).getContext('2d');
     draw(context);
     if (onClick) context.canvas.onclick = (event: any) => onClick(context, event);
   }, [draw]);
