@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
-import template from './template.png';
-import { Annotation, Image, ImageID } from '../data';
-import { findImageById } from '../data/images';
+import React, { useEffect, useState } from 'react';
+import { Annotation, Image, ImageID } from '../../../data';
+import { findImageById } from '../../../data/images';
+import AnnotatedImage from './AnnoatedImage';
 
 const templateImage: Image = {
   id: 'template',
@@ -16,7 +16,19 @@ const templateImage: Image = {
   },
 };
 
-function AnnotationView(props: { imageId: ImageID }) {
+/* TODO: Keyboard shortcuts
+Right Click - Not visible landmark (Code 0) (oncontextmenu="")
+Left Click - Visible landmark (Code 1)
+Shift+Left Click -Occluded landmark (Code 2) (event.ctrlKey)
+a - Go to previous image
+d -  Go to next image
+s - Save image landmarks
+Mouse Scroll - Zoom In/Out
+g - Optical Flow prediction
+backspace - undo last landmark
+*/
+
+export default function AnnotationView(props: { imageId: ImageID }) {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId: number|null,
@@ -75,8 +87,8 @@ function AnnotationView(props: { imageId: ImageID }) {
           <button type="button" id="previous-image">Previous Image</button>
           <button type="button" id="zoom-in">+</button>
           <button type="button" id="zoom-out">-</button>
-          {/* <Slider id="change-contrast">Contrast</Slider>
-        <Slider id="change-brightness">Brighness</Slider> */}
+          {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
+        <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
           <button type="button" id="next-image">Next Image</button>
         </div>
       </div>
@@ -113,50 +125,3 @@ function AnnotationView(props: { imageId: ImageID }) {
     </div>
   );
 }
-
-// Used for template image, image to annotate and image to verify.
-// Has a background image and some points drawn on it that represents landmarks
-AnnotatedImage.defaultProps = { onClick: null, highlightedLandmark: null };
-function AnnotatedImage(props: {
-  image: Image,
-  onClick?: Function|null,
-  highlightedLandmark?: number|null,
-}) {
-  const { image, onClick, highlightedLandmark } = props;
-
-  const canvasRef = useRef(null);
-
-  const draw = (ctx: any) => {
-    const backgroundImage = new window.Image();
-    backgroundImage.src = (image.data || template);
-    backgroundImage.onload = () => {
-      ctx.drawImage(backgroundImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
-      if (image.annotation) {
-        Object.entries(image.annotation).forEach(([id, point]) => {
-          const colors: any = { 0: '#FF0000', 1: '#0000FF', 2: '#22AA00' };
-          ctx.fillStyle = colors[point.z];
-          ctx.beginPath();
-          ctx.arc(point.x * ctx.canvas.width, point.y * ctx.canvas.height, 5, 0, 2 * Math.PI);
-          ctx.fill();
-          if (highlightedLandmark === +id) {
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-          }
-        });
-      }
-    };
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context: any = (canvas || { getContext: (s: string) => { throw s; } }).getContext('2d');
-    draw(context);
-    if (onClick) context.canvas.onclick = (event: any) => onClick(context, event);
-  }, [draw]);
-
-  return <canvas ref={canvasRef} width="300" height="300" />;
-}
-
-export default AnnotationView;
-export { AnnotatedImage };
