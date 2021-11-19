@@ -12,7 +12,15 @@ import { imagesDB, projectsDB } from './databases';
  */
 
 export async function findImageById(id: ImageID): Promise<Image> {
-  return imagesDB.get(id);
+  return imagesDB.get(id); // returns an Image object without the _attachment property.
+  // you need to fetch the attachment.
+  // you need to convert the attachment (which is in a format that can be stored in the DB)
+  //    to the format that can be drawn on the screen.
+  // you need to return the attachment in the `data` field.
+
+  // View <- DrawableFormat <-> StorableFormat -> DB
+  // the type `Image` should contain the DrawableFormat for the view to use.
+  // the `StorableFormat` should be in _attachment field in the DB document.
 }
 
 /**
