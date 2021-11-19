@@ -1,4 +1,4 @@
-import { Project, User, Image } from '.';
+import { Project, User, Image } from './types';
 
 /*
     Some internally consistent dummy data.
@@ -41,15 +41,14 @@ export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
     users: ['dummyUserId', 'dummyLoggedInUserId'],
-    name: 'Dummy Project 1',
     client: 'Dummy Client Inc.',
-    startDate: new Date().toJSON(),
-    endDate: '',
+    startDate: new Date(),
+    endDate: new Date(),
     status: 'inProgress',
     landmarks: [0],
     images: {
-      toAnnotate: [{ imageId: 'image1', annotator: 'dummyLoggedInUserId' }],
-      toVerify: [{ imageId: 'image2', annotator: 'dummyLoggedInUserId', verifier: 'dummyUserId' }],
+      toAnnotate: ['image1'],
+      toVerify: ['image2'],
       done: [],
     },
   },
