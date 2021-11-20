@@ -17,9 +17,6 @@ const templateImage: Image = {
 };
 
 /* TODO: Keyboard shortcuts
-Right Click - Not visible landmark (Code 0) (oncontextmenu="")
-Left Click - Visible landmark (Code 1)
-Shift+Left Click -Occluded landmark (Code 2) (event.ctrlKey)
 a - Go to previous image
 d -  Go to next image
 s - Save image landmarks
@@ -64,8 +61,8 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
-      const x = event.clientX / ctx.canvas.width;
-      const y = event.clientY / ctx.canvas.height;
+      const x = (event.clientX - ctx.canvas.offsetLeft) / ctx.canvas.width;
+      const y = (event.clientY - ctx.canvas.offsetTop) / ctx.canvas.height;
       let z = state.landmarkZ;
       if (rightClick) z = 0;
       else if (event.ctrlKey) z = 2;
