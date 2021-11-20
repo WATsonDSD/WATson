@@ -51,6 +51,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   }, []);
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
+    // TODO: move to logic
     if (templateAnnotation === undefined) return undefined;
     if (imageAnnotation === undefined) return 0;
 
@@ -61,6 +62,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   };
 
   const onImageClick = (ctx: any, event: MouseEvent) => {
+    // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
       const x = event.clientX / ctx.canvas.width;
       const y = event.clientY / ctx.canvas.height;
@@ -79,10 +81,43 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     setState({ ...state, landmarkZ: z });
   };
 
+  const templateLandmarkColor = (id: number) => {
+    if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
+      if (id === state.landmarkId) {
+        return { fill: '#0000FF', stroke: '#FFFFFF' };
+      }
+      return { stroke: '#FFFFFF' };
+    }
+    if (state.imageToAnnotate.annotation[id].z === 0) {
+      return { fill: '#FF0000' };
+    }
+    if (state.imageToAnnotate.annotation[id].z === 2) {
+      return { fill: '#40C000' };
+    }
+    return { fill: '#525252' };
+  };
+
+  const imageLandmarkColor = (id: number) => {
+    if (!state.imageToAnnotate.annotation
+      || !state.imageToAnnotate.annotation[id]
+      || state.imageToAnnotate.annotation[id].z === 0) {
+      return { };
+    }
+    if (state.imageToAnnotate.annotation[id].z === 2) {
+      return { fill: '#0080FF' };
+    }
+    return { fill: '#525252' };
+  };
+
   return (
     <div className="Annotation">
       <div className="">
-        <AnnotatedImage image={state.imageToAnnotate} onClick={onImageClick} hideNonVisible />
+        <AnnotatedImage
+          image={state.imageToAnnotate}
+          onClick={onImageClick}
+          hideNonVisible
+          landmarkColor={imageLandmarkColor}
+        />
         <div className="image-controller">
           <button type="button" id="previous-image">Previous Image</button>
           <button type="button" id="zoom-in">+</button>
@@ -94,7 +129,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
       </div>
       <div className="annotation-controller">
         <button type="button" id="undo">Undo</button>
-        <AnnotatedImage image={templateImage} highlightedLandmark={state.landmarkId} />
+        <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
         <div className="landmark-type">
           Landmark Type
           <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
