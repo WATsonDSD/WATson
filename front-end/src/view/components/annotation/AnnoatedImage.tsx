@@ -2,13 +2,22 @@ import React, { useRef, useEffect } from 'react';
 import template from './template.png';
 import { Image } from '../../../data';
 
+const colors: any = { 0: '#FF0000', 1: '#0000FF', 2: '#22AA00' };
+
 // Used for template image, image to annotate and image to verify.
 // Has a background image and some points drawn on it that represents landmarks
-AnnotatedImage.defaultProps = { onClick: null, highlightedLandmark: null };
+AnnotatedImage.defaultProps = {
+  onClick: undefined,
+  highlightedLandmark: undefined,
+  hideNonVisible: false,
+  landmarkColor: undefined,
+};
 export default function AnnotatedImage(props: {
   image: Image,
-  onClick?: Function|null,
-  highlightedLandmark?: number|null,
+  onClick?: Function,
+  highlightedLandmark?: number,
+  hideNonVisible?: boolean,
+  landmarkColor?: Function,
 }) {
   const { image, onClick, highlightedLandmark } = props;
 
@@ -21,8 +30,12 @@ export default function AnnotatedImage(props: {
       ctx.drawImage(backgroundImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
       if (image.annotation) {
         Object.entries(image.annotation).forEach(([id, point]) => {
-          const colors: any = { 0: '#FF0000', 1: '#0000FF', 2: '#22AA00' };
-          ctx.fillStyle = colors[point.z];
+          if (props.hideNonVisible && point.z === 0) return;
+          if (props.landmarkColor) {
+            ctx.fillStyle = props.landmarkColor(id);
+          } else {
+            ctx.fillStyle = colors[point.z];
+          }
           ctx.beginPath();
           ctx.arc(point.x * ctx.canvas.width, point.y * ctx.canvas.height, 5, 0, 2 * Math.PI);
           ctx.fill();
