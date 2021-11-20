@@ -111,51 +111,43 @@ export default function AnnotationView(props: { imageId: ImageID }) {
 
   return (
     <div className="Annotation">
-      <div className="">
-        <AnnotatedImage
-          image={state.imageToAnnotate}
-          onClick={onImageClick}
-          hideNonVisible
-          landmarkColor={imageLandmarkColor}
-        />
-        <div className="image-controller">
-          <button type="button" id="previous-image">Previous Image</button>
-          <button type="button" id="zoom-in">+</button>
-          <button type="button" id="zoom-out">-</button>
-          {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
-        <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
-          <button type="button" id="next-image">Next Image</button>
-        </div>
-      </div>
       <div className="annotation-controller">
-        <button type="button" id="undo">Undo</button>
-        <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+        <button type="button">Undo (wip)</button>
+        <button type="button">Delete (wip)</button>
         <div className="landmark-type">
           Landmark Type
           <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
           <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
           <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
         </div>
+        <button type="button">+(wip)</button>
+        <button type="button">-(wip)</button>
+        {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
+        <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
       </div>
-      <div className="landmark-list">
-        <ul>
+      <div className="middle">
+        <AnnotatedImage
+          image={state.imageToAnnotate}
+          onClick={onImageClick}
+          hideNonVisible
+          landmarkColor={imageLandmarkColor}
+        />
+        <button type="button">Previous Image (wip)</button>
+        <button type="button">Next Image (wip)</button>
+      </div>
+      <div className="right">
+        <div className="landmark-info">
+          Landmarks set:
           {
             state.imageToAnnotate.annotation
-              ? Object.entries(state.imageToAnnotate.annotation).map(([id, point]) => (
-                <li>
-                  { id }
-                  : (
-                  {point.x}
-                  ,
-                  {point.y}
-                  ,
-                  {point.z}
-                  )
-                </li>
-              ))
-              : 'Could not get landmarks'
+              ? Object.keys(state.imageToAnnotate.annotation).length
+              : 0
           }
-        </ul>
+          /
+          {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+        </div>
+        <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+        <button type="button">Save (wip)</button>
       </div>
     </div>
   );
