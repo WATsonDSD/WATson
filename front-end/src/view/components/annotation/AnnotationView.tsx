@@ -61,13 +61,16 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     return strId === undefined ? undefined : +strId;
   };
 
-  const onImageClick = (ctx: any, event: MouseEvent) => {
+  const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
       const x = event.clientX / ctx.canvas.width;
       const y = event.clientY / ctx.canvas.height;
+      let z = state.landmarkZ;
+      if (rightClick) z = 0;
+      else if (event.ctrlKey) z = 2;
       if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
-      state.imageToAnnotate.annotation[state.landmarkId] = { x, y, z: state.landmarkZ };
+      state.imageToAnnotate.annotation[state.landmarkId] = { x, y, z };
       setState({
         ...state,
         landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
@@ -84,9 +87,9 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   const templateLandmarkColor = (id: number) => {
     if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
       if (id === state.landmarkId) {
-        return { fill: '#0000FF', stroke: '#FFFFFF' };
+        return { fill: '#FFFFFF', stroke: '#000000' };
       }
-      return { stroke: '#FFFFFF' };
+      return { stroke: '#525252' };
     }
     if (state.imageToAnnotate.annotation[id].z === 0) {
       return { fill: '#FF0000' };
@@ -104,7 +107,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
       return { };
     }
     if (state.imageToAnnotate.annotation[id].z === 2) {
-      return { fill: '#0080FF' };
+      return { fill: '#40C000' };
     }
     return { fill: '#525252' };
   };
