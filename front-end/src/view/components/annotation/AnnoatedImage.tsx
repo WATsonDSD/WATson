@@ -43,7 +43,11 @@ export default function AnnotatedImage(props: {
     const { onClick } = props;
     draw(context);
     if (onClick) {
-      context.canvas.onclick = (event: any) => onClick(context, event);
+      context.canvas.onclick = (event: any) => onClick(context, event, false);
+      context.canvas.oncontextmenu = (event: any) => {
+        event.preventDefault();
+        onClick(context, event, true);
+      };
     }
   }, [draw]);
 
