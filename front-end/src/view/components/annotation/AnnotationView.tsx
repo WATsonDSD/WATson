@@ -31,11 +31,11 @@ backspace - undo last landmark
 export default function AnnotationView(props: { imageId: ImageID }) {
   const initialState: {
     imageToAnnotate: Image,
-    landmarkId: number|null,
+    landmarkId?: number,
     landmarkZ: number,
   } = {
     imageToAnnotate: templateImage,
-    landmarkId: null,
+    landmarkId: undefined,
     landmarkZ: 1,
   };
   const [state, setState] = useState(initialState);
@@ -51,17 +51,17 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   }, []);
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
-    if (templateAnnotation === undefined) return null;
+    if (templateAnnotation === undefined) return undefined;
     if (imageAnnotation === undefined) return 0;
 
     const strId = Object.keys(templateAnnotation).find(
       (id: string) => imageAnnotation[+id] === undefined,
     );
-    return strId === undefined ? null : +strId;
+    return strId === undefined ? undefined : +strId;
   };
 
   const onImageClick = (ctx: any, event: MouseEvent) => {
-    if (templateImage.annotation && state.landmarkId != null) {
+    if (templateImage.annotation && state.landmarkId !== undefined) {
       const x = event.clientX / ctx.canvas.width;
       const y = event.clientY / ctx.canvas.height;
       if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
@@ -82,7 +82,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   return (
     <div className="Annotation">
       <div className="">
-        <AnnotatedImage image={state.imageToAnnotate} onClick={onImageClick} />
+        <AnnotatedImage image={state.imageToAnnotate} onClick={onImageClick} hideNonVisible />
         <div className="image-controller">
           <button type="button" id="previous-image">Previous Image</button>
           <button type="button" id="zoom-in">+</button>
