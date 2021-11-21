@@ -38,10 +38,13 @@ const actionsProject = [
 ];
 
 export default function Dashboard() {
-  const [role, setRole] = useState('annotator');
-
+  const role= useData(async () => {
+    const user = await getLoggedInUser();
+    return user.role;
+  });
+  
   const projects = useData(async () => {
-    const user = await getLoggedInUser(role);
+    const user = await getLoggedInUser();
     return getProjectsOfUser(user.id);
   });
 
