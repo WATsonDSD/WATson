@@ -31,16 +31,6 @@ export const Users = {
         toVerify: [],
         done: ['image2'],
       },
-      dummyProject2: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject3: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
     },
   },
 
