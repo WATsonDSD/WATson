@@ -1,14 +1,13 @@
 import { Menu, Transition } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 import { AiTwotoneEdit } from 'react-icons/ai';
-import { JsxElement } from 'typescript';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Dropdown = (props: {text: string, elements: ??[]}) => { // I don't know the type of elements.
-  const { text, elements } = props;
+const Dropdown = (props: {elements: ReactElement[]}) => {
+  const { elements } = props;
   let counter = 0;
   return (
 
@@ -17,7 +16,7 @@ const Dropdown = (props: {text: string, elements: ??[]}) => { // I don't know th
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button>
-            {text || <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold text-white mr-1"><AiTwotoneEdit /></span>}
+            <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold text-white mr-1"><AiTwotoneEdit /></span>
           </Menu.Button>
         </div>
 
@@ -32,7 +31,7 @@ const Dropdown = (props: {text: string, elements: ??[]}) => { // I don't know th
         >
           <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
-              {elements?.map((element : JsxElement) => {
+              {elements?.map((element : ReactElement) => {
                 counter += 1;
                 return (
                   <Menu.Item key={counter}>

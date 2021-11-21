@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BsPlusLg } from 'react-icons/bs';
 import { getLoggedInUser, getProjectsOfUser } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import Card from './Card';
-import Dropdown from './Dropdown';
 
 const actionsProject = [
   {
@@ -38,38 +37,25 @@ const actionsProject = [
 ];
 
 export default function Dashboard() {
-  const role= useData(async () => {
-    const user = await getLoggedInUser();
-    return user.role;
-  });
-  
   const projects = useData(async () => {
     const user = await getLoggedInUser();
     return getProjectsOfUser(user.id);
   });
 
   const addProjectButton = (
-    <button id="addProject" className="ml-4" type="button" onClick={() => setRole('annotator')}>
+    <button id="addProject" className="ml-4" type="button" onClick={() => null}>
       <BsPlusLg className="w-30 h-30" />
       {' '}
     </button>
   );
 
-  const changeRoleActions = [<button key="changeToAnnotator" className="w-full" type="button" onClick={() => setRole('annotator')}> Annotator </button>,
-    <button type="button" key="changeToVerifier" className="w-full" onClick={() => setRole('verifier')}> Verifier </button>,
-    <button type="button" key="changeToPM" className="w-full" onClick={() => setRole('projectManager')}> Project Manager </button>,
-    <button type="button" key="changeToF" className="w-full" onClick={() => setRole('finance')}> Finance </button>];
-
-  const actions = actionsProject.filter((action) => (
-    action.role === role
+  const actions = actionsProject.filter(() => (
+    true
   ));
   return (
     <div className="min-h-full w-full">
       <div>
-        <Header title={`Projects ${role}`} button={role === 'projectManager' ? addProjectButton : undefined} />
-        <div className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-20 ml-auto">
-          <Dropdown text="Change Role" elements={changeRoleActions} />
-        </div>
+        <Header title="Projects" button={addProjectButton} />
       </div>
 
       <div className="Card min-h-full">

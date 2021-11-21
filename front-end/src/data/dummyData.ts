@@ -43,75 +43,7 @@ export const Users = {
       },
     },
   },
-  dummyLoggedInVUserId: {
-    id: 'dummyLoggedInUserId',
-    name: 'Dummy Logged In User',
-    email: 'loggedIn@dummy.com',
-    role: 'verifier',
-    projects: {
-      dummyProject1: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject2: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject3: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-    },
-  },
-  dummyLoggedInFUserId: {
-    id: 'dummyLoggedInUserId',
-    name: 'Dummy Logged In User',
-    email: 'loggedIn@dummy.com',
-    role: 'finance',
-    projects: {
-      dummyProject1: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject2: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject3: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-    },
-  },
-  dummyLoggedInPMUserId: {
-    id: 'dummyLoggedInUserId',
-    name: 'Dummy Logged In User',
-    email: 'loggedIn@dummy.com',
-    role: 'projectManager',
-    projects: {
-      dummyProject1: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject2: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-      dummyProject3: {
-        toAnnotate: ['image1'],
-        toVerify: [],
-        done: ['image2'],
-      },
-    },
-  },
+
 } as {
     [id: string]: User,
 };

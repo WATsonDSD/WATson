@@ -28,17 +28,8 @@ export async function logOut(): Promise<boolean> {
 /**
  * Returns information about the currently authorized user.
  */
-export async function getLoggedInUser(role: string | null): Promise<User> {
+export async function getLoggedInUser(): Promise<User> {
   if (!loggedIn) throw Error('You need to call logIn before calling this function!');
   console.log('Returning dummy logged in user');
-  switch (role) {
-    case 'verifier':
-      return findUserById('dummyLoggedInVUserId');
-    case 'projectManager':
-      return findUserById('dummyLoggedInPMUserId');
-    case 'finance':
-      return findUserById('dummyLoggedInFUserId');
-    default:
-      return findUserById('dummyLoggedInUserId');
-  }
+  return findUserById('dummyLoggedInUserId');
 }

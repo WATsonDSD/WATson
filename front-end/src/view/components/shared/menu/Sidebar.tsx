@@ -1,15 +1,12 @@
 import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { getLoggedInUser, logIn } from '../../../../data';
+import { getLoggedInUser } from '../../../../data';
 import useData from '../../../../data/hooks';
 import { links } from './MenuConfig';
 
 function Sidebar() {
-  const user = useData(() => {
-    logIn('testLogIn', 'pwd123');
-    return getLoggedInUser('');
-  });
+  const user = useData(() => getLoggedInUser());
 
   return (
     <div id="sideMenu">

@@ -1,6 +1,6 @@
 import { AiOutlineRise, AiOutlineTeam, AiOutlineRedo } from 'react-icons/ai';
 import React from 'react';
-import DropDown from './Dropdown';
+import Dropdown from './Dropdown';
 
 const Card = (props: any) => {
   const { project, actions } = props;
@@ -13,7 +13,7 @@ const Card = (props: any) => {
         <div className="flex justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.client}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
-            <DropDown elements={actions.map((element: any) => <span>{element.text}</span>)} />
+            <Dropdown elements={actions.map(() => null)} />
           </div>
         </div>
         <div className="flex justify-between py-0">
