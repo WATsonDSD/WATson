@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import vcap from "./config/vcap-local.json";
 import { CloudantV1 } from "@ibm-cloud/cloudant";
+import { BasicAuthenticator } from 'ibm-cloud-sdk-core';
 
 // ! There could be a cleaner way to set up environment variables
 process.env.CLOUDANT_URL = vcap.services.cloudantNoSQLDB.credentials.url;
@@ -8,14 +9,16 @@ process.env.CLOUDANT_APIKEY = vcap.services.cloudantNoSQLDB.credentials.apikey;
 
 const server = fastify()
 
-const cloudant = CloudantV1.newInstance({
-  serviceName: "CLOUDANT",
+// ? How do i pass credentials?
+const authenticator = new BasicAuthenticator({
+  username: '{username}',
+  password: '{password}',
 });
 
-// Lists all the databases on Cloudant
-// cloudant.getAllDbs().then((response) => {
-//   console.log(response.result);
-// });
+const cloudant = CloudantV1.newInstance({
+  serviceName: "CLOUDANT",
+  authenticator: authenticator,
+});
 
 // An example with fastify
 server.get("/", async (request, reply) => {
