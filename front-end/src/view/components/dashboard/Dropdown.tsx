@@ -7,7 +7,7 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Dropdown = (props: any) => {
+const Dropdown = (props: {text: string, elements: ??[]}) => { // I don't know the type of elements.
   const { text, elements } = props;
   let counter = 0;
   return (
