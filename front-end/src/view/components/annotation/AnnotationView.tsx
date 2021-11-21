@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Annotation, Image, ImageID } from '../../../data';
 import { findImageById } from '../../../data/images';
-import AnnotatedImage from './AnnoatedImage';
+import AnnotatedImage from './AnnotatedImage';
 
 const templateImage: Image = {
   id: 'template',
