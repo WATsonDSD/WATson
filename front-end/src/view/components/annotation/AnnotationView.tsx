@@ -58,6 +58,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     return strId === undefined ? undefined : +strId;
   };
 
+  const lastLandmark = (imageAnnotation?: Annotation) => {
+    // TODO: move to logic
+    if (imageAnnotation === undefined) return undefined;
+
+    const strId = Object.keys(imageAnnotation).pop();
+    return strId === undefined ? undefined : +strId;
+  };
+
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
@@ -75,6 +83,21 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     } else {
       alert('You annotated every landmark in this image');
     }
+  };
+
+  const removeLandmark = (id: number|undefined) => {
+    if (state.imageToAnnotate.annotation && id !== undefined) {
+      delete state.imageToAnnotate.annotation[id];
+      setState({
+        ...state,
+        landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
+      });
+    } else {
+      console.warn(`Could not remove landmark with id: ${id}`);
+    }
+  };
+  const removeLastLandmark = () => {
+    removeLandmark(lastLandmark(state.imageToAnnotate.annotation));
   };
 
   const changeLandmarkType = (z: number) => {
@@ -112,7 +135,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   return (
     <div className="Annotation">
       <div className="annotation-controller">
-        <button type="button">Undo (wip)</button>
+        <button type="button" onClick={removeLastLandmark}>Undo</button>
         <button type="button">Delete (wip)</button>
         <div className="landmark-type">
           Landmark Type
