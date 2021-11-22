@@ -1,18 +1,31 @@
+import PouchDB from 'pouchdb';
+import PouchDBAuthentication from 'pouchdb-authentication';
 import { findUserById, User } from '.';
+import { usersDB } from './databases';
+
+PouchDB.plugin(PouchDBAuthentication);
 
 // temporary flag to enforce the user to log in before retrieving login related data.
-let loggedIn = false;
+const loggedIn = false;
 
 /**
  * Authenticates the system to access or modify data.
  * @returns the success of the login operation.
  */
-export async function logIn(username: string, password: string): Promise<boolean> {
-  // Qui andrà inserita l'effettiva funzione di login
-  loggedIn = true;
-  console.log(`Trying to log in with username: ${username} and password: ${password} \n
-        but it's not implemented yet.`);
-  return true;
+export async function logIn(email: string, password: string): Promise<boolean> {
+  // ! It's not clear why pouhdb authentication requires a specific database attached to it
+  usersDB.logIn(email, password, (err) => {
+    if (err) {
+      if (err.name === 'unauthorized' || err.name === 'forbidden') {
+      // name or password incorrect
+      } else {
+        // everything went smoothly!
+        // when loggedIn becomes true i want to be rerouted to my dashboard
+        // loggedIn = true;
+      }
+    }
+  });
+  return loggedIn;
 }
 
 /**
@@ -21,16 +34,31 @@ export async function logIn(username: string, password: string): Promise<boolean
  */
 export async function logOut(): Promise<boolean> {
   if (!loggedIn) throw Error('You need to call logIn before calling this function!');
-  loggedIn = false;
-  console.log('Trying to log out but it\'s not implemented yet.');
-  return true;
+  usersDB.logOut((err) => {
+    if (err) {
+      // network error
+    } else {
+      // set loggedIn to false again
+    }
+  });
+  return !loggedIn;
 }
 
 /**
  * Returns information about the currently authorized user.
  */
-export async function getLoggedInUser(): Promise<User> {
+export async function getCurrentUser(): Promise<User> {
   if (!loggedIn) throw Error('You need to call logIn before calling this function!');
+  usersDB.getSession((err, response) => {
+    if (err) {
+      // network error
+    } else if (!response?.userCtx.name) {
+      // nobody's logged in
+    } else {
+      // response.userCtx.name is the current user
+      console.log(response.userCtx);
+    }
+  });
   console.log('Returning dummy logged in user');
   return findUserById('dummyLoggedInUserId');
 }
