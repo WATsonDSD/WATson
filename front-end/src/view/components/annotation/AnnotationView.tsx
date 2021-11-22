@@ -1,5 +1,11 @@
+/* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
+import Icon from '@mdi/react';
+import {
+  mdiLeadPencil, mdiCursorMove, mdiUndo, mdiDelete, mdiMagnifyPlus, mdiMagnifyMinus,
+} from '@mdi/js';
 import { Annotation, Image, ImageID } from '../../../data';
+// eslint-disable-next-line no-unused-vars
 import { findImageById, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
 
@@ -38,13 +44,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    findImageById(props.imageId).then((result) => {
+    /* findImageById(props.imageId).then((result) => {
       setState({
         ...state,
         imageToAnnotate: result,
         landmarkId: nextLandmark(result.annotation, templateImage.annotation),
       });
-    });
+    }); */
+    console.log(props.imageId);
   }, []);
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
@@ -141,44 +148,109 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   };
 
   return (
-    <div className="Annotation">
-      <div className="annotation-controller">
-        <button type="button" onClick={removeLastLandmark}>Undo</button>
-        <button type="button">Delete (wip)</button>
-        <div className="landmark-type">
-          Landmark Type
-          <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
-          <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
-          <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
+    <div>
+      <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
+        <div className="h-full p-4 col-span-2 row-start-1 row-span-4 w-full">
+          <div className="h-80v p-4 w-9v bg-gray-700 shadow-lg rounded-3xl mx-auto">
+            <div className="divide-y divide-gray-400">
+              <div className="grid grid-cols-2 grid-rows-2 gap-2">
+                <button type="button" onClick={removeLastLandmark}>
+                  <Icon className="col-span-1 h-2v" path={mdiUndo} horizontal />
+                  Undo
+                </button>
+                <button type="button" onClick={() => changeLandmarkType(1)}>
+                  <Icon className="col-span-1 h-2v" path={mdiLeadPencil} horizontal />
+                  Normal
+                </button>
+                <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
+                <Icon className="col-span-1 h-2v" path={mdiDelete} horizontal />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="col-span-2 h-2v"> Sliders (wip) </div>
+                <Icon className="col-span-1 h-2v" path={mdiLeadPencil} horizontal />
+                <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button">
+                  <Icon className="col-span-1 h-2v" path={mdiMagnifyMinus} horizontal />
+                  +(wip)
+                </button>
+                <button type="button">
+                  <Icon className="col-span-1 h-2v" path={mdiMagnifyPlus} horizontal />
+                  -(wip)
+                </button>
+              </div>
+              <div className="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
+                <p>Optical Flow</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <button type="button">+(wip)</button>
-        <button type="button">-(wip)</button>
-        {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
+        <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
+          <div className="h-50v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
+            <button className="my-auto" type="button">Previous Image (wip)</button>
+          </div>
+        </div>
+        <div className="h-full p-4 col-span-5 row-span-full w-full">
+          <div className="h-95v px-4 py-4 w-full bg-gray-700 rounded-3xl px-auto">
+            <AnnotatedImage
+              image={state.imageToAnnotate}
+              onClick={onImageClick}
+              hideNonVisible
+              landmarkColor={imageLandmarkColor}
+            />
+          </div>
+        </div>
+        <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
+          <div className="h-50v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
+            <button className="my-auto" type="button">Next Image (wip)</button>
+          </div>
+        </div>
+        <div className="h-full p-4 col-span-3 row-span-4 w-full">
+          <div className="h-80v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
+            <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+          </div>
+        </div>
+      </div>
+      <div className="Annotation">
+        <div className="annotation-controller">
+          <button type="button" onClick={removeLastLandmark}>Undo</button>
+          <button type="button">Delete (wip)</button>
+          <div className="landmark-type">
+            Landmark Type
+            <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
+            <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
+            <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
+          </div>
+          <button type="button">+(wip)</button>
+          <button type="button">-(wip)</button>
+          {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
         <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
-      </div>
-      <div className="middle">
-        <AnnotatedImage
-          image={state.imageToAnnotate}
-          onClick={onImageClick}
-          hideNonVisible
-          landmarkColor={imageLandmarkColor}
-        />
-        <button type="button">Previous Image (wip)</button>
-        <button type="button">Next Image (wip)</button>
-      </div>
-      <div className="right">
-        <div className="landmark-info">
-          Landmarks set:
-          {
-            state.imageToAnnotate.annotation
-              ? Object.keys(state.imageToAnnotate.annotation).length
-              : 0
-          }
-          /
-          {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
         </div>
-        <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
-        <button type="button" onClick={save}>Save</button>
+        <div className="middle">
+          <AnnotatedImage
+            image={state.imageToAnnotate}
+            onClick={onImageClick}
+            hideNonVisible
+            landmarkColor={imageLandmarkColor}
+          />
+          <button type="button">Previous Image (wip)</button>
+          <button type="button">Next Image (wip)</button>
+        </div>
+        <div className="right">
+          <div className="landmark-info">
+            Landmarks set:
+            {
+              state.imageToAnnotate.annotation
+                ? Object.keys(state.imageToAnnotate.annotation).length
+                : 0
+            }
+            /
+            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+          </div>
+          <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+          <button type="button" onClick={save}>Save</button>
+        </div>
       </div>
     </div>
   );
