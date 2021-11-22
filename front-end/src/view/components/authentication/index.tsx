@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../../logo.svg';
+import rightArrow from '../../../icons/right-arrow.svg';
 import { logIn } from '../../../data/authenticator';
 
 export default function Authentication() {
@@ -12,24 +13,29 @@ export default function Authentication() {
   };
 
   return (
-    <div>
-      <div className="flex flex-col items-start w-1/3 h-screen p-16">
+    <div className="flex box-content">
+      <div className="flex flex-col items-start w-1/3 h-screen p-24">
         <img src={logo} alt="Logo" />
-        <h2 className="font-bold text-3xl">Sign in</h2>
-        <h2 className="text-3xl">with your credentials</h2>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email" className="flex flex-col items-start text-gray-500">
+        <h2 className="font-bold text-3xl mt-36">Sign in</h2>
+        <h2 className="text-3xl mb-16">with your credentials</h2>
+        <form onSubmit={handleSubmit} className="w-full">
+          <label htmlFor="email" className="flex flex-col items-start text-gray-500 mb-8">
             Email
-            <input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="text-black" />
+            <input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full py-1 text-black text-lg border-b focus:outline-none" />
           </label>
           <label htmlFor="password" className="flex flex-col items-start text-gray-500">
             Password
-            <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="text-black" />
+            <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full py-2 text-black text-xs tracking-widest border-b focus:outline-none" />
           </label>
-          <input type="submit" value="Submit" />
+          <div className="flex items-center justify-end mt-16">
+            <span className="text-gray-400 mr-5">Sign in</span>
+            <button type="submit" className="flex justify-center bg-black w-16 h-16 rounded-full">
+              <img src={rightArrow} alt="Submit" className="w-1/3" />
+            </button>
+          </div>
         </form>
       </div>
-      <div className="media" />
+      <div className="box-border w-full bg-blue-50 m-10" />
     </div>
   );
 }

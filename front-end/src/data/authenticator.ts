@@ -6,7 +6,7 @@ import { usersDB } from './databases';
 PouchDB.plugin(PouchDBAuthentication);
 
 // temporary flag to enforce the user to log in before retrieving login related data.
-const loggedIn = false;
+const isLoggedIn = false;
 
 /**
  * Authenticates the system to access or modify data.
@@ -20,12 +20,12 @@ export async function logIn(email: string, password: string): Promise<boolean> {
       // name or password incorrect
       } else {
         // everything went smoothly!
-        // when loggedIn becomes true i want to be rerouted to my dashboard
-        // loggedIn = true;
+        // when isLoggedIn becomes true i want to be rerouted to my dashboard
+        // isLoggedIn = true;
       }
     }
   });
-  return loggedIn;
+  return isLoggedIn;
 }
 
 /**
@@ -33,22 +33,22 @@ export async function logIn(email: string, password: string): Promise<boolean> {
  * @returns the success of the logout operation.
  */
 export async function logOut(): Promise<boolean> {
-  if (!loggedIn) throw Error('You need to call logIn before calling this function!');
+  if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
   usersDB.logOut((err) => {
     if (err) {
       // network error
     } else {
-      // set loggedIn to false again
+      // set isLoggedIn to false again
     }
   });
-  return !loggedIn;
+  return !isLoggedIn;
 }
 
 /**
  * Returns information about the currently authorized user.
  */
 export async function getCurrentUser(): Promise<User> {
-  if (!loggedIn) throw Error('You need to call logIn before calling this function!');
+  if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
   usersDB.getSession((err, response) => {
     if (err) {
       // network error
@@ -60,5 +60,5 @@ export async function getCurrentUser(): Promise<User> {
     }
   });
   console.log('Returning dummy logged in user');
-  return findUserById('dummyLoggedInUserId');
+  return findUserById('dummyisLoggedInUserId');
 }
