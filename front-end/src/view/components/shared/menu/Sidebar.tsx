@@ -9,7 +9,7 @@ const Sidebar = () => (
       'left-0'
     }`}
   >
-    <div className="flex h-screen overflow-y-auto flex-col bg-white  w-64 px-4 py-8 border-r min-h-screen relative">
+    <div className="flex h-screen overflow-y-auto flex-col bg-white w-64 px-4 py-8 border-r min-h-screen relative">
       <h2 className="text-3xl font-semibold text-gray-800">
         WAT
         <span className="text-indigo-500 ml-1">son</span>
