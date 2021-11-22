@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import App from './view/App';
-import App from './view/components/annotation/AnnotationView';
+import App from './view/App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App imageId="1" />
+    <App />
   </React.StrictMode>,
   document.getElementById('root'),
 );
