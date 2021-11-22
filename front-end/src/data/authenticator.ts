@@ -8,6 +8,7 @@ let loggedIn = false;
  * @returns the success of the login operation.
  */
 export async function logIn(username: string, password: string): Promise<boolean> {
+  // Qui andrà inserita l'effettiva funzione di login
   loggedIn = true;
   console.log(`Trying to log in with username: ${username} and password: ${password} \n
         but it's not implemented yet.`);
