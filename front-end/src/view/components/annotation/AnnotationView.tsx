@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Annotation, Image, ImageID } from '../../../data';
-import { findImageById } from '../../../data/images';
+import { findImageById, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
 
 const templateImage: Image = {
@@ -104,6 +104,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     setState({ ...state, landmarkZ: z });
   };
 
+  const save = () => {
+    if (state.imageToAnnotate.annotation) {
+      saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, 'dummyProject1');
+    } else {
+      console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
+    }
+  };
+
   const templateLandmarkColor = (id: number) => {
     if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
       if (id === state.landmarkId) {
@@ -170,7 +178,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
           {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
         </div>
         <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
-        <button type="button">Save (wip)</button>
+        <button type="button" onClick={save}>Save</button>
       </div>
     </div>
   );
