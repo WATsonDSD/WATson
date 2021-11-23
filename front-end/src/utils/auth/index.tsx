@@ -17,10 +17,10 @@ interface AuthContextType {
 
 const AuthContext = React.createContext<AuthContextType>(null!);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<any>();
+  const [user, setUser] = React.useState<any>(null);
 
   const login = (email: string, password: string, callback: Function) => Auth.signin(() => {
-    setUser(null);
+    setUser({ email, password });
     callback();
   });
 
@@ -43,11 +43,9 @@ export function RequireAuth({ children }: { children: JSX.Element }) {
   const location = useLocation();
 
   if (!auth.user) {
-    // Redirects the user to the /login page and saves the current location they were
-    // trying to go to when they were redirected. This allows us to send them
-    // along to that page after they login, which is a nicer user experience
-    // than dropping them off on the home page.
-    return <Navigate to="/login" state={{ from: location }} />;
+    // Redirects the user to the /auth page and saves the current location they were
+    // trying to access when they were redirected, whick makes for nicer user experience.
+    return <Navigate to="/auth" state={{ from: location }} />;
   }
 
   return children;
