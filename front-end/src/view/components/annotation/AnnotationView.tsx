@@ -2,7 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import Icon from '@mdi/react';
 import {
-  mdiLeadPencil, mdiCursorMove, mdiUndo, mdiDelete, mdiMagnifyPlus, mdiMagnifyMinus,
+  mdiLeadPencil,
+  mdiCursorMove,
+  mdiUndo,
+  mdiDelete,
+  mdiMagnifyPlus,
+  mdiMagnifyMinus,
+  mdiChevronLeft,
+  mdiChevronRight,
 } from '@mdi/js';
 import { Annotation, Image, ImageID } from '../../../data';
 // eslint-disable-next-line no-unused-vars
@@ -151,7 +158,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     <div>
       <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
         <div className="h-full p-4 col-span-2 row-start-1 row-span-4 w-full">
-          <div className="h-80v p-4 w-9v bg-gray-700 shadow-lg rounded-3xl mx-auto">
+          <div className="h-80v p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 grid-rows-2 gap-2">
                 <button type="button" onClick={removeLastLandmark}>
@@ -162,8 +169,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
                   <Icon className="col-span-1 h-2v" path={mdiLeadPencil} horizontal />
                   Normal
                 </button>
-                <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
-                <Icon className="col-span-1 h-2v" path={mdiDelete} horizontal />
+                <button type="button">
+                  <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
+                  Move
+                </button>
+                <button type="button">
+                  <Icon className="col-span-1 h-2v" path={mdiDelete} horizontal />
+                  Delete
+                </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-2 h-2v"> Sliders (wip) </div>
@@ -187,12 +200,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
           </div>
         </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
-          <div className="h-50v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
-            <button className="my-auto" type="button">Previous Image (wip)</button>
-          </div>
+          <button type="button" style={{ width: '6vw' }}>
+            <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
+              <Icon className="col-span-1 h-2v" path={mdiChevronLeft} />
+            </div>
+          </button>
         </div>
         <div className="h-full p-4 col-span-5 row-span-full w-full">
-          <div className="h-95v px-4 py-4 w-full bg-gray-700 rounded-3xl px-auto">
+          <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
             <AnnotatedImage
               image={state.imageToAnnotate}
               onClick={onImageClick}
@@ -201,17 +216,20 @@ export default function AnnotationView(props: { imageId: ImageID }) {
             />
           </div>
         </div>
-        <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
-          <div className="h-50v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
-            <button className="my-auto" type="button">Next Image (wip)</button>
-          </div>
+        <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
+          <button type="button" style={{ width: '6vw' }}>
+            <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
+              <Icon className="col-span-1 h-2v" path={mdiChevronRight} />
+            </div>
+          </button>
         </div>
         <div className="h-full p-4 col-span-3 row-span-4 w-full">
-          <div className="h-80v px-4 py-10 w-fill bg-gray-700 shadow-lg rounded-3xl mx-auto">
+          <div className="h-80v px-4 py-10 w-fill bg-ui shadow-lg rounded-3xl mx-auto">
             <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
           </div>
         </div>
       </div>
+      {/* Old / New Page Divider */}
       <div className="Annotation">
         <div className="annotation-controller">
           <button type="button" onClick={removeLastLandmark}>Undo</button>

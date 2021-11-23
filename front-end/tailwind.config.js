@@ -1,11 +1,11 @@
 /* eslint-disable indent */
 /* eslint-disable no-tabs */
 module.exports = {
-  purge: [],
-  darkMode: false, // or 'media' or 'class'
-  theme: {
-		extend: {},
-		height: {
+	purge: [],
+	darkMode: false, // or 'media' or 'class'
+	theme: {
+		extend: {
+			height: {
 			'10v': '10vh',
 			'20v': '20vh',
 			'30v': '30vh',
@@ -37,6 +37,15 @@ module.exports = {
 			'95v': '95vw',
 			'100v': '100vw',
 		},
+		colors: {
+			ui: {
+				gray: '#444444',
+				DEFAULT: '#C4C4C4',
+				light: '#E2E2E2',
+				lightest: '#f9fafc',
+			},
+		},
+	},
 	},
   variants: {
     extend: {},
