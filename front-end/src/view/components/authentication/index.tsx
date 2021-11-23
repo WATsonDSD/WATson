@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import logo from '../../logo.svg';
-import rightArrow from '../../../icons/right-arrow.svg';
-import { logIn } from '../../../data/authenticator';
+import rightArrow from '../../../assets/icons/right-arrow.svg';
+
+import * as auth from '../../../data/authenticator';
 
 export default function Authentication() {
   const [email, setEmail] = useState('');
@@ -9,12 +10,12 @@ export default function Authentication() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    logIn(email, password);
+    auth.login(email, password);
   };
 
   return (
     <div className="flex box-content">
-      <div className="flex flex-col items-start w-1/3 h-screen p-24">
+      <div className="flex flex-col items-start w-2/5 h-screen p-24">
         <img src={logo} alt="Logo" />
         <h2 className="font-bold text-3xl mt-36">Sign in</h2>
         <h2 className="text-3xl mb-16">with your credentials</h2>
@@ -29,13 +30,13 @@ export default function Authentication() {
           </label>
           <div className="flex items-center justify-end mt-16">
             <span className="text-gray-400 mr-5">Sign in</span>
-            <button type="submit" className="flex justify-center bg-black w-16 h-16 rounded-full">
+            <button type="submit" className="disabled:bg-grey-400 flex justify-center bg-black w-16 h-16 rounded-full">
               <img src={rightArrow} alt="Submit" className="w-1/3" />
             </button>
           </div>
         </form>
       </div>
-      <div className="box-border w-full bg-blue-50 m-10" />
+      <div className="box-border w-full bg-blue-50 my-12 mr-12" />
     </div>
   );
 }

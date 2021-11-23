@@ -9,10 +9,10 @@ PouchDB.plugin(PouchDBAuthentication);
 const isLoggedIn = false;
 
 /**
- * Authenticates the system to access or modify data.
+ * Authenticates the user to access or modify data.
  * @returns the success of the login operation.
  */
-export async function logIn(email: string, password: string): Promise<boolean> {
+export async function login(email: string, password: string): Promise<boolean> {
   // ! It's not clear why pouhdb authentication requires a specific database attached to it
   usersDB.logIn(email, password, (err) => {
     if (err) {
@@ -32,7 +32,7 @@ export async function logIn(email: string, password: string): Promise<boolean> {
  * Ends the current session, data access will be blocked until a future `logIn` call.
  * @returns the success of the logout operation.
  */
-export async function logOut(): Promise<boolean> {
+export async function logout(): Promise<boolean> {
   if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
   usersDB.logOut((err) => {
     if (err) {
@@ -48,7 +48,7 @@ export async function logOut(): Promise<boolean> {
  * Returns information about the currently authorized user.
  */
 export async function getCurrentUser(): Promise<User> {
-  if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
+  // if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
   usersDB.getSession((err, response) => {
     if (err) {
       // network error

@@ -1,4 +1,4 @@
-import { logOut, getLoggedInUser } from './authenticator';
+import { logOut, getCurrentUser } from '.';
 
 beforeEach(async () => {
   try {
@@ -8,6 +8,6 @@ beforeEach(async () => {
   }
 });
 
-test("Can't get logged in user wihout logging in", () => expect(getLoggedInUser()).rejects.toThrow());
+test("Can't get logged in user wihout logging in", () => expect(getCurrentUser()).rejects.toThrow());
 
 test("Can't log out without logging in", () => expect(logOut()).rejects.toThrow());

@@ -1,17 +1,29 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+
+import {
+  Routes,
+  Route,
+} from 'react-router-dom';
+
+import { AuthProvider, RequireAuth } from '../utils/auth';
+
+import Dashboard from './components/dashboard';
 import Authentication from './components/authentication';
 
-import './App.css';
-
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      <div className="App">
-        <Authentication />
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <Routes>
+        <Route path="/auth" element={<Authentication />} />
+        <Route
+          path="/dashboard"
+          element={(
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+            )}
+        />
+      </Routes>
+    </AuthProvider>
   );
 }
-
-export default App;
