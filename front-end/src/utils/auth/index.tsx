@@ -16,15 +16,16 @@ interface AuthContextType {
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
 
-  const login = (email: string, password: string, callback: Function) => Auth.signin(() => {
-    setUser({ email, password });
+  const login = (email: string, password: string, callback: Function) => Auth.login(() => {
+    setUser({ email, password }); // Now we have access to the user information anywhere in the app
     callback();
   });
 
-  const logout = (callback: Function) => Auth.signout(() => {
+  const logout = (callback: Function) => Auth.logout(() => {
     setUser(null);
     callback();
   });
@@ -39,13 +40,13 @@ export function useAuth() {
 }
 
 export function RequireAuth({ children }: { children: JSX.Element }) {
-  const auth = useAuth();
   const location = useLocation();
+  const auth = useAuth();
 
   if (!auth.user) {
-    // Redirects the user to the /auth page and saves the current location they were
+    // Redirects the user to the login page and saves the current location they were
     // trying to access when they were redirected, whick makes for nicer user experience.
-    return <Navigate to="/auth" state={{ from: location }} />;
+    return <Navigate to="/" state={{ from: location }} />;
   }
 
   return children;
