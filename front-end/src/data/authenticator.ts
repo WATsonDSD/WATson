@@ -48,7 +48,7 @@ export async function logout(): Promise<boolean> {
  * Returns information about the currently authorized user.
  */
 export async function getCurrentUser(): Promise<User> {
-  // if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
+  if (!isLoggedIn) throw Error('You need to call logIn before calling this function!');
   usersDB.getSession((err, response) => {
     if (err) {
       // network error

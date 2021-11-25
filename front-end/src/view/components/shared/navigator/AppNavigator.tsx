@@ -5,7 +5,7 @@ import {
   Route,
 } from 'react-router-dom';
 
-import { RequireAuth } from '../../../../utils/auth';
+import { Protected } from '../../../../utils/auth';
 
 import Dashboard from '../../dashboard';
 import Authentication from '../../authentication';
@@ -16,9 +16,9 @@ export default () => (
     <Route
       path="/dashboard"
       element={(
-        <RequireAuth>
+        <Protected>
           <Dashboard />
-        </RequireAuth>
+        </Protected>
                 )}
     />
   </Routes>

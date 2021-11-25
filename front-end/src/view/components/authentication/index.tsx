@@ -27,7 +27,7 @@ export default function Authentication() {
       // Sends the user back to the page they tried to visit when they were
       // redirected to the login page. { replace: true } is used to remove the
       // login page from the navigation stack. This prevents the user to navigate
-      // back to the login page with the back button, which is nice for user experience.
+      // back to the login page with the back button.
       navigate(from, { replace: true });
     });
   };
