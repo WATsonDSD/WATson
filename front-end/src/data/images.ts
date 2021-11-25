@@ -1,5 +1,5 @@
 import {
-  ImageID, Image, ProjectID, UserID, findUserById,
+  ImageID, Image, ImageView, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { imagesDB, projectsDB } from './databases';
@@ -11,21 +11,23 @@ import { imagesDB, projectsDB } from './databases';
   To create an Image, use addImageToProject.
  */
 
-export async function findImageById(id: ImageID): Promise<Image> {
+/**
+ * Creates an object of type ImageView with the id and the Blob image
+ * of af the Image corresponding to the given ImageID. 
+ * This function is used to display the image to the user. 
+ * @param id The identificator of the requested image 
+ */
+export async function findImageById(id: ImageID): Promise<ImageView> {
   const attach = await imagesDB.getAttachment(id, 'image');
   const im = await imagesDB.get(id);
-  im.data = attach;
-  // remove the attachment 
-  return im;
-  // returns an Image object without the _attachment property.
-  // you need to fetch the attachment.
-  // you need to convert the attachment (which is in a format that can be stored in the DB)
-  //    to the format that can be drawn on the screen.
-  // you need to return the attachment in the `data` field.
-
-  // View <- DrawableFormat <-> StorableFormat -> DB
-  // the type `Image` should contain the DrawableFormat for the view to use.
-  // the `StorableFormat` should be in _attachment field in the DB document.
+  const image = {
+    // eslint-disable-next-line no-underscore-dangle
+    _id: im._id,
+    id: im.id,
+    data: attach,
+    annotation: im.annotation,
+  };
+  return image;
 }
 
 /**
