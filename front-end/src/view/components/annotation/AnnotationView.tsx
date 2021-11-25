@@ -157,39 +157,39 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   return (
     <div>
       <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
-        <div className="h-full p-4 col-span-2 row-start-1 row-span-4 w-full">
-          <div className="h-80v p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
+        <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
+          <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 grid-rows-2 gap-2">
                 <button type="button" onClick={removeLastLandmark}>
-                  <Icon className="col-span-1 h-2v" path={mdiUndo} horizontal />
+                  <Icon className="col-span-1" path={mdiUndo} horizontal />
                   Undo
                 </button>
                 <button type="button" onClick={() => changeLandmarkType(1)}>
-                  <Icon className="col-span-1 h-2v" path={mdiLeadPencil} horizontal />
+                  <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
                   Normal
                 </button>
                 <button type="button">
-                  <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
+                  <Icon className="col-span-1" path={mdiCursorMove} horizontal />
                   Move
                 </button>
                 <button type="button">
-                  <Icon className="col-span-1 h-2v" path={mdiDelete} horizontal />
+                  <Icon className="col-span-1" path={mdiDelete} horizontal />
                   Delete
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-2 h-2v"> Sliders (wip) </div>
-                <Icon className="col-span-1 h-2v" path={mdiLeadPencil} horizontal />
-                <Icon className="col-span-1 h-2v" path={mdiCursorMove} horizontal />
+                <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
+                <Icon className="col-span-1" path={mdiCursorMove} horizontal />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button type="button">
-                  <Icon className="col-span-1 h-2v" path={mdiMagnifyMinus} horizontal />
+                  <Icon className="col-span-1" path={mdiMagnifyMinus} horizontal />
                   +(wip)
                 </button>
                 <button type="button">
-                  <Icon className="col-span-1 h-2v" path={mdiMagnifyPlus} horizontal />
+                  <Icon className="col-span-1" path={mdiMagnifyPlus} horizontal />
                   -(wip)
                 </button>
               </div>
@@ -199,10 +199,26 @@ export default function AnnotationView(props: { imageId: ImageID }) {
             </div>
           </div>
         </div>
+        <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
+          <div className="h-full p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
+            Landmarks set:
+            { state.imageToAnnotate.annotation
+              ? Object.keys(state.imageToAnnotate.annotation).length
+              : 0 }
+            /
+            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            <br />
+            <button type="button">
+              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                Mark As invalid
+              </div>
+            </button>
+          </div>
+        </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
           <button type="button" style={{ width: '6vw' }}>
             <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
-              <Icon className="col-span-1 h-2v" path={mdiChevronLeft} />
+              <Icon className="col-span-1" path={mdiChevronLeft} />
             </div>
           </button>
         </div>
@@ -219,13 +235,36 @@ export default function AnnotationView(props: { imageId: ImageID }) {
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
           <button type="button" style={{ width: '6vw' }}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
-              <Icon className="col-span-1 h-2v" path={mdiChevronRight} />
+              <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
           </button>
         </div>
         <div className="h-full p-4 col-span-3 row-span-4 w-full">
-          <div className="h-80v px-4 py-10 w-fill bg-ui shadow-lg rounded-3xl mx-auto">
+          <div className="h-80v p-4 w-fill bg-ui shadow-lg rounded-3xl mx-auto">
+            <div className="h-10v p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
+              Landmarks set:
+              <br />
+              { state.imageToAnnotate.annotation
+                ? Object.keys(state.imageToAnnotate.annotation).length
+                : 0 }
+              /
+              {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            </div>
             <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+          </div>
+        </div>
+        <div className="h-full p-4 col-start-9 col-span-4 row-start-5 row-end-6 w-full">
+          <div className="h-full p-4 w-30v bg-ui-light shadow-lg rounded-3xl mx-auto">
+            <button type="button">
+              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                Save For Later
+              </div>
+            </button>
+            <button type="button">
+              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                Help
+              </div>
+            </button>
           </div>
         </div>
       </div>
