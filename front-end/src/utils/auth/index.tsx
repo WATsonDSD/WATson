@@ -11,7 +11,7 @@ interface AuthContextType {
     user: any;
     login: (email: string, password: string, callback: VoidFunction) => void;
     logout: (callback: VoidFunction) => void;
-    updateCurrentSession: () => void;
+    updateCurrentSession: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
@@ -51,9 +51,10 @@ export function Protected({ children }: { children: JSX.Element }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    auth.updateCurrentSession();
-    console.log(auth.user);
-    setLoading(false);
+    auth.updateCurrentSession().then(() => {
+      console.log(auth.user);
+      setLoading(false);
+    });
   }, []);
 
   if (loading) {

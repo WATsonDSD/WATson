@@ -37,17 +37,22 @@ const Auth = {
     });
   },
   // Retrieves current user's session
-  updateCurrentSession(callback: (data: any) => void) {
-    db.getSession((err, response) => {
-      if (err) {
-        // TODO: Show the network error message
-      } else if (!response?.userCtx.name) {
-        // TODO: Show error message: nobody is logged in
-        callback(null);
-      } else {
-        // TODO: Pass user info back to parent function
-        callback(response.userCtx);
-      }
+  updateCurrentSession(callback: (data: any) => void): Promise<void> {
+    return new Promise((resolve, reject) => {
+      db.getSession((err, response) => {
+        if (err) {
+          reject();
+          // TODO: Show the network error message
+        } else if (!response?.userCtx.name) {
+          reject();
+          // TODO: Show error message: nobody is logged in
+          //! callback(null);
+        } else {
+          // TODO: Pass user info back to parent function
+          callback(response.userCtx);
+          resolve();
+        }
+      });
     });
   },
 };
