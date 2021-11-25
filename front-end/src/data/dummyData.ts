@@ -1,11 +1,9 @@
 import { Project, User, Image } from '.';
-
 /*
     Some internally consistent dummy data.
     This should enable people to start developing the logic and UI while we implement the data tier.
     ! Don't import anything from this file, import the functions you need from index.ts instead.
 */
-
 export const Users = {
   dummyUserId: {
     id: 'dummyUserId',
@@ -33,16 +31,14 @@ export const Users = {
       },
     },
   },
-
 } as {
     [id: string]: User,
 };
-
 export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
-    users: ['dummyUserId', 'dummyLoggedInUserId', 'dummyLoggedInVUserId', 'dummyLoggedInPMUserId'],
-    name: 'Dummy Project .',
+    users: ['dummyUserId', 'dummyLoggedInUserId'],
+    name: 'Dummy Project 1',
     client: 'Dummy Client Inc.',
     startDate: new Date().toJSON(),
     endDate: '',

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { getLoggedInUser } from '../../../../data';
+import { getLoggedInUser, logIn } from '../../../../data';
 import useData from '../../../../data/hooks';
 import { links } from './MenuConfig';
 
 function Sidebar() {
+  useEffect(() => console.log(logIn('user', 'user')),
+    []);
   const user = useData(() => getLoggedInUser());
 
   return (

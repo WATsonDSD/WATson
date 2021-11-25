@@ -11,7 +11,6 @@ export async function findProjectById(id: ProjectID): Promise<Project> {
   }
   return res;
 }
-
 /**
  * Finds and returns all projects of a user.
  */
@@ -20,7 +19,6 @@ export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
     Object.keys(await findProjectById(userId)).map((id) => findProjectById(id)),
   );
 }
-
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
@@ -36,7 +34,6 @@ export async function createProject(
   landmarks: LandmarkSpecification,
 ) : Promise<ProjectID> {
   const id = new Date().toISOString(); // unique id's.
-
   Projects[id] = {
     id,
     users: [], // A newly created project has no users.
@@ -54,7 +51,6 @@ export async function createProject(
   };
   return id;
 }
-
 /**
  * Adds the user (whatever the role) to the project.  
  * If they are an annotator or a verifier, this function will not assign them any image.
@@ -63,7 +59,6 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
-
   project.users.push(userId);
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],
@@ -79,7 +74,6 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
   const imageId = new Date().toJSON(); // unique id's.
   const project = await findProjectById(projectId);
-
   Images[imageId] = {
     id: imageId,
     data,
