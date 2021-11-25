@@ -10,6 +10,7 @@ import {
   mdiMagnifyMinus,
   mdiChevronLeft,
   mdiChevronRight,
+  mdiHelpCircle,
 } from '@mdi/js';
 import { Annotation, Image, ImageID } from '../../../data';
 // eslint-disable-next-line no-unused-vars
@@ -208,9 +209,9 @@ export default function AnnotationView(props: { imageId: ImageID }) {
             /
             {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
             <br />
-            <button type="button">
-              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                Mark As invalid
+            <button className="pt-4 pb-2" type="button">
+              <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
+                <span className="text-ui-darkred mx-auto"> Mark As invalid </span>
               </div>
             </button>
           </div>
@@ -250,19 +251,22 @@ export default function AnnotationView(props: { imageId: ImageID }) {
               /
               {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
             </div>
-            <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+            <div className="mt-12">
+              <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+            </div>
           </div>
         </div>
         <div className="h-full p-4 col-start-9 col-span-4 row-start-5 row-end-6 w-full">
-          <div className="h-full p-4 w-30v bg-ui-light shadow-lg rounded-3xl mx-auto">
-            <button type="button">
-              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                Save For Later
+          <div className="h-20v px-4 w-30v mx-auto grid m-auto grid-cols-2 gap-6">
+            <button className="col-span-1 pt-auto pb-0" type="button">
+              <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                <span className="mx-auto text-white"> Save For Later </span>
               </div>
             </button>
-            <button type="button">
-              <div className="flex h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                Help
+            <button className="col-span-1" type="button">
+              <div className="flex p-1 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                <Icon className="fill-current text-white" path={mdiHelpCircle} />
+                <span className="px-4 text-white"> Help </span>
               </div>
             </button>
           </div>
