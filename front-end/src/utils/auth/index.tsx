@@ -52,7 +52,6 @@ export function Protected({ children }: { children: JSX.Element }) {
 
   useEffect(() => {
     auth.updateCurrentSession().then(() => {
-      console.log(auth.user);
       setLoading(false);
     });
   }, []);

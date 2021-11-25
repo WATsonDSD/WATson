@@ -37,6 +37,7 @@ const Auth = {
     });
   },
   // Retrieves current user's session
+  // ! Returns "admin" as a user when no user is logged in :(
   updateCurrentSession(callback: (data: any) => void): Promise<void> {
     return new Promise((resolve, reject) => {
       db.getSession((err, response) => {
