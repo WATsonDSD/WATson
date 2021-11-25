@@ -6,6 +6,7 @@ import { Images, Projects } from './dummyData';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
   const res = Projects[id];
+  console.log(res);
   if (!res) {
     throw Error(`A project with id ${id} does not exist!`);
   }
@@ -16,7 +17,7 @@ export async function findProjectById(id: ProjectID): Promise<Project> {
  */
 export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
   return Promise.all(
-    Object.keys(await findProjectById(userId)).map((id) => findProjectById(id)),
+    Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
   );
 }
 /**

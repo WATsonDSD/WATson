@@ -8,7 +8,9 @@ import Dashboard from '../../dashboard/Dashboard';
 export default function Routing() {
   return (
     <Routes>
-      <Route path="/pageA" element={<PageA />} />
+      <Route path="/pageA" element={<PageA />}>
+        <Route path=":param" element={<PageA />} />
+      </Route>
       <Route path="/pageB" element={<PageB />} />
       <Route path="/pageC" element={<PageC />} />
       <Route path="/dashboard" element={<Dashboard />} />

@@ -9,30 +9,37 @@ const actionsProject = [
   {
     role: 'projectManager',
     text: 'Edit',
+    href: '/pageA/',
   },
   {
     role: 'projectManager',
     text: 'Close',
+    href: '/pageA/',
   },
   {
     role: 'projectManager',
     text: 'Delete',
+    href: '/pageA/',
   },
   {
     role: 'annotator',
     text: 'Annotate Images',
+    href: '/pageA/',
   },
   {
     role: 'verifier',
     text: 'Verify Images',
+    href: '/pageA/',
   },
   {
     role: 'finance',
     text: 'Generate Finances',
+    href: '/pageA/',
   },
   {
     role: 'finance',
     text: 'Consult work hours',
+    href: '/pageA/',
   },
 ];
 
@@ -49,9 +56,6 @@ export default function Dashboard() {
     </button>
   );
 
-  const actions = actionsProject.filter(() => (
-    true
-  ));
   return (
     <div className="min-h-full w-full">
       <div>
@@ -62,7 +66,7 @@ export default function Dashboard() {
         <div className="w-full min-h-full bg-gray-50">
           <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6 h-screen">
             {projects?.map((project) => (
-              <Card key={project.id} project={project} actions={actions} />
+              <Card key={project.id} project={project} actions={actionsProject} />
             ))}
           </section>
         </div>

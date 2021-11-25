@@ -1,9 +1,14 @@
 import { AiOutlineRise, AiOutlineTeam, AiOutlineRedo } from 'react-icons/ai';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Dropdown from './Dropdown';
 
 const Card = (props: any) => {
   const { project, actions } = props;
+
+  const dropDownActions = actions.map((action: any) => (
+    <Link id="addProject" className="ml-4" type="button" to={`${action.href}${project.id}`}>{action.text}</Link>
+  ));
 
   return (
 
@@ -13,16 +18,16 @@ const Card = (props: any) => {
         <div className="flex justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.client}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
-            <Dropdown elements={actions.map(() => null)} />
+            <Dropdown elements={dropDownActions} />
           </div>
         </div>
         <div className="flex justify-between py-0">
           <h2 className="text-2x1 text-white px-3">
-            {project.startDate.toDateString()}
-            {' '}
+            {project.startDate}
+            <br />
             To
-            {' '}
-            {project.endDate.toDateString()}
+            <br />
+            {project.endDate}
           </h2>
         </div>
 
