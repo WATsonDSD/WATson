@@ -46,6 +46,8 @@ module.exports = {
 			colors: {
 				ui: {
 					gray: '#444444',
+					darkred: '#DF2C00',
+					red: '#FFAEAE',
 					DEFAULT: '#C4C4C4',
 					light: '#E2E2E2',
 					lightest: '#f9fafc',
