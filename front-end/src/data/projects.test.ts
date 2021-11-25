@@ -37,7 +37,7 @@ describe('addImageToProject', () => {
 
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', []);
-    imageId = await addImageToProject(new Blob(["Hello, world!"], {type: 'text/plain'}), projectId);
+    imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
   });
 
   it('creates the image', async () => expect(findImageById(imageId).then((image) => image.id)).resolves.toBe(imageId));

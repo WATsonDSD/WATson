@@ -19,7 +19,7 @@ describe('addAnnotation', () => {
   } as Annotation;
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
-    imageId = await addImageToProject(new Blob(["Hello, world!"], {type: 'text/plain'}), projectId); 
+    imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
     return saveAnnotation(validAnnotation, imageId, projectId);
   });
 

@@ -12,7 +12,12 @@ import { imagesDB, projectsDB } from './databases';
  */
 
 export async function findImageById(id: ImageID): Promise<Image> {
-  return imagesDB.get(id); // returns an Image object without the _attachment property.
+  const attach = await imagesDB.getAttachment(id, 'image');
+  const im = await imagesDB.get(id);
+  im.data = attach;
+  // remove the attachment 
+  return im;
+  // returns an Image object without the _attachment property.
   // you need to fetch the attachment.
   // you need to convert the attachment (which is in a format that can be stored in the DB)
   //    to the format that can be drawn on the screen.
@@ -43,7 +48,7 @@ export async function getImages(
 /**
  * Determines whether `annotation` is valid for the `specification`. 
  */
-function fitsSpecification(annotation: Annotation, specification:LandmarkSpecification): boolean {
+function fitsSpecification(annotation: Annotation, specification: LandmarkSpecification): boolean {
   let valid = true;
   specification.forEach((landmark) => { if (!annotation[landmark]) valid = false; });
   return valid;
@@ -73,7 +78,7 @@ export async function saveAnnotation(
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
-  const image = await findImageById(imageId);
+  const image = await imagesDB.get(imageId);
   image.annotation = annotation;
 
   // move to toVerify

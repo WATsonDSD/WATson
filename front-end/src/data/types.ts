@@ -37,10 +37,10 @@ export type Project = {
 export type ImageID = string;
 // this type should be something that can be drawn on the screen 
 //  (base64 image, HTML image, image URL...) talk about this with efflam.
-export type ImageData = Blob; // TODO decide on a format for images.
+export type ImageData = Blob | Buffer; // TODO decide on a format for images.
 export type Image = {
     id: ImageID,
-    data: ImageData,
+    data: ImageData | null,
     annotation?: Annotation
 }
 
