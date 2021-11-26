@@ -1,7 +1,7 @@
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 PouchDB.plugin(PouchDBAuthentication);
 
@@ -55,6 +55,7 @@ const Auth = {
 
 export default function useAuthentication() {
   const [user, setUser] = useState<any>(null);
+  const [isLoading, updateLoadingStatus] = useState<boolean>(true);
 
   const login = (email: string, password: string, callback: VoidFunction) => Auth.login(email, password).then((data) => {
     setUser(data);
@@ -66,65 +67,15 @@ export default function useAuthentication() {
     callback();
   });
 
-  const updateCurrentSession = () => Auth.updateCurrentSession().then((data) => setUser(data));
+  const updateCurrentSession = () => Auth.updateCurrentSession().then((data) => {
+    setUser(data);
+  });
+
+  useEffect(() => {
+    updateCurrentSession().then(() => updateLoadingStatus(false));
+  }, []);
 
   return {
-    user, login, logout, updateCurrentSession,
+    user, login, logout, updateCurrentSession, isLoading,
   };
 }
-
-// import {
-//   useLocation,
-//   Navigate,
-// } from 'react-router-dom';
-
-// import Auth from './auth';
-
-// export function useAuthentication() {
-//   const [user, setUser] = React.useState<any>(null);
-
-//   const [loading, setLoading] = React.useState(true);
-
-//   const login = (email: string, password: string, callback: Function) => Auth.login(email, password, (data) => {
-//     setUser(data);
-//     callback();
-//   });
-
-//   useEffect(() => {
-//     updateCurrentSession().then(() => {
-//       setLoading(false);
-//     });
-//   }, []);
-
-//   const logout = (callback: Function) => Auth.logout(() => {
-//     setUser(null);
-//     callback();
-//   });
-
-//   const updateCurrentSession = () => Auth.updateCurrentSession((data) => {
-//     setUser(data);
-//   });
-
-//   const value = {
-//     user, login, logout, updateCurrentSession, loading,
-//   };
-
-//   return value;
-// }
-
-// export function Protected({ children }: { children: JSX.Element }) {
-//   const location = useLocation();
-//   const auth = useAuthentication();
-
-//   if (auth.loading) {
-//     return (<span>Loading...</span>);
-//   }
-
-//   if (!auth.user) {
-//     // Redirects the user to the login page and saves the current location they were
-//     // trying to access when they were redirected, which makes for nicer user experience.
-//     return <Navigate to="/" state={{ from: location }} />;
-//   }
-
-//   return children;
-// }

@@ -5,7 +5,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 
-import { useAuth } from '../../../utils/auth';
+import useAuthentication from '../../../data/authentication';
 
 import logo from '../../logo.svg';
 import rightArrow from '../../../assets/icons/right-arrow.svg';
@@ -14,16 +14,16 @@ export default function Authentication() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const authentication = useAuthentication();
   const navigate = useNavigate();
   const location = useLocation();
-  const auth = useAuth();
 
   const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    auth.login(email, password, () => {
+    authentication.login(email, password, () => {
       // Sends the user back to the page they tried to visit when they were
       // redirected to the login page. { replace: true } is used to remove the
       // login page from the navigation stack. This prevents the user to navigate

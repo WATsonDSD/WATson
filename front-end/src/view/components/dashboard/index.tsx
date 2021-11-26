@@ -1,24 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../utils/auth';
+import useAuthentication from '../../../data/authentication';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const authentication = useAuthentication();
   return (
     <div>
-      Hi,
-      {' '}
-      {auth.user.name}
-      !
-      {' '}
+      Hi!
       <button
         type="button"
         onClick={() => {
-          auth.logout(() => navigate('/'));
+          authentication.logout(() => navigate('/'));
         }}
       >
-        Logout!
+        LOGOUT!
       </button>
     </div>
   );

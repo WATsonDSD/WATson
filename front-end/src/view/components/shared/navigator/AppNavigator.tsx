@@ -5,7 +5,7 @@ import {
   Route,
 } from 'react-router-dom';
 
-import { Protected } from '../../../../utils/auth';
+import Protected from '../../protected';
 
 import Dashboard from '../../dashboard';
 import Authentication from '../../authentication';
