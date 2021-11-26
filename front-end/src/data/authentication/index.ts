@@ -3,6 +3,9 @@ import PouchDBAuthentication from 'pouchdb-authentication';
 
 import { useState, useEffect } from 'react';
 
+import { useStore } from 'react-stores';
+import AuthStore from '../../stores';
+
 PouchDB.plugin(PouchDBAuthentication);
 
 /**
@@ -54,25 +57,37 @@ const Auth = {
 };
 
 export default function useAuthentication() {
-  const [user, setUser] = useState<any>(null);
+  const authStore = useStore(AuthStore);
+  const [user, setUser] = useState<any>(authStore.user);
   const [isLoading, updateLoadingStatus] = useState<boolean>(true);
 
   const login = (email: string, password: string, callback: VoidFunction) => Auth.login(email, password).then((data) => {
     setUser(data);
+    AuthStore.setState({
+      user: data,
+    });
     callback();
   });
 
   const logout = (callback: VoidFunction) => Auth.logout().then(() => {
-    setUser(null);
     callback();
+    setUser(null);
+    AuthStore.setState({
+      user: null,
+    });
   });
 
   const updateCurrentSession = () => Auth.updateCurrentSession().then((data) => {
     setUser(data);
+    AuthStore.setState({
+      user: data,
+    });
   });
 
   useEffect(() => {
-    updateCurrentSession().then(() => updateLoadingStatus(false));
+    updateCurrentSession().then(() => {
+      updateLoadingStatus(false);
+    });
   }, []);
 
   return {

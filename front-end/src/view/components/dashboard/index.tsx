@@ -5,9 +5,15 @@ import useAuthentication from '../../../data/authentication';
 export default function Dashboard() {
   const navigate = useNavigate();
   const authentication = useAuthentication();
+
   return (
     <div>
-      Hi!
+      Hi,
+      {' '}
+      {authentication.user.name}
+      {' '}
+      {authentication.user.roles.indexOf('projectManager') !== -1 ? <span>You are an amazing manager!</span> : <span>You are no one...</span>}
+      {' '}
       <button
         type="button"
         onClick={() => {
