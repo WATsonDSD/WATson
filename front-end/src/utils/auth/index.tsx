@@ -17,9 +17,9 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType>(null!);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = useState<any>(null);
 
-  const login = (email: string, password: string, callback: Function) => Auth.login(email, password, (data) => {
+  const login = (email: string, password: string, callback: Function) => Auth.login(email, password).then((data) => {
     setUser(data);
     callback();
   });

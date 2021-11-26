@@ -1,6 +1,8 @@
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
+import { useState } from 'react';
+
 PouchDB.plugin(PouchDBAuthentication);
 
 /**
@@ -10,52 +12,66 @@ PouchDB.plugin(PouchDBAuthentication);
  */
 const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true });
 
-/**
- * Authenticates the user.
- */
-export async function login(email: string, password: string): Promise<PouchDB.Authentication.LoginResponse | null> {
-  return new Promise((resolve, reject) => {
-    db.logIn(email, password, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
+const Auth = {
+  // Authenticates the user.
+  async login(email: string, password: string): Promise<PouchDB.Authentication.LoginResponse | null> {
+    return new Promise((resolve, reject) => {
+      db.logIn(email, password, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
     });
-  });
-}
-
-// Ends current user session.
-export async function logout(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.logOut((err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+  },
+  // Ends current user session.
+  async logout(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      db.logOut((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
     });
-  });
-}
-
-/**
- * Returns information about the currently authorized user.
- */
-export async function updateCurrentSession(): Promise<PouchDB.Authentication.UserContext | null> {
-  return new Promise((resolve, reject) => {
-    db.getSession((err, response) => {
-      if (err) {
-        reject(err);
-      } else if (!response?.userCtx.name) {
-        resolve(null);
-      } else {
-        resolve(response.userCtx);
-      }
+  },
+  // Returns information about the currently authorized user.
+  async updateCurrentSession(): Promise<PouchDB.Authentication.UserContext | null> {
+    return new Promise((resolve, reject) => {
+      db.getSession((err, response) => {
+        if (err) {
+          reject(err);
+        } else if (!response?.userCtx.name) {
+          resolve(null);
+        } else {
+          resolve(response.userCtx);
+        }
+      });
     });
-  });
-}
+  },
+};
 
-// import React, { useEffect } from 'react';
+export default function useAuthentication() {
+  const [user, setUser] = useState<any>(null);
+
+  const login = (email: string, password: string, callback: VoidFunction) => Auth.login(email, password).then((data) => {
+    setUser(data);
+    callback();
+  });
+
+  const logout = (callback: VoidFunction) => Auth.logout().then(() => {
+    setUser(null);
+    callback();
+  });
+
+  const updateCurrentSession = () => Auth.updateCurrentSession().then((data) => setUser(data));
+
+  return {
+    user, login, logout, updateCurrentSession,
+  };
+}
 
 // import {
 //   useLocation,
@@ -76,7 +92,6 @@ export async function updateCurrentSession(): Promise<PouchDB.Authentication.Use
 
 //   useEffect(() => {
 //     updateCurrentSession().then(() => {
-//       console.log(user);
 //       setLoading(false);
 //     });
 //   }, []);

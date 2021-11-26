@@ -14,15 +14,15 @@ const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: tru
 
 const Auth = {
   // Authenticates the user.
-  login(email: string, password: string, callback: (data: any) => void) {
-    db.logIn(email, password, (err, response) => {
-      if (err) {
-        if (err.name === 'unauthorized' || err.name === 'forbidden') {
-          // TODO: Show error message: name or password incorrent
+  login(email: string, password: string) {
+    return new Promise((resolve, reject) => {
+      db.logIn(email, password, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
         }
-      } else {
-        callback(response);
-      }
+      });
     });
   },
   // Ends the user session.
@@ -42,8 +42,7 @@ const Auth = {
     return new Promise((resolve, reject) => {
       db.getSession((err, response) => {
         if (err) {
-          reject();
-          // TODO: Show the network error message
+          reject(err);
         } else if (!response?.userCtx.name) {
           reject();
           // TODO: Show error message: nobody is logged in
