@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
-// import { useEffect, useState } from 'react';
 
 PouchDB.plugin(PouchDBAuthentication);
 
@@ -16,7 +15,7 @@ type Subscribers = {[id: string]: (context: UserContext) => void};
  * our db instance to a dummy database - in this case "/db".
  * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
  */
-const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true });
+const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
 
 let currentContext : UserContext = null;
 const contextSubscribers : Subscribers = {};

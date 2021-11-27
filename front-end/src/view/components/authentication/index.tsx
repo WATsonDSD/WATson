@@ -13,6 +13,7 @@ import rightArrow from '../../../assets/icons/right-arrow.svg';
 export default function Authentication() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
 
