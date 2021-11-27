@@ -7,7 +7,7 @@ export default function Dashboard() {
   const userContext = useUserContext();
 
   if (userContext === 'isLoading') {
-    return <span>Loading...</span>;
+    return <span>Loading....</span>;
   }
   return (
     <div>
