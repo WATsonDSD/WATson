@@ -33,7 +33,7 @@ export default function Authentication() {
 
   return (
     <div className="flex">
-      <div className="flex flex-col items-start gap-y-28 w-2/6 min-w-500 h-screen p-20">
+      <div className="flex flex-col items-start gap-y-28 w-2/5 min-w-500 h-screen p-20">
         <img src={logo} alt="Logo" />
         <hgroup>
           <h2 className="font-bold text-3xl">Sign in</h2>
