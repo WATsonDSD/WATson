@@ -10,37 +10,37 @@ const actionsProject = [
   {
     role: 'projectManager',
     text: 'Edit',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'projectManager',
     text: 'Close',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'projectManager',
     text: 'Delete',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'annotator',
     text: 'Annotate Images',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'verifier',
     text: 'Verify Images',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'finance',
     text: 'Generate Finances',
-    href: '/pageA/',
+    href: '/pageC/',
   },
   {
     role: 'finance',
     text: 'Consult work hours',
-    href: '/pageA/',
+    href: '/pageC/',
   },
 ];
 

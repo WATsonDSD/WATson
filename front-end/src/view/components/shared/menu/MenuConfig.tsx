@@ -10,8 +10,8 @@ import { MdOutlineDashboard } from 'react-icons/md';
 export const links = [
   {
     id: 1,
-    name: 'PageA',
-    href: '/pageA',
+    name: 'Workers',
+    href: '/workers',
     icon: <FaHome className="w-5 h-5" />,
   },
   {
