@@ -23,7 +23,7 @@ function Sidebar() {
         <div className="flex h-screen overflow-y-auto flex-col bg-white  w-64 px-4 py-8 border-r min-h-screen relative">
           <h2 className="text-3xl font-semibold text-gray-800">
             WAT
-            <span className="text-blue-500 ml-1">son</span>
+            <span className="text-black ml-1">son</span>
           </h2>
           <div className="flex flex-col mt-6  justify-between flex-1">
             <nav className="text">
@@ -34,9 +34,8 @@ function Sidebar() {
                 return (
                   <NavLink
                     to={href}
-                     // 'bg-gray-200 text-gray-700' if active
-                    className={(navData) => (navData.isActive ? 'capitalize flex items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md bg-gray-200 text-gray-700'
-                      : 'capitalize flex items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md')}
+                    className={(navData) => (navData.isActive ? 'capitalize flex items-center px-4 py-2 mt-5 bg-black text-white hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md'
+                      : 'capitalize flex items-center px-4 py-2 mt-5 text-black hover:bg-black hover:text-white transition-colors duration-200 transform rounded-md')}
                     key={id ? `${id}` : ''}
                     id={id ? `${id}` : ''}
                   >
@@ -48,7 +47,8 @@ function Sidebar() {
               <hr className="my-6" />
               <NavLink
                 to="/pageA" // just for test
-                className="flex items-center px-4 py-2 mt-5 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-200 transition-colors transform"
+                className={(navData) => (navData.isActive ? 'capitalize flex items-center px-4 py-2 mt-5 bg-black text-white hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md'
+                  : 'capitalize flex items-center px-4 py-2 mt-5 text-black hover:bg-black hover:text-white transition-colors duration-200 transform rounded-md')}
                 id=""
               >
                 <MdSettings className="w-5 h-5" />

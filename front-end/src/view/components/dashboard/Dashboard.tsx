@@ -51,8 +51,8 @@ export default function Dashboard() {
   });
 
   const addProjectButton = (
-    <Link id="addProject" className="ml-4" type="button" to="/createProject">
-      <BsPlusLg className="w-30 h-30" />
+    <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
+      <BsPlusLg className="w-30 h-30 mt-auto mb-auto" />
       {' '}
     </Link>
   );
