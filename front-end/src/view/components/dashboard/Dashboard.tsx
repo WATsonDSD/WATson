@@ -1,5 +1,6 @@
 import React from 'react';
 import { BsPlusLg } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
 import { getLoggedInUser, getProjectsOfUser } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
@@ -50,10 +51,10 @@ export default function Dashboard() {
   });
 
   const addProjectButton = (
-    <button id="addProject" className="ml-4" type="button" onClick={() => null}>
+    <Link id="addProject" className="ml-4" type="button" to="/createProject">
       <BsPlusLg className="w-30 h-30" />
       {' '}
-    </button>
+    </Link>
   );
 
   return (

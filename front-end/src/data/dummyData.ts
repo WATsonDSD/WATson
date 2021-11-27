@@ -22,7 +22,7 @@ export const Users = {
     id: 'dummyLoggedInUserId',
     name: 'Dummy Logged In User',
     email: 'loggedIn@dummy.com',
-    role: 'annotator',
+    role: 'projectManager',
     projects: {
       dummyProject1: {
         toAnnotate: ['image1'],
