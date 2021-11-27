@@ -1,29 +1,18 @@
+/* eslint-disable prefer-template */
+/* eslint-disable no-plusplus */
 /* eslint-disable indent */
 /* eslint-disable no-tabs */
+const heights = {};
+for (let i = 0; i < 101; i++) {
+	heights[i + 'v'] = i + 'vh';
+}
+
 module.exports = {
 	purge: [],
 	darkMode: false, // or 'media' or 'class'
 	theme: {
 		extend: {
-			height: {
-				'2v': '2vh',
-				'4v': '4vh',
-				'5v': '5vh',
-				'6v': '6vh',
-				'8v': '8vh',
-				'9v': '9vh',
-				'10v': '10vh',
-				'20v': '20vh',
-				'30v': '30vh',
-				'40v': '40vh',
-				'50v': '50vh',
-				'60v': '60vh',
-				'70v': '70vh',
-				'80v': '80vh',
-				'90v': '90vh',
-				'95v': '95vh',
-				'100v': '100vh',
-			},
+			height: heights,
 			width: {
 				'2v': '2vw',
 				'4v': '4vw',

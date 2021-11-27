@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
+import Slider from 'rc-slider';
 import Icon from '@mdi/react';
 import {
   mdiLeadPencil,
@@ -16,6 +17,7 @@ import { Annotation, Image, ImageID } from '../../../data';
 // eslint-disable-next-line no-unused-vars
 import { findImageById, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
+import 'rc-slider/assets/index.css';
 
 const templateImage: Image = {
   id: 'template',
@@ -180,9 +182,12 @@ export default function AnnotationView(props: { imageId: ImageID }) {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="col-span-2 h-2v"> Sliders (wip) </div>
-                <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
-                <Icon className="col-span-1" path={mdiCursorMove} horizontal />
+                <div className="col-span-1 h-26v my-4">
+                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                </div>
+                <div className="col-span-1 h-26v my-4">
+                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button type="button">
