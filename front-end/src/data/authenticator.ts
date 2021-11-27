@@ -7,7 +7,7 @@ import PouchDBAuthentication from 'pouchdb-authentication';
 PouchDB.plugin(PouchDBAuthentication);
 
 // TYPE DEFINITIONS
-type UserContext = PouchDB.Authentication.UserContext | null;
+type UserContext = PouchDB.Authentication.UserContext | 'isLoading' | null;
 type Subscribers = {[id: string]: (context: UserContext) => void};
 
 /**
@@ -17,7 +17,7 @@ type Subscribers = {[id: string]: (context: UserContext) => void};
  */
 const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
 
-let currentContext : UserContext = null;
+let currentContext : UserContext = 'isLoading';
 const contextSubscribers : Subscribers = {};
 
 function notifySubscribers(context: UserContext) {
