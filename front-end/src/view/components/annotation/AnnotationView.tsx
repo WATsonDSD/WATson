@@ -12,8 +12,8 @@ import {
   mdiHelpCircle,
 } from '@mdi/js';
 import { Annotation, Image, ProjectID } from '../../../data';
-import { getImages, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
+import { getImages, saveAnnotation } from '../../../data/images';
 
 const templateImage: Image = {
   id: 'template',
