@@ -102,7 +102,7 @@ export default function AnnotationView(props: { projectId: ProjectID }) {
         landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
       });
     } else {
-      alert('You annotated every landmark in this image');
+      // alert('You annotated every landmark in this image');
     }
   };
   const onImageWheel = (ctx: any, event: WheelEvent) => {
