@@ -3,6 +3,8 @@ import {
 } from '.';
 import { findImageById, getImages, saveAnnotation } from './images';
 
+jest.mock('./databases');
+
 describe('addAnnotation', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
@@ -18,7 +20,7 @@ describe('addAnnotation', () => {
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
     imageId = await addImageToProject(null, projectId);
-    await saveAnnotation(validAnnotation, imageId, projectId);
+    return saveAnnotation(validAnnotation, imageId, projectId);
   });
 
   it('adds the annotation to the image', () => expect(findImageById(imageId).then((image) => image.annotation)).resolves.toBeDefined());

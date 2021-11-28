@@ -11,14 +11,22 @@ Then, you need can clone the repository by executing `git clone git@github.com:W
 ## 2. Install node and npm
 Everyone probably already has npm installed but [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) is the official guide anyway.
 ## Install the dependencies
-The project contains an **npm package** in the subdirectory `front-end` which lists all of its dependencies. All you need to do is navigate to `front-end` and run `npm install`.  
-
-Now we're ready to run the project.  
+The project contains an **npm package** in the subdirectory `front-end` which lists all of its dependencies. All you need to do is navigate to `front-end` and run `npm install`. Do the same for `back-end`.
 
 ### A word on the repository structure 
 The git repository contains two subfolders, `back-end` and `front-end`. These are meant to be separate npm packages.  
-`back-end` is empty for now and probably will be for a while. We'll implement most of it in CouchDB. Instructions on setting up CouchDB will be added here as soon as we start using it.  
-For now, what we refer to as "the project" is all inside `front-end`, except for the git-related configurations. Hence, when you run npm scripts, you should run them with `front-end` as the working directory.
+`back-end` is empty for now and probably will be for a while. We'll implement most of it in CouchDB.
+For now, what we refer to as "the project" is all inside `front-end`, except for the git-related configurations. Hence, when you run npm scripts, you should run most of them with `front-end` as the working directory.
+
+## 3. CouchDB
+To prevent small mess-ups from disturbing everyone, we'll start with a local database running on each developer's computer. This will be an instance of CouchDB running on `localhost:5984`. For convenience, everyone will add the admin credentials `admin:admin` to their local database.
+### Setup
+Follow [this guide](https://pouchdb.com/guides/setup-couchdb.html) by PouchDB. ***It's important that you pick the credentials `admin:admin`!*** Don't forget to enable CORS!  
+Then, open the CouchDB admin console, navigate to the setup tab (wrench icon, second from the top) and pick "Configure single node".  
+Run the "verify" function to make sure everything is in place.  
+Navigate to `back-end` and run `npm run init_db` to put the initial configuration to CouchDB.
+
+Now we're ready to run the project.  
 
 ## 3. Run the project
 Navigate to `front-end` and run `npm start`. This will compile everything and start serving on `localhost:3000`.

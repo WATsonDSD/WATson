@@ -1,8 +1,8 @@
-import { Images } from './dummyData';
 import {
   ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
+import { imagesDB, projectsDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -12,11 +12,7 @@ import {
  */
 
 export async function findImageById(id: ImageID): Promise<Image> {
-  const res = Images[id];
-  if (!res) {
-    throw Error(`An image with id ${id} does not exist!`);
-  }
-  return res;
+  return imagesDB.get(id);
 }
 
 /**
@@ -65,7 +61,7 @@ export async function saveAnnotation(
   }
 
   // check if the image is waiting to be annotated.
-  const imageIndex = project.images.toAnnotate.findIndex((entry) => entry.imageId === projectId);
+  const imageIndex = project.images.toAnnotate.findIndex((entry) => entry.imageId === imageId);
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
@@ -75,4 +71,8 @@ export async function saveAnnotation(
   // move to toVerify
   project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex], verifier: null });
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
+
+  // reflect the changes to the DB.
+  await imagesDB.put(image);
+  await projectsDB.put(project);
 }

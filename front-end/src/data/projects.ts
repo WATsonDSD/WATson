@@ -2,15 +2,10 @@ import {
   findUserById,
   LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
 } from '.';
-import { Images, Projects } from './dummyData';
+import { imagesDB, projectsDB, usersDB } from './databases';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
-  const res = Projects[id];
-  console.log(res);
-  if (!res) {
-    throw Error(`A project with id ${id} does not exist!`);
-  }
-  return res;
+  return projectsDB.get(id);
 }
 /**
  * Finds and returns all projects of a user.
@@ -35,7 +30,9 @@ export async function createProject(
   landmarks: LandmarkSpecification,
 ) : Promise<ProjectID> {
   const id = new Date().toISOString(); // unique id's.
-  Projects[id] = {
+
+  const project = {
+    _id: id,
     id,
     users: [], // A newly created project has no users.
     name,
@@ -49,7 +46,9 @@ export async function createProject(
       toVerify: [],
       done: [],
     },
-  };
+  } as Project;
+
+  await projectsDB.put(project);
   return id;
 }
 /**
@@ -59,6 +58,7 @@ export async function createProject(
 export async function addUserToProject(userId: UserID, projectId: ProjectID): Promise<void> {
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
+
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
   project.users.push(userId);
   user.projects[projectId] = { // initally, the user is assigned no images.
@@ -66,6 +66,9 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     toVerify: [],
     done: [],
   };
+
+  await projectsDB.put(project);
+  await usersDB.put(user);
 }
 
 /**
@@ -75,12 +78,15 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
   const imageId = new Date().toJSON(); // unique id's.
   const project = await findProjectById(projectId);
-  Images[imageId] = {
-    id: imageId,
-    data,
-  };
 
   project.images.toAnnotate.push({ imageId, annotator: null });
 
+  await imagesDB.put({
+    _id: imageId,
+    id: imageId,
+    data,
+  });
+
+  await projectsDB.put(project);
   return imageId;
 }

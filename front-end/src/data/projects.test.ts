@@ -5,6 +5,8 @@ import {
 } from '.';
 import { findImageById, getImages } from './images';
 
+jest.mock('./databases');
+
 test('Can find created project', async () => {
   const id = await createProject('Test Project', 'The Flintstones', []);
   const name = findProjectById(id).then((project) => project.name);
@@ -17,7 +19,7 @@ describe('addUserToProject', () => {
   beforeAll(async () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
     projectId = await createProject('Project 1', 'Client 1', []);
-    addUserToProject(userId, projectId);
+    await addUserToProject(userId, projectId);
   });
 
   it('modifies user state', async () => expect(findUserById(userId).then((user) => user.projects[projectId]))
