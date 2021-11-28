@@ -9,14 +9,9 @@ export default function Dashboard() {
   if (userContext === 'isLoading') {
     return <span>Loading....</span>;
   }
+
   return (
     <div>
-      Hi,
-      {' '}
-      {userContext ? userContext.name : 'You are a dumbo'}
-      {' '}
-      {/* {authentication.user.roles.indexOf('projectManager') !== -1 ? <span>You are an amazing manager!</span> : <span>You are no one...</span>}
-      {' '} */}
       <button
         type="button"
         onClick={() => {

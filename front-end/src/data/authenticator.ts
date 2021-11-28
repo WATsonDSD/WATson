@@ -10,6 +10,33 @@ PouchDB.plugin(PouchDBAuthentication);
 type UserContext = PouchDB.Authentication.UserContext | 'isLoading' | null;
 type Subscribers = {[id: string]: (context: UserContext) => void};
 
+// ERROR DEFINITIONS
+const Errors: {[type: string]: { name: string, message: string}} = {
+  InvalidCredentials: {
+    name: 'invalid_credentials',
+    message: 'Authentication credentials are not valid.',
+  },
+  InvalidContext: {
+    name: 'invalid_context',
+    message: 'No valid user context available.',
+  },
+};
+
+/* eslint-disable lines-between-class-members */
+class AuthenticationError extends Error {
+  name: string = '';
+  message: string = '';
+
+  constructor(error: { name: string, message: string}, ...args: any[]) {
+    super(...args);
+
+    this.name = error.name;
+    this.message = error.message;
+
+    Object.setPrototypeOf(this, AuthenticationError.prototype);
+  }
+}
+
 /**
  * Because of a design flaw in pouchdb-authentication, we need to attach
  * our db instance to a dummy database - in this case "/db".
@@ -33,7 +60,7 @@ async function updateCurrentContext(): Promise<UserContext> {
   return new Promise((resolve, reject) => {
     db.getSession((err, response) => {
       if (err) {
-        reject(err);
+        reject(err.name);
       } else if (!response?.userCtx.name) {
         currentContext = null;
       } else {
@@ -53,7 +80,10 @@ export async function login(email: string, password: string): Promise<UserContex
   return new Promise((resolve, reject) => {
     db.logIn(email, password, (err, response) => {
       if (err) {
-        reject(err);
+        if (err.name === 'unauthorized' || err.name === 'forbidden') {
+          reject(new AuthenticationError(Errors.InvalidCredentials).name);
+        }
+        reject(err.name);
       } else {
         updateCurrentContext()
           .then(() => {
@@ -70,9 +100,14 @@ export async function login(email: string, password: string): Promise<UserContex
  */
 export async function logout(): Promise<void> {
   return new Promise((resolve, reject) => {
+    // A valid user needs to be signed in
+    if (currentContext === null) {
+      reject(new AuthenticationError(Errors.InvalidContext).name);
+    }
+
     db.logOut((err) => {
       if (err) {
-        reject(err);
+        reject(err.name);
       } else {
         updateCurrentContext()
           .then(() => {
