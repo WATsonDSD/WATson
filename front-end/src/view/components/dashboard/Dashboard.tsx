@@ -50,6 +50,8 @@ export default function Dashboard() {
     return getProjectsOfUser(user.id);
   });
 
+  const user = useData(async () => getLoggedInUser());
+
   const addProjectButton = (
     <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
       <BsPlusLg className="w-30 h-30 mt-auto mb-auto" />
@@ -67,7 +69,11 @@ export default function Dashboard() {
         <div className="w-full min-h-full bg-gray-50">
           <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6 h-screen">
             {projects?.map((project) => (
-              <Card key={project.id} project={project} actions={actionsProject} />
+              <Card
+                key={project.id}
+                project={project}
+                actions={actionsProject.filter((a) => a.role === user?.role)}
+              />
             ))}
           </section>
         </div>

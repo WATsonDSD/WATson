@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../shared/layout/Header';
+import { Project, UserID, LandmarkSpecification } from '../../../data/types';
 
 function handleLandmarksButton(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   const selected = (event.target as Element).classList.contains('bg-green-300');
@@ -18,6 +19,30 @@ function handleLandmarksButton(event: React.MouseEvent<HTMLButtonElement, MouseE
 
 export default function CreateProject() {
   const [workers, setWorkers] = useState([{ id: 0, worker: '', role: 'annotator' }]);
+
+  const handleSubmit = (event: any) => {
+    const name = event.target.name.value;
+    const client = event.target.client.value;
+    const startDate = event.target.startDate.value;
+    const endDate = event.target.endDate.value;
+    const users: UserID[] = [];
+    workers?.forEach((worker) => {
+      users.push(worker.worker);
+    });
+
+    const landmarks: LandmarkSpecification = [1, 2, 3, 4, 5];
+    const images = {
+      toAnnotate: [{ imageId: '0', annotator: null }],
+      toVerify: [{ imageId: '0', annotator: null, verifier: null }],
+      done: [{ imageId: '0', annotator: null, verifier: null }],
+    };
+    const project: Project = {
+      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
+    };
+    console.log(project);
+
+    event.preventDefault();
+  };
 
   return (
     <div className="h-full w-full">
@@ -108,30 +133,30 @@ export default function CreateProject() {
           </div>
         </div>
         <div>
-          <form className="text-left w-full mx-auto max-w-lg">
+          <form className="text-left w-full mx-auto max-w-lg" onSubmit={handleSubmit}>
             <div className="flex  -mx-3 mb-6">
               <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name">
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
                 </label>
               </div>
               <div className="w-full md:w-1/4 px-3">
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-last-name">
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
                 </label>
               </div>
               <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name">
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
                 </label>
               </div>
               <div className="w-full md:w-1/4 px-3">
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-last-name">
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
                 </label>
               </div>
             </div>
@@ -177,25 +202,25 @@ export default function CreateProject() {
                 <button type="button" id="b10" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   10
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b11" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   11
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b12" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   12
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b13" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   13
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b14" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   14
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b15" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   15
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b16" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   16
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b17" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   17
                 </button>
               </div>
@@ -208,19 +233,19 @@ export default function CreateProject() {
                   </span>
                   <br />
                   <div className="inline-flex">
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                    <button type="button" id="b18" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                       18
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b19" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       19
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b20" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       20
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b21" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       21
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b22" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       22
                     </button>
                   </div>
@@ -231,19 +256,19 @@ export default function CreateProject() {
                   </span>
                   <br />
                   <div className="inline-flex">
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                    <button type="button" id="b23" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                       23
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b24" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       24
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b25" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       25
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b26" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       26
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b27" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       27
                     </button>
                   </div>
@@ -257,31 +282,31 @@ export default function CreateProject() {
               </span>
               <br />
               <div className="flex flex-wrap">
-                <button type="button" id="btn-1" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                <button type="button" id="b28" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                   28
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b29" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   29
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b30" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   30
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b31" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   31
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b32" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   32
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b33" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   33
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b34" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   34
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b35" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   35
                 </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                <button type="button" id="b36" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                   36
                 </button>
               </div>
@@ -294,22 +319,22 @@ export default function CreateProject() {
                   </span>
                   <br />
                   <div className="inline-flex">
-                    <button type="button" id="btn-1" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                    <button type="button" id="b37" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                       37
                     </button>
-                    <button type="button" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b38" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       38
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b39" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       39
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b40" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       40
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b41" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       41
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b42" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       42
                     </button>
                   </div>
@@ -320,22 +345,22 @@ export default function CreateProject() {
                   </span>
                   <br />
                   <div className="inline-flex">
-                    <button type="button" id="btn-1" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                    <button type="button" id="b43" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                       43
                     </button>
-                    <button type="button" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b44" className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       44
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b45" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       45
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b46" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       46
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b47" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       47
                     </button>
-                    <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
+                    <button type="button" id="b48" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
                       48
                     </button>
                   </div>
@@ -349,7 +374,7 @@ export default function CreateProject() {
               </span>
               <br />
               <div className="flex flex-wrap">
-                <button type="button" id="btn-1" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
+                <button type="button" id="b49" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
                   49
                 </button>
                 <button type="button" onClick={(e) => handleLandmarksButton(e)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
@@ -421,9 +446,9 @@ export default function CreateProject() {
               <div className="w-full flex flex-col space-x-4 md:w-1/3 px-3 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
                   Workers
-                  {workers.map((worker) => (
+                  {workers.map((worker, index) => (
                     <div className="relative" key={`workers.user${worker.id}`}>
-                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
+                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id={`worker-${index}`} name={`users[${index}].id`}>
                         <option>User 1</option>
                         <option>User 2</option>
                         <option>User 3</option>
@@ -439,12 +464,12 @@ export default function CreateProject() {
               <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-Worker-role">
                   Role
-                  {workers.map((worker) => (
+                  {workers.map((worker, index) => (
                     <div className="relative" key={`workers.role${worker.id}`}>
-                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-workers-role">
-                        <option>Financier</option>
-                        <option>Annotator</option>
-                        <option>Verifier</option>
+                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id={`workerRole-${index}`} name={`users[${index}].role`}>
+                        <option value="finance">Financier</option>
+                        <option value="annotator">Annotator</option>
+                        <option value="verifier">Verifier</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -482,9 +507,9 @@ export default function CreateProject() {
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   Param
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="number" placeholder="Payment per hour" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="number" placeholder="Payment per annotation" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="number" placeholder="Payment per Verification" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerH" name="paymentPerH" type="number" placeholder="Payment per hour" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per annotation" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
 
               </div>
             </div>
@@ -496,9 +521,14 @@ export default function CreateProject() {
                 Create Storage and Upload Media
               </button>
             </div>
+
+            <button className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2" type="submit">
+              Submit
+            </button>
           </form>
         </div>
         <div id="grid-col-3" />
+        {/* todo: add annotation points */}
       </div>
     </div>
   );

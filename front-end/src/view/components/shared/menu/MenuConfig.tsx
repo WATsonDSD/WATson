@@ -2,8 +2,6 @@
 import React from 'react';
 import {
   FaHome,
-  FaUserFriends,
-  FaFolderOpen,
 } from 'react-icons/fa';
 import { MdOutlineDashboard } from 'react-icons/md';
 
@@ -13,18 +11,6 @@ export const links = [
     name: 'Workers',
     href: '/workers',
     icon: <FaHome className="w-5 h-5" />,
-  },
-  {
-    id: 2,
-    name: 'PageB',
-    href: '/pageB',
-    icon: <FaUserFriends className="w-5 h-5" />,
-  },
-  {
-    id: 3,
-    name: 'PageC',
-    href: '/pageC',
-    icon: <FaFolderOpen className="w-5 h-5" />,
   },
   {
     id: 4,

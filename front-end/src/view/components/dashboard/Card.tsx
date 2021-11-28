@@ -13,7 +13,7 @@ const Card = (props: any) => {
 
   return (
 
-    <div className="flex-initial" role="link" tabIndex={0} onClick={() => navigate('/editProject')} onKeyDown={() => { console.log('open project'); }}>
+    <div className="flex-initial" role="link" tabIndex={0} onClick={() => navigate(`/editProject/${project.id}`)} onKeyDown={() => { console.log('open project'); }}>
       <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
 
         <div className="flex justify-between py-2">

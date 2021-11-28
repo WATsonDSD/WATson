@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { findProjectById } from '../../../data';
+import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 
 export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
     [id: string]: {},
   });
+  const { idProject } = useParams();
   let empty = document.getElementById('empty');
 
-  console.log(FILES);
+  const project = useData(async () => findProjectById(idProject ?? ''));
+
+  console.log(project);
   function addFile(target: any, file: any) {
-    const objectURL = window.URL.createObjectURL(new File(Array.from(file), file.name));
+    const objectURL = window.URL.createObjectURL(new Blob([file]));
     empty = document.getElementById('empty');
     empty?.classList.add('hidden');
-
     const TempFiles = {} as {
       [id: string]: {},
     };
     TempFiles[objectURL] = file;
-    setFILES(TempFiles);
+    setFILES((prevState) => ({
+      ...prevState,
+      [objectURL]: file,
+    }));
   }
 
   let gallery = document.getElementById('gallery');
@@ -31,64 +39,41 @@ export default function ProjectEdit() {
     }
   }
 
-  function getEventTarget(e: any) {
-    const ev = e || window.event;
-    return ev.target || ev.srcElement;
-  }
-
-  if (gallery != null) {
-    gallery.onclick = function (event) {
-      const target = getEventTarget(event);
-      if (target?.classList.contains('delete')) {
-        const ou = target.dataset.target;
-        document.getElementById(ou)?.remove();
-        if (gallery?.children.length === 1) empty?.classList.remove('hidden');
-        delete FILES[ou];
-      }
-    };
+  function deleteFile(objectURL: any) {
+    const state = { ...FILES };
+    delete state[objectURL];
+    console.log(state);
+    setFILES(state);
   }
 
   // clear entire selection
   function onCancelClick() {
-    while (gallery !== undefined
-      && (gallery?.children !== undefined
-      && (gallery?.children.length > 0))) {
-      gallery?.lastChild?.remove();
-    }
-    setFILES({});
+    empty = document.getElementById('empty');
     empty?.classList.remove('hidden');
     gallery?.append(empty ?? '');
+    setFILES({});
   }
 
   const keys = Object.keys(FILES);
   const tabFilesPreview: any = [];
+  const objURLs: any = [];
 
+  console.log(keys);
   keys.forEach((key) => {
     tabFilesPreview.push(FILES[key]);
+    objURLs.push(key);
   });
 
   return (
     <div className="h-full w-full">
-      <Header title="This is page kk" />
-      {/* <!-- file upload modal -->  */}
-      <article aria-label="File Upload Modal" className="relative h-full flex flex-col bg-white shadow-xl rounded-md">
-        {/* <!-- overlay --> */}
-        <div id="overlay" className="w-full h-full absolute top-0 left-0 pointer-events-none z-50 flex flex-col items-center justify-center rounded-md">
-          <i>
-            <svg className="fill-current w-12 h-12 mb-3 text-blue-700" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092-4.005 0-7.267 3.141-7.479 7.092-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-7.479-1.092l4 4h-3v4h-2v-4h-3l4-4z" />
-            </svg>
-          </i>
-          <p className="text-lg text-blue-700">Drop files to upload</p>
-        </div>
-
-        {/* <!-- scroll area -->  */}
-        <section className="h-full overflow-auto p-8 w-full h-full flex flex-col">
+      <Header title={`Adding and Assigning images : ${project?.id ?? ''}`} />
+      <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white shadow-xl rounded-md">
+        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left ml-2">
+          Adding images
+        </span>
+        <br />
+        <section className="p-8 w-full flex flex-col">
           <header className="border-dashed border-2 border-gray-400 py-12 flex flex-col justify-center items-center">
-            <p className="mb-3 font-semibold text-gray-900 flex flex-wrap justify-center">
-              <span>Drag and drop your</span>
-              <span>files anywhere or</span>
-            </p>
             <input
               id="hidden-input"
               type="file"
@@ -108,11 +93,12 @@ export default function ProjectEdit() {
             id="gallery"
             className="flex flex-1 flex-wrap -m-1"
           >
-            {tabFilesPreview.map((file: any) => {
-              const objectURL = window.URL.createObjectURL(new File(Array.from(file), file.name));
+            {tabFilesPreview.map((file: any, index: number) => {
+              const objectURL = objURLs[index];
+              console.log(tabFilesPreview);
               return (
-                <li id={objectURL} key={objectURL} className="block p-1 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8 h-24">
-                  <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 cursor-pointer relative text-transparent hover:text-white shadow-sm">
+                <li key={objectURL} className="block p-1 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8 h-24">
+                  <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 cursor-pointer relative text-transparent hover:text-black shadow-sm">
                     <img src={objectURL} alt={file.name} className="img-preview w-full h-full sticky object-cover rounded-md bg-fixed" />
 
                     <section className="flex flex-col rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
@@ -136,8 +122,7 @@ export default function ProjectEdit() {
                                   file.size < 1024 ? `${file.size}b` : ''
                               }
                         </p>
-                        {/* onClick={() => deleteFile(objectURL)} */}
-                        <button type="button" className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md">
+                        <button onClick={() => deleteFile(objectURL)} type="button" className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md">
                           <svg className="pointer-events-none fill-current w-4 h-4 ml-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path className="pointer-events-none" d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z" />
                           </svg>
@@ -154,8 +139,34 @@ export default function ProjectEdit() {
             </li>
           </ul>
         </section>
+        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left ml-2">
+          Assigning images to workers
+        </span>
+        <br />
+        <div className="flex flex-wrap mb-2">
+          <div className="w-full flex flex-col space-x-4 md:w-1/3 px-3 mb-6 md:mb-0">
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-Worker-role">
+              Worker
+              {project?.users.map((worker) => (
+                <div className="relative" key={worker}>
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} />
+                </div>
+              ))}
+            </label>
+          </div>
+          <div className="w-full  md:w-1/3 px-3 mb-6 md:mb-0">
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+              Number Of images
+              {project?.users.map((worker) => (
+                <div className="relative" key={`${worker}`}>
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" max={Object.keys(FILES).length} id={`${worker}-nbImages`} name={`${worker}-nbImages`} type="number" placeholder="Number of Images" />
 
-        {/* <!-- sticky footer -->  */}
+                </div>
+              ))}
+            </label>
+          </div>
+        </div>
+
         <footer className="flex justify-end px-8 pb-8 pt-4">
           <button
             type="button"
@@ -164,15 +175,15 @@ export default function ProjectEdit() {
               alert(`Submitted Files:\n${JSON.stringify(FILES)}`);
               console.log(FILES);
             }}
-            className="rounded-sm px-3 py-1 bg-blue-700 hover:bg-blue-500 text-white focus:shadow-outline focus:outline-none"
+            className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
           >
-            Upload now
+            Upload And assign now
           </button>
-          <button type="button" id="cancel" onClick={onCancelClick} className="ml-3 rounded-sm px-3 py-1 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
+          <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
             Cancel
           </button>
         </footer>
-      </article>
+      </form>
     </div>
   );
 }
