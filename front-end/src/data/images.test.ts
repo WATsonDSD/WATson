@@ -5,6 +5,8 @@ import { findImageById, getImages, saveAnnotation } from './images';
 
 jest.mock('./databases');
 
+const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+
 describe('addAnnotation', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
@@ -19,7 +21,7 @@ describe('addAnnotation', () => {
   } as Annotation;
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
-    imageId = await addImageToProject(null, projectId);
+    imageId = await addImageToProject(imageData, projectId);
     return saveAnnotation(validAnnotation, imageId, projectId);
   });
 
@@ -34,4 +36,6 @@ describe('addAnnotation', () => {
   it('reject invalid annotations', () => {
     expect(saveAnnotation(invalidAnnotation, imageId, projectId)).rejects.toThrow();
   });
+
+  it('find image by id for view', () => expect(findImageById(imageId).then((imageView) => imageView.data === imageData)).resolves.toBe(true));
 });

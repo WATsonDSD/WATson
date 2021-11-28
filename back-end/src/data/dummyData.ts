@@ -39,14 +39,15 @@ export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',
     users: ['dummyUserId', 'dummyLoggedInUserId'],
+    name: 'Dummy Project 1',
     client: 'Dummy Client Inc.',
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: '' + new Date(),
+    endDate: '' + new Date(),
     status: 'inProgress',
     landmarks: [0],
     images: {
-      toAnnotate: ['image1'],
-      toVerify: ['image2'],
+      toAnnotate: [{ imageId: 'image1', annotator: null }],
+      toVerify: [{ imageId: 'image2', annotator: null, verifier: null }],
       done: [],
     },
   },
@@ -57,11 +58,10 @@ export const Projects = {
 export const Images = {
   image1: {
     id: 'image1',
-    data: null,
+    annotation: {},
   },
   image2: {
     id: 'image2',
-    data: null,
     annotation: {
       0: { x: 1, y: 2, z: 3 },
     },
