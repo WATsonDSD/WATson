@@ -1,5 +1,5 @@
 import {
-  ImageID, Image, ProjectID, UserID, findUserById,
+  ImageID, Image, ImageView, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { imagesDB, projectsDB } from './databases';
@@ -11,8 +11,23 @@ import { imagesDB, projectsDB } from './databases';
   To create an Image, use addImageToProject.
  */
 
-export async function findImageById(id: ImageID): Promise<Image> {
-  return imagesDB.get(id);
+/**
+ * Creates an object of type ImageView with the id and the Blob image
+ * of af the Image corresponding to the given ImageID. 
+ * This function is used to display the image to the user. 
+ * @param id The identificator of the requested image 
+ */
+export async function findImageById(id: ImageID): Promise<ImageView> {
+  const attach = await imagesDB.getAttachment(id, 'image');
+  const im = await imagesDB.get(id);
+  let image : ImageView;
+  // eslint-disable-next-line prefer-const
+  image = {
+    id: im.id,
+    data: attach,
+    annotation: im.annotation,
+  };
+  return image;
 }
 
 /**
@@ -35,7 +50,7 @@ export async function getImages(
 /**
  * Determines whether `annotation` is valid for the `specification`. 
  */
-function fitsSpecification(annotation: Annotation, specification:LandmarkSpecification): boolean {
+function fitsSpecification(annotation: Annotation, specification: LandmarkSpecification): boolean {
   let valid = true;
   specification.forEach((landmark) => { if (!annotation[landmark]) valid = false; });
   return valid;
@@ -65,7 +80,7 @@ export async function saveAnnotation(
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
-  const image = await findImageById(imageId);
+  const image = await imagesDB.get(imageId);
   image.annotation = annotation;
 
   // move to toVerify

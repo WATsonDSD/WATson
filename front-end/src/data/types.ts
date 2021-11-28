@@ -35,8 +35,15 @@ export type Project = {
 }
 
 export type ImageID = string;
-export type ImageData = null; // TODO decide on a format for images.
+
+export type ImageData = Blob | Buffer;
+
 export type Image = {
+    id: ImageID,
+    annotation?: Annotation
+}
+
+export type ImageView = {
     id: ImageID,
     data: ImageData,
     annotation?: Annotation
