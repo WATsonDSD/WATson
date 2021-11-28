@@ -20,24 +20,27 @@ export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
     users: UserID[],
+    name: string,
     client: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     status: ProjectStatus,
     landmarks: LandmarkSpecification,
 
     images: {
-        toAnnotate: ImageID[],
-        toVerify: ImageID[],
-        done: ImageID[],
+        toAnnotate: {imageId: ImageID, annotator: UserID | null}[],
+        toVerify: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
+        done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
     }
 }
 
 export type ImageID = string;
-export type ImageData = null; // TODO decide on a format for images.
+
+export type ImageData = Blob | Buffer;
+
 export type Image = {
     id: ImageID,
-    data: ImageData,
+    data?: ImageData,
     annotation?: Annotation
 }
 

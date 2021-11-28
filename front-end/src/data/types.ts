@@ -40,12 +40,7 @@ export type ImageData = Blob | Buffer;
 
 export type Image = {
     id: ImageID,
-    annotation?: Annotation
-}
-
-export type ImageView = {
-    id: ImageID,
-    data: ImageData,
+    data?: ImageData,
     annotation?: Annotation
 }
 
