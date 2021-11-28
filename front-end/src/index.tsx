@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App imageId="image1" />
+    <App projectId="dummyProject1" />
   </React.StrictMode>,
   document.getElementById('root'),
 );
