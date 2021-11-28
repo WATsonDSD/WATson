@@ -172,7 +172,6 @@ export default function ProjectEdit() {
             type="button"
             id="submit"
             onClick={() => {
-              alert(`Submitted Files:\n${JSON.stringify(FILES)}`);
               console.log(FILES);
             }}
             className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
