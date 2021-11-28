@@ -8,7 +8,16 @@ const Card = (props: any) => {
   const navigate = useNavigate();
 
   const dropDownActions = actions.map((action: any) => (
-    <Link id="addProject" className="ml-4" type="button" to={`${action.href}${project.id}`}>{action.text}</Link>
+    <Link
+      id="addProject"
+      onClick={(event) => event.stopPropagation()}
+      className="ml-4"
+      type="button"
+      to={`${action.href}${project.id}`}
+    >
+      {action.text}
+
+    </Link>
   ));
 
   return (

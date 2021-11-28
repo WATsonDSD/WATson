@@ -13,7 +13,7 @@ const Dropdown = (props: {elements: ReactElement[]}) => {
 
     <div className="Dropdown">
 
-      <Menu as="div" className="relative inline-block text-left">
+      <Menu as="div" className="z-0 relative inline-block text-left">
         <div>
           <Menu.Button>
             <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold text-white mr-1"><AiTwotoneEdit /></span>
@@ -29,7 +29,7 @@ const Dropdown = (props: {elements: ReactElement[]}) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="origin-top-right absolute mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
               {elements?.map((element : ReactElement) => {
                 counter += 1;

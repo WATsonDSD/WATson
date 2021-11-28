@@ -25,7 +25,7 @@ const actionsProject = [
   {
     role: 'annotator',
     text: 'Annotate Images',
-    href: '/pageC/',
+    href: '/annotationView/',
   },
   {
     role: 'verifier',
