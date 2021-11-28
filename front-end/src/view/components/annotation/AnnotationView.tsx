@@ -186,7 +186,7 @@ export default function AnnotationView(props: { projectId: ProjectID }) {
   };
 
   // Here goes the image count condition if images to annotate is empty, allDone = true
-  const allDone = true;
+  const allDone = false;
   if (allDone) {
     return (
       <div className="text-7xl m-auto p-auto">
