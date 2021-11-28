@@ -23,7 +23,7 @@ export default function AnnotatedImage(props: {
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = (props.image.data || template);
+    backgroundImage.src = props.image.data ? URL.createObjectURL(props.image.data) : template;
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // scale and translate

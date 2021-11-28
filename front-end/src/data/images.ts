@@ -1,5 +1,5 @@
 import {
-  ImageID, Image, ImageView, ProjectID, UserID, findUserById,
+  ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { imagesDB, projectsDB } from './databases';
@@ -17,10 +17,10 @@ import { imagesDB, projectsDB } from './databases';
  * This function is used to display the image to the user. 
  * @param id The identificator of the requested image 
  */
-export async function findImageById(id: ImageID): Promise<ImageView> {
+export async function findImageById(id: ImageID): Promise<Image> {
   const attach = await imagesDB.getAttachment(id, 'image');
   const im = await imagesDB.get(id);
-  let image : ImageView;
+  let image : Image;
   // eslint-disable-next-line prefer-const
   image = {
     id: im.id,

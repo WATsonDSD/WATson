@@ -11,16 +11,12 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import {
-  Annotation, findProjectById, Image, Project, ProjectID,
-} from '../../../data';
-// eslint-disable-next-line no-unused-vars
-import { findImageById, saveAnnotation } from '../../../data/images';
+import { Annotation, Image, ProjectID } from '../../../data';
+import { getImages, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
 
 const templateImage: Image = {
   id: 'template',
-  data: null,
   annotation: {
     0: { x: 0.3, y: 0.4, z: 1 },
     1: { x: 0.7, y: 0.4, z: 1 },
@@ -51,7 +47,7 @@ export default function AnnotationView(props: { projectId: ProjectID }) {
       scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
     },
   } = {
-    imageToAnnotate: templateImage,
+    imageToAnnotate: { ...templateImage },
     landmarkId: undefined,
     landmarkZ: 1,
     imageTransform: {
@@ -61,16 +57,12 @@ export default function AnnotationView(props: { projectId: ProjectID }) {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    findProjectById(props.projectId).then((project: Project) => {
-      if (project.images.toAnnotate.length > 0) {
-        findImageById(project.images.toAnnotate[0].imageId).then((result) => {
-          setState({
-            ...state,
-            imageToAnnotate: result,
-            landmarkId: nextLandmark(result.annotation, templateImage.annotation),
-          });
-        });
-      }
+    getImages(props.projectId, 'toAnnotate').then((result) => {
+      setState({
+        ...state,
+        imageToAnnotate: result[0],
+        landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
+      });
     });
   }, []);
 
