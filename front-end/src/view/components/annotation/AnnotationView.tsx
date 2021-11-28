@@ -11,7 +11,9 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Annotation, Image, ImageID } from '../../../data';
+import {
+  Annotation, findProjectById, Image, Project, ProjectID,
+} from '../../../data';
 // eslint-disable-next-line no-unused-vars
 import { findImageById, saveAnnotation } from '../../../data/images';
 import AnnotatedImage from './AnnotatedImage';
@@ -40,7 +42,7 @@ g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function AnnotationView(props: { imageId: ImageID }) {
+export default function AnnotationView(props: { projectId: ProjectID }) {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
@@ -59,12 +61,16 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    findImageById(props.imageId).then((result) => {
-      setState({
-        ...state,
-        imageToAnnotate: result,
-        landmarkId: nextLandmark(result.annotation, templateImage.annotation),
-      });
+    findProjectById(props.projectId).then((project: Project) => {
+      if (project.images.toAnnotate.length > 0) {
+        findImageById(project.images.toAnnotate[0].imageId).then((result) => {
+          setState({
+            ...state,
+            imageToAnnotate: result,
+            landmarkId: nextLandmark(result.annotation, templateImage.annotation),
+          });
+        });
+      }
     });
   }, []);
 
@@ -147,13 +153,15 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     });
   };
 
-  /* const save = () => {
+  const save = () => {
+    // TODO: Check that every landmark has been marked before saving (or try-catch ?)
     if (state.imageToAnnotate.annotation) {
       saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, 'dummyProject1');
     } else {
       console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
     }
-  }; */
+    // TODO: Go to next image of project, if no other image, go to dashboard
+  };
 
   const templateLandmarkColor = (id: number) => {
     if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
@@ -262,7 +270,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={save}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
