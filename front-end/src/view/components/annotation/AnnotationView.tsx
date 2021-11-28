@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
 import Slider from 'rc-slider';
 import Icon from '@mdi/react';
@@ -13,15 +12,13 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Annotation, Image, ImageID } from '../../../data';
-// eslint-disable-next-line no-unused-vars
-import { findImageById, saveAnnotation } from '../../../data/images';
+import { Annotation, Image, ProjectID } from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
+import { getImages, saveAnnotation } from '../../../data/images';
 
 const templateImage: Image = {
   id: 'template',
-  data: null,
   annotation: {
     0: { x: 0.3, y: 0.4, z: 1 },
     1: { x: 0.7, y: 0.4, z: 1 },
@@ -32,36 +29,43 @@ const templateImage: Image = {
   },
 };
 
+const zoomIn = 1.6;
+const zoomOut = 0.625;
+
 /* TODO: Keyboard shortcuts
 a - Go to previous image
 d -  Go to next image
 s - Save image landmarks
-Mouse Scroll - Zoom In/Out
 g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function AnnotationView(props: { imageId: ImageID }) {
+export default function AnnotationView(props: { projectId: ProjectID }) {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
     landmarkZ: number,
+    imageTransform: {
+      scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
+    },
   } = {
-    imageToAnnotate: templateImage,
+    imageToAnnotate: { ...templateImage },
     landmarkId: undefined,
     landmarkZ: 1,
+    imageTransform: {
+      scale: 1, translatePos: { x: 0, y: 0 }, constrast: 100, brighness: 100,
+    },
   };
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    /* findImageById(props.imageId).then((result) => {
+    getImages(props.projectId, 'toAnnotate').then((result) => {
       setState({
         ...state,
-        imageToAnnotate: result,
-        landmarkId: nextLandmark(result.annotation, templateImage.annotation),
+        imageToAnnotate: result[0],
+        landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
       });
-    }); */
-    console.log(props.imageId);
+    });
   }, []);
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
@@ -84,10 +88,12 @@ export default function AnnotationView(props: { imageId: ImageID }) {
   };
 
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
+    const { canvas } = ctx;
+    const { translatePos, scale } = state.imageTransform;
     // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
-      const x = (event.clientX - ctx.canvas.offsetLeft) / ctx.canvas.width;
-      const y = (event.clientY - ctx.canvas.offsetTop) / ctx.canvas.height;
+      const x = ((event.clientX - canvas.offsetLeft) / canvas.width - translatePos.x) / scale;
+      const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
       let z = state.landmarkZ;
       if (rightClick) z = 0;
       else if (event.ctrlKey) z = 2;
@@ -98,8 +104,14 @@ export default function AnnotationView(props: { imageId: ImageID }) {
         landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
       });
     } else {
-      alert('You annotated every landmark in this image');
+      // alert('You annotated every landmark in this image');
     }
+  };
+  const onImageWheel = (ctx: any, event: WheelEvent) => {
+    const { canvas } = ctx;
+    const x = (event.clientX - canvas.offsetLeft) / canvas.width;
+    const y = (event.clientY - canvas.offsetTop) / canvas.height;
+    zoom(event.deltaY > 0 ? zoomOut : zoomIn, { x, y });
   };
 
   const removeLandmark = (id: number|undefined) => {
@@ -121,12 +133,28 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     setState({ ...state, landmarkZ: z });
   };
 
+  const zoom = (scale: number, position: { x: number, y: number }) => {
+    const { imageTransform } = state;
+    const x = position.x - (position.x - imageTransform.translatePos.x) * scale;
+    const y = position.y - (position.y - imageTransform.translatePos.y) * scale;
+    setState({
+      ...state,
+      imageTransform: {
+        ...imageTransform,
+        scale: imageTransform.scale * scale,
+        translatePos: { x, y },
+      },
+    });
+  };
+
   const save = () => {
+    // TODO: Check that every landmark has been marked before saving (or try-catch ?)
     if (state.imageToAnnotate.annotation) {
       saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, 'dummyProject1');
     } else {
       console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
     }
+    // TODO: Go to next image of project, if no other image, go to dashboard
   };
 
   const templateLandmarkColor = (id: number) => {
@@ -190,13 +218,11 @@ export default function AnnotationView(props: { imageId: ImageID }) {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <button type="button">
+                <button type="button" onClick={() => zoom(zoomOut, { x: 0.5, y: 0.5 })}>
                   <Icon className="col-span-1" path={mdiMagnifyMinus} horizontal />
-                  +(wip)
                 </button>
-                <button type="button">
+                <button type="button" onClick={() => zoom(zoomIn, { x: 0.5, y: 0.5 })}>
                   <Icon className="col-span-1" path={mdiMagnifyPlus} horizontal />
-                  -(wip)
                 </button>
               </div>
               <div className="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
@@ -233,13 +259,15 @@ export default function AnnotationView(props: { imageId: ImageID }) {
             <AnnotatedImage
               image={state.imageToAnnotate}
               onClick={onImageClick}
-              hideNonVisible
+              onMouseWheel={onImageWheel}
               landmarkColor={imageLandmarkColor}
+              scale={state.imageTransform.scale}
+              translatePos={state.imageTransform.translatePos}
             />
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={save}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
@@ -278,7 +306,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
         </div>
       </div>
       {/* Old / New Page Divider */}
-      <div className="Annotation">
+      {/* <div className="Annotation">
         <div className="annotation-controller">
           <button type="button" onClick={removeLastLandmark}>Undo</button>
           <button type="button">Delete (wip)</button>
@@ -290,14 +318,13 @@ export default function AnnotationView(props: { imageId: ImageID }) {
           </div>
           <button type="button">+(wip)</button>
           <button type="button">-(wip)</button>
-          {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
-        <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
+          <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
+          <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider>
         </div>
         <div className="middle">
           <AnnotatedImage
             image={state.imageToAnnotate}
             onClick={onImageClick}
-            hideNonVisible
             landmarkColor={imageLandmarkColor}
           />
           <button type="button">Previous Image (wip)</button>
@@ -317,7 +344,7 @@ export default function AnnotationView(props: { imageId: ImageID }) {
           <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
           <button type="button" onClick={save}>Save</button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
