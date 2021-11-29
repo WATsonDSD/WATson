@@ -4,9 +4,11 @@ import Routing from '../routing/Routing';
 
 export default function Layout() {
   return (
-    <div>
+    <div id="main">
       <Sidebar />
-      <Routing />
+      <div id="main-content">
+        <div id="content"><Routing /></div>
+      </div>
     </div>
   );
 }

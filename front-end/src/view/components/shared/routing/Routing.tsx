@@ -1,17 +1,23 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import PageA from '../../pageA/PageA';
-import PageB from '../../pageB/PageB';
-import PageC from '../../pageC/PageC';
-import PageD from '../../pageD/PageD';
+import Workers from '../../workers/Workers';
+import Dashboard from '../../dashboard/Dashboard';
+import CreateProject from '../../createProject/CreateProject';
+import ProjectEdit from '../../editProject/ProjectEdit';
+import AnnotationView from '../../annotation/AnnotationView';
 
 export default function Routing() {
   return (
     <Routes>
-      <Route path="/pageA" element={<PageA />} />
-      <Route path="/pageB" element={<PageB />} />
-      <Route path="/pageC" element={<PageC />} />
-      <Route path="/pageD" element={<PageD />} />
+      <Route path="/workers" element={<Workers />} />
+      <Route path="/editProject" element={<ProjectEdit />}>
+        <Route path=":idProject" element={<Workers />} />
+      </Route>
+      <Route path="/createProject" element={<CreateProject />} />
+      <Route path="/annotationView" element={<AnnotationView />}>
+        <Route path=":projectId" element={<AnnotationView />} />
+      </Route>
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }
