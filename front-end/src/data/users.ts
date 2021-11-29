@@ -27,12 +27,15 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
 
 export async function createUser(name: string, email: string, role: Role): Promise<UserID> {
   // unique Id's, should work for now.
-  const id = new Date().toISOString();
+  const id = `${Math.ceil(Math.random() * 123412341)}`;
   const tempPassword = email.substring(0, email.lastIndexOf('@'));
 
+  console.log('signing up');
+  console.log(email, tempPassword, role, id);
   // register the user in the auth DB.
   await signUp(email, tempPassword, role, id);
 
+  console.log('putting the user');
   const user = {
     _id: id,
     id,

@@ -46,7 +46,7 @@ class AuthenticationError extends Error {
  * our db instance to a dummy database - in this case "/db".
  * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
  */
-const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
+const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true });
 
 let sessionState : SessionState = 'isLoading';
 const sessionSubscribers : Subscribers = {};
@@ -75,24 +75,28 @@ async function updateSessionState(): Promise<SessionState> {
 }
 
 async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promise<SessionState> {
-  return new Promise((resolve) => {
-    db.getUser(userCtx.name, (e, r) => {
-      if (e) {
-        if (e.name === 'not_found') {
-          // typo, or you don't have the privileges to see this user
-        } else {
-          // some other error
-        }
-      } else {
-        //! this is where we can screw up
-        findUserById((r as any).id).then((user) => {
-          sessionState = user;
-          notifySubscribers(user);
-          resolve(user);
-        });
-      }
-    });
-  });
+  const user = await findUserById(userCtx.roles![1]);
+  sessionState = user;
+  notifySubscribers(user);
+  return user;
+  // return new Promise((resolve) => {
+  //   db.getUser(userCtx.name, (e, r) => {
+  //     if (e) {
+  //       if (e.name === 'not_found') {
+  //         // typo, or you don't have the privileges to see this user
+  //       } else {
+  //         // some other error
+  //       }
+  //     } else {
+  //       //! this is where we can screw up
+  //       findUserById((r as any).id).then((user) => {
+  //         sessionState = user;
+  //         notifySubscribers(user);
+  //         resolve(user);
+  //       });
+  //     }
+  //   });
+  // });
 }
 
 /**
@@ -122,10 +126,7 @@ export async function logIn(email: string, password: string): Promise<SessionSta
 export async function signUp(email: string, password: string, role: Role, id: UserID): Promise<void> {
   return new Promise((resolve, reject) => {
     db.signUp(email, password, {
-      roles: [role],
-      metadata: {
-        id,
-      },
+      roles: [role, id],
     }, (err, response) => {
       if (err) {
         reject(err.name);
