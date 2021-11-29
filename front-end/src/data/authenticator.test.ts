@@ -1,4 +1,5 @@
 export {};
+test('Trivial', () => { expect(true).toBe(true); });
 // import PouchDB from 'pouchdb';
 // import PouchDBAuthentication from 'pouchdb-authentication';
 
