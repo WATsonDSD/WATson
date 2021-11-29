@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
+import { Role, UserID } from '.';
+
 PouchDB.plugin(PouchDBAuthentication);
 
 // TYPE DEFINITIONS
@@ -43,6 +45,7 @@ class AuthenticationError extends Error {
  * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
  */
 const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
+const dbAsAdmin = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true }); // ! In the future a call will be made to the backend
 
 let currentContext : UserContext = 'isLoading';
 const contextSubscribers : Subscribers = {};
@@ -84,12 +87,34 @@ export async function login(email: string, password: string): Promise<UserContex
           reject(new AuthenticationError(Errors.InvalidCredentials).name);
         }
         reject(err.name);
-      } else {
-        updateCurrentContext()
-          .then(() => {
-            resolve(response);
-          });
       }
+      updateCurrentContext()
+        .then(() => {
+          resolve(response);
+        });
+    });
+  });
+}
+
+/**
+ * Signs up a new user who didn't exist yet.
+ */
+export async function signup(name: string, email: string, password: string, role: Role): Promise<UserID> {
+  return new Promise((resolve, reject) => {
+    dbAsAdmin.signUp(email, password, {
+      roles: [role],
+      metadata: {
+        fullname: name,
+        projects: {},
+      },
+    }, (err, response) => {
+      if (err) {
+        reject(err.name);
+      }
+      if (response) {
+        resolve(response.id);
+      }
+      reject();
     });
   });
 }
@@ -113,6 +138,26 @@ export async function logout(): Promise<void> {
           .then(() => {
             resolve();
           });
+      }
+    });
+  });
+}
+
+/* eslint-disable no-underscore-dangle */
+export async function getUser(email: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    dbAsAdmin.getUser(email, (err, response) => {
+      if (err) {
+        reject(err.name);
+      }
+      if (response) {
+        // const user = {
+        //   id: response._id,
+        //   name: response.,
+        //   role: response.roles ? response.roles[0] : '',
+        // } as User;
+
+        resolve(response);
       }
     });
   });

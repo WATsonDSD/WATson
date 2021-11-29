@@ -24,7 +24,11 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
  * // returns 'Efflam Simone'
  * getUserById(efflamsId).then(user => user.name);
  */
+
 export async function createUser(name: string, email: string, role: Role): Promise<UserID> {
+  // const tempPassword = email.substring(0, email.lastIndexOf('@'));
+  // return signup(name, email, tempPassword, role);
+
   // unique Id's, should work for now.
   const id = new Date().toISOString();
 
