@@ -1,20 +1,14 @@
 import React from 'react';
 import { AiOutlinePlus, AiOutlineClose } from 'react-icons/ai';
 import Header from '../shared/layout/Header';
-import { User } from '../../../data/types';
+import { createUser } from '../../../data';
 
 function handleSubmitForm(e: any) {
-  const id = 'CerateUserID';
   const name = e.target.name.value;
   const email = e.target.email.value;
-  const projects = {};
   const role = e.target.role.value;
 
-  const user: User = {
-    id, projects, name, email, role,
-  };
-
-  console.log(user);
+  createUser(name, email, role);
   e.preventDefault();
 }
 

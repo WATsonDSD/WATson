@@ -15,6 +15,11 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
   );
 }
 
+export async function getAllUsers(): Promise<User[]> {
+  return (await usersDB.allDocs({ include_docs: true })).rows
+    .map((row) => row.doc) as unknown as User [];
+}
+
 /**
  * Creates a new `User`.
  * @returns The newly created user's `id`, determined by the backend.
