@@ -5,7 +5,6 @@ import { Project, User, Image } from './types';
     This should enable people to start developing the logic and UI while we implement the data tier.
     ! Don't import anything from this file, import the functions you need from index.ts instead.
 */
-
 export const Users = {
   dummyUserId: {
     id: 'dummyUserId',
@@ -24,7 +23,7 @@ export const Users = {
     id: 'dummyLoggedInUserId',
     name: 'Dummy Logged In User',
     email: 'loggedIn@dummy.com',
-    role: 'annotator',
+    role: 'projectManager',
     projects: {
       dummyProject1: {
         toAnnotate: ['image1'],
@@ -36,7 +35,6 @@ export const Users = {
 } as {
     [id: string]: User,
 };
-
 export const Projects = {
   dummyProject1: {
     id: 'dummyProject1',

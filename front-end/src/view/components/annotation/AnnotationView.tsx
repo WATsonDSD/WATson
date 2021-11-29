@@ -12,7 +12,8 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Annotation, Image, ProjectID } from '../../../data';
+import { useParams } from 'react-router-dom';
+import { Annotation, Image } from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImages, saveAnnotation } from '../../../data/images';
@@ -40,7 +41,7 @@ g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function AnnotationView({ projectId } : {projectId: ProjectID}) {
+export default function AnnotationView() {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
@@ -57,9 +58,10 @@ export default function AnnotationView({ projectId } : {projectId: ProjectID}) {
     },
   };
   const [state, setState] = useState(initialState);
+  const { projectId } = useParams();
 
   useEffect(() => {
-    getImages(projectId, 'toAnnotate').then((result) => {
+    getImages(projectId ?? '', 'toAnnotate').then((result) => {
       setState({
         ...state,
         imageToAnnotate: result[0],

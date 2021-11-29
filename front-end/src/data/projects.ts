@@ -7,16 +7,14 @@ import { imagesDB, projectsDB, usersDB } from './databases';
 export async function findProjectById(id: ProjectID): Promise<Project> {
   return projectsDB.get(id);
 }
-
 /**
  * Finds and returns all projects of a user.
  */
 export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
   return Promise.all(
-    Object.keys(await findProjectById(userId)).map((id) => findProjectById(id)),
+    Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
   );
 }
-
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
@@ -53,7 +51,6 @@ export async function createProject(
   await projectsDB.put(project);
   return id;
 }
-
 /**
  * Adds the user (whatever the role) to the project.  
  * If they are an annotator or a verifier, this function will not assign them any image.
@@ -63,7 +60,6 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
   const project = await findProjectById(projectId);
 
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
-
   project.users.push(userId);
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],
@@ -87,10 +83,6 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   project.images.toAnnotate.push({ imageId, annotator: null });
 
   // store the image in the database (_attachment)
-  await imagesDB.put({
-    _id: imageId,
-    id: imageId,
-  });
   await imagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
 
   await projectsDB.put(project);

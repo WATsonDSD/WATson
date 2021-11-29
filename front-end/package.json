@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^6.4.0",
+    "@headlessui/react": "^1.4.2",
     "@mdi/font": "^6.5.95",
     "@mdi/js": "^6.5.95",
     "@mdi/react": "^1.5.0",
