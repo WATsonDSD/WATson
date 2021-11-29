@@ -62,11 +62,11 @@ function Sidebar() {
                 className="h-9 w-9 mx-2 object-center object-cover rounded-full"
               />
               <h4 className="mx-2 font-medium text-gray-800 hover:underline cursor-pointer">
-                { user ? user.name : 'loading...'}
+                { user ? user.id : 'loading...'}
                 {' '}
                 |
                 {' '}
-                {user ? user.name : 'loading...'}
+                {user ? user.role : 'loading...'}
               </h4>
             </div>
           </div>

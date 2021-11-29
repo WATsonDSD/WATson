@@ -7,6 +7,7 @@ export default function CreateProject() {
   const [workers, setWorkers] = useState([{ id: 0, worker: '', role: 'annotator' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
 
+  console.log(workers);
   const handleSubmit = (event: any) => {
     const name = event.target.name.value;
     const client = event.target.client.value;
@@ -462,10 +463,18 @@ export default function CreateProject() {
                   Workers
                   {workers.map((worker, index) => (
                     <div className="relative" key={`workers.user${worker.id}`}>
-                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id={`worker-${index}`} name={`users[${index}].id`}>
-                        <option>User 1</option>
-                        <option>User 2</option>
-                        <option>User 3</option>
+                      <select
+                        className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        id={`worker-${index}`}
+                        name={`users[${index}].id`}
+                        onChange={(e) => {
+                          const newState = Array.from(workers);
+                          newState[index].worker = e.currentTarget.value;
+                          setWorkers(newState);
+                        }}
+                      >
+                        <option value="dummyLoggedInUserId">dummyLoggedInUserId</option>
+                        <option value="dummyUserId">dummyUserId</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -480,7 +489,16 @@ export default function CreateProject() {
                   Role
                   {workers.map((worker, index) => (
                     <div className="relative" key={`workers.role${worker.id}`}>
-                      <select className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id={`workerRole-${index}`} name={`users[${index}].role`}>
+                      <select
+                        className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        id={`workerRole-${index}`}
+                        name={`users[${index}].role`}
+                        onChange={(e) => {
+                          const newState = Array.from(workers);
+                          newState[index].role = e.currentTarget.value;
+                          setWorkers(newState);
+                        }}
+                      >
                         <option value="finance">Financier</option>
                         <option value="annotator">Annotator</option>
                         <option value="verifier">Verifier</option>
