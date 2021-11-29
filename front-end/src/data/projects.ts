@@ -83,10 +83,6 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   project.images.toAnnotate.push({ imageId, annotator: null });
 
   // store the image in the database (_attachment)
-  await imagesDB.put({
-    _id: imageId,
-    id: imageId,
-  });
   await imagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
 
   await projectsDB.put(project);

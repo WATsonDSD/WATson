@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { findProjectById } from '../../../data';
+import { addImageToProject, findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 
 export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
-    [id: string]: {},
+    [id: string]: Blob,
   });
   const { idProject } = useParams();
   let empty = document.getElementById('empty');
@@ -172,7 +172,9 @@ export default function ProjectEdit() {
             type="button"
             id="submit"
             onClick={() => {
+              if (!idProject) throw Error('no project id!');
               console.log(FILES);
+              Object.values(FILES).forEach((file) => addImageToProject(file, idProject));
             }}
             className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
           >
