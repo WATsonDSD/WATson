@@ -36,7 +36,7 @@ export type Project = {
 
 export type ImageID = string;
 
-export type ImageData = Blob | Buffer;
+export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
