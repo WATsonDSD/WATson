@@ -45,16 +45,14 @@ export default function AnnotationView() {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
-    landmarkZ: number,
     imageTransform: {
-      scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
+      scale: number, translatePos: { x: number, y: number }, contrast: number, brighness: number,
     },
   } = {
     imageToAnnotate: { ...templateImage },
     landmarkId: undefined,
-    landmarkZ: 1,
     imageTransform: {
-      scale: 1, translatePos: { x: 0, y: 0 }, constrast: 100, brighness: 100,
+      scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
     },
   };
   const [state, setState] = useState(initialState);
@@ -96,7 +94,7 @@ export default function AnnotationView() {
     if (templateImage.annotation && state.landmarkId !== undefined) {
       const x = ((event.clientX - canvas.offsetLeft) / canvas.width - translatePos.x) / scale;
       const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
-      let z = state.landmarkZ;
+      let z = 1;
       if (rightClick) z = 0;
       else if (event.ctrlKey) z = 2;
       if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
@@ -131,8 +129,11 @@ export default function AnnotationView() {
     removeLandmark(lastLandmark(state.imageToAnnotate.annotation));
   };
 
-  const changeLandmarkType = (z: number) => {
-    setState({ ...state, landmarkZ: z });
+  const changeContrast = (contrast: number) => {
+    setState({ ...state, imageTransform: { ...state.imageTransform, contrast } });
+  };
+  const changeBrighness = (brighness: number) => {
+    setState({ ...state, imageTransform: { ...state.imageTransform, brighness } });
   };
 
   const zoom = (scale: number, position: { x: number, y: number }) => {
@@ -207,7 +208,7 @@ export default function AnnotationView() {
                   <Icon className="col-span-1" path={mdiUndo} horizontal />
                   Undo
                 </button>
-                <button type="button" onClick={() => changeLandmarkType(1)}>
+                <button type="button">
                   <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
                   Normal
                 </button>
@@ -222,10 +223,22 @@ export default function AnnotationView() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-1 h-26v my-4">
-                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                  <Slider
+                    className="col-span-1 p-auto mx-auto"
+                    vertical
+                    max={200}
+                    value={state.imageTransform.contrast}
+                    onChange={changeContrast}
+                  />
                 </div>
                 <div className="col-span-1 h-26v my-4">
-                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                  <Slider
+                    className="col-span-1 p-auto mx-auto"
+                    vertical
+                    max={200}
+                    value={state.imageTransform.brighness}
+                    onChange={changeBrighness}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -274,6 +287,8 @@ export default function AnnotationView() {
               landmarkColor={imageLandmarkColor}
               scale={state.imageTransform.scale}
               translatePos={state.imageTransform.translatePos}
+              contrast={state.imageTransform.contrast}
+              brightness={state.imageTransform.brighness}
             />
           </div>
         </div>
@@ -316,46 +331,6 @@ export default function AnnotationView() {
           </div>
         </div>
       </div>
-      {/* Old / New Page Divider */}
-      {/* <div className="Annotation">
-        <div className="annotation-controller">
-          <button type="button" onClick={removeLastLandmark}>Undo</button>
-          <button type="button">Delete (wip)</button>
-          <div className="landmark-type">
-          Landmark Type
-          <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
-          <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
-          <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
-          </div>
-          <button type="button">+(wip)</button>
-          <button type="button">-(wip)</button>
-          <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
-          <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider>
-        </div>
-        <div className="middle">
-            <AnnotatedImage
-              image={state.imageToAnnotate}
-              onClick={onImageClick}
-              landmarkColor={imageLandmarkColor}
-          />
-            <button type="button">Previous Image (wip)</button>
-            <button type="button">Next Image (wip)</button>
-          </div>
-          <div className="right">
-          <div className="landmark-info">
-          Landmarks set:
-            {
-              state.imageToAnnotate.annotation
-              ? Object.keys(state.imageToAnnotate.annotation).length
-              : 0
-            }
-            /
-            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
-            </div>
-            <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
-            <button type="button" onClick={save}>Save</button>
-            </div>
-          </div> */}
     </div>
   );
 }
