@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Annotation, Image, ImageID } from '../../../data';
-import { findImageById } from '../../../data/images';
-import AnnotatedImage from './AnnoatedImage';
+import Slider from 'rc-slider';
+import Icon from '@mdi/react';
+import {
+  mdiLeadPencil,
+  mdiCursorMove,
+  mdiUndo,
+  mdiDelete,
+  mdiMagnifyPlus,
+  mdiMagnifyMinus,
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiHelpCircle,
+} from '@mdi/js';
+import { Annotation, Image, ProjectID } from '../../../data';
+import AnnotatedImage from './AnnotatedImage';
+import 'rc-slider/assets/index.css';
+import { getImages, saveAnnotation } from '../../../data/images';
 
 const templateImage: Image = {
   id: 'template',
-  data: null,
   annotation: {
     0: { x: 0.3, y: 0.4, z: 1 },
     1: { x: 0.7, y: 0.4, z: 1 },
@@ -16,33 +29,41 @@ const templateImage: Image = {
   },
 };
 
+const zoomIn = 1.6;
+const zoomOut = 0.625;
+
 /* TODO: Keyboard shortcuts
 a - Go to previous image
 d -  Go to next image
 s - Save image landmarks
-Mouse Scroll - Zoom In/Out
 g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function AnnotationView(props: { imageId: ImageID }) {
+export default function AnnotationView(props: { projectId: ProjectID }) {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
     landmarkZ: number,
+    imageTransform: {
+      scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
+    },
   } = {
-    imageToAnnotate: templateImage,
+    imageToAnnotate: { ...templateImage },
     landmarkId: undefined,
     landmarkZ: 1,
+    imageTransform: {
+      scale: 1, translatePos: { x: 0, y: 0 }, constrast: 100, brighness: 100,
+    },
   };
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    findImageById(props.imageId).then((result) => {
+    getImages(props.projectId, 'toAnnotate').then((result) => {
       setState({
         ...state,
-        imageToAnnotate: result,
-        landmarkId: nextLandmark(result.annotation, templateImage.annotation),
+        imageToAnnotate: result[0],
+        landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
       });
     });
   }, []);
@@ -58,11 +79,21 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     return strId === undefined ? undefined : +strId;
   };
 
+  const lastLandmark = (imageAnnotation?: Annotation) => {
+    // TODO: move to logic
+    if (imageAnnotation === undefined) return undefined;
+
+    const strId = Object.keys(imageAnnotation).pop();
+    return strId === undefined ? undefined : +strId;
+  };
+
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
+    const { canvas } = ctx;
+    const { translatePos, scale } = state.imageTransform;
     // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
-      const x = (event.clientX - ctx.canvas.offsetLeft) / ctx.canvas.width;
-      const y = (event.clientY - ctx.canvas.offsetTop) / ctx.canvas.height;
+      const x = ((event.clientX - canvas.offsetLeft) / canvas.width - translatePos.x) / scale;
+      const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
       let z = state.landmarkZ;
       if (rightClick) z = 0;
       else if (event.ctrlKey) z = 2;
@@ -73,12 +104,57 @@ export default function AnnotationView(props: { imageId: ImageID }) {
         landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
       });
     } else {
-      alert('You annotated every landmark in this image');
+      // alert('You annotated every landmark in this image');
     }
+  };
+  const onImageWheel = (ctx: any, event: WheelEvent) => {
+    const { canvas } = ctx;
+    const x = (event.clientX - canvas.offsetLeft) / canvas.width;
+    const y = (event.clientY - canvas.offsetTop) / canvas.height;
+    zoom(event.deltaY > 0 ? zoomOut : zoomIn, { x, y });
+  };
+
+  const removeLandmark = (id: number|undefined) => {
+    if (state.imageToAnnotate.annotation && id !== undefined) {
+      delete state.imageToAnnotate.annotation[id];
+      setState({
+        ...state,
+        landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
+      });
+    } else {
+      console.warn(`Could not remove landmark with id: ${id}`);
+    }
+  };
+  const removeLastLandmark = () => {
+    removeLandmark(lastLandmark(state.imageToAnnotate.annotation));
   };
 
   const changeLandmarkType = (z: number) => {
     setState({ ...state, landmarkZ: z });
+  };
+
+  const zoom = (scale: number, position: { x: number, y: number }) => {
+    const { imageTransform } = state;
+    const x = position.x - (position.x - imageTransform.translatePos.x) * scale;
+    const y = position.y - (position.y - imageTransform.translatePos.y) * scale;
+    setState({
+      ...state,
+      imageTransform: {
+        ...imageTransform,
+        scale: imageTransform.scale * scale,
+        translatePos: { x, y },
+      },
+    });
+  };
+
+  const save = () => {
+    // TODO: Check that every landmark has been marked before saving (or try-catch ?)
+    if (state.imageToAnnotate.annotation) {
+      saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, 'dummyProject1');
+    } else {
+      console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
+    }
+    // TODO: Go to next image of project, if no other image, go to dashboard
   };
 
   const templateLandmarkColor = (id: number) => {
@@ -109,46 +185,175 @@ export default function AnnotationView(props: { imageId: ImageID }) {
     return { fill: '#525252' };
   };
 
+  // Here goes the image count condition if images to annotate is empty, allDone = true
+  const allDone = false;
+  if (allDone) {
+    return (
+      <div className="text-7xl m-auto p-auto">
+        <h1 className="pt-24 pl-24"> No Image to annotate </h1>
+      </div>
+    );
+  }
   return (
-    <div className="Annotation">
-      <div className="annotation-controller">
-        <button type="button">Undo (wip)</button>
-        <button type="button">Delete (wip)</button>
-        <div className="landmark-type">
+    <div>
+      <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
+        <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
+          <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
+            <div className="divide-y divide-gray-400">
+              <div className="grid grid-cols-2 grid-rows-2 gap-2">
+                <button type="button" onClick={removeLastLandmark}>
+                  <Icon className="col-span-1" path={mdiUndo} horizontal />
+                  Undo
+                </button>
+                <button type="button" onClick={() => changeLandmarkType(1)}>
+                  <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
+                  Normal
+                </button>
+                <button type="button">
+                  <Icon className="col-span-1" path={mdiCursorMove} horizontal />
+                  Move
+                </button>
+                <button type="button">
+                  <Icon className="col-span-1" path={mdiDelete} horizontal />
+                  Delete
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="col-span-1 h-26v my-4">
+                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                </div>
+                <div className="col-span-1 h-26v my-4">
+                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => zoom(zoomOut, { x: 0.5, y: 0.5 })}>
+                  <Icon className="col-span-1" path={mdiMagnifyMinus} horizontal />
+                </button>
+                <button type="button" onClick={() => zoom(zoomIn, { x: 0.5, y: 0.5 })}>
+                  <Icon className="col-span-1" path={mdiMagnifyPlus} horizontal />
+                </button>
+              </div>
+              <div className="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
+                <p>Optical Flow</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
+          <div className="h-full p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
+            Landmarks set:
+            { state.imageToAnnotate.annotation
+              ? Object.keys(state.imageToAnnotate.annotation).length
+              : 0 }
+            /
+            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            <br />
+            <button className="pt-4 pb-2" type="button">
+              <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
+                <span className="text-ui-darkred mx-auto"> Mark As invalid </span>
+              </div>
+            </button>
+          </div>
+        </div>
+        <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
+          <button type="button" style={{ width: '6vw' }}>
+            <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
+              <Icon className="col-span-1" path={mdiChevronLeft} />
+            </div>
+          </button>
+        </div>
+        <div className="h-full p-4 col-span-5 row-span-full w-full">
+          <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
+            <AnnotatedImage
+              image={state.imageToAnnotate}
+              onClick={onImageClick}
+              onMouseWheel={onImageWheel}
+              landmarkColor={imageLandmarkColor}
+              scale={state.imageTransform.scale}
+              translatePos={state.imageTransform.translatePos}
+            />
+          </div>
+        </div>
+        <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
+          <button type="button" style={{ width: '6vw' }} onClick={save}>
+            <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
+              <Icon className="col-span-1" path={mdiChevronRight} />
+            </div>
+          </button>
+        </div>
+        <div className="h-full p-4 col-span-3 row-span-4 w-full">
+          <div className="h-80v p-4 w-fill bg-ui shadow-lg rounded-3xl mx-auto">
+            <div className="h-10v p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
+              Landmarks set:
+              <br />
+              { state.imageToAnnotate.annotation
+                ? Object.keys(state.imageToAnnotate.annotation).length
+                : 0 }
+              /
+              {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            </div>
+            <div className="mt-12">
+              <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+            </div>
+          </div>
+        </div>
+        <div className="h-full p-4 col-start-9 col-span-4 row-start-5 row-end-6 w-full">
+          <div className="h-20v px-4 w-30v mx-auto grid m-auto grid-cols-2 gap-6">
+            <button className="col-span-1 pt-auto pb-0" type="button">
+              <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                <span className="mx-auto text-white"> Save For Later </span>
+              </div>
+            </button>
+            <button className="col-span-1" type="button">
+              <div className="flex p-1 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
+                <Icon className="fill-current text-white" path={mdiHelpCircle} />
+                <span className="px-4 text-white"> Help </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* Old / New Page Divider */}
+      {/* <div className="Annotation">
+        <div className="annotation-controller">
+          <button type="button" onClick={removeLastLandmark}>Undo</button>
+          <button type="button">Delete (wip)</button>
+          <div className="landmark-type">
           Landmark Type
           <button type="button" onClick={() => changeLandmarkType(1)}>Normal</button>
           <button type="button" onClick={() => changeLandmarkType(2)}>Occuled</button>
           <button type="button" onClick={() => changeLandmarkType(0)}>Non Visible</button>
+          </div>
+          <button type="button">+(wip)</button>
+          <button type="button">-(wip)</button>
+          <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
+          <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider>
         </div>
-        <button type="button">+(wip)</button>
-        <button type="button">-(wip)</button>
-        {/* <Slider onChange="()=>image.style.filter='contrast('+value*100+'%)'">Contrast</Slider>
-        <Slider onChange="()=>image.style.filter='brighness('+value*100+'%)'>Brighness</Slider> */}
-      </div>
-      <div className="middle">
-        <AnnotatedImage
-          image={state.imageToAnnotate}
-          onClick={onImageClick}
-          hideNonVisible
-          landmarkColor={imageLandmarkColor}
-        />
-        <button type="button">Previous Image (wip)</button>
-        <button type="button">Next Image (wip)</button>
-      </div>
-      <div className="right">
-        <div className="landmark-info">
+        <div className="middle">
+            <AnnotatedImage
+              image={state.imageToAnnotate}
+              onClick={onImageClick}
+              landmarkColor={imageLandmarkColor}
+          />
+            <button type="button">Previous Image (wip)</button>
+            <button type="button">Next Image (wip)</button>
+          </div>
+          <div className="right">
+          <div className="landmark-info">
           Landmarks set:
-          {
-            state.imageToAnnotate.annotation
+            {
+              state.imageToAnnotate.annotation
               ? Object.keys(state.imageToAnnotate.annotation).length
               : 0
-          }
-          /
-          {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
-        </div>
-        <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
-        <button type="button">Save (wip)</button>
-      </div>
+            }
+            /
+            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            </div>
+            <AnnotatedImage image={templateImage} landmarkColor={templateLandmarkColor} />
+            <button type="button" onClick={save}>Save</button>
+            </div>
+          </div> */}
     </div>
   );
 }
