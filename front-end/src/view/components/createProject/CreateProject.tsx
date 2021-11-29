@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Header from '../shared/layout/Header';
 import { Project, UserID, LandmarkSpecification } from '../../../data/types';
 import LandMarksImage from './LandMarksImage';
-import { createProject } from '../../../data';
+import { addUserToProject, createProject, getLoggedInUser } from '../../../data';
+import useData from '../../../data/hooks';
 
 export default function CreateProject() {
+  const user = useData(() => getLoggedInUser());
   const [workers, setWorkers] = useState([{ id: 0, worker: '', role: 'annotator' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
   const [project, setProject] = useState<Project | null>(null);
@@ -561,8 +563,10 @@ export default function CreateProject() {
               type="submit"
               onClick={
                 () => {
-                  if (project) {
-                    createProject(project.name, project.client, project.landmarks);
+                  if (project && user) {
+                    // the projectManager creating the project is assigned to it
+                    createProject(project.name, project.client, project.landmarks)
+                      .then((id) => { addUserToProject(user.id, id); });
                   }
                 }
             }
