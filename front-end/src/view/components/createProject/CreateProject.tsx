@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import Header from '../shared/layout/Header';
 import { Project, UserID, LandmarkSpecification } from '../../../data/types';
 import LandMarksImage from './LandMarksImage';
+import { createProject } from '../../../data';
 
 export default function CreateProject() {
   const [workers, setWorkers] = useState([{ id: 0, worker: '', role: 'annotator' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
+  const [project, setProject] = useState<Project | null>(null);
 
   console.log(workers);
   const handleSubmit = (event: any) => {
@@ -24,9 +26,9 @@ export default function CreateProject() {
       toVerify: [{ imageId: '0', annotator: null, verifier: null }],
       done: [{ imageId: '0', annotator: null, verifier: null }],
     };
-    const project: Project = {
+    setProject({
       id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
-    };
+    });
     console.log(project);
 
     event.preventDefault();
@@ -554,7 +556,17 @@ export default function CreateProject() {
               </button>
             </div>
 
-            <button className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2" type="submit">
+            <button
+              className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
+              type="submit"
+              onClick={
+                () => {
+                  if (project) {
+                    createProject(project.name, project.client, project.landmarks);
+                  }
+                }
+            }
+            >
               Submit
             </button>
           </form>
