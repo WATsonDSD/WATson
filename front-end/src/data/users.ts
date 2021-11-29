@@ -1,4 +1,4 @@
-import { findProjectById, ProjectID } from '.';
+import { findProjectById, ProjectID, signUp } from '.';
 import { usersDB } from './databases';
 import { Role, User, UserID } from './types';
 
@@ -26,11 +26,12 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
  */
 
 export async function createUser(name: string, email: string, role: Role): Promise<UserID> {
-  // const tempPassword = email.substring(0, email.lastIndexOf('@'));
-  // return signup(name, email, tempPassword, role);
-
   // unique Id's, should work for now.
   const id = new Date().toISOString();
+  const tempPassword = email.substring(0, email.lastIndexOf('@'));
+
+  // register the user in the auth DB.
+  await signUp(email, tempPassword, role, id);
 
   const user = {
     _id: id,

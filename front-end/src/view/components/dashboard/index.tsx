@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserContext, logout } from '../../../data';
+import { useUserContext, logOut } from '../../../data';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Dashboard() {
       <button
         type="button"
         onClick={() => {
-          logout().then(() => navigate('/'));
+          logOut().then(() => navigate('/'));
         }}
       >
         LOGOUT!

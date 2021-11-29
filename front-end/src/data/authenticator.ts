@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
-import { Role, UserID } from '.';
+import {
+  findUserById, Role, User, UserID,
+} from '.';
 
 PouchDB.plugin(PouchDBAuthentication);
 
 // TYPE DEFINITIONS
-type UserContext = PouchDB.Authentication.UserContext | 'isLoading' | null;
-type Subscribers = {[id: string]: (context: UserContext) => void};
+type SessionState = User | 'isLoading' | null;
+type Subscribers = {[id: string]: (user: SessionState) => void};
 
 // ERROR DEFINITIONS
 const Errors: {[type: string]: { name: string, message: string}} = {
@@ -45,13 +47,12 @@ class AuthenticationError extends Error {
  * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
  */
 const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
-const dbAsAdmin = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true }); // ! In the future a call will be made to the backend
 
-let currentContext : UserContext = 'isLoading';
-const contextSubscribers : Subscribers = {};
+let sessionState : SessionState = 'isLoading';
+const sessionSubscribers : Subscribers = {};
 
-function notifySubscribers(context: UserContext) {
-  Object.values(contextSubscribers).forEach((updateSubscriberContext) => updateSubscriberContext(context));
+function notifySubscribers(context: SessionState) {
+  Object.values(sessionSubscribers).forEach((updateSubscriberContext) => updateSubscriberContext(context));
 }
 
 /**
@@ -59,18 +60,37 @@ function notifySubscribers(context: UserContext) {
  * It's necessary to restore the user information when the application is reloaded
  * in the browser while a valid user session is still present.
  */
-async function updateCurrentContext(): Promise<UserContext> {
+async function updateSessionState(): Promise<SessionState> {
   return new Promise((resolve, reject) => {
     db.getSession((err, response) => {
       if (err) {
         reject(err.name);
       } else if (!response?.userCtx.name) {
-        currentContext = null;
+        sessionState = null;
       } else {
-        currentContext = response.userCtx;
+        UserCtxToUser(response.userCtx).then((val) => resolve(val));
       }
-      notifySubscribers(currentContext);
-      resolve(currentContext);
+    });
+  });
+}
+
+async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promise<SessionState> {
+  return new Promise((resolve) => {
+    db.getUser(userCtx.name, (e, r) => {
+      if (e) {
+        if (e.name === 'not_found') {
+          // typo, or you don't have the privileges to see this user
+        } else {
+          // some other error
+        }
+      } else {
+        //! this is where we can screw up
+        findUserById((r as any).id).then((user) => {
+          sessionState = user;
+          notifySubscribers(user);
+          resolve(user);
+        });
+      }
     });
   });
 }
@@ -79,18 +99,18 @@ async function updateCurrentContext(): Promise<UserContext> {
  * Authenticates the user and creates a session cookie that will be used
  * to validate following requests to the database.
  */
-export async function login(email: string, password: string): Promise<UserContext> {
+export async function logIn(email: string, password: string): Promise<SessionState> {
   return new Promise((resolve, reject) => {
-    db.logIn(email, password, (err, response) => {
+    db.logIn(email, password, (err) => {
       if (err) {
         if (err.name === 'unauthorized' || err.name === 'forbidden') {
           reject(new AuthenticationError(Errors.InvalidCredentials).name);
         }
         reject(err.name);
       }
-      updateCurrentContext()
-        .then(() => {
-          resolve(response);
+      updateSessionState()
+        .then((res) => {
+          resolve(res);
         });
     });
   });
@@ -99,20 +119,19 @@ export async function login(email: string, password: string): Promise<UserContex
 /**
  * Signs up a new user who didn't exist yet.
  */
-export async function signup(name: string, email: string, password: string, role: Role): Promise<UserID> {
+export async function signUp(email: string, password: string, role: Role, id: UserID): Promise<void> {
   return new Promise((resolve, reject) => {
-    dbAsAdmin.signUp(email, password, {
+    db.signUp(email, password, {
       roles: [role],
       metadata: {
-        fullname: name,
-        projects: {},
+        id,
       },
     }, (err, response) => {
       if (err) {
         reject(err.name);
       }
       if (response) {
-        resolve(response.id);
+        resolve();
       }
       reject();
     });
@@ -123,10 +142,10 @@ export async function signup(name: string, email: string, password: string, role
  * Ends the current user session and deletes the session cookie from the browser.
  * Any request should be denied from here on forward.
  */
-export async function logout(): Promise<void> {
+export async function logOut(): Promise<void> {
   return new Promise((resolve, reject) => {
     // A valid user needs to be signed in
-    if (currentContext === null) {
+    if (sessionState === null) {
       reject(new AuthenticationError(Errors.InvalidContext).name);
     }
 
@@ -134,7 +153,7 @@ export async function logout(): Promise<void> {
       if (err) {
         reject(err.name);
       } else {
-        updateCurrentContext()
+        updateSessionState()
           .then(() => {
             resolve();
           });
@@ -143,37 +162,17 @@ export async function logout(): Promise<void> {
   });
 }
 
-/* eslint-disable no-underscore-dangle */
-export async function getUser(email: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    dbAsAdmin.getUser(email, (err, response) => {
-      if (err) {
-        reject(err.name);
-      }
-      if (response) {
-        // const user = {
-        //   id: response._id,
-        //   name: response.,
-        //   role: response.roles ? response.roles[0] : '',
-        // } as User;
-
-        resolve(response);
-      }
-    });
-  });
-}
-
-export function useUserContext(): UserContext | 'isLoading' {
-  const [context, setContext] = useState<UserContext>(currentContext);
+export function useUserContext(): SessionState {
+  const [context, setContext] = useState<SessionState>(sessionState);
 
   useEffect(() => {
     const id : string = uuid();
 
-    contextSubscribers[id] = (updatedContext: UserContext) => setContext(updatedContext);
-    updateCurrentContext();
+    sessionSubscribers[id] = (updatedContext: SessionState) => setContext(updatedContext);
+    updateSessionState();
 
     return () => {
-      delete contextSubscribers[id];
+      delete sessionSubscribers[id];
     };
   }, []);
 
