@@ -19,26 +19,29 @@ export default function AnnotatedImage(props: {
   translatePos?: { x: number, y: number },
 }) {
   const canvasRef = useRef(null);
+  const {
+    image, onClick, onMouseWheel, landmarkColor, scale, translatePos,
+  } = props;
 
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = props.image.data ? URL.createObjectURL(props.image.data) : template;
+    backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // scale and translate
     ctx.save();
-    if (props.translatePos) {
-      ctx.translate(props.translatePos.x * canvas.width, props.translatePos.y * canvas.width);
+    if (translatePos) {
+      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.width);
     }
-    if (props.scale) ctx.scale(props.scale, props.scale);
+    if (scale) ctx.scale(scale, scale);
     // draw image after loading
     backgroundImage.onload = () => {
       ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
       // draw landmarks
-      if (props.image.annotation) {
-        Object.entries(props.image.annotation).forEach(([id, point]) => {
-          const { fill, stroke } = props.landmarkColor(+id);
+      if (image.annotation) {
+        Object.entries(image.annotation).forEach(([id, point]) => {
+          const { fill, stroke } = landmarkColor(+id);
           [ctx.fillStyle, ctx.strokeStyle] = [fill || '#00000000', stroke || '#00000000'];
 
           ctx.beginPath();
@@ -54,7 +57,6 @@ export default function AnnotatedImage(props: {
   useEffect(() => {
     const canvas = canvasRef.current;
     const context: any = (canvas || { getContext: (s: string) => { throw s; } }).getContext('2d');
-    const { onClick, onMouseWheel } = props;
     draw(context);
     if (onClick) {
       context.canvas.onclick = (event: any) => onClick(context, event, false);

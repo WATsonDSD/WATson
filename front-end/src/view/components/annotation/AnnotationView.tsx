@@ -40,7 +40,7 @@ g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function AnnotationView(props: { projectId: ProjectID }) {
+export default function AnnotationView({ projectId } : {projectId: ProjectID}) {
   const initialState: {
     imageToAnnotate: Image,
     landmarkId?: number,
@@ -59,7 +59,7 @@ export default function AnnotationView(props: { projectId: ProjectID }) {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    getImages(props.projectId, 'toAnnotate').then((result) => {
+    getImages(projectId, 'toAnnotate').then((result) => {
       setState({
         ...state,
         imageToAnnotate: result[0],
