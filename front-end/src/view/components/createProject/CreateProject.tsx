@@ -1,24 +1,11 @@
 import React, { useState } from 'react';
 import Header from '../shared/layout/Header';
 import { Project, UserID, LandmarkSpecification } from '../../../data/types';
-
-function handleLandmarksButton(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-  const selected = (event.target as Element).classList.contains('bg-green-300');
-
-  if (!document.querySelector('#step2')?.classList.contains('bg-black')) {
-    document.querySelector('#step2')?.classList.add('bg-black', 'text-white');
-    document.querySelector('#step2')?.classList.remove('text-gray-600');
-  }
-  if (selected) {
-    (event.target as Element).classList.remove('bg-green-300');
-  } else {
-    (event.target as Element).classList.add('bg-green-300');
-  }
-  // TODO highlight landmark point corresponding 
-}
+import LandMarksImage from './LandMarksImage';
 
 export default function CreateProject() {
   const [workers, setWorkers] = useState([{ id: 0, worker: '', role: 'annotator' }]);
+  const [currentLandMarks, setLandMarks] = useState([]);
 
   const handleSubmit = (event: any) => {
     const name = event.target.name.value;
@@ -44,11 +31,27 @@ export default function CreateProject() {
     event.preventDefault();
   };
 
+  function handleLandmarksButton(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    const selected = (event.target as Element).classList.contains('bg-green-300');
+
+    if (!document.querySelector('#step2')?.classList.contains('bg-black')) {
+      document.querySelector('#step2')?.classList.add('bg-black', 'text-white');
+      document.querySelector('#step2')?.classList.remove('text-gray-600');
+    }
+    if (selected) {
+      (event.target as Element).classList.remove('bg-green-300');
+    } else {
+      (event.target as Element).classList.add('bg-green-300');
+    }
+    // TODO highlight landmark point corresponding 
+    setLandMarks([]);
+  }
+
   return (
     <div className="h-full w-full">
       <Header title="Creating new project" />
       <div className="h-full grid grid-flow-col auto-cols-max gap-4">
-        <div className="">
+        <div>
           <div className="h-full py-6">
             <div className="h-full flex flex-col">
               <div className="" style={{ height: '10%' }}>
@@ -527,8 +530,12 @@ export default function CreateProject() {
             </button>
           </form>
         </div>
-        <div id="grid-col-3" />
-        {/* todo: add annotation points */}
+        <div>
+          {/* todo: add annotation points */}
+          <div className=" h-full mt-40">
+            <LandMarksImage LandMarks={currentLandMarks} />
+          </div>
+        </div>
       </div>
     </div>
   );
