@@ -58,7 +58,6 @@ export default function ProjectEdit() {
   const tabFilesPreview: any = [];
   const objURLs: any = [];
 
-  console.log(keys);
   keys.forEach((key) => {
     tabFilesPreview.push(FILES[key]);
     objURLs.push(key);
