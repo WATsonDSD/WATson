@@ -1,17 +1,13 @@
 import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { getLoggedInUser, logIn } from '../../../../data';
-import useData from '../../../../data/hooks';
+import { User, useUserContext } from '../../../../data';
 import { links } from './MenuConfig';
 
 function Sidebar() {
   // useEffect(() => console.log(logIn('user', 'user')),
   //   []);
-  const user = useData(() => {
-    logIn('user', 'user');
-    return getLoggedInUser();
-  });
+  const user = useUserContext() as User;
 
   return (
     <div id="sideMenu">

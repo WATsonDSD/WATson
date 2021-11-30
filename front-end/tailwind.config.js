@@ -12,6 +12,9 @@ module.exports = {
 	darkMode: false, // or 'media' or 'class'
 	theme: {
 		extend: {
+            minWidth: {
+                500: '500px',
+            },
 			height: heights,
 			width: {
 				'2v': '2vw',

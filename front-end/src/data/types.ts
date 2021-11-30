@@ -3,7 +3,7 @@ export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
     id: UserID,
     projects: {
-        [projectID: string]: {
+        [projectID: ProjectID]: {
             toAnnotate: ImageID[],
             toVerify: ImageID[],
             done: ImageID[],
@@ -36,7 +36,7 @@ export type Project = {
 
 export type ImageID = string;
 
-export type ImageData = Blob | Buffer;
+export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,

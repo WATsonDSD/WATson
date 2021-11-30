@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
     We can use this as a general purpose hook for now.
 
     The idea is to abstract 'fetching data' as a generic operation.
-    For example, `useUserProjects(user1)` is equivalent to `useData(() => getProjectsOfUser(user1))`
-    Or `useLoggedInUser()` is equivalent to `useData(() => {logIn(...); return getLoggedInUser })`
 
     The main promise of using hooks is that the data returned by them change reactively.
     Meaning that if the database includes a new project for a user, the value returned by
