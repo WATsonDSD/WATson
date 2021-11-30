@@ -152,7 +152,7 @@ export default function AnnotationView() {
   const save = () => {
     // TODO: Check that every landmark has been marked before saving (or try-catch ?)
     if (state.imageToAnnotate.annotation) {
-      saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, 'dummyProject1');
+      saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string);
     } else {
       console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
     }
