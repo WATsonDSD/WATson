@@ -7,8 +7,8 @@ import {
 
 import Protected from '../../protected';
 
-import Dashboard from '../../dashboard';
 import Authentication from '../../authentication';
+import Layout from '../layout/Layout';
 
 export default () => (
   <Routes>
@@ -17,7 +17,7 @@ export default () => (
       path="/dashboard"
       element={(
         <Protected>
-          <Dashboard />
+          <Layout />
         </Protected>
                 )}
     />
