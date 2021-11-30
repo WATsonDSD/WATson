@@ -165,25 +165,25 @@ export default function CreateProject() {
         <div>
           <form className="text-left w-full mx-auto max-w-lg" onSubmit={handleSubmit}>
             <div className="flex  -mx-3 mb-6">
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-1/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-2/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
