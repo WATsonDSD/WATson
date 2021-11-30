@@ -24,7 +24,7 @@ PouchDB.plugin(PouchDBAuthentication);
 
 const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true });
 
-db.signUp("admin@watson.com", "admin", {
+db.signUpAdmin("admin@watson.com", "admin", {
     roles: ["projectManager", "adminId"],
   }, (err, response) => {
     if (err) {

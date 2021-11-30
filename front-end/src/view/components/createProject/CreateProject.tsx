@@ -577,7 +577,10 @@ export default function CreateProject() {
                   if (project && user) {
                     // the projectManager creating the project is assigned to it
                     createProject(project.name, project.client, project.landmarks)
-                      .then((id) => { addUserToProject(user.id, id); });
+                      .then(async (id) => {
+                        await addUserToProject(user.id, id);
+                        project.users.forEach((userId) => addUserToProject(userId, id));
+                      });
                   }
                 }
             }
