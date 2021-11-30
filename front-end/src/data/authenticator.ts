@@ -46,7 +46,7 @@ class AuthenticationError extends Error {
  * our db instance to a dummy database - in this case "/db".
  * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
  */
-const db = new PouchDB('http://admin:admin@localhost:5984/db', { skip_setup: true });
+const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
 
 let sessionState : SessionState = 'isLoading';
 const sessionSubscribers : Subscribers = {};
@@ -63,10 +63,12 @@ function notifySubscribers(context: SessionState) {
 async function updateSessionState(): Promise<SessionState> {
   return new Promise((resolve, reject) => {
     db.getSession((err, response) => {
+      console.log(err, response);
       if (err) {
         reject(err.name);
       } else if (!response?.userCtx.name) {
         sessionState = null;
+        notifySubscribers(null);
       } else {
         UserCtxToUser(response.userCtx).then((val) => resolve(val));
       }

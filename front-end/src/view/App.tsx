@@ -1,10 +1,22 @@
 import React from 'react';
-import AppNavigator from './components/shared/navigator/AppNavigator';
+import { BrowserRouter } from 'react-router-dom';
+import { useUserContext } from '../data';
+import Authentication from './components/authentication';
+import Layout from './components/shared/layout/Layout';
 
 export default function App() {
-  // Each component that needs authentication to be accessed
-  // should be wrapped in the RequiredAuth component, e.g. the dashboard.
+  const user = useUserContext();
+  if (user === 'isLoading') { return <div>Loading...</div>; }
+
+  if (!user) {
+    return <Authentication />;
+  }
+
   return (
-    <AppNavigator />
+    <BrowserRouter>
+      <div className="App">
+        <Layout />
+      </div>
+    </BrowserRouter>
   );
 }
