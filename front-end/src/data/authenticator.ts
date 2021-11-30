@@ -77,7 +77,12 @@ async function updateSessionState(): Promise<SessionState> {
 }
 
 async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promise<SessionState> {
-  const user = await findUserById(userCtx.roles?.find((role) => role !== 'projectManager' && role !== 'annotator' && role !== '_admin') as string);
+  let userId: string;
+  if (userCtx.roles?.findIndex((role) => role === '_admin') !== -1) {
+    userId = 'adminId';
+  } else { userId = userCtx.roles?.find((role) => role !== 'projectManager' && role !== 'annotator' && role !== '_admin') as string; }
+  console.log(userId);
+  const user = await findUserById(userId);
   sessionState = user;
   notifySubscribers(user);
   return user;

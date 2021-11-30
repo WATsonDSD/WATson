@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
 
-import { logIn } from '../../../data';
+import { logIn, useUserContext } from '../../../data';
 
 import logo from '../../logo.svg';
 import rightArrow from '../../../assets/icons/right-arrow.svg';
@@ -15,6 +15,8 @@ export default function Authentication() {
     email: '',
     password: '',
   });
+
+  const loggedInUser = useUserContext();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +38,10 @@ export default function Authentication() {
       navigate(from, { replace: true });
     });
   };
+
+  useEffect(() => {
+    if (loggedInUser && loggedInUser !== 'isLoading') { navigate(from, { replace: true }); }
+  });
 
   return (
     <div className="flex w-full">
