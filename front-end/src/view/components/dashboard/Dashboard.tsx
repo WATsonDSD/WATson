@@ -2,7 +2,7 @@ import React from 'react';
 import { BsPlusLg } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 import {
-  getProjectsOfUser, User, useUserContext,
+  getProjectsOfUser, useUserData,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
@@ -47,8 +47,8 @@ const actionsProject = [
 ];
 
 export default function Dashboard() {
-  const user = useUserContext();
-  const projects = useData(() => getProjectsOfUser((user as User).id));
+  const [user] = useUserData();
+  const projects = useData(() => getProjectsOfUser(user!.id));
 
   const addProjectButton = (
     <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
@@ -70,7 +70,7 @@ export default function Dashboard() {
               <Card
                 key={project.id}
                 project={project}
-                actions={actionsProject.filter((a) => a.role === (user as User)?.role)}
+                actions={actionsProject.filter((a) => a.role === user!.role)}
               />
             ))}
           </section>

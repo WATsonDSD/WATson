@@ -25,6 +25,7 @@
     "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
     "no-console": "off",
     "no-undef": "off",
+    "no-shadow": "off",
     "linebreak-style": 0,
     "max-len": "off",
     "no-trailing-spaces": ["error", { "ignoreComments": true }],

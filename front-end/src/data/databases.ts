@@ -6,6 +6,8 @@ const password = 'admin';
 const address = '127.0.0.1:5984';
 const baseURL = `http://${username}:${password}@${address}`;
 
+export const AuthDB = new PouchDB('http://localhost:5984/db', { skip_setup: true });
+
 export const usersDB = new PouchDB<User>(`${baseURL}/users`);
 export const projectsDB = new PouchDB<Project>(`${baseURL}/projects`);
 export const imagesDB = new PouchDB<Image>(`${baseURL}/images`);

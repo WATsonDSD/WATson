@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification, User,
+  Project, UserID, LandmarkSpecification,
 } from '../../../data/types';
 import LandMarksImage from './LandMarksImage';
 import {
-  addUserToProject, createProject, getAllUsers, useUserContext,
+  addUserToProject, createProject, getAllUsers, useUserData,
 } from '../../../data';
 import useData from '../../../data/hooks';
 
 export default function CreateProject() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);

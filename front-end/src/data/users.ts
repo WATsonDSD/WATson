@@ -1,4 +1,4 @@
-import { findProjectById, ProjectID, signUp } from '.';
+import { findProjectById, ProjectID } from '.';
 import { usersDB } from './databases';
 import { Role, User, UserID } from './types';
 
@@ -38,7 +38,7 @@ export async function createUser(name: string, email: string, role: Role): Promi
   console.log('signing up');
   console.log(email, tempPassword, role, id);
   // register the user in the auth DB.
-  await signUp(email, tempPassword, role, id);
+  // await signUp(email, tempPassword, role, id);
 
   console.log('putting the user');
   const user = {
