@@ -19,7 +19,7 @@ export default () => (
         <Protected>
           <Layout />
         </Protected>
-                )}
+      )}
     />
   </Routes>
 );
