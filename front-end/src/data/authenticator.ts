@@ -81,7 +81,6 @@ async function toUserData(userContext: PouchDB.Authentication.UserContext): Prom
           role: responseJSON.roles[0],
         } as User;
 
-        console.log(user);
         resolve(user);
       } else {
         // TODO: when could the response be undefined | null?
@@ -102,7 +101,6 @@ async function updateUserData(): Promise<UserData> {
         // response.userCtx contains the current logged in user
         userData = [await toUserData(response.userCtx), SessionState.AUTHENTICATED];
       }
-      console.log(userData);
       notifySubscribers(userData);
       resolve(userData);
     });
@@ -115,8 +113,7 @@ export async function logIn(email: string, password: string): Promise<boolean> {
       if (error) {
         reject(error);
       } else {
-        updateUserData().then((data) => {
-          console.log(data);
+        updateUserData().then(() => {
           resolve(true);
         });
       }
@@ -133,6 +130,11 @@ export function useUserData(): UserData {
   useEffect(() => {
     // Setting the callback function for the new subscriber
     subscribers[subscriberID] = (newUserData: UserData) => setData(newUserData);
+
+    // Update the user data only if the sessionState is still pending or empty
+    if (_userData[1] !== SessionState.AUTHENTICATED) {
+      updateUserData();
+    }
 
     return () => {
       delete subscribers[subscriberID];
