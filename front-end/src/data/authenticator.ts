@@ -3,12 +3,10 @@ import { useState, useEffect } from 'react';
 
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
-import PouchDBSecurity from 'pouchdb-security-helper';
 
 import { AuthDB, User, Role } from '.';
 
 PouchDB.plugin(PouchDBAuthentication);
-PouchDB.plugin(PouchDBSecurity);
 
 /**
  * Defines the three possible states for the user session.
