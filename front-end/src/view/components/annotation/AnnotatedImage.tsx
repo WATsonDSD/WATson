@@ -41,9 +41,10 @@ export default function AnnotatedImage(props: {
     if (scale) ctx.scale(scale, scale);
     // draw image after loading
     backgroundImage.onload = () => {
+      const { brightness, contrast } = props;
       ctx.filter = `
-        ${props.brightness !== undefined ? ctx.filter = `brightness(${props.brightness}%)` : ''}
-        ${props.contrast !== undefined ? ctx.filter = `contrast(${props.contrast}%)` : ''}
+        ${brightness !== undefined ? ctx.filter = `brightness(${brightness}%)` : ''}
+        ${contrast !== undefined ? ctx.filter = `contrast(${contrast}%)` : ''}
       `;
       ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
       ctx.filter = 'brightness(100%) contrast(100%)';
