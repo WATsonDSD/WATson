@@ -6,7 +6,7 @@ const password = 'admin';
 const address = '127.0.0.1:5984';
 const baseURL = `http://${username}:${password}@${address}`;
 
-export const AuthDB = new PouchDB('https://apikey-v2-1c2upctjxha6frgm8g6ieixn0bwva5nwt9gljikzltuy:7c4568f539e86723df39e8ef65c6cf78@df6e815f-936a-4c7f-8c66-12c9e8cb2460-bluemix.cloudantnosqldb.appdomain.cloud/_users', { skip_setup: true });
+export const AuthDB = new PouchDB('https://apikey-v2-1c2upctjxha6frgm8g6ieixn0bwva5nwt9gljikzltuy:7c4568f539e86723df39e8ef65c6cf78@df6e815f-936a-4c7f-8c66-12c9e8cb2460-bluemix.cloudantnosqldb.appdomain.cloud/_users', { skip_setup: true, adapter: 'http' });
 
 export const usersDB = new PouchDB<User>(`${baseURL}/users`);
 export const projectsDB = new PouchDB<Project>(`${baseURL}/projects`);

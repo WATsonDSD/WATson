@@ -3,14 +3,12 @@ import { useState, useEffect } from 'react';
 
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
+import PouchDBSecurity from 'pouchdb-security-helper';
 
-import {
-  AuthDB,
-  User,
-  // findUserById, Role, User, UserID,
-} from '.';
+import { AuthDB, User, Role } from '.';
 
 PouchDB.plugin(PouchDBAuthentication);
+PouchDB.plugin(PouchDBSecurity);
 
 /**
  * Defines the three possible states for the user session.
@@ -65,7 +63,13 @@ function notifySubscribers(userData: UserData) {
 }
 
 /* eslint-disable no-underscore-dangle */
-async function toUserData(userContext: PouchDB.Authentication.UserContext): Promise<User> {
+
+/**
+ * Fetches the user details and converts the userCtx object
+ * returned by the pouchdb api into a useful User type
+ * that's more easily consumed throughout the application.
+ */
+async function fromCtxToUserData(userContext: PouchDB.Authentication.UserContext): Promise<User> {
   return new Promise((resolve, reject) => {
     AuthDB.getUser(userContext.name, (error, response) => {
       if (error) {
@@ -75,20 +79,25 @@ async function toUserData(userContext: PouchDB.Authentication.UserContext): Prom
 
         const user = {
           id: responseJSON._id,
-          projects: responseJSON.projects,
-          name: responseJSON.fullname,
           email: responseJSON.name,
+          name: responseJSON.fullname,
           role: responseJSON.roles[0],
+          projects: responseJSON.projects,
         } as User;
 
         resolve(user);
       } else {
-        // TODO: when could the response be undefined | null?
+        // TODO: HANDLE THE UNDEFINED RESPONSE HERE
       }
     });
   });
 }
 
+/**
+ * Checks for the existence of a valid authentication session
+ * in the browser's cookies and updates the userData variable
+ * to match the state of that session.
+ */
 async function updateUserData(): Promise<UserData> {
   return new Promise((resolve, reject) => {
     AuthDB.getSession(async (error, response) => {
@@ -99,7 +108,7 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await toUserData(response.userCtx), SessionState.AUTHENTICATED];
+        userData = [await fromCtxToUserData(response.userCtx), SessionState.AUTHENTICATED];
       }
       notifySubscribers(userData);
       resolve(userData);
@@ -107,20 +116,83 @@ async function updateUserData(): Promise<UserData> {
   });
 }
 
+/**
+ * Authenticates the user and creates a session cookie that
+ * will be used to validate following requests to the database.
+ */
 export async function logIn(email: string, password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    AuthDB.logIn(email, password, (error) => {
+    AuthDB.logIn(email, password, (error, response) => {
       if (error) {
+        // Email or password might be incorrent
         reject(error);
-      } else {
+      } else if (response) {
         updateUserData().then(() => {
           resolve(true);
         });
+      } else {
+        // Something went wrong...
+        resolve(false);
       }
     });
   });
 }
 
+/**
+ * Signs up a new user who didn't exist yet and sets
+ * up the right permissions for each database this
+ * user should have access to.
+ */
+export async function signUp(name: string, email: string, password: string, role: Role): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    AuthDB.signUp(email, password, {
+      roles: [role],
+      metadata: {
+        fullname: name,
+        projects: {},
+      },
+    }, (error, response) => {
+      if (error) {
+        // The user already exists or you don't have the right permissions to add him to the database
+        reject(error);
+      } else if (response) {
+        // TODO: add user permissions
+        resolve(true);
+      } else {
+        // Something went wrong...
+        resolve(false);
+      }
+    });
+  });
+}
+
+/**
+ * Ends the current user session and erases the session cookie from
+ * the browser. Any request should be denied from here on forward.
+ */
+export async function logOut(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    AuthDB.logOut((error, response) => {
+      if (error) {
+        // Network error
+        reject(error);
+      } else if (response) {
+        // When the logout is successfull, updateUserData should return [null, 'none']
+        updateUserData().then(() => {
+          resolve(true);
+        });
+      } else {
+        // Something went wrong...
+        resolve(false);
+      }
+    });
+  });
+}
+
+/**
+ * This hook exposes the user data and session
+ * state to any component that invokes it.
+ */
 export function useUserData(): UserData {
   const [_userData, setData] = useState<UserData>(userData);
 
@@ -131,8 +203,8 @@ export function useUserData(): UserData {
     // Setting the callback function for the new subscriber
     subscribers[subscriberID] = (newUserData: UserData) => setData(newUserData);
 
-    // Update the user data only if the sessionState is still pending or empty
-    if (_userData[1] !== SessionState.AUTHENTICATED) {
+    // Update the user data only if the sessionState is still pending
+    if (_userData[1] === SessionState.PENDING) {
       updateUserData();
     }
 
@@ -143,26 +215,6 @@ export function useUserData(): UserData {
 
   return _userData;
 }
-// /**
-//  * Updates the current user context to match the one in the cookies (if any).
-//  * It's necessary to restore the user information when the application is reloaded
-//  * in the browser while a valid user session is still present.
-//  */
-// async function updateSessionState(): Promise<SessionState> {
-//   return new Promise((resolve, reject) => {
-//     db.getSession((err, response) => {
-//       console.log(err, response);
-//       if (err) {
-//         reject(err.name);
-//       } else if (!response?.userCtx.name) {
-//         sessionState = null;
-//         notifySubscribers(null);
-//       } else {
-//         UserCtxToUser(response.userCtx).then((val) => resolve(val));
-//       }
-//     });
-//   });
-// }
 
 // async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promise<SessionState> {
 //   let userId: string;
@@ -174,104 +226,4 @@ export function useUserData(): UserData {
 //   sessionState = user;
 //   notifySubscribers(user);
 //   return user;
-//   // return new Promise((resolve) => {
-//   //   db.getUser(userCtx.name, (e, r) => {
-//   //     if (e) {
-//   //       if (e.name === 'not_found') {
-//   //         // typo, or you don't have the privileges to see this user
-//   //       } else {
-//   //         // some other error
-//   //       }
-//   //     } else {
-//   //       //! this is where we can screw up
-//   //       findUserById((r as any).id).then((user) => {
-//   //         sessionState = user;
-//   //         notifySubscribers(user);
-//   //         resolve(user);
-//   //       });
-//   //     }
-//   //   });
-//   // });
-// }
-
-// /**
-//  * Authenticates the user and creates a session cookie that will be used
-//  * to validate following requests to the database.
-//  */
-// export async function logIn(email: string, password: string): Promise<SessionState> {
-//   return new Promise((resolve, reject) => {
-//     db.logIn(email, password, (err) => {
-//       if (err) {
-//         if (err.name === 'unauthorized' || err.name === 'forbidden') {
-//           reject(new AuthError(Errors.InvalidCredentials).name);
-//         }
-//         reject(err.name);
-//       }
-//       updateSessionState()
-//         .then((res) => {
-//           resolve(res);
-//         });
-//     });
-//   });
-// }
-
-// /**
-//  * Signs up a new user who didn't exist yet.
-//  */
-// export async function signUp(email: string, password: string, role: Role, id: UserID): Promise<void> {
-//   return new Promise((resolve, reject) => {
-//     db.signUp(email, password, {
-//       roles: [role, id],
-//     }, (err, response) => {
-//       if (err) {
-//         reject(err.name);
-//       }
-//       if (response) {
-//         resolve();
-//       }
-//       reject();
-//     });
-//   });
-// }
-
-// /**
-//  * Ends the current user session and deletes the session cookie from the browser.
-//  * Any request should be denied from here on forward.
-//  */
-// export async function logOut(): Promise<void> {
-//   return new Promise((resolve, reject) => {
-//     // A valid user needs to be signed in
-//     if (sessionState === null) {
-//       reject(new AuthError(Errors.InvalidContext).name);
-//     }
-
-//     db.logOut((err) => {
-//       if (err) {
-//         reject(err.name);
-//       } else {
-//         // set userData to nulll
-//         updateSessionState()
-//           .then(() => {
-//             resolve();
-//           });
-//       }
-//     });
-//   });
-// }
-
-// export function useUserContext(): SessionState {
-//   const [context, setContext] = useState<SessionState>(sessionState);
-
-//   useEffect(() => {
-//     const id : string = uuid();
-
-//     sessionSubscribers[id] = (updatedContext: SessionState) => setContext(updatedContext);
-//     updateSessionState();
-
-//     return () => {
-//       delete sessionSubscribers[id];
-//     };
-//   }, []);
-
-//   return context;
 // }
