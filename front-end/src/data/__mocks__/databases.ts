@@ -18,6 +18,8 @@ const MockPouch = <T>() => ({
   },
 
   putAttachment(docId: string, attachmentId: string, attachment: Blob, type: string) {
+    const doc = this.documents[docId];
+    if (!doc) this.put({ _id: docId } as unknown as DBDocument<T>);
     const att = {
       attachID: attachmentId,
       attachType: type,
@@ -34,3 +36,7 @@ const MockPouch = <T>() => ({
 export const usersDB = MockPouch();
 export const projectsDB = MockPouch();
 export const imagesDB = MockPouch();
+
+export const authDB = {
+  signUp: (_email: any, _password: any, _roles: any, callback: (err: any, response: any) => void) => { callback(false, true); },
+};
