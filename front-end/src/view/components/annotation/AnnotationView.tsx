@@ -13,7 +13,7 @@ import {
   mdiHelpCircle,
 } from '@mdi/js';
 import { useParams } from 'react-router-dom';
-import { Annotation, Image } from '../../../data';
+import { Annotation, findProjectById, Image } from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImages, saveAnnotation } from '../../../data/images';
@@ -55,6 +55,14 @@ export default function AnnotationView() {
   const { projectId } = useParams();
 
   useEffect(() => {
+    findProjectById(projectId ?? '')
+      .then((project) => {
+        Object.keys(templateImage.annotation ?? {}).forEach((a) => {
+          if (!project.landmarks.includes(+a) && templateImage.annotation) {
+            delete templateImage.annotation[+a];
+          }
+        });
+      });
     getImages(projectId ?? '', 'toAnnotate').then((result) => {
       setState({
         ...state,
@@ -67,7 +75,7 @@ export default function AnnotationView() {
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
     // TODO: move to logic
     if (templateAnnotation === undefined) return undefined;
-    if (imageAnnotation === undefined) return 0;
+    if (imageAnnotation === undefined) return +Object.keys(templateAnnotation)[0];
 
     const strId = Object.keys(templateAnnotation).find(
       (id: string) => imageAnnotation[+id] === undefined,
@@ -100,7 +108,8 @@ export default function AnnotationView() {
         landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
       });
     } else {
-      // alert('You annotated every landmark in this image');
+      // TODO: Alert user that every landmark has been annotated
+      console.warn('Every landmark has been annotated');
     }
   };
   const onImageWheel = (ctx: any, event: WheelEvent) => {
@@ -147,13 +156,29 @@ export default function AnnotationView() {
   };
 
   const save = () => {
-    // TODO: Check that every landmark has been marked before saving (or try-catch ?)
-    if (state.imageToAnnotate.annotation) {
-      saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string);
-    } else {
+    if (state.imageToAnnotate.annotation === undefined) {
       console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
+      return;
     }
-    // TODO: Go to next image of project, if no other image, go to dashboard
+    saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string)
+      .then(() => {
+        getImages(projectId ?? '', 'toAnnotate').then((result) => {
+          if (result.length === 0) {
+            // TODO: Go to dashboard or "You annotated every image" page
+            console.warn('Every image is annotated');
+            return;
+          }
+          setState({
+            ...state,
+            imageToAnnotate: result[0],
+            landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
+          });
+        });
+      })
+      .catch((e) => {
+        // TODO: Alert user that the annotation is incorrect
+        console.warn(e);
+      });
   };
 
   const templateLandmarkColor = (id: number) => {
