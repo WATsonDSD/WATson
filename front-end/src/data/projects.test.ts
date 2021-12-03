@@ -40,9 +40,10 @@ describe('addImageToProject', () => {
     imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
   });
 
-  it('creates the image', async () => expect(findImageById(imageId).then((image) => image.id)).resolves.toBe(imageId));
+  test('creates the image', async () => {
+    const imageToTest = (findImageById(imageId).then((image) => image.id));
+    return expect(imageToTest).resolves.toBe(imageId);
+  });
 
-  it('adds the image to the project to be annotated', async () => expect(
-    getImages(projectId, 'toAnnotate').then((images) => images.findIndex((image) => image.id === imageId)),
-  ).resolves.toBeGreaterThanOrEqual(0));
+  it('adds the image to the project to be annotated', async () => expect(getImages(projectId, 'toAnnotate').then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 });
