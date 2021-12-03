@@ -30,8 +30,7 @@ describe('addAnnotation', () => {
   it('removes the image from toAnnotate', () => expect(getImages(projectId, 'toAnnotate').then((images) => images.findIndex((image) => image.id === imageId)))
     .resolves.toBe(-1));
 
-  it('adds the image to toVerify', () => expect(getImages(projectId, 'toVerify').then((images) => images.findIndex((image) => image.id === imageId)))
-    .resolves.toBeGreaterThanOrEqual(0));
+  it('adds the image to toVerify', () => expect(getImages(projectId, 'toVerify').then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 
   it('reject invalid annotations', () => {
     expect(saveAnnotation(invalidAnnotation, imageId, projectId)).rejects.toThrow();

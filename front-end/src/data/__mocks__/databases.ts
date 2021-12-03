@@ -31,6 +31,7 @@ const MockPouch = <T>() => ({
   getAttachment(docId: string) {
     return this.documents[docId].attach.data;
   },
+
 });
 
 export const usersDB = MockPouch();
