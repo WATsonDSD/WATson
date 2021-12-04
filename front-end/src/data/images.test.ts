@@ -1,7 +1,9 @@
 import {
-  addImageToProject, Annotation, createProject, ImageID, ProjectID,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID,
 } from '.';
-import { findImageById, getImages, saveAnnotation } from './images';
+import {
+  findImageById, getImages, saveAnnotation, assignVerifierToImage,
+} from './images';
 
 jest.mock('./databases');
 
@@ -38,4 +40,22 @@ describe('addAnnotation', () => {
   });
 
   it('find image by id for view', () => expect(findImageById(imageId).then((imageView) => imageView.data === imageData)).resolves.toBe(true));
+});
+
+describe('assignVerifierToImage', () => {
+  let imageId: ImageID;
+  let projectId: ProjectID;
+  let verifierId: UserID;
+  beforeAll(async () => {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    imageId = await addImageToProject(imageData, projectId);
+    verifierId = await createUser('Bob', 'bob@verifier.com', 'verifier');
+    return assignVerifierToImage(imageId, verifierId, projectId);
+  });
+
+  it('add the image to the toVerify field of the user', () => expect(getImages(verifierId, 'toVerify').then((images) => images.findIndex((image) => image.id === imageId)))
+    .resolves.toBeGreaterThanOrEqual(0));
+
+  // it('add the user id in the verifierId field of the image')
+  // it('throws error if the user is not a verifier')
 });
