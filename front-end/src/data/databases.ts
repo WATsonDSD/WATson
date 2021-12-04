@@ -1,5 +1,9 @@
 import PouchDB from 'pouchdb';
+import PouchDBAuthentication from 'pouchdb-authentication';
+
 import { Image, Project, User } from '.';
+
+PouchDB.plugin(PouchDBAuthentication);
 
 const baseURL = 'https://df6e815f-936a-4c7f-8c66-12c9e8cb2460-bluemix.cloudantnosqldb.appdomain.cloud';
 

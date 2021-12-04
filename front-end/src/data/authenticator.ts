@@ -1,13 +1,9 @@
 import axios from 'axios';
-import PouchDB from 'pouchdb';
-import PouchDBAuthentication from 'pouchdb-authentication';
 
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { AuthDB, User, Role } from '.';
-
-PouchDB.plugin(PouchDBAuthentication);
 
 /**
  * Defines the three possible states for the user session.
