@@ -39,7 +39,7 @@ server.get('/getAllUsers', async (request, reply) => {
           name: doc.fullname,
           role: doc.roles[0],
           projects: doc.projects,
-        };
+        } as User;
       });
     }
   }).catch((error) => {
