@@ -1,8 +1,9 @@
-import { v4 as uuid } from 'uuid';
-import { useState, useEffect } from 'react';
-
+import axios from 'axios';
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
+
+import { useState, useEffect } from 'react';
+import { v4 as uuid } from 'uuid';
 
 import { AuthDB, User, Role } from '.';
 
@@ -67,23 +68,43 @@ function notifySubscribers(userData: UserData) {
  * returned by the pouchdb api into a useful User type
  * that's more easily consumed throughout the application.
  */
-async function fromCtxToUserData(userContext: PouchDB.Authentication.UserContext): Promise<User> {
+export async function getUser(email: string): Promise<User> {
   return new Promise((resolve, reject) => {
-    AuthDB.getUser(userContext.name, (error, response) => {
+    AuthDB.getUser(email, (error, response) => {
       if (error) {
         reject(error);
       } else if (response) {
         const responseJSON = JSON.parse(JSON.stringify(response));
 
-        const user = {
+        const user: User = {
           id: responseJSON._id,
           email: responseJSON.name,
           name: responseJSON.fullname,
           role: responseJSON.roles[0],
           projects: responseJSON.projects,
-        } as User;
+        };
 
         resolve(user);
+      } else {
+        // TODO: HANDLE THE UNDEFINED RESPONSE HERE
+      }
+    });
+  });
+}
+
+export async function updateUser(user: User): Promise<void> {
+  return new Promise((resolve, reject) => {
+    AuthDB.putUser(user.email, {
+      roles: [user.role],
+      metadata: {
+        fullname: user.name,
+        projects: user.projects,
+      },
+    }, (error, response) => {
+      if (error) {
+        reject(error);
+      } else if (response) {
+        resolve();
       } else {
         // TODO: HANDLE THE UNDEFINED RESPONSE HERE
       }
@@ -106,7 +127,7 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await fromCtxToUserData(response.userCtx), SessionState.AUTHENTICATED];
+        userData = [await getUser(response.userCtx.name), SessionState.AUTHENTICATED];
       }
       notifySubscribers(userData);
       resolve(userData);
@@ -137,6 +158,24 @@ export async function logIn(email: string, password: string): Promise<boolean> {
 }
 
 /**
+ * Helper function that sets user's permissions
+ * so that he can have access to the databases.
+ */
+async function setUserPermissions(email: string) : Promise<boolean> {
+  let result: boolean = false;
+
+  // ! 'http://localhost:8080' will need to change for this to be deployable
+  await axios.post('http://localhost:8080/setUserPermissions', { email })
+    .then((response) => {
+      result = response as unknown as boolean;
+    }).catch((error) => {
+      console.log(error);
+    });
+
+  return result;
+}
+
+/**
  * Signs up a new user who didn't exist yet and sets
  * up the right permissions for each database this
  * user should have access to.
@@ -151,11 +190,13 @@ export async function signUp(name: string, email: string, password: string, role
       },
     }, (error, response) => {
       if (error) {
-        // The user already exists or you don't have the right permissions to add him to the database
+        /**
+         * The user already exists or you don't have the
+         * right permissions to add him to the database.
+         */
         reject(error);
       } else if (response) {
-        // TODO: add user permissions
-        resolve(true);
+        resolve(setUserPermissions(email));
       } else {
         // Something went wrong...
         resolve(false);
@@ -190,6 +231,9 @@ export async function logOut(): Promise<boolean> {
 /**
  * This hook exposes the user data and session
  * state to any component that invokes it.
+ * 
+ * @example const [user, sessionState] = useUserData();
+ * @example const [user] = useUserData(); // When you only care about the user object
  */
 export function useUserData(): UserData {
   const [_userData, setData] = useState<UserData>(userData);
@@ -213,15 +257,3 @@ export function useUserData(): UserData {
 
   return _userData;
 }
-
-// async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promise<SessionState> {
-//   let userId: string;
-//   if (userCtx.roles?.findIndex((role) => role === '_admin') !== -1) {
-//     userId = 'adminId';
-//   } else { userId = userCtx.roles?.find((role) => role !== 'projectManager' && role !== 'annotator' && role !== '_admin') as string; }
-//   console.log(userId);
-//   const user = await findUserById(userId);
-//   sessionState = user;
-//   notifySubscribers(user);
-//   return user;
-// }

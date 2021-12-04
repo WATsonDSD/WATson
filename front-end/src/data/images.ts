@@ -2,7 +2,7 @@ import {
   ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
-import { imagesDB, projectsDB } from './databases';
+import { ImagesDB, ProjectsDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -18,8 +18,8 @@ import { imagesDB, projectsDB } from './databases';
  * @param id The identificator of the requested image 
  */
 export async function findImageById(id: ImageID): Promise<Image> {
-  const attach = await imagesDB.getAttachment(id, 'image') as Blob;
-  const im = await imagesDB.get(id);
+  const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
+  const im = await ImagesDB.get(id);
   let image : Image;
   // eslint-disable-next-line prefer-const
   image = {
@@ -80,7 +80,7 @@ export async function saveAnnotation(
   if (imageIndex < 0) { throw Error('The image does not expect an annotation'); }
 
   // save the annotation
-  const image = await imagesDB.get(imageId);
+  const image = await ImagesDB.get(imageId);
   image.annotation = annotation;
 
   // move to toVerify
@@ -88,6 +88,6 @@ export async function saveAnnotation(
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
 
   // reflect the changes to the DB.
-  await imagesDB.put(image);
-  await projectsDB.put(project);
+  await ImagesDB.put(image);
+  await ProjectsDB.put(project);
 }

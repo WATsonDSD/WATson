@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
 
-import { logIn } from '../../../data';
+import { logIn, useUserData } from '../../../data';
 
 import logo from '../../logo.svg';
 import rightArrow from '../../../assets/icons/right-arrow.svg';
@@ -15,6 +15,8 @@ export default function Authentication() {
     email: '',
     password: '',
   });
+
+  const [user, sessionState] = useUserData();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,9 +39,14 @@ export default function Authentication() {
     });
   };
 
-  // useEffect(() => {
-  //   if (loggedInUser && loggedInUser !== 'isLoading') { navigate(from, { replace: true }); }
-  // });
+  /**
+   * Redirects the user if he is already authenticated.
+   */
+  useEffect(() => {
+    if (user && sessionState === 'authenticated') {
+      navigate(from, { replace: true });
+    }
+  }, []);
 
   return (
     <div className="flex w-full">
