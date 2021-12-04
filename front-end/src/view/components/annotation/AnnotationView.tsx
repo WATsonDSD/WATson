@@ -61,14 +61,23 @@ export default function AnnotationView() {
           }
         });
       });
+    nextImage();
+  }, []);
+
+  const nextImage = () => {
     getImages(projectId ?? '', 'toAnnotate').then((result) => {
+      if (result.length === 0) {
+        // TODO: Go to dashboard or "You annotated every image" page
+        console.warn('Every image is annotated');
+        return;
+      }
       setState({
         ...state,
         imageToAnnotate: result[0],
         landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
       });
     });
-  }, []);
+  };
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
     // TODO: move to logic
@@ -160,18 +169,7 @@ export default function AnnotationView() {
     }
     saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string)
       .then(() => {
-        getImages(projectId ?? '', 'toAnnotate').then((result) => {
-          if (result.length === 0) {
-            // TODO: Go to dashboard or "You annotated every image" page
-            console.warn('Every image is annotated');
-            return;
-          }
-          setState({
-            ...state,
-            imageToAnnotate: result[0],
-            landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
-          });
-        });
+        nextImage();
       })
       .catch((e) => {
         // TODO: Alert user that the annotation is incorrect
