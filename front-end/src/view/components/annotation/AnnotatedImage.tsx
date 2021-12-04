@@ -9,6 +9,8 @@ AnnotatedImage.defaultProps = {
   onMouseWheel: undefined,
   scale: 1,
   translatePos: { x: 0, y: 0 },
+  contrast: 100,
+  brightness: 100,
 };
 export default function AnnotatedImage(props: {
   image: Image,
@@ -17,6 +19,8 @@ export default function AnnotatedImage(props: {
   landmarkColor: Function,
   scale?: number,
   translatePos?: { x: number, y: number },
+  contrast?: number,
+  brightness?: number,
 }) {
   const canvasRef = useRef(null);
   const {
@@ -37,7 +41,13 @@ export default function AnnotatedImage(props: {
     if (scale) ctx.scale(scale, scale);
     // draw image after loading
     backgroundImage.onload = () => {
+      const { brightness, contrast } = props;
+      ctx.filter = `
+        ${brightness !== undefined ? ctx.filter = `brightness(${brightness}%)` : ''}
+        ${contrast !== undefined ? ctx.filter = `contrast(${contrast}%)` : ''}
+      `;
       ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+      ctx.filter = 'brightness(100%) contrast(100%)';
       // draw landmarks
       if (image.annotation) {
         Object.entries(image.annotation).forEach(([id, point]) => {
