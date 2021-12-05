@@ -85,7 +85,7 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   const project = await findProjectById(projectId);
 
   // store the image id to the project it is associated to
-  project.images.toAnnotate.push({ imageId, annotator: null });
+  project.images.toAnnotate.push({ imageId });
 
   // store the image in the database (_attachment)
   await ImagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');

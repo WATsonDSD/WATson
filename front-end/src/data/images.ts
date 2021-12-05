@@ -1,5 +1,5 @@
 import {
-  ImageID, Image, ProjectID, UserID, findUserById,
+  getUser, updateUser, ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { ImagesDB, ProjectsDB } from './databases';
@@ -26,6 +26,8 @@ export async function findImageById(id: ImageID): Promise<Image> {
     id: im.id,
     data: attach,
     annotation: im.annotation,
+    idAnnotator: im.idAnnotator,
+    idVerifier: im.idVerifier,
   };
   return image;
 }
@@ -84,10 +86,44 @@ export async function saveAnnotation(
   image.annotation = annotation;
 
   // move to toVerify
-  project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex], verifier: null });
+  project.images.toVerify.push(project.images.toAnnotate[imageIndex]);
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
 
   // reflect the changes to the DB.
   await ImagesDB.put(image);
   await ProjectsDB.put(project);
+}
+
+export async function assignVerifierToImage(
+  imageId: ImageID,
+  verifierId: UserID,
+  projectId: ProjectID,
+): Promise<void> {
+  const verifier = await getUser(verifierId);
+
+  if (verifier.role !== 'verifier') {
+    throw Error('this user is not a verifier');
+  }
+
+  const image = await ImagesDB.get(imageId);
+  image.idVerifier = verifierId;
+  verifier.projects[projectId].toVerify.push(imageId);
+  await updateUser(verifier);
+  await ImagesDB.put(image);
+}
+
+export async function assignAnnotatorToImage(
+  imageId: ImageID,
+  annotatorId: UserID,
+  projectId: ProjectID,
+): Promise<void> {
+  const annotator = await getUser(annotatorId);
+  if (annotator.role !== 'verifier') {
+    throw Error('this user is not a verifier');
+  }
+  const image = await ImagesDB.get(imageId);
+  image.idVerifier = annotatorId;
+  annotator.projects[projectId].toAnnotate.push(imageId);
+  await updateUser(annotator);
+  await ImagesDB.put(image);
 }
