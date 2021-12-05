@@ -2,16 +2,15 @@ import { AiOutlineRise, AiOutlineTeam, AiOutlineRedo } from 'react-icons/ai';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Dropdown from './Dropdown';
-import { getLoggedInUser } from '../../../data';
-import useData from '../../../data/hooks';
+import { User, useUserContext } from '../../../data';
 
 const Card = (props: any) => {
   const { project, actions } = props;
-  const user = useData(async () => getLoggedInUser());
+  const user = useUserContext();
   const navigate = useNavigate();
 
   const cardClickHandler = () => {
-    switch (user?.role) {
+    switch ((user as User)?.role) {
       case 'projectManager':
         navigate(`/editProject/${project.id}`);
         break;
