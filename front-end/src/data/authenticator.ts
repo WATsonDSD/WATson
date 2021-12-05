@@ -155,7 +155,7 @@ export async function logIn(email: string, password: string): Promise<boolean> {
  * Helper function that sets user's permissions
  * so that he can have access to the databases.
  */
-export async function setUserPermissions(email: string) : Promise<boolean> {
+async function setUserPermissions(email: string) : Promise<boolean> {
   let result: boolean = false;
 
   // ! 'http://localhost:8080' will need to change for this to be deployable
