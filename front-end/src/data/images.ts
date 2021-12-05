@@ -1,6 +1,6 @@
 import {
   ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, User,
+  findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { imagesDB, projectsDB, usersDB } from './databases';
 
@@ -20,10 +20,9 @@ import { imagesDB, projectsDB, usersDB } from './databases';
 export async function findImageById(id: ImageID): Promise<Image> {
   const attach = await imagesDB.getAttachment(id, 'image') as Blob;
   const im = await imagesDB.get(id);
-  let image : Image;
-  // eslint-disable-next-line prefer-const
-  image = {
-    id: im.id,
+  const image = {
+    // eslint-disable-next-line no-underscore-dangle
+    id: im._id,
     data: attach,
     annotation: im.annotation,
     idAnnotator: im.idAnnotator,
@@ -86,7 +85,7 @@ export async function saveAnnotation(
   image.annotation = annotation;
 
   // move to toVerify
-  project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex] });
+  project.images.toVerify.push(project.images.toAnnotate[imageIndex]);
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
 
   // reflect the changes to the DB.
@@ -101,17 +100,27 @@ export async function assignVerifierToImage(
 ): Promise<void> {
   const verifier = await usersDB.get(verifierId);
 
-  if (verifier.role === 'verifier') {
-    const image = await imagesDB.get(imageId);
-    image.idVerifier = verifierId;
-    verifier.projects[projectId].toVerify.push(image.id);
-  } else {
+  if (verifier.role !== 'verifier') {
     throw Error('this user is not a verifier');
   }
+
+  const image = await imagesDB.get(imageId);
+  image.idVerifier = verifierId;
+  verifier.projects[projectId].toVerify.push(imageId);
+  await usersDB.put(verifier);
 }
 
-export function assignAnnotatorToImage(image: Image, annotator: User, project: ProjectID) {
-  // eslint-disable-next-line no-param-reassign
-  image.idAnnotator = annotator.id;
-  annotator.projects[project].toVerify.push(image.id);
+export async function assignAnnotatorToImage(
+  imageId: ImageID,
+  annotatorId: UserID,
+  projectId: ProjectID,
+): Promise<void> {
+  const annotator = await usersDB.get(annotatorId);
+  if (annotator.role !== 'verifier') {
+    throw Error('this user is not a verifier');
+  }
+  const image = await imagesDB.get(imageId);
+  image.idVerifier = annotatorId;
+  annotator.projects[projectId].toAnnotate.push(imageId);
+  await usersDB.put(annotator);
 }

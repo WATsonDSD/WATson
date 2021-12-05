@@ -1,14 +1,10 @@
 import { v4 as uuid } from 'uuid';
 import { useState, useEffect } from 'react';
-
-import PouchDB from 'pouchdb';
-import PouchDBAuthentication from 'pouchdb-authentication';
+import { authDB } from './databases';
 
 import {
   findUserById, Role, User, UserID,
 } from '.';
-
-PouchDB.plugin(PouchDBAuthentication);
 
 // TYPE DEFINITIONS
 type SessionState = User | 'isLoading' | null;
@@ -41,13 +37,6 @@ class AuthenticationError extends Error {
   }
 }
 
-/**
- * Because of a design flaw in pouchdb-authentication, we need to attach
- * our db instance to a dummy database - in this case "/db".
- * (https://stackoverflow.com/questions/30028575/pouchdb-authentication-create-new-couchdb-users)
- */
-const db = new PouchDB('http://localhost:5984/db', { skip_setup: true });
-
 let sessionState : SessionState = 'isLoading';
 const sessionSubscribers : Subscribers = {};
 
@@ -62,7 +51,7 @@ function notifySubscribers(context: SessionState) {
  */
 async function updateSessionState(): Promise<SessionState> {
   return new Promise((resolve, reject) => {
-    db.getSession((err, response) => {
+    authDB.getSession((err, response) => {
       console.log(err, response);
       if (err) {
         reject(err.name);
@@ -112,7 +101,7 @@ async function UserCtxToUser(userCtx: PouchDB.Authentication.UserContext): Promi
  */
 export async function logIn(email: string, password: string): Promise<SessionState> {
   return new Promise((resolve, reject) => {
-    db.logIn(email, password, (err) => {
+    authDB.logIn(email, password, (err) => {
       if (err) {
         if (err.name === 'unauthorized' || err.name === 'forbidden') {
           reject(new AuthenticationError(Errors.InvalidCredentials).name);
@@ -132,7 +121,7 @@ export async function logIn(email: string, password: string): Promise<SessionSta
  */
 export async function signUp(email: string, password: string, role: Role, id: UserID): Promise<void> {
   return new Promise((resolve, reject) => {
-    db.signUp(email, password, {
+    authDB.signUp(email, password, {
       roles: [role, id],
     }, (err, response) => {
       if (err) {
@@ -157,7 +146,7 @@ export async function logOut(): Promise<void> {
       reject(new AuthenticationError(Errors.InvalidContext).name);
     }
 
-    db.logOut((err) => {
+    authDB.logOut((err) => {
       if (err) {
         reject(err.name);
       } else {
