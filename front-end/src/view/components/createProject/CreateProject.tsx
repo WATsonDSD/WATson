@@ -3,11 +3,17 @@ import Header from '../shared/layout/Header';
 import {
   Project, UserID, LandmarkSpecification, User,
 } from '../../../data/types';
-import LandMarksImage from './LandMarksImage';
 import {
-  addUserToProject, createProject, getAllUsers, useUserContext,
+  addUserToProject, createProject, getAllUsers, useUserContext, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
+import AnnotatedImage from '../annotation/AnnotatedImage';
+import TemplateAnnotation from '../annotation/TemplateAnnotation';
+
+const templateImage: Image = {
+  id: 'template',
+  annotation: TemplateAnnotation,
+};
 
 export default function CreateProject() {
   const user = useUserContext() as User;
@@ -65,6 +71,13 @@ export default function CreateProject() {
     console.log(value);
     // TODO highlight landmark point corresponding 
   }
+
+  const landmarkColor = (id: number) => {
+    if (currentLandMarks.includes(id)) {
+      return { fill: '#525252' };
+    }
+    return { stroke: '#000000' };
+  };
 
   console.log(currentLandMarks);
   return (
@@ -593,7 +606,7 @@ export default function CreateProject() {
         <div>
           {/* todo: add annotation points */}
           <div className=" h-full mt-40">
-            <LandMarksImage LandMarks={currentLandMarks} />
+            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} />
           </div>
         </div>
       </div>
