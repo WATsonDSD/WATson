@@ -46,7 +46,7 @@ export default function Authentication() {
     if (user && sessionState === 'authenticated') {
       navigate(from, { replace: true });
     }
-  }, []);
+  }, [user, sessionState]);
 
   return (
     <div className="flex w-full">
