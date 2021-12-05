@@ -1,6 +1,8 @@
 import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
-import { Image, Project, User } from '.';
+import {
+  Image, Project, User, RejectedAnnotation,
+} from '.';
 
 const username = 'admin';
 const password = 'admin';
@@ -10,6 +12,7 @@ const baseURL = `http://${username}:${password}@${address}`;
 export const usersDB = new PouchDB<User>(`${baseURL}/users`);
 export const projectsDB = new PouchDB<Project>(`${baseURL}/projects`);
 export const imagesDB = new PouchDB<Image>(`${baseURL}/images`);
+export const rejectionsDB = new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`);
 
 /**
  * Because of a design flaw in pouchdb-authentication, we need to attach

@@ -51,7 +51,7 @@ export async function getImages(
 /**
  * Determines whether `annotation` is valid for the `specification`. 
  */
-function fitsSpecification(annotation: Annotation, specification: LandmarkSpecification): boolean {
+export function fitsSpecification(annotation: Annotation, specification: LandmarkSpecification): boolean {
   let valid = true;
   specification.forEach((landmark) => { if (!annotation[landmark]) valid = false; });
   return valid;

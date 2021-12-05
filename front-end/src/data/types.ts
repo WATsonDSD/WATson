@@ -50,3 +50,13 @@ export type Point = { x: number, y: number, z: number }
 export type Annotation = {
     [landmark: number]: Point
 }
+
+export type RejectionID = string;
+export type RejectedAnnotation = {
+    id: RejectionID,
+    rejectedImageID: ImageID,
+    imageAnnotatorID: UserID,
+    imageVerifierID: UserID,
+    wrongAnnotations: Annotation,
+    comment: String,
+}
