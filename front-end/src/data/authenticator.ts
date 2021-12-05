@@ -66,18 +66,16 @@ function notifySubscribers(userData: UserData) {
  */
 export async function getUser(email: string): Promise<User> {
   return new Promise((resolve, reject) => {
-    AuthDB.getUser(email, (error, response) => {
+    AuthDB.getUser(email, (error, response: any) => {
       if (error) {
         reject(error);
       } else if (response) {
-        const responseJSON = JSON.parse(JSON.stringify(response));
-
         const user: User = {
-          id: responseJSON._id,
-          email: responseJSON.name,
-          name: responseJSON.fullname,
-          role: responseJSON.roles[0],
-          projects: responseJSON.projects,
+          id: response._id,
+          email: response.name,
+          name: response.fullname,
+          role: response.roles[0],
+          projects: response.projects,
         };
 
         resolve(user);
@@ -157,7 +155,7 @@ export async function logIn(email: string, password: string): Promise<boolean> {
  * Helper function that sets user's permissions
  * so that he can have access to the databases.
  */
-async function setUserPermissions(email: string) : Promise<boolean> {
+export async function setUserPermissions(email: string) : Promise<boolean> {
   let result: boolean = false;
 
   // ! 'http://localhost:8080' will need to change for this to be deployable

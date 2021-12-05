@@ -4,8 +4,6 @@ import vcap from "./config/vcap-local.json";
 
 import { CloudantV1 } from "@ibm-cloud/cloudant";
 
-import { User } from './data';
-
 process.env.CLOUDANT_URL = vcap.services.cloudantNoSQLDB.credentials.url;
 process.env.CLOUDANT_APIKEY = vcap.services.cloudantNoSQLDB.credentials.apikey;
 
@@ -21,64 +19,37 @@ server.register(cors, {
   allowedHeaders: ['Origin', 'Accept', 'Content-Type', 'Authorization'],
 });
 
-server.get('/getAllUsers', async (request, reply) => {
-  let users: User[] = [];
-
-  await cloudant.postAllDocs({
-    db: '_users',
-    startkey: 'a', // excludes the design documents
-    includeDocs: true,
-  }).then((response) => {
-    if (response) {
-      users = response.result.rows.map((row) => {
-        return JSON.parse(JSON.stringify(row.doc));
-      }).map((doc) => {
-        return {
-          id: doc._id,
-          email: doc.name,
-          name: doc.fullname,
-          role: doc.roles[0],
-          projects: doc.projects,
-        } as User;
-      });
-    }
-  }).catch((error) => {
-    console.log(error)
+/**
+   * Fetches and updates the permissions of the
+   * specified 'db' to include the newly created user.
+   * 
+   */
+async function setUserPermissions(db: string, email: string) : Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    cloudant.getSecurity({
+      db: db,
+    }).then(async (security) => {
+      if (security.result) {
+        let updatedSecurity: CloudantV1.JsonObject = {...security.result.cloudant, [email]: ['_reader', '_writer']};
+        
+        await cloudant.putCloudantSecurityConfiguration({
+          db: db,
+          cloudant: updatedSecurity,
+        }).then(() => {
+          resolve(true);
+        });
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
   });
-
-  reply.send(users);
-});
+}
 
 server.post('/setUserPermissions', async (request, reply) => {
   const email: string = JSON.parse(JSON.stringify(request.body)).email;
+  const dbs: string[] = ['_users', 'projects', 'images'];
 
-  let result: boolean = false;
-
-  /**
-   * Fetches and updates the permissions of the
-   * specified 'db' to include the new user.
-   * 
-   * ! In the near future it might be useful to refactor this into a function
-   * ! and set the permissions for the other databases as well.
-   */
-  await cloudant.getSecurity({
-    db: '_users'
-  }).then(async (security) => {
-    if (security.result) {
-      let updatedSecurity = {...security.result.cloudant, [email]: ['_reader']};
-      
-      await cloudant.putCloudantSecurityConfiguration({
-        db: '_users',
-        cloudant: updatedSecurity,
-      }).then(() => {
-        result = true;
-      });
-    }
-  }).catch((error) => {
-    console.log(error);
-  });
-
-  reply.send(result);
+  reply.send((await Promise.all(dbs.map((db) => setUserPermissions(db, email)))).reduce((accumulator, result) => accumulator && result));
 });
 
 server.listen(8080, (error, address) => {

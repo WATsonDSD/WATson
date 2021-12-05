@@ -1,7 +1,5 @@
-import axios from 'axios';
-
 import {
-  signUp, getUser, findProjectById, Role, User, ProjectID, UserID,
+  signUp, getUser, findProjectById, Role, User, ProjectID, UserID, AuthDB,
 } from '.';
 
 /**
@@ -27,21 +25,33 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
   );
 }
 
+/* eslint-disable no-underscore-dangle */
+
 /**
  * Fetches all the users registered on the application, regardless of role. 
  */
 export async function getAllUsers(): Promise<User[]> {
   let users: User[] = [];
 
-  // ! 'http://localhost:8080' will need to change for this to be deployable
-  await axios.get('http://localhost:8080/getAllUsers')
-    .then((response) => {
-      users = response as unknown as User[];
+  return new Promise((resolve, reject) => {
+    AuthDB.allDocs({
+      startkey: 'a', // excludes the design documents
+      include_docs: true,
+    }).then((response) => {
+      if (response) {
+        users = response.rows.map((row) => JSON.parse(JSON.stringify(row.doc))).map((doc) => ({
+          id: doc._id,
+          email: doc.name,
+          name: doc.fullname,
+          role: doc.roles[0],
+          projects: doc.projects,
+        } as User));
+      }
+      resolve(users);
     }).catch((error) => {
-      console.log(error);
+      reject(error);
     });
-
-  return users;
+  });
 }
 
 /**
