@@ -108,6 +108,7 @@ export async function assignVerifierToImage(
   image.idVerifier = verifierId;
   verifier.projects[projectId].toVerify.push(imageId);
   await usersDB.put(verifier);
+  await imagesDB.put(image);
 }
 
 export async function assignAnnotatorToImage(
@@ -123,4 +124,5 @@ export async function assignAnnotatorToImage(
   image.idVerifier = annotatorId;
   annotator.projects[projectId].toAnnotate.push(imageId);
   await usersDB.put(annotator);
+  await imagesDB.put(image);
 }
