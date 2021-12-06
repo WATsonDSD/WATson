@@ -20,9 +20,7 @@ import { ImagesDB, ProjectsDB } from './databases';
 export async function findImageById(id: ImageID): Promise<Image> {
   const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
   const im = await ImagesDB.get(id);
-  let image : Image;
-  // eslint-disable-next-line prefer-const
-  image = {
+  const image : Image = {
     id: im.id,
     data: attach,
     annotation: im.annotation,

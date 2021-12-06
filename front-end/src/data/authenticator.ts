@@ -3,7 +3,9 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
-import { AuthDB, User, Role } from '.';
+import {
+  AuthDB, User, Role, findUserById,
+} from '.';
 
 /**
  * Defines the three possible states for the user session.
@@ -57,35 +59,6 @@ function notifySubscribers(userData: UserData) {
   Object.values(subscribers).forEach((callback) => callback(userData));
 }
 
-/* eslint-disable no-underscore-dangle */
-
-/**
- * Fetches the user details and converts the userCtx object
- * returned by the pouchdb api into a useful User type
- * that's more easily consumed throughout the application.
- */
-export async function getUser(email: string): Promise<User> {
-  return new Promise((resolve, reject) => {
-    AuthDB.getUser(email, (error, response: any) => {
-      if (error) {
-        reject(error);
-      } else if (response) {
-        const user: User = {
-          id: response._id,
-          email: response.name,
-          name: response.fullname,
-          role: response.roles[0],
-          projects: response.projects,
-        };
-
-        resolve(user);
-      } else {
-        // TODO: HANDLE THE UNDEFINED RESPONSE HERE
-      }
-    });
-  });
-}
-
 export async function updateUser(user: User): Promise<void> {
   return new Promise((resolve, reject) => {
     AuthDB.putUser(user.email, {
@@ -100,7 +73,8 @@ export async function updateUser(user: User): Promise<void> {
       } else if (response) {
         resolve();
       } else {
-        // TODO: HANDLE THE UNDEFINED RESPONSE HERE
+        // TODO: Eventually it will be ideal to throw custom errors
+        reject(new Error('Undefined response.'));
       }
     });
   });
@@ -121,7 +95,7 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await getUser(response.userCtx.name), SessionState.AUTHENTICATED];
+        userData = [await findUserById(response.userCtx.name), SessionState.AUTHENTICATED];
       }
       notifySubscribers(userData);
       resolve(userData);

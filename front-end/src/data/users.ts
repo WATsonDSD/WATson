@@ -1,19 +1,42 @@
 import {
-  signUp, getUser, findProjectById, Role, User, ProjectID, UserID, AuthDB,
+  signUp, findProjectById, Role, User, ProjectID, UserID, AuthDB,
 } from '.';
+
+const IDPrefix: string = 'org.couchdb.user:';
+
+/* eslint-disable no-underscore-dangle */
 
 /**
  * Fetches the user corresponding to a certain id.
  */
 export async function findUserById(id: UserID): Promise<User> {
-  /**
-   * Under the hood, the getUser function calls a PouchDB function that
-   * takes the username as a parameter for search. Luckily, user ids
-   * and usernames are strictly tied together. In particular, each
-   * id follows this pattern: 'org.couchdb.user:{username}'. This
-   * allows us to swap id and username internally.
-   */
-  return getUser(id.substring(17));
+  return new Promise((resolve, reject) => {
+    /**
+     * Under the hood, the getUser function calls a PouchDB function that
+     * takes the username as a parameter for search. Luckily, user ids
+     * and usernames are strictly tied together. In particular, each
+     * id follows this pattern: 'org.couchdb.user:{username}'. This
+     * allows us to swap id and username internally.
+     */
+    AuthDB.getUser(id.substring(IDPrefix.length), (error, response: any) => {
+      if (error) {
+        reject(error);
+      } else if (response) {
+        const user: User = {
+          id: response._id,
+          email: response.name,
+          name: response.fullname,
+          role: response.roles[0],
+          projects: response.projects,
+        };
+
+        resolve(user);
+      } else {
+        // TODO: Eventually it will be ideal to throw custom errors
+        reject(new Error('Undefined response.'));
+      }
+    });
+  });
 }
 
 /**
@@ -39,13 +62,13 @@ export async function getAllUsers(): Promise<User[]> {
       include_docs: true,
     }).then((response) => {
       if (response) {
-        users = response.rows.map((row) => JSON.parse(JSON.stringify(row.doc))).map((doc) => ({
+        users = response.rows.map((row: any) => row.map((doc: any) => ({
           id: doc._id,
           email: doc.name,
           name: doc.fullname,
           role: doc.roles[0],
           projects: doc.projects,
-        } as User));
+        } as User)));
       }
       resolve(users);
     }).catch((error) => {
@@ -76,5 +99,5 @@ export async function createUser(name: string, email: string, role: Role): Promi
    * predictable nature of the id that it generates,
    * we can get away with hard-coding the user id.
    */
-  return `org.couchdb.user:${email}`;
+  return IDPrefix + email;
 }
