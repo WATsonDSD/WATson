@@ -1,8 +1,6 @@
 import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { getLoggedInUser, logIn } from '../../../../data';
-import useData from '../../../../data/hooks';
 import { User, useUserContext } from '../../../../data';
 
 function Sidebar() {
