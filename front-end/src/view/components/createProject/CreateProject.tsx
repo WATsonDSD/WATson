@@ -68,6 +68,24 @@ export default function CreateProject() {
     }
   }
 
+  function handleLandmarksCheckbox(
+    event: any,
+    values: number[],
+  ) {
+    if (!document.querySelector('#step2')?.classList.contains('bg-black')) {
+      document.querySelector('#step2')?.classList.add('bg-black', 'text-white');
+      document.querySelector('#step2')?.classList.remove('text-gray-600');
+    }
+    console.log(event.target.checked);
+    if (!event.target.checked) {
+      setLandMarks(currentLandMarks.filter((value) => !values.includes(value)));
+    } else {
+      const newState: number[] = Array.from(currentLandMarks);
+      newState.push(...values);
+      setLandMarks(newState);
+    }
+  }
+
   const landmarkColor = (id: number) => {
     if (currentLandMarks.includes(id)) {
       return { fill: '#525252' };
@@ -96,6 +114,18 @@ export default function CreateProject() {
     </button>
   );
 
+  const landmarkCheckbox = (landmarks: number[]) => {
+    console.log({ landmarks, currentLandMarks, every: landmarks.every((i) => currentLandMarks.includes(i)) });
+    return (
+      <input
+        type="checkbox"
+        className="mr-2"
+        checked={landmarks.every((i) => currentLandMarks.includes(i))}
+        onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
+      />
+    );
+  };
+
   console.log(currentLandMarks);
   return (
     <div className="h-full w-full">
@@ -122,7 +152,6 @@ export default function CreateProject() {
 
               <div className="" style={{ height: '50%' }}>
                 <div className="relative mb-2 flex flex-row">
-
                   <div id="step2" className="w-8 h-8 ml-10 mr-2 text-gray-600 rounded-full text-lg text-white flex items-center">
                     <span className="text-center w-full">
                       2
@@ -220,29 +249,41 @@ export default function CreateProject() {
                   Select the features that will need to be annotated
                 </span>
               </div>
-              {' '}
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Face Contour
-              </span>
+              <div className="flex">
+                {landmarkCheckbox(range(1, 69))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  All
+                </span>
+              </div>
+              <div className="flex">
+                {landmarkCheckbox(range(1, 18))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Face Contour
+                </span>
+              </div>
               <div className="flex flex-wrap">
                 {range(1, 18).map(landmarkButton)}
               </div>
               <br />
               <div className="inline-flex space-x-4">
                 <div className="left-brow">
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Left Brow
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(18, 23))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Left Brow
+                    </span>
+                  </div>
                   <div className="inline-flex">
                     {range(18, 23).map(landmarkButton)}
                   </div>
                 </div>
                 <div>
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Right Brow
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(23, 28))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Right Brow
+                    </span>
+                  </div>
                   <div className="inline-flex">
                     {range(23, 28).map(landmarkButton)}
                   </div>
@@ -251,29 +292,35 @@ export default function CreateProject() {
               <br />
               <br />
               {' '}
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Nose
-              </span>
-              <br />
+              <div className="flex">
+                {landmarkCheckbox(range(28, 37))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Nose
+                </span>
+              </div>
               <div className="flex flex-wrap">
                 {range(28, 37).map(landmarkButton)}
               </div>
               <br />
               <div className="inline-flex space-x-4">
                 <div className="left-eye">
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Left Eye
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(37, 43))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Left Eye
+                    </span>
+                  </div>
                   <div className="inline-flex">
                     {range(37, 43).map(landmarkButton)}
                   </div>
                 </div>
                 <div>
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Right Eye
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(43, 49))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Right Eye
+                    </span>
+                  </div>
                   <div className="inline-flex">
                     {range(43, 49).map(landmarkButton)}
                   </div>
@@ -281,11 +328,12 @@ export default function CreateProject() {
               </div>
               <br />
               <br />
-
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Mouth
-              </span>
-              <br />
+              <div className="flex">
+                {landmarkCheckbox(range(49, 69))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Mouth
+                </span>
+              </div>
               <div className="flex flex-wrap">
                 {range(49, 69).map(landmarkButton)}
               </div>
