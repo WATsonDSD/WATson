@@ -1,5 +1,3 @@
-// create a list of all annotators and verifiers, all users
-
 import { getAllUsers, getProjectsOfUser } from '.';
 
 // for each user get the list of projects
@@ -14,8 +12,8 @@ export async function generateReport() {
     projectsForUser.forEach((project) => {
       const { client } = project;
       let numberOfImages = 0;
-      let hourlyrate;
-      let princePerImage;
+      let hourlyrate = 0;
+      let princePerImage = 0;
       if (user.role === 'annotator') {
         hourlyrate = project.hourlyRateAnnotation;
         princePerImage = project.pricePerImageAnnotation;
@@ -29,10 +27,13 @@ export async function generateReport() {
           if (image.verifier != null) { numberOfImages += 1; }
         });
       }
+      const HHHHH = (numberOfImages * princePerImage) / hourlyrate;
       console.log(client);
       console.log(numberOfImages);
       console.log(hourlyrate);
       console.log(princePerImage);
+      console.log(HHHHH);
+      alert('File creating');
       // TODO: create the file to download 
     });
   });
