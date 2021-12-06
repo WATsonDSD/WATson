@@ -2,6 +2,7 @@ import React from 'react';
 import { useUserContext } from '../../../../data';
 import Sidebar from '../menu/Sidebar';
 import Routing from '../routing/Routing';
+import Modals from './Modals';
 
 export default function Layout() {
   const user = useUserContext();
@@ -9,7 +10,10 @@ export default function Layout() {
     <div id="main">
       { user && user !== 'isLoading' && <Sidebar />}
       <div id="main-content">
-        <div id="content"><Routing /></div>
+        <div id="content">
+          <Routing />
+          <Modals />
+        </div>
       </div>
     </div>
   );
