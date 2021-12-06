@@ -18,16 +18,16 @@ export async function generateReport() {
         hourlyrate = project.hourlyRateAnnotation;
         princePerImage = project.pricePerImageAnnotation;
         project.images.done.forEach((image) => {
-          if (image.annotator === user.id) { numberOfImages += 1; }
+          if (image.annotator && image.annotator === user.id) { numberOfImages += 1; }
         });
         project.images.toVerify.forEach((image) => {
-          if (image.annotator === user.id) { numberOfImages += 1; }
+          if (image.annotator && image.annotator === user.id) { numberOfImages += 1; }
         });
       } else if (user.role === 'verifier') {
         hourlyrate = project.hourlyRateVerification;
         princePerImage = project.pricePerImageVerification;
         project.images.done.forEach((image) => {
-          if (image.verifier === user.id) { numberOfImages += 1; }
+          if (image.verifier && image.verifier === user.id) { numberOfImages += 1; }
         });
       }
       const HHHHH = (numberOfImages * princePerImage) / hourlyrate;
