@@ -22,6 +22,11 @@ export default function CreateProject() {
     const client = event.target.client.value;
     const startDate = event.target.startDate.value;
     const endDate = event.target.endDate.value;
+    // ! change this when you use them to be updated when they are inserted in the creation of a project !! 
+    const pricePerImageAnnotation = 0;
+    const pricePerImageVerification = 0;
+    const hourlyRateAnnotation = 0;
+    const hourlyRateVerification = 0;
     const users: UserID[] = [];
     workers?.forEach((worker) => {
       users.push(worker.worker);
@@ -34,7 +39,7 @@ export default function CreateProject() {
       done: [{ imageId: '0', annotator: null, verifier: null }],
     };
     setProject({
-      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
+      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, pricePerImageAnnotation, pricePerImageVerification, hourlyRateVerification, hourlyRateAnnotation, images,
     });
     console.log(project);
 
@@ -555,6 +560,7 @@ export default function CreateProject() {
                   Param
                 </span>
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerH" name="paymentPerH" type="number" placeholder="Payment per hour" />
+
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per annotation" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
 

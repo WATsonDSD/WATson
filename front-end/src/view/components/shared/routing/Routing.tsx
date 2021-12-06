@@ -7,6 +7,7 @@ import ProjectEdit from '../../editProject/ProjectEdit';
 import AnnotationView from '../../annotation/AnnotationView';
 import Authentication from '../../authentication';
 import Protected from '../../protected';
+import PageA from '../../financier/dummyFinanceView';
 
 export default function Routing() {
   return (
@@ -21,6 +22,7 @@ export default function Routing() {
         <Route path=":projectId" element={<Protected><AnnotationView /></Protected>} />
       </Route>
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+      <Route path="/finance" element={<PageA />} />
     </Routes>
   );
 }

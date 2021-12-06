@@ -41,6 +41,11 @@ export async function createProject(
     endDate: '',
     status: 'inProgress', // A newly created project start in progress.
     landmarks,
+    pricePerImageAnnotation: 0,
+    pricePerImageVerification: 0,
+    hourlyRateAnnotation: 0,
+    hourlyRateVerification: 0,
+
     images: { // A newly created project has no images.
       toAnnotate: [],
       toVerify: [],

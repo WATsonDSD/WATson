@@ -26,6 +26,10 @@ export type Project = {
     endDate: string,
     status: ProjectStatus,
     landmarks: LandmarkSpecification,
+    pricePerImageAnnotation: number,
+    pricePerImageVerification: number,
+    hourlyRateAnnotation: number,
+    hourlyRateVerification: number
 
     images: {
         toAnnotate: {imageId: ImageID, annotator: UserID | null}[],
