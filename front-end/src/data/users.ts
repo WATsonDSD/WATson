@@ -39,6 +39,27 @@ export async function findUserById(id: UserID): Promise<User> {
   });
 }
 
+export async function updateUser(user: User): Promise<void> {
+  return new Promise((resolve, reject) => {
+    AuthDB.putUser(user.email, {
+      roles: [user.role],
+      metadata: {
+        fullname: user.name,
+        projects: user.projects,
+      },
+    }, (error, response) => {
+      if (error) {
+        reject(error);
+      } else if (response) {
+        resolve();
+      } else {
+        // TODO: Eventually it will be ideal to throw custom errors
+        reject(new Error('Undefined response.'));
+      }
+    });
+  });
+}
+
 /**
  * Fetches and returns all the users of a given project.
  */

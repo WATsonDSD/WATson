@@ -59,27 +59,6 @@ function notifySubscribers(userData: UserData) {
   Object.values(subscribers).forEach((callback) => callback(userData));
 }
 
-export async function updateUser(user: User): Promise<void> {
-  return new Promise((resolve, reject) => {
-    AuthDB.putUser(user.email, {
-      roles: [user.role],
-      metadata: {
-        fullname: user.name,
-        projects: user.projects,
-      },
-    }, (error, response) => {
-      if (error) {
-        reject(error);
-      } else if (response) {
-        resolve();
-      } else {
-        // TODO: Eventually it will be ideal to throw custom errors
-        reject(new Error('Undefined response.'));
-      }
-    });
-  });
-}
-
 /**
  * Checks for the existence of a valid authentication session
  * in the browser's cookies and updates the userData variable
