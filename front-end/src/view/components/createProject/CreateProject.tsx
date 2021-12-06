@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
-import { Project, UserID, LandmarkSpecification } from '../../../data/types';
+import {
+  Project, UserID, LandmarkSpecification, User,
+} from '../../../data/types';
 import LandMarksImage from './LandMarksImage';
 import {
-  addUserToProject, createProject, getAllUsers, getLoggedInUser,
+  addUserToProject, createProject, getAllUsers, useUserContext,
 } from '../../../data';
 import useData from '../../../data/hooks';
 
 export default function CreateProject() {
-  const user = useData(() => getLoggedInUser());
+  const user = useUserContext() as User;
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
