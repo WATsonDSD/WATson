@@ -1,5 +1,5 @@
 import {
-  getUser, updateUser, ImageID, Image, ProjectID, UserID, findUserById,
+  updateUser, ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { ImagesDB, ProjectsDB } from './databases';
@@ -97,7 +97,7 @@ export async function assignVerifierToImage(
   verifierId: UserID,
   projectId: ProjectID,
 ): Promise<void> {
-  const verifier = await getUser(verifierId);
+  const verifier = await findUserById(verifierId);
 
   if (verifier.role !== 'verifier') {
     throw Error('this user is not a verifier');
@@ -115,7 +115,7 @@ export async function assignAnnotatorToImage(
   annotatorId: UserID,
   projectId: ProjectID,
 ): Promise<void> {
-  const annotator = await getUser(annotatorId);
+  const annotator = await findUserById(annotatorId);
   if (annotator.role !== 'verifier') {
     throw Error('this user is not a verifier');
   }
