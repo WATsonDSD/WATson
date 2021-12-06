@@ -1,4 +1,4 @@
-import { getAllUsers, getProjectsOfUser } from '.';
+import { findProjectById, getAllUsers, getProjectsOfUser } from '.';
 
 // for each user get the list of projects
 // for each project of each user get the number of images annotated/verified ,
@@ -18,13 +18,16 @@ export async function generateReport() {
         hourlyrate = project.hourlyRateAnnotation;
         princePerImage = project.pricePerImageAnnotation;
         project.images.done.forEach((image) => {
-          if (image.annotator != null) { numberOfImages += 1; }
+          if (image.annotator === user.id) { numberOfImages += 1; }
+        });
+        project.images.toVerify.forEach((image) => {
+          if (image.annotator === user.id) { numberOfImages += 1; }
         });
       } else if (user.role === 'verifier') {
         hourlyrate = project.hourlyRateVerification;
         princePerImage = project.pricePerImageVerification;
         project.images.done.forEach((image) => {
-          if (image.verifier != null) { numberOfImages += 1; }
+          if (image.verifier === user.id) { numberOfImages += 1; }
         });
       }
       const HHHHH = (numberOfImages * princePerImage) / hourlyrate;
@@ -37,6 +40,26 @@ export async function generateReport() {
       // TODO: create the file to download 
     });
   });
+}
+
+// total amount of money 
+// total amount per current month ???? 
+// summary how much per month / per project
+// archivied project
+export async function projectSummary(projectID: string) {
+  let total = 0;
+  const project = await findProjectById(projectID);
+  let totalAnnotated = 0;
+  let totalVerified = 0;
+  project.images.done.forEach((image) => {
+    if (image.annotator) { totalAnnotated += 1; }
+  });
+  project.images.done.forEach((image) => {
+    if (image.verifier) { totalVerified += 1; }
+  });
+  totalAnnotated += project.images.toVerify.length;
+  total = totalAnnotated * project.pricePerImageAnnotation + totalVerified * project.pricePerImageVerification;
+  console.log(total);
 }
 
 export default generateReport();
