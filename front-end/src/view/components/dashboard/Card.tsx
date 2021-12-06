@@ -40,10 +40,10 @@ const Card = (props: any) => {
 
   return (
 
-    <div className="flex-initial cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
-      <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
+    <div className="flex-initial flex overflow-hidden cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+      <div className="w-full bg-black sahdow-lg flex flex-wrap flex-col rounded-2xl">
 
-        <div className="flex justify-between py-2">
+        <div className="flex flex-grow justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.name}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
             <Dropdown elements={dropDownActions} />
