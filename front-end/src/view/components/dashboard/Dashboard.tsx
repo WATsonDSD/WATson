@@ -16,6 +16,11 @@ const actionsProject = [
   },
   {
     role: 'projectManager',
+    text: 'Finance',
+    href: '/projectFinance/',
+  },
+  {
+    role: 'projectManager',
     text: 'Close',
     href: '/pageC/',
   },
