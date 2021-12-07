@@ -2,12 +2,36 @@ import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
 import { User, useUserContext } from '../../../../data';
-import { links } from './MenuConfig';
 
 function Sidebar() {
   // useEffect(() => console.log(logIn('user', 'user')),
   //   []);
   const user = useUserContext() as User;
+
+  let links: any = [];
+
+  /* eslint-disable global-require */
+
+  switch (user?.role) {
+    case 'projectManager':
+      // import { linksPM } from './MenuConfig';
+      links = require('./MenuConfigPM').links;
+      break;
+    case 'annotator':
+      links = require('./MenuConfigAnnotator').links;
+      break;
+    case 'verifier':
+      links = require('./MenuConfigVerifier').links;
+      break;
+    case 'finance':
+      links = require('./MenuConfigFinance').links;
+      break;
+    default:
+      links = require('./MenuConfigPM').links;
+  }
+
+  console.log(links);
+  /* eslint-enable global-require */
 
   return (
     <div id="sideMenu">
@@ -23,7 +47,7 @@ function Sidebar() {
           </h2>
           <div className="flex flex-col mt-6  justify-between flex-1">
             <nav className="text">
-              {links.map((link) => {
+              {links.map((link: any) => {
                 const {
                   id, name, href, icon,
                 } = link;
@@ -58,7 +82,7 @@ function Sidebar() {
                 className="h-9 w-9 mx-2 object-center object-cover rounded-full"
               />
               <h4 className="mx-2 font-medium text-gray-800 hover:underline cursor-pointer">
-                { user ? user.id : 'loading...'}
+                { user ? user.name : 'loading...'}
                 {' '}
                 |
                 {' '}

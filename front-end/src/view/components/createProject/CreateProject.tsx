@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
   Project, UserID, LandmarkSpecification, User,
@@ -15,6 +16,7 @@ export default function CreateProject() {
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
   const [project, setProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
   console.log(workers);
   const handleSubmit = (event: any) => {
@@ -36,7 +38,6 @@ export default function CreateProject() {
     setProject({
       id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
     });
-    console.log(project);
 
     event.preventDefault();
   };
@@ -66,7 +67,14 @@ export default function CreateProject() {
     // TODO highlight landmark point corresponding 
   }
 
-  console.log(currentLandMarks);
+  useEffect(() => {
+    if (project && user) {
+      // the projectManager creating the project is assigned to it
+      createProject(project.name, project.client, project.landmarks)
+        .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
+    }
+  }, [project]); // dependency added
+
   return (
     <div className="h-full w-full">
       <Header title="Creating new project" />
@@ -159,25 +167,25 @@ export default function CreateProject() {
         <div>
           <form className="text-left w-full mx-auto max-w-lg" onSubmit={handleSubmit}>
             <div className="flex  -mx-3 mb-6">
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-1/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-2/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
@@ -483,9 +491,11 @@ export default function CreateProject() {
                         }}
                       >
                         <option value={0}>Select a user</option>
-                        {allUsers?.filter((u) => workers
+                        {/* {allUsers?.filter((u) => workers
                           .find((w) => w.worker === u.id) === undefined)
-                          .map((u) => (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))}
+                          .map((u) => 
+                          (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
+                        {allUsers?.map((u) => (<option key={u.name} value={u.id}>{`${u.name} - ${u.role}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -572,18 +582,6 @@ export default function CreateProject() {
             <button
               className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
               type="submit"
-              onClick={
-                () => {
-                  if (project && user) {
-                    // the projectManager creating the project is assigned to it
-                    createProject(project.name, project.client, project.landmarks)
-                      .then(async (id) => {
-                        await addUserToProject(user.id, id);
-                        project.users.forEach((userId) => addUserToProject(userId, id));
-                      });
-                  }
-                }
-            }
             >
               Submit
             </button>

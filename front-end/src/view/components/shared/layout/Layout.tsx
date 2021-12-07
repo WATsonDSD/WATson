@@ -5,6 +5,7 @@ import Routing from '../routing/Routing';
 
 export default function Layout() {
   const user = useUserContext();
+  console.log(user);
   return (
     <div id="main">
       { user && user !== 'isLoading' && <Sidebar />}

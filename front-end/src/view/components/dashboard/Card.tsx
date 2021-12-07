@@ -40,22 +40,18 @@ const Card = (props: any) => {
 
   return (
 
-    <div className="flex-initial" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+    <div className="flex-initial cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
       <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
 
         <div className="flex justify-between py-2">
-          <p className="text-2x1 text-gray-200 px-3">{project.client}</p>
+          <p className="text-2x1 text-gray-200 px-3">{project.name}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
             <Dropdown elements={dropDownActions} />
           </div>
         </div>
         <div className="flex justify-between py-0">
           <h2 className="text-2x1 text-white px-3">
-            {project.startDate}
-            <br />
-            To
-            <br />
-            {project.endDate}
+            {project.client}
           </h2>
         </div>
 
