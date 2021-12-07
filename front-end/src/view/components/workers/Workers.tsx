@@ -9,6 +9,7 @@ function handleSubmitForm(e: any) {
   const role = e.target.role.value;
 
   createUser(name, email, role);
+  openModal(false);
   e.preventDefault();
 }
 
