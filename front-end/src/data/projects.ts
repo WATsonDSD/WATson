@@ -58,6 +58,7 @@ export async function createProject(
 export async function addUserToProject(userId: UserID, projectId: ProjectID): Promise<void> {
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
+  this is an error
 
   if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
   project.users.push(userId);
