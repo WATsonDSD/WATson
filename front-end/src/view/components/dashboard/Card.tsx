@@ -1,4 +1,6 @@
-import { AiOutlineRise, AiOutlineTeam, AiOutlineRedo } from 'react-icons/ai';
+import {
+  AiOutlineRise, AiOutlineTeam, AiOutlineRedo, AiTwotoneEdit,
+} from 'react-icons/ai';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Dropdown from './Dropdown';
@@ -18,7 +20,10 @@ const Card = (props: any) => {
         navigate(`/annotationView/${project.id}`);
         break;
       case 'verifier':
+        navigate(`/verificationView/${project.id}`);
+        break;
       case 'finance':
+        navigate(`/projectFinance/${project.id}`);
         break;
       default:
         break;
@@ -40,13 +45,13 @@ const Card = (props: any) => {
 
   return (
 
-    <div className="flex-initial cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
-      <div className="w-full bg-black sahdow-lg flex flex-col rounded-2xl">
+    <div className="flex-initial flex flex-wrap cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+      <div className="w-full bg-black sahdow-lg flex flex-wrap flex-col rounded-2xl">
 
-        <div className="flex justify-between py-2">
+        <div className="flex flex-grow justify-between py-2">
           <p className="text-2x1 text-gray-200 px-3">{project.name}</p>
           <div className="h-4 fill-current text-grey-dark cursor-pointer">
-            <Dropdown elements={dropDownActions} />
+            <Dropdown elements={dropDownActions} icon={<AiTwotoneEdit className="text-white" />} />
           </div>
         </div>
         <div className="flex justify-between py-0">
@@ -55,7 +60,7 @@ const Card = (props: any) => {
           </h2>
         </div>
 
-        <div className="px-2 py-8 -mb-8">
+        <div className="px-2 pt-8">
           <div className="text-xs text-gray-400 font-normal py-1">
             {project.status}
           </div>
