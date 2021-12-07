@@ -20,6 +20,8 @@ const Card = (props: any) => {
         navigate(`/annotationView/${project.id}`);
         break;
       case 'verifier':
+        navigate(`/verificationView/${project.id}`);
+        break;
       case 'finance':
         navigate(`/projectFinance/${project.id}`);
         break;
