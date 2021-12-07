@@ -6,11 +6,11 @@ import { generateReport } from '../../../data/financier';
 const projectid = createProject('dummyproject', 'laura', []);
 
 async function createProjectExample() {
-  const project = findProjectById(await projectid);
-  (await project).pricePerImageAnnotation = 5;
-  (await project).pricePerImageVerification = 6;
-  (await project).hourlyRateAnnotation = 7;
-  (await project).hourlyRateVerification = 9;
+  const project = await findProjectById(projectid);
+  project.pricePerImageAnnotation = 5;
+  project.pricePerImageVerification = 6;
+  project.hourlyRateAnnotation = 7;
+  project.hourlyRateVerification = 9;
 }
 
 // componente funzionale-> lettera maiuscola iniziale 
