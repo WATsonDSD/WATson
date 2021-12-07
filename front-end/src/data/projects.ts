@@ -67,6 +67,7 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     toVerify: [],
     done: [],
   };
+  console.log(project);
 
   await projectsDB.put(project);
   await usersDB.put(user);
