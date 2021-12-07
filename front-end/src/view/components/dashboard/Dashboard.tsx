@@ -11,8 +11,8 @@ import Card from './Card';
 const actionsProject = [
   {
     role: 'projectManager',
-    text: 'Edit',
-    href: '/pageC/',
+    text: 'Assign Images',
+    href: '/projectAssign/',
   },
   {
     role: 'projectManager',

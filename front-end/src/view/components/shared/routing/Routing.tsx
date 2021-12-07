@@ -8,6 +8,7 @@ import AnnotationView from '../../annotation/AnnotationView';
 import Authentication from '../../authentication';
 import Protected from '../../protected';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import ProjectAssign from '../../editProject/ProjectAssign';
 
 export default function Routing() {
   return (
@@ -25,6 +26,9 @@ export default function Routing() {
         <Route path=":idProject" element={<Protected><ProjectFinance /></Protected>} />
       </Route>
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+      <Route path="/projectAssign" element={<Protected><ProjectAssign /></Protected>}>
+        <Route path=":idProject" element={<Protected><ProjectAssign /></Protected>} />
+      </Route>
     </Routes>
   );
 }

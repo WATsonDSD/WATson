@@ -1,4 +1,6 @@
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useUserContext } from '../../../../data';
 import Sidebar from '../menu/Sidebar';
 import Routing from '../routing/Routing';
@@ -10,7 +12,9 @@ export default function Layout() {
     <div id="main">
       { user && user !== 'isLoading' && <Sidebar />}
       <div id="main-content">
-        <div id="content"><Routing /></div>
+        <DndProvider backend={HTML5Backend}>
+          <div id="content"><Routing /></div>
+        </DndProvider>
       </div>
     </div>
   );
