@@ -65,7 +65,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-full w-full">
       <div>
-        <Header title="Projects" button={user !== 'isLoading' && user?.role === 'projectManager' ? addProjectButton : undefined} />
+        <Header title="Projects" button={addProjectButton} />
       </div>
 
       <div className="Card min-h-full">
