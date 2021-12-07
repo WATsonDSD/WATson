@@ -28,6 +28,12 @@ export async function createProject(
   name: string,
   client: string,
   landmarks: LandmarkSpecification,
+  financialModel: {
+  pricePerImageAnnotation: number
+  pricePerImageVerification: number,
+  hourlyRateAnnotation: number,
+  hourlyRateVerification: number,
+  },
 ) : Promise<ProjectID> {
   const id = new Date().toISOString(); // unique id's.
 
@@ -41,11 +47,10 @@ export async function createProject(
     endDate: '',
     status: 'inProgress', // A newly created project start in progress.
     landmarks,
-    pricePerImageAnnotation: 0,
-    pricePerImageVerification: 0,
-    hourlyRateAnnotation: 0,
-    hourlyRateVerification: 0,
-
+    pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
+    pricePerImageVerification: financialModel.pricePerImageVerification,
+    hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
+    hourlyRateVerification: financialModel.hourlyRateVerification,
     images: { // A newly created project has no images.
       toAnnotate: [],
       toVerify: [],

@@ -8,7 +8,6 @@ export default function Layout() {
   return (
     <div id="main">
       { user && user !== 'isLoading' && <Sidebar />}
-      <Sidebar />
       <div id="main-content">
         <div id="content"><Routing /></div>
       </div>
