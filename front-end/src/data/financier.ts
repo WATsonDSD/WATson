@@ -1,5 +1,6 @@
 import { findProjectById, getAllUsers, getProjectsOfUser } from '.';
 
+// GENERATE REPORT - DOWNLOAD must call this one
 // for each user get the list of projects
 // for each project of each user get the number of images annotated/verified ,
 // the hourly rate and the price per image, calculate the hours: x.lenght(toAnnotate), x.costForHourAnnotation
@@ -42,11 +43,8 @@ export async function generateReport() {
   });
 }
 
-// total amount of money 
-// total amount per current month ???? 
-// summary how much per month / per project
-// archivied project
-export async function projectSummary(projectID: string) {
+// total amount of money spent on a project 
+export async function projectSummary(projectID: string): Promise<number> {
   let total = 0;
   const project = await findProjectById(projectID);
   let totalAnnotated = 0;
@@ -59,7 +57,15 @@ export async function projectSummary(projectID: string) {
   });
   totalAnnotated += project.images.toVerify.length;
   total = totalAnnotated * project.pricePerImageAnnotation + totalVerified * project.pricePerImageVerification;
-  console.log(total);
+  return total;
 }
 
+// PROJECT
+// number of hours per project 
+// number of annotation per project
+// number of workers involved (careful with annotator/varifier)
+// spending?? DATE
+// name-role-annotated images -verified images -hours of work -efficiency -earnings 
+// STATISTICS 
+// ! TODO 
 export default generateReport();
