@@ -1,4 +1,7 @@
-import { findProjectById, getAllUsers, getProjectsOfUser } from '.';
+import {
+  findProjectById, getAllUsers, getProjectsOfUser,
+} from '.';
+import { findImageById } from './images';
 
 // GENERATE REPORT - DOWNLOAD must call this one
 // for each user get the list of projects
@@ -21,8 +24,9 @@ export async function generateReport() {
         project.images.done.forEach((image) => {
           if (image.annotator && image.annotator === user.id) { numberOfImages += 1; }
         });
-        project.images.toVerify.forEach((image) => {
-          if (image.annotator && image.annotator === user.id) { numberOfImages += 1; }
+        project.images.toVerify.forEach(async (value) => {
+          const image = await findImageById(value.imageId);
+          if (image.idAnnotator === user.id) { numberOfImages += 1; }
         });
       } else if (user.role === 'verifier') {
         hourlyrate = project.hourlyRateVerification;
