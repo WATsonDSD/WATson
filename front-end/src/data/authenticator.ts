@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import {
-  AuthDB, User, Role, findUserById,
+  AuthDB, User, Role, findUserById, IDPrefix,
 } from '.';
 
 /**
@@ -74,7 +74,7 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await findUserById(response.userCtx.name), SessionState.AUTHENTICATED];
+        userData = [await findUserById(IDPrefix + response.userCtx.name), SessionState.AUTHENTICATED];
       }
       notifySubscribers(userData);
       resolve(userData);
