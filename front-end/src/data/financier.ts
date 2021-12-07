@@ -63,7 +63,23 @@ export async function projectSummary(projectID: string): Promise<number> {
   total = totalAnnotated * project.pricePerImageAnnotation + totalVerified * project.pricePerImageVerification;
   return total;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function totalHoursOfWork(projectID: string) {
+  const project = await findProjectById(projectID);
+  let numberOfImagesAnnotated = 0;
+  project.images.done.forEach(async (doneImage) => {
+    const image = await findImageById(doneImage.imageId);
+    if (image.idAnnotator) { numberOfImagesAnnotated += 1; }
+  });
+  const hoursAnnotation = ((project.images.toVerify.length + numberOfImagesAnnotated) * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+  let numberOfImagesVerified = 0;
+  project.images.done.forEach(async (doneImage) => {
+    const image = await findImageById(doneImage.imageId);
+    if (image.idVerifier) { numberOfImagesVerified += 1; }
+  });
+  const hoursVerification = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+  return hoursAnnotation + hoursVerification;
+}
 // PROJECT
 // number of hours per project 
 // number of annotation per project
