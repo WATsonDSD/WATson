@@ -32,8 +32,8 @@ export type Project = {
     hourlyRateVerification: number
 
     images: {
-        toAnnotate: {imageId: ImageID, annotator: UserID | null}[],
-        toVerify: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
+        toAnnotate: {imageId: ImageID }[],
+        toVerify: {imageId: ImageID }[],
         done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
     }
 }
@@ -45,7 +45,9 @@ export type ImageData = Blob;
 export type Image = {
     id: ImageID,
     data?: ImageData,
-    annotation?: Annotation
+    annotation?: Annotation,
+    idAnnotator?: UserID,
+    idVerifier?: UserID
 }
 
 export type Point = { x: number, y: number, z: number }
