@@ -76,7 +76,7 @@ export default function CreateProject() {
         .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
     }
   }, [project]); // dependency added
-  
+
   function handleLandmarksCheckbox(
     event: any,
     values: number[],
@@ -123,8 +123,6 @@ export default function CreateProject() {
     </button>
   );
 
-<<<<<<< HEAD
-=======
   const landmarkCheckbox = (landmarks: number[]) => {
     console.log({ landmarks, currentLandMarks, every: landmarks.every((i) => currentLandMarks.includes(i)) });
     return (
@@ -137,8 +135,6 @@ export default function CreateProject() {
     );
   };
 
-  console.log(currentLandMarks);
->>>>>>> 5f160f8 (Add checkboxes to select/unselect a category)
   return (
     <div className="h-full w-full">
       <Header title="Creating new project" />
