@@ -73,7 +73,14 @@ export default function CreateProject() {
     if (project && user) {
       // the projectManager creating the project is assigned to it
       createProject(project.name, project.client, project.landmarks)
-        .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
+        .then(async (id) => {
+          await addUserToProject(user.id, id);
+          for (let i = 0; i < project.users.length; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await addUserToProject(project.users[i], id);
+          }
+          navigate('/dashboard');
+        });
     }
   }, [project]); // dependency added
 

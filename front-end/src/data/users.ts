@@ -82,14 +82,15 @@ export async function getAllUsers(): Promise<User[]> {
       startkey: 'a', // excludes the design documents
       include_docs: true,
     }).then((response) => {
+      console.log(response);
       if (response) {
-        users = response.rows.map((row: any) => row.map((doc: any) => ({
-          id: doc._id,
-          email: doc.name,
-          name: doc.fullname,
-          role: doc.roles[0],
-          projects: doc.projects,
-        } as User)));
+        users = response.rows.map((row: any) => ({
+          id: row.doc._id,
+          email: row.doc.name,
+          name: row.doc.fullname,
+          role: row.doc.roles[0],
+          projects: row.doc.projects,
+        } as User));
       }
       resolve(users);
     }).catch((error) => {
