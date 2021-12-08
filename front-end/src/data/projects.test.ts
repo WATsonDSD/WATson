@@ -8,7 +8,9 @@ import { findImageById, getImages } from './images';
 jest.mock('./databases');
 
 test('Can find created project', async () => {
-  const id = await createProject('Test Project', 'The Flintstones', []);
+  const id = await createProject('Test Project', 'The Flintstones', [], {
+    pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+  });
   const name = findProjectById(id).then((project) => project.name);
   return expect(name).resolves.toBe('Test Project');
 });
@@ -18,7 +20,9 @@ describe('addUserToProject', () => {
   let projectId: ProjectID;
   beforeAll(async () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
-    projectId = await createProject('Project 1', 'Client 1', []);
+    projectId = await createProject('Project 1', 'Client 1', [], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     await addUserToProject(userId, projectId);
   });
 
@@ -36,7 +40,9 @@ describe('addImageToProject', () => {
   let imageId: ImageID;
 
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', []);
+    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', [], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
   });
 
