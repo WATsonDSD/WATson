@@ -11,6 +11,7 @@ AnnotatedImage.defaultProps = {
   translatePos: { x: 0, y: 0 },
   contrast: 100,
   brightness: 100,
+  size: '300',
 };
 export default function AnnotatedImage(props: {
   image: Image,
@@ -21,7 +22,12 @@ export default function AnnotatedImage(props: {
   translatePos?: { x: number, y: number },
   contrast?: number,
   brightness?: number,
+  size?: string,
 }) {
+  // eslint-disable-next-line react/destructuring-assignment
+  const h = (props.size || '300');
+  // eslint-disable-next-line react/destructuring-assignment
+  const w = (props.size || '300');
   const canvasRef = useRef(null);
   const {
     image, onClick, onMouseWheel, landmarkColor, scale, translatePos,
@@ -83,5 +89,9 @@ export default function AnnotatedImage(props: {
     }
   }, [draw]);
 
-  return <canvas ref={canvasRef} width="300" height="300" />;
+  return (
+    <div className="h-full w-full">
+      <canvas className="w-full py-auto" ref={canvasRef} width={w} height={h} />
+    </div>
+  );
 }
