@@ -16,6 +16,11 @@ const actionsProject = [
   },
   {
     role: 'projectManager',
+    text: 'Finance',
+    href: '/projectFinance/',
+  },
+  {
+    role: 'projectManager',
     text: 'Close',
     href: '/pageC/',
   },
@@ -64,8 +69,8 @@ export default function Dashboard() {
       </div>
 
       <div className="Card min-h-full">
-        <div className="w-full min-h-full bg-gray-50">
-          <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6 h-screen">
+        <div className="w-full min-h-full">
+          <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6">
             {projects?.map((project) => (
               <Card
                 key={project.id}
