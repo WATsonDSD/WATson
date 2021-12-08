@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import './App.css';
 import Layout from './components/shared/layout/Layout';
+import './App.css';
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <div className="App">
@@ -12,5 +12,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

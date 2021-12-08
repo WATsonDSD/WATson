@@ -3,7 +3,7 @@ export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
     id: UserID,
     projects: {
-        [projectID: string]: {
+        [projectID: ProjectID]: {
             toAnnotate: ImageID[],
             toVerify: ImageID[],
             done: ImageID[],
@@ -28,25 +28,22 @@ export type Project = {
     landmarks: LandmarkSpecification,
 
     images: {
-        toAnnotate: {imageId: ImageID, annotator: UserID | null}[],
-        toVerify: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
+        toAnnotate: {imageId: ImageID }[],
+        toVerify: {imageId: ImageID }[],
         done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
     }
 }
 
 export type ImageID = string;
 
-export type ImageData = Blob | Buffer;
+export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
-    annotation?: Annotation
-}
-
-export type ImageView = {
-    id: ImageID,
-    data: ImageData,
-    annotation?: Annotation
+    data?: ImageData,
+    annotation?: Annotation,
+    idAnnotator?: UserID,
+    idVerifier?: UserID
 }
 
 export type Point = { x: number, y: number, z: number }

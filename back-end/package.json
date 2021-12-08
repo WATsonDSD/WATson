@@ -3,8 +3,8 @@
   "version": "1.0.4",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "start": "npm run build && node --experimental-json-modules dist/index.js",
     "init_db": "npm run build && node dist/init_db.js"
   },
   "devDependencies": {
@@ -12,8 +12,12 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@ibm-cloud/cloudant": "^0.0.21",
     "@types/node": "^16.11.7",
+    "fastify": "^3.24.0",
+    "ibm-cloud-sdk-core": "^2.17.0",
     "pouchdb": "^7.2.2",
+    "pouchdb-authentication": "^1.1.3",
     "sitka": "^1.0.5"
   }
 }

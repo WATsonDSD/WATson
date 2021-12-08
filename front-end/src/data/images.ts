@@ -1,8 +1,8 @@
 import {
-  ImageID, Image, ImageView, ProjectID, UserID, findUserById,
+  ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification,
 } from '.';
-import { imagesDB, projectsDB } from './databases';
+import { imagesDB, projectsDB, usersDB } from './databases';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -17,15 +17,16 @@ import { imagesDB, projectsDB } from './databases';
  * This function is used to display the image to the user. 
  * @param id The identificator of the requested image 
  */
-export async function findImageById(id: ImageID): Promise<ImageView> {
-  const attach = await imagesDB.getAttachment(id, 'image');
+export async function findImageById(id: ImageID): Promise<Image> {
+  const attach = await imagesDB.getAttachment(id, 'image') as Blob;
   const im = await imagesDB.get(id);
-  let image : ImageView;
-  // eslint-disable-next-line prefer-const
-  image = {
-    id: im.id,
+  const image = {
+    // eslint-disable-next-line no-underscore-dangle
+    id: im._id,
     data: attach,
     annotation: im.annotation,
+    idAnnotator: im.idAnnotator,
+    idVerifier: im.idVerifier,
   };
   return image;
 }
@@ -84,10 +85,46 @@ export async function saveAnnotation(
   image.annotation = annotation;
 
   // move to toVerify
-  project.images.toVerify.push({ ...project.images.toAnnotate[imageIndex], verifier: null });
+  project.images.toVerify.push(project.images.toAnnotate[imageIndex]);
   project.images.toAnnotate.splice(imageIndex, 1); // remove from toAnnotate.
 
   // reflect the changes to the DB.
   await imagesDB.put(image);
   await projectsDB.put(project);
+}
+
+export async function assignVerifierToImage(
+  imageId: ImageID,
+  verifierId: UserID,
+  projectId: ProjectID,
+): Promise<void> {
+  const verifier = await usersDB.get(verifierId);
+
+  if (verifier.role !== 'verifier') {
+    throw Error('this user is not a verifier');
+  }
+
+  const image = await imagesDB.get(imageId);
+  image.idVerifier = verifierId;
+  verifier.projects[projectId].toVerify.push(imageId);
+  await usersDB.put(verifier);
+  await imagesDB.put(image);
+}
+
+export async function assignAnnotatorToImage(
+  imageId: ImageID,
+  annotatorId: UserID,
+  projectId: ProjectID,
+): Promise<void> {
+  const annotator = await usersDB.get(annotatorId);
+
+  if (annotator.role === 'finance' || annotator.role === 'projectManager') {
+    throw Error('this user is cannot annotate images');
+  }
+
+  const image = await imagesDB.get(imageId);
+  image.idVerifier = annotatorId;
+  annotator.projects[projectId].toAnnotate.push(imageId);
+  await usersDB.put(annotator);
+  await imagesDB.put(image);
 }
