@@ -37,7 +37,7 @@ export default function Usersettings() {
   const user = useUserContext() as User;
 
   return (
-    <div className="absolute bottom-0 left-0 px-4 py-3 w-full flex justify-end items-center gap-3">
+    <div className="absolute bottom-0 right-0 px-4 py-3 flex justify-end items-center gap-3">
       <div className="bg-opacity-0 hover:bg-gray-200 px-4 py-2 rounded text-black focus:outline-none">
         <div className="Dropdown">
 
