@@ -34,10 +34,23 @@ const MockPouch = <T>() => ({
 
 });
 
-export const usersDB = MockPouch();
-export const projectsDB = MockPouch();
-export const imagesDB = MockPouch();
+export const UsersDB = MockPouch();
+export const ImagesDB = MockPouch();
+export const ProjectsDB = MockPouch();
 
-export const authDB = {
-  signUp: (_email: any, _password: any, _roles: any, callback: (err: any, response: any) => void) => { callback(false, true); },
+export const AuthDB = {
+  users: {} as {[email: string]: any},
+  signUp: (email: string, password: string, metadata: any, callback: (error: any, response: any) => void) => {
+    AuthDB.users[email] = {
+      _id: `org.couchdb.user:${email}`,
+      name: email,
+      roles: metadata.roles,
+      ...metadata.metadata,
+    };
+    callback(null, true);
+  },
+  getUser: (email: string, callback: (error: any, response: any) => void) => { callback(null, AuthDB.users[email]); },
+  putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {
+    AuthDB.signUp(email, '', metadata, callback);
+  },
 };
