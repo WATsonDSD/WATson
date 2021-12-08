@@ -21,7 +21,8 @@ export async function findImageById(id: ImageID): Promise<Image> {
   const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
   const im = await ImagesDB.get(id);
   const image : Image = {
-    id: im.id,
+    // eslint-disable-next-line no-underscore-dangle
+    id: im._id,
     data: attach,
     annotation: im.annotation,
     idAnnotator: im.idAnnotator,
