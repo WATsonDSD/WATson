@@ -2,7 +2,7 @@ import {
   signUp, findProjectById, Role, User, ProjectID, UserID, AuthDB,
 } from '.';
 
-const IDPrefix: string = 'org.couchdb.user:';
+export const IDPrefix: string = 'org.couchdb.user:';
 
 /* eslint-disable no-underscore-dangle */
 
