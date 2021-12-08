@@ -65,7 +65,7 @@ export default function ProjectEdit() {
 
   return (
     <div className="h-full w-full">
-      <Header title={`Adding and Assigning images : ${project?.id ?? ''}`} />
+      <Header title={`Adding and Assigning images : ${project?.name ?? ''}`} />
       <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white shadow-xl rounded-md">
         <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left ml-2">
           Adding images

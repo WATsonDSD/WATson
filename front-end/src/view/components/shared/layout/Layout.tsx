@@ -6,6 +6,7 @@ import Modals from './Modals';
 
 export default function Layout() {
   const user = useUserContext();
+  console.log(user);
   return (
     <div id="main">
       { user && user !== 'isLoading' && <Sidebar />}
