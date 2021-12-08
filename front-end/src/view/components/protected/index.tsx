@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 
 import { useUserData } from '../../../data';
+import { Paths } from '../shared/routes';
 
 export default function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation();
@@ -18,7 +19,7 @@ export default function Protected({ children }: { children: JSX.Element }) {
   if (!user) {
     // Redirects the user to the login page and saves the current location they were
     // trying to access when they were redirected, which makes for nicer user experience.
-    return <Navigate to="/" state={{ from: location }} />;
+    return <Navigate to={Paths.Authentication} state={{ from: location }} />;
   }
 
   return children;

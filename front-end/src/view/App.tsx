@@ -1,14 +1,15 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import Layout from './components/shared/layout/Layout';
-import './App.css';
+
+import {
+  BrowserRouter,
+} from 'react-router-dom';
+
+import Routes from './components/shared/routes';
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="App">
-        <Layout />
-      </div>
+      <Routes />
     </BrowserRouter>
   );
 }
