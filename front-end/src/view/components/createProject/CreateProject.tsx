@@ -77,7 +77,9 @@ export default function CreateProject() {
   useEffect(() => {
     if (project && user) {
       // the projectManager creating the project is assigned to it
-      createProject(project.name, project.client, project.landmarks)
+      createProject(project.name, project.client, project.landmarks, {
+        pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
+      })
         .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
     }
   }, [project]); // dependency added

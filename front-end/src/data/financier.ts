@@ -63,7 +63,7 @@ export async function calculateTotalCost(projectID: string): Promise<[number, nu
   return [totalCost, totalAnnotatedCost, totalVerifiedCost];
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
+export async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
   const project = await findProjectById(projectID);
   let numberOfImagesAnnotated = 0;
   project.images.done.forEach(async (doneImage) => {
@@ -79,13 +79,23 @@ async function totalHoursOfWork(projectID: string): Promise<[number, number, num
   const hoursVerification = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   return [hoursAnnotation + hoursVerification, hoursAnnotation, hoursVerification];
 }
+
+/**
+ * Total annotations made
+ */
+
+export async function totalAnnotationMade(projectId: string): Promise<number> {
+  const project = await findProjectById(projectId);
+  return project.images.done.length;
+}
+
+export async function totalWorkers(projectId: string): Promise<number> {
+  const project = await findProjectById(projectId);
+  return project.users.length;
+}
 /** 
 * PROJECT
-* number of annotation per project
-* number of workers involved (careful with annotator/varifier)
 * spending?? DATE
 * name-role-annotated images -verified images -hours of work -efficiency -earnings 
-* STATISTICS 
-* ! TODO 
 */
 export default generateReport();
