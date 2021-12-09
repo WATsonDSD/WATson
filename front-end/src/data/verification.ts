@@ -23,7 +23,7 @@ export async function rejectAnnotation(
 // retrieve annotation and create the 'rejectedAnnotation' object to be returned
   const rejectedImage = await imagesDB.get(rejectedImageID);
   const wrongAnnotation = rejectedImage.annotation;
-  const rejectedAnnotationId = await createRejectedImage(rejectedImageID, imageAnnotatorID, imageVerifierID, wrongAnnotation, comment);
+  const rejectedAnnotationId = await createRejectedImage(rejectedImageID, imageAnnotatorID, imageVerifierID, wrongAnnotation!, comment);
 
   // clear the annotation field of the image
   const imageCleared = {
@@ -56,7 +56,7 @@ export async function modifyAnnotation(
     throw Error("The annotation does not fit the project's specification");
   }
 
-  const modification = createRejectedImage(imageId, verifierID, verifierID, image.annotation, comment);
+  const modification = createRejectedImage(imageId, verifierID, verifierID, image.annotation!, comment);
 
   image.annotation = newAnnotation;
   await imagesDB.put(image);
