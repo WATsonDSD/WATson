@@ -30,12 +30,11 @@ export default function Authentication() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // signUp(formData.email, formData.password, 'projectManager', 'dummyLoggedInUserId');
     logIn(formData.email, formData.password).then(() => {
-    //   // Sends the user back to the page they tried to visit when they were
-    //   // redirected to the login page. { replace: true } is used to remove the
-    //   // login page from the navigation stack. This prevents the user to navigate
-    //   // back to the login page with the back button.
+      // Sends the user back to the page they tried to visit when they were
+      // redirected to the login page. { replace: true } is used to remove the
+      // login page from the navigation stack. This prevents the user to navigate
+      // back to the login page with the back button.
       navigate(from, { replace: true });
     });
   };

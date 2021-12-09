@@ -33,7 +33,7 @@ function classNames(...classes:any) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Usersettings() {
+export default function UserSettings() {
   const user = useUserContext() as User;
 
   return (

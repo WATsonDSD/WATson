@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { User, useUserContext } from '../../../../data';
-import Usersettings from '../menu/UserSettings';
-// import Usersettings from '../menu/UserSettings';
+import UserSettings from '../menu/UserSettings';
 
 Header.defaultProps = {
   button: null,
@@ -19,7 +18,7 @@ export default function Header(props: { title: string, button? : ReactElement })
         {(user as User)?.role === 'projectManager' ? button : ''}
       </div>
       <div>
-        <Usersettings />
+        <UserSettings />
       </div>
 
     </header>
