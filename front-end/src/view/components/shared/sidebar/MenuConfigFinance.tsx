@@ -17,7 +17,7 @@ export const links = [
   {
     id: 1,
     name: 'Reports',
-    href: '/',
+    href: Paths.Reports,
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];

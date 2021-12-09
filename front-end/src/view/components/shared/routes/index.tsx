@@ -10,20 +10,24 @@ import Layout from '../layout';
 
 import Authentication from '../../authentication';
 import Projects from '../../projects';
+import Project from '../../project';
 import Workers from '../../workers/Workers';
 import CreateProject from '../../createProject';
-import EditProject from '../../editProject';
 import Annotation from '../../annotation';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 
 export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
-  Workers: 'workers',
+  Project: 'project',
   CreateProject: 'createProject',
-  EditProject: 'editProject',
+  Workers: 'workers',
   Annotation: 'annotation',
+  Verification: 'verification',
+  Finances: 'finances',
   ProjectFinance: 'projectFinance',
+  Reports: 'reports',
+  Statistics: 'statistics',
 };
 
 export default () => (
@@ -33,7 +37,7 @@ export default () => (
     <Route path={Paths.Projects} element={<Protected><Layout /></Protected>}>
       <Route index element={<Projects />} />
       <Route path={Paths.Workers} element={<Workers />} />
-      <Route path={Paths.EditProject} element={<EditProject />}>
+      <Route path={Paths.Project} element={<Project />}>
         <Route path=":idProject" element={<Workers />} />
       </Route>
       <Route path={Paths.CreateProject} element={<CreateProject />} />

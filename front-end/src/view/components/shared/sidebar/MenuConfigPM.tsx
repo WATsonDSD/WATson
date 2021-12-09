@@ -2,8 +2,8 @@
 import React from 'react';
 
 import { FiUsers } from 'react-icons/fi';
-import { MdOutlineDashboard } from 'react-icons/md';
 import { ImStatsBars } from 'react-icons/im';
+import { MdOutlineDashboard } from 'react-icons/md';
 import { HiOutlineDocumentReport } from 'react-icons/hi';
 
 import { Paths } from '../routes';
@@ -24,13 +24,13 @@ export const links = [
   {
     id: 3,
     name: 'Statistics',
-    href: '/statistics',
+    href: Paths.Statistics,
     icon: <ImStatsBars className="w-5 h-5" />,
   },
   {
     id: 4,
     name: 'Reports',
-    href: '/reports',
+    href: Paths.Reports,
     icon: <HiOutlineDocumentReport className="w-5 h-5" />,
   },
 ];

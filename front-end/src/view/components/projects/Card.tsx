@@ -21,13 +21,13 @@ const Card = (props: any) => {
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.EditProject}/${project.id}`);
+        navigate(`${Paths.Project}/${project.id}`);
         break;
       case 'annotator':
         navigate(`${Paths.Annotation}/${project.id}`);
         break;
       case 'verifier':
-        navigate(`verificationView/${project.id}`);
+        navigate(`${Paths.Verification}/${project.id}`);
         break;
       case 'finance':
         navigate(`${Paths.ProjectFinance}/${project.id}`);
@@ -41,7 +41,6 @@ const Card = (props: any) => {
     <Link
       id={`${action.text}-btn`}
       onClick={(event) => event.stopPropagation()}
-      className="ml-4"
       type="button"
       to={`${action.href}${project.id}`}
     >
