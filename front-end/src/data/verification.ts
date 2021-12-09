@@ -17,21 +17,21 @@ import { fitsSpecification } from './images';
  * @returns the id of the 'RejectedAnnotation' object
  */
 export async function rejectAnnotation(
-  rejectedImageID: ImageID,
+  imageID: ImageID,
   projectID: ProjectID,
   comment: String,
 ) : Promise<RejectionID> {
 // retrieve annotation and create the 'rejectedAnnotation' object to be returned
-  const rejectedImage = await ImagesDB.get(rejectedImageID);
+  const rejectedImage = await ImagesDB.get(imageID);
   const project = await ProjectsDB.get(projectID);
 
   const imageAnnotatorID = rejectedImage.idAnnotator;
   const imageVerifierID = rejectedImage.idVerifier;
 
-  const rejectedAnnotationId = await createRejectedImage(rejectedImageID, imageAnnotatorID!, imageVerifierID!, comment);
+  const rejectedAnnotationId = await createRejectedImage(imageID, imageAnnotatorID!, imageVerifierID!, comment);
 
   // check if the image is waiting to be verified.
-  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === rejectedImageID);
+  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
   if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
 
   // clear the annotation field of the image
@@ -57,21 +57,21 @@ export async function rejectAnnotation(
  * moves the image from the 'toVerify' field to the done field of the project
  */
 export async function modifyAnnotation(
-  projectId: ProjectID,
-  imageId: ImageID,
+  projectID: ProjectID,
+  imageID: ImageID,
   newAnnotation: Annotation,
 ) : Promise<void> {
-  const image = await ImagesDB.get(imageId);
+  const image = await ImagesDB.get(imageID);
   const imageAnnotatorID = image.idAnnotator;
   const imageVerifierID = image.idVerifier;
 
   // check if the annotation is valid.
-  const project = await ProjectsDB.get(projectId);
+  const project = await ProjectsDB.get(projectID);
   if (!fitsSpecification(newAnnotation, project.landmarks)) {
     throw Error("The annotation does not fit the project's specification");
   }
   // check if the image is waiting to be verified.
-  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageId);
+  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
   if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
 
   // assign the new annotation to the imaage

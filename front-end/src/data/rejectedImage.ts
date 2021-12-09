@@ -8,7 +8,7 @@ import { rejectionsDB } from './databases';
  * @returns The newly created rejection's `id`, determined by the backend.
  */
 export async function createRejectedImage(
-  rejectedImageID: ImageID,
+  imageID: ImageID,
   imageAnnotatorID: UserID,
   imageVerifierID: UserID,
   comment: String,
@@ -18,7 +18,7 @@ export async function createRejectedImage(
   const rejection = {
     _id: id,
     id,
-    rejectedImageID,
+    imageID,
     imageAnnotatorID,
     imageVerifierID,
     comment,

@@ -54,7 +54,7 @@ export type Annotation = {
 export type RejectionID = string;
 export type RejectedAnnotation = {
     id: RejectionID,
-    rejectedImageID: ImageID,
+    imageID: ImageID,
     imageAnnotatorID: UserID,
     imageVerifierID: UserID,
     comment: String,
