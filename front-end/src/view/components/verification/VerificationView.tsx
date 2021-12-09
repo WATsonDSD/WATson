@@ -220,13 +220,13 @@ export default function VerificationView(this: any, props: { projectId: ProjectI
         )}
       <div className="grid grid-cols-12 grid-rows-5 gap-0 h-100v bg-gray-100">
         <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
-          <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
+          <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl ml-4 mr-auto">
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 gap-2">
-                <div className="col-span-1 h-26v my-4">
+                <div className="col-span-1 h-60v my-4">
                   <Slider className="col-span-1 p-auto mx-auto" vertical />
                 </div>
-                <div className="col-span-1 h-26v my-4">
+                <div className="col-span-1 h-60v my-4">
                   <Slider className="col-span-1 p-auto mx-auto" vertical />
                 </div>
               </div>
@@ -242,13 +242,17 @@ export default function VerificationView(this: any, props: { projectId: ProjectI
           </div>
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
-          <div className="h-full p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
-            Images:
-            { state.imageToAnnotate.annotation
-              ? Object.keys(state.imageToAnnotate.annotation).length
-              : 0 }
-            /
-            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+          <div className="h-full p-4 w-20v ml-1 mr-auto text-left ">
+            <span className="text-lg pl-1 font-bold">Images to verify:</span>
+            <br />
+            <span className="text-5xl pl-4 text font-bold">
+              {/* Get Here the data of the verification of images in the current session */}
+              { state.imageToAnnotate.annotation
+                ? Object.keys(state.imageToAnnotate.annotation).length
+                : 1 }
+              {' / '}
+              {templateImage.annotation ? Object.keys(templateImage.annotation).length : 1}
+            </span>
           </div>
         </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
