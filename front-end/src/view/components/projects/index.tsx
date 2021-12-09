@@ -13,52 +13,52 @@ import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import Card from './Card';
 
-const actionsProject = [
-  {
-    role: 'projectManager',
-    text: 'Edit',
-    href: '/pageC/',
-  },
-  {
-    role: 'projectManager',
-    text: 'Finance',
-    href: Paths.ProjectFinance,
-  },
-  {
-    role: 'projectManager',
-    text: 'Close',
-    href: '/pageC/',
-  },
-  {
-    role: 'projectManager',
-    text: 'Delete',
-    href: '/pageC/',
-  },
-  {
-    role: 'annotator',
-    text: 'Annotate Images',
-    href: Paths.Annotation,
-  },
-  {
-    role: 'verifier',
-    text: 'Verify Images',
-    href: '/pageC/',
-  },
-  {
-    role: 'finance',
-    text: 'Generate Finances',
-    href: '/pageC/',
-  },
-  {
-    role: 'finance',
-    text: 'Consult work hours',
-    href: '/pageC/',
-  },
-];
-
 export default function Dashboard() {
   const [user] = useUserData();
   const projects = useData(() => getProjectsOfUser(user!.id));
+
+  const actionsProject = [
+    {
+      role: 'projectManager',
+      text: 'Edit',
+      href: '/pageC/',
+    },
+    {
+      role: 'projectManager',
+      text: 'Finance',
+      href: Paths.ProjectFinance,
+    },
+    {
+      role: 'projectManager',
+      text: 'Close',
+      href: '/pageC/',
+    },
+    {
+      role: 'projectManager',
+      text: 'Delete',
+      href: '/pageC/',
+    },
+    {
+      role: 'annotator',
+      text: 'Annotate Images',
+      href: Paths.Annotation,
+    },
+    {
+      role: 'verifier',
+      text: 'Verify Images',
+      href: '/pageC/',
+    },
+    {
+      role: 'finance',
+      text: 'Generate Finances',
+      href: '/pageC/',
+    },
+    {
+      role: 'finance',
+      text: 'Consult work hours',
+      href: '/pageC/',
+    },
+  ];
 
   const addProjectButton = (
     <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
