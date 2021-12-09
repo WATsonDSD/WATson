@@ -1,11 +1,12 @@
 import {
+  updateUser,
   findUserById,
   LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
 } from '.';
-import { imagesDB, projectsDB, usersDB } from './databases';
+import { ImagesDB, ProjectsDB } from './databases';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
-  return projectsDB.get(id);
+  return ProjectsDB.get(id);
 }
 /**
  * Finds and returns all projects of a user.
@@ -48,7 +49,7 @@ export async function createProject(
     },
   } as Project;
 
-  await projectsDB.put(project);
+  await ProjectsDB.put(project);
   return id;
 }
 /**
@@ -59,16 +60,20 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
   const user = await findUserById(userId);
   const project = await findProjectById(projectId);
 
-  if (user.projects[projectId]) { throw Error(`User ${user.name} is already in project ${project.name}`); }
+  if (user.projects[projectId]) {
+    throw Error(`User ${user.name} is already in project ${project.name}`);
+  }
+
   project.users.push(userId);
+
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],
     toVerify: [],
     done: [],
   };
 
-  await projectsDB.put(project);
-  await usersDB.put(user);
+  await ProjectsDB.put(project);
+  await updateUser(user);
 }
 
 /**
@@ -83,12 +88,9 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   project.images.toAnnotate.push({ imageId });
 
   // store the image in the database (_attachment)
-  await imagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
-  const image = await imagesDB.get(imageId);
-  image.id = imageId;
-  await imagesDB.put(image);
+  await ImagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
 
-  await projectsDB.put(project);
+  await ProjectsDB.put(project);
 
   return imageId;
 }

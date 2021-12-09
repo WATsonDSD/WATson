@@ -1,13 +1,12 @@
 import { Menu, Transition } from '@headlessui/react';
 import React, { Fragment, ReactElement } from 'react';
-import { AiTwotoneEdit } from 'react-icons/ai';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Dropdown = (props: {elements: ReactElement[]}) => {
-  const { elements } = props;
+const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
+  const { elements, icon } = props;
   let counter = 0;
   return (
 
@@ -16,7 +15,7 @@ const Dropdown = (props: {elements: ReactElement[]}) => {
       <Menu as="div" className="z-0 relative inline-block text-left">
         <div>
           <Menu.Button>
-            <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold text-white mr-1"><AiTwotoneEdit /></span>
+            <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold mr-1">{icon}</span>
           </Menu.Button>
         </div>
 

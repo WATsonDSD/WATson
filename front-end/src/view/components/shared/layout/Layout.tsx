@@ -1,13 +1,15 @@
 import React from 'react';
-import { useUserContext } from '../../../../data';
 import Sidebar from '../menu/Sidebar';
 import Routing from '../routing/Routing';
 
+import { useUserData } from '../../../../data';
+
 export default function Layout() {
-  const user = useUserContext();
+  const [user, sessionState] = useUserData();
+
   return (
     <div id="main">
-      { user && user !== 'isLoading' && <Sidebar />}
+      { user && sessionState === 'authenticated' && <Sidebar />}
       <div id="main-content">
         <div id="content"><Routing /></div>
       </div>

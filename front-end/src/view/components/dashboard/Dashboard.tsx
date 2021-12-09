@@ -2,7 +2,7 @@ import React from 'react';
 import { BsPlusLg } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 import {
-  getProjectsOfUser, User, useUserContext,
+  getProjectsOfUser, useUserData,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
@@ -13,6 +13,11 @@ const actionsProject = [
     role: 'projectManager',
     text: 'Edit',
     href: '/pageC/',
+  },
+  {
+    role: 'projectManager',
+    text: 'Finance',
+    href: '/projectFinance/',
   },
   {
     role: 'projectManager',
@@ -47,8 +52,8 @@ const actionsProject = [
 ];
 
 export default function Dashboard() {
-  const user = useUserContext();
-  const projects = useData(() => getProjectsOfUser((user as User).id));
+  const [user] = useUserData();
+  const projects = useData(() => getProjectsOfUser(user!.id));
 
   const addProjectButton = (
     <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
@@ -64,13 +69,13 @@ export default function Dashboard() {
       </div>
 
       <div className="Card min-h-full">
-        <div className="w-full min-h-full bg-gray-50">
-          <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6 h-screen">
+        <div className="w-full min-h-full">
+          <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6">
             {projects?.map((project) => (
               <Card
                 key={project.id}
                 project={project}
-                actions={actionsProject.filter((a) => a.role === (user as User)?.role)}
+                actions={actionsProject.filter((a) => a.role === user!.role)}
               />
             ))}
           </section>

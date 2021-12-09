@@ -1,5 +1,5 @@
 import {
-  imagesDB, projectsDB,
+  ImagesDB, ProjectsDB,
 } from './databases';
 import {
   ImageID, UserID, Annotation, RejectionID, ProjectID,
@@ -21,7 +21,7 @@ export async function rejectAnnotation(
   comment: String,
 ) : Promise<RejectionID> {
 // retrieve annotation and create the 'rejectedAnnotation' object to be returned
-  const rejectedImage = await imagesDB.get(rejectedImageID);
+  const rejectedImage = await ImagesDB.get(rejectedImageID);
   const wrongAnnotation = rejectedImage.annotation;
   const rejectedAnnotationId = await createRejectedImage(rejectedImageID, imageAnnotatorID, imageVerifierID, wrongAnnotation!, comment);
 
@@ -30,7 +30,7 @@ export async function rejectAnnotation(
     ...rejectedImage,
     annotation: [],
   };
-  await imagesDB.put(imageCleared);
+  await ImagesDB.put(imageCleared);
 
   return rejectedAnnotationId;
 }
@@ -48,10 +48,10 @@ export async function modifyAnnotation(
   newAnnotation: Annotation,
   comment: String,
 ) : Promise<RejectionID> {
-  const image = await imagesDB.get(imageId);
+  const image = await ImagesDB.get(imageId);
 
   // check if the annotation is valid.
-  const project = await projectsDB.get(projectId);
+  const project = await ProjectsDB.get(projectId);
   if (!fitsSpecification(newAnnotation, project.landmarks)) {
     throw Error("The annotation does not fit the project's specification");
   }
@@ -59,7 +59,7 @@ export async function modifyAnnotation(
   const modification = createRejectedImage(imageId, verifierID, verifierID, image.annotation!, comment);
 
   image.annotation = newAnnotation;
-  await imagesDB.put(image);
+  await ImagesDB.put(image);
 
   return modification;
 }
@@ -76,8 +76,8 @@ export async function acceptAnnotatedImage(
   verifierID: UserID,
 
 ) : Promise<void> {
-  const image = await imagesDB.get(imageID);
-  const project = await projectsDB.get(projectID);
+  const image = await ImagesDB.get(imageID);
+  const project = await ProjectsDB.get(projectID);
 
   // check if the image is waiting to be annotated.
   const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
@@ -92,6 +92,6 @@ export async function acceptAnnotatedImage(
   project.images.toVerify.splice(imageIndex, 1);
 
   // reflect the changes to the DB.
-  await imagesDB.put(image);
-  await projectsDB.put(project);
+  await ImagesDB.put(image);
+  await ProjectsDB.put(project);
 }

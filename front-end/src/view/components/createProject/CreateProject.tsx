@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification, User,
+  Project, UserID, LandmarkSpecification,
 } from '../../../data/types';
-import LandMarksImage from './LandMarksImage';
 import {
-  addUserToProject, createProject, getAllUsers, useUserContext,
+  addUserToProject, createProject, getAllUsers, useUserData, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
+import AnnotatedImage from '../annotation/AnnotatedImage';
+import TemplateAnnotation from '../annotation/TemplateAnnotation';
+
+const templateImage: Image = {
+  id: 'template',
+  annotation: TemplateAnnotation,
+};
 
 export default function CreateProject() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
   const [project, setProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
   console.log(workers);
   const handleSubmit = (event: any) => {
@@ -36,7 +44,6 @@ export default function CreateProject() {
     setProject({
       id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
     });
-    console.log(project);
 
     event.preventDefault();
   };
@@ -45,28 +52,96 @@ export default function CreateProject() {
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     value: number,
   ) {
-    const selected = (event.target as Element).classList.contains('bg-green-300');
+    const selected = currentLandMarks.includes(value);
 
     if (!document.querySelector('#step2')?.classList.contains('bg-black')) {
       document.querySelector('#step2')?.classList.add('bg-black', 'text-white');
       document.querySelector('#step2')?.classList.remove('text-gray-600');
     }
     if (selected) {
-      (event.target as Element).classList.remove('bg-green-300');
       const newState: number[] = Array.from(currentLandMarks);
       newState.splice(newState.indexOf(value), 1);
       setLandMarks(newState);
     } else {
-      (event.target as Element).classList.add('bg-green-300');
       const newState: number[] = Array.from(currentLandMarks);
       newState.push(value);
       setLandMarks(newState);
     }
-    console.log(value);
-    // TODO highlight landmark point corresponding 
   }
 
-  console.log(currentLandMarks);
+  useEffect(() => {
+    if (project && user) {
+      // the projectManager creating the project is assigned to it
+      createProject(project.name, project.client, project.landmarks)
+        .then(async (id) => {
+          await addUserToProject(user.id, id);
+          for (let i = 0; i < project.users.length; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await addUserToProject(project.users[i], id);
+          }
+          navigate('/dashboard');
+        });
+    }
+  }, [project]); // dependency added
+
+  function handleLandmarksCheckbox(
+    event: any,
+    values: number[],
+  ) {
+    if (!document.querySelector('#step2')?.classList.contains('bg-black')) {
+      document.querySelector('#step2')?.classList.add('bg-black', 'text-white');
+      document.querySelector('#step2')?.classList.remove('text-gray-600');
+    }
+    console.log(event.target.checked);
+    if (!event.target.checked) {
+      setLandMarks(currentLandMarks.filter((value) => !values.includes(value)));
+    } else {
+      const newState: number[] = Array.from(currentLandMarks);
+      newState.push(...values);
+      setLandMarks(newState);
+    }
+  }
+
+  const landmarkColor = (id: number) => {
+    if (currentLandMarks.includes(id)) {
+      return { fill: '#525252' };
+    }
+    return { stroke: '#000000' };
+  };
+
+  const range = (n1: number, n2?: number): number[] => {
+    if (n2 === undefined) {
+      return Array.from({ length: n1 }, (x, i) => i);
+    }
+    if (n2 <= n1) { return []; }
+    return Array.from({ length: n2 - n1 }, (x, i) => i + n1);
+  };
+
+  const landmarkButton = (i: number) => (
+    <button
+      type="button"
+      id={`b${i}`}
+      onClick={(e) => handleLandmarksButton(e, i)}
+      className={`hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l ${
+        currentLandMarks.includes(i) ? 'bg-green-300' : 'bg-gray-300'
+      }`}
+    >
+      {i}
+    </button>
+  );
+
+  const landmarkCheckbox = (landmarks: number[]) => {
+    console.log({ landmarks, currentLandMarks, every: landmarks.every((i) => currentLandMarks.includes(i)) });
+    return (
+      <input
+        type="checkbox"
+        className="mr-2"
+        checked={landmarks.every((i) => currentLandMarks.includes(i))}
+        onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
+      />
+    );
+  };
+
   return (
     <div className="h-full w-full">
       <Header title="Creating new project" />
@@ -92,7 +167,6 @@ export default function CreateProject() {
 
               <div className="" style={{ height: '50%' }}>
                 <div className="relative mb-2 flex flex-row">
-
                   <div id="step2" className="w-8 h-8 ml-10 mr-2 text-gray-600 rounded-full text-lg text-white flex items-center">
                     <span className="text-center w-full">
                       2
@@ -159,25 +233,25 @@ export default function CreateProject() {
         <div>
           <form className="text-left w-full mx-auto max-w-lg" onSubmit={handleSubmit}>
             <div className="flex  -mx-3 mb-6">
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-1/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
                 </label>
               </div>
-              <div className="w-full md:w-1/4 px-3">
+              <div className="w-full md:w-2/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
                   <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
@@ -190,274 +264,93 @@ export default function CreateProject() {
                   Select the features that will need to be annotated
                 </span>
               </div>
-              {' '}
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Face Contour
-              </span>
-              <br />
+              <div className="flex">
+                {landmarkCheckbox(range(1, 69))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  All
+                </span>
+              </div>
+              <div className="flex">
+                {landmarkCheckbox(range(1, 18))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Face Contour
+                </span>
+              </div>
               <div className="flex flex-wrap">
-                <button type="button" id="b1" value={1} onClick={(e) => handleLandmarksButton(e, 1)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  1
-                </button>
-                <button type="button" id="b2" onClick={(e) => handleLandmarksButton(e, 2)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  2
-                </button>
-                <button type="button" id="b3" onClick={(e) => handleLandmarksButton(e, 3)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  3
-                </button>
-                <button type="button" id="b4" onClick={(e) => handleLandmarksButton(e, 4)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  4
-                </button>
-                <button type="button" id="b4" onClick={(e) => handleLandmarksButton(e, 5)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  5
-                </button>
-                <button type="button" id="b6" onClick={(e) => handleLandmarksButton(e, 6)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  6
-                </button>
-                <button type="button" id="b7" onClick={(e) => handleLandmarksButton(e, 7)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  7
-                </button>
-                <button type="button" id="b8" onClick={(e) => handleLandmarksButton(e, 8)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  8
-                </button>
-                <button type="button" id="b9" onClick={(e) => handleLandmarksButton(e, 9)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  9
-                </button>
-                <button type="button" id="b10" onClick={(e) => handleLandmarksButton(e, 10)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  10
-                </button>
-                <button type="button" id="b11" onClick={(e) => handleLandmarksButton(e, 11)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  11
-                </button>
-                <button type="button" id="b12" onClick={(e) => handleLandmarksButton(e, 12)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  12
-                </button>
-                <button type="button" id="b13" onClick={(e) => handleLandmarksButton(e, 13)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  13
-                </button>
-                <button type="button" id="b14" onClick={(e) => handleLandmarksButton(e, 14)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  14
-                </button>
-                <button type="button" id="b15" onClick={(e) => handleLandmarksButton(e, 15)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  15
-                </button>
-                <button type="button" id="b16" onClick={(e) => handleLandmarksButton(e, 16)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  16
-                </button>
-                <button type="button" id="b17" onClick={(e) => handleLandmarksButton(e, 17)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  17
-                </button>
+                {range(1, 18).map(landmarkButton)}
               </div>
               <br />
               <div className="inline-flex space-x-4">
-
                 <div className="left-brow">
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Left Brow
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(18, 23))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Left Brow
+                    </span>
+                  </div>
                   <div className="inline-flex">
-                    <button type="button" id="b18" onClick={(e) => handleLandmarksButton(e, 18)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                      18
-                    </button>
-                    <button type="button" id="b19" onClick={(e) => handleLandmarksButton(e, 19)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      19
-                    </button>
-                    <button type="button" id="b20" onClick={(e) => handleLandmarksButton(e, 20)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      20
-                    </button>
-                    <button type="button" id="b21" onClick={(e) => handleLandmarksButton(e, 21)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      21
-                    </button>
-                    <button type="button" id="b22" onClick={(e) => handleLandmarksButton(e, 22)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      22
-                    </button>
+                    {range(18, 23).map(landmarkButton)}
                   </div>
                 </div>
                 <div>
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Right Brow
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(23, 28))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Right Brow
+                    </span>
+                  </div>
                   <div className="inline-flex">
-                    <button type="button" id="b23" onClick={(e) => handleLandmarksButton(e, 23)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                      23
-                    </button>
-                    <button type="button" id="b24" onClick={(e) => handleLandmarksButton(e, 24)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      24
-                    </button>
-                    <button type="button" id="b25" onClick={(e) => handleLandmarksButton(e, 25)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      25
-                    </button>
-                    <button type="button" id="b26" onClick={(e) => handleLandmarksButton(e, 26)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      26
-                    </button>
-                    <button type="button" id="b27" onClick={(e) => handleLandmarksButton(e, 27)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      27
-                    </button>
+                    {range(23, 28).map(landmarkButton)}
                   </div>
                 </div>
               </div>
               <br />
               <br />
               {' '}
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Nose
-              </span>
-              <br />
+              <div className="flex">
+                {landmarkCheckbox(range(28, 37))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Nose
+                </span>
+              </div>
               <div className="flex flex-wrap">
-                <button type="button" id="b28" onClick={(e) => handleLandmarksButton(e, 28)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                  28
-                </button>
-                <button type="button" id="b29" onClick={(e) => handleLandmarksButton(e, 29)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  29
-                </button>
-                <button type="button" id="b30" onClick={(e) => handleLandmarksButton(e, 30)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  30
-                </button>
-                <button type="button" id="b31" onClick={(e) => handleLandmarksButton(e, 31)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  31
-                </button>
-                <button type="button" id="b32" onClick={(e) => handleLandmarksButton(e, 32)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  32
-                </button>
-                <button type="button" id="b33" onClick={(e) => handleLandmarksButton(e, 33)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  33
-                </button>
-                <button type="button" id="b34" onClick={(e) => handleLandmarksButton(e, 34)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  34
-                </button>
-                <button type="button" id="b35" onClick={(e) => handleLandmarksButton(e, 35)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  35
-                </button>
-                <button type="button" id="b36" onClick={(e) => handleLandmarksButton(e, 36)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  36
-                </button>
+                {range(28, 37).map(landmarkButton)}
               </div>
               <br />
               <div className="inline-flex space-x-4">
-
                 <div className="left-eye">
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Left Eye
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(37, 43))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Left Eye
+                    </span>
+                  </div>
                   <div className="inline-flex">
-                    <button type="button" id="b37" onClick={(e) => handleLandmarksButton(e, 37)} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                      37
-                    </button>
-                    <button type="button" id="b38" onClick={(e) => handleLandmarksButton(e, 38)} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      38
-                    </button>
-                    <button type="button" id="b39" onClick={(e) => handleLandmarksButton(e, 39)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      39
-                    </button>
-                    <button type="button" id="b40" onClick={(e) => handleLandmarksButton(e, 40)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      40
-                    </button>
-                    <button type="button" id="b41" onClick={(e) => handleLandmarksButton(e, 41)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      41
-                    </button>
-                    <button type="button" id="b42" onClick={(e) => handleLandmarksButton(e, 42)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      42
-                    </button>
+                    {range(37, 43).map(landmarkButton)}
                   </div>
                 </div>
                 <div>
-                  <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    Right Eye
-                  </span>
-                  <br />
+                  <div className="flex">
+                    {landmarkCheckbox(range(43, 49))}
+                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                      Right Eye
+                    </span>
+                  </div>
                   <div className="inline-flex">
-                    <button type="button" id="b43" onClick={(e) => handleLandmarksButton(e, 43)} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                      43
-                    </button>
-                    <button type="button" id="b44" onClick={(e) => handleLandmarksButton(e, 44)} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      44
-                    </button>
-                    <button type="button" id="b45" onClick={(e) => handleLandmarksButton(e, 45)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      45
-                    </button>
-                    <button type="button" id="b46" onClick={(e) => handleLandmarksButton(e, 46)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      46
-                    </button>
-                    <button type="button" id="b47" onClick={(e) => handleLandmarksButton(e, 47)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      47
-                    </button>
-                    <button type="button" id="b48" onClick={(e) => handleLandmarksButton(e, 48)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                      48
-                    </button>
+                    {range(43, 49).map(landmarkButton)}
                   </div>
                 </div>
               </div>
               <br />
               <br />
-
-              <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Mouth
-              </span>
-              <br />
+              <div className="flex">
+                {landmarkCheckbox(range(49, 69))}
+                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  Mouth
+                </span>
+              </div>
               <div className="flex flex-wrap">
-                <button type="button" id="b49" onClick={(e) => handleLandmarksButton(e, 49)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l rounded-r">
-                  49
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 50)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  50
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 51)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  51
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 52)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  52
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 53)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  53
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 54)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  54
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 55)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  55
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 56)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  56
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 57)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  57
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 58)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  58
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 59)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  59
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 60)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  60
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 61)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  61
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 62)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  62
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 63)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  63
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 64)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  64
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 65)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  65
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 66)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  66
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 67)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  67
-                </button>
-                <button type="button" onClick={(e) => handleLandmarksButton(e, 68)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l">
-                  68
-                </button>
+                {range(49, 69).map(landmarkButton)}
               </div>
             </div>
 
@@ -483,9 +376,11 @@ export default function CreateProject() {
                         }}
                       >
                         <option value={0}>Select a user</option>
-                        {allUsers?.filter((u) => workers
+                        {/* {allUsers?.filter((u) => workers
                           .find((w) => w.worker === u.id) === undefined)
-                          .map((u) => (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))}
+                          .map((u) => 
+                          (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
+                        {allUsers?.map((u) => (<option key={u.name} value={u.id}>{`${u.name} - ${u.role}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -572,18 +467,6 @@ export default function CreateProject() {
             <button
               className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
               type="submit"
-              onClick={
-                () => {
-                  if (project && user) {
-                    // the projectManager creating the project is assigned to it
-                    createProject(project.name, project.client, project.landmarks)
-                      .then(async (id) => {
-                        await addUserToProject(user.id, id);
-                        project.users.forEach((userId) => addUserToProject(userId, id));
-                      });
-                  }
-                }
-            }
             >
               Submit
             </button>
@@ -591,9 +474,8 @@ export default function CreateProject() {
         </div>
         {/* right column */}
         <div>
-          {/* todo: add annotation points */}
           <div className=" h-full mt-40">
-            <LandMarksImage LandMarks={currentLandMarks} />
+            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} />
           </div>
         </div>
       </div>
