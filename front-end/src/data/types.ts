@@ -57,6 +57,5 @@ export type RejectedAnnotation = {
     rejectedImageID: ImageID,
     imageAnnotatorID: UserID,
     imageVerifierID: UserID,
-    wrongAnnotations: Annotation,
     comment: String,
 }

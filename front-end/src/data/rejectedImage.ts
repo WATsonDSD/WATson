@@ -1,5 +1,5 @@
 import {
-  Annotation, ImageID, RejectedAnnotation, RejectionID, UserID,
+  ImageID, RejectedAnnotation, RejectionID, UserID,
 } from '.';
 import { rejectionsDB } from './databases';
 
@@ -11,7 +11,6 @@ export async function createRejectedImage(
   rejectedImageID: ImageID,
   imageAnnotatorID: UserID,
   imageVerifierID: UserID,
-  wrongAnnotations: Annotation,
   comment: String,
 ) : Promise<RejectionID> {
   const id = new Date().toISOString(); // unique id's.
@@ -22,7 +21,6 @@ export async function createRejectedImage(
     rejectedImageID,
     imageAnnotatorID,
     imageVerifierID,
-    wrongAnnotations,
     comment,
   } as RejectedAnnotation;
 
