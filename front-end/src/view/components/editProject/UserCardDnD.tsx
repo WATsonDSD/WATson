@@ -29,14 +29,14 @@ const UserCardDnD = ({
   } else if (canDrop) {
     backgroundColor = 'bg-gray-100';
   }
-
+  // console.log(images);
   return (
     <div className={`rounded-lg shadow-xl ${backgroundColor}`} ref={drop}>
       <div className="items-center justify-center">
         <header className="font-semibold text-sm py-3 px-4">
           {`${user?.name} (${user?.role})` }
         </header>
-        {images.map((picture: any) => <ImageDnD url={picture.url} id={picture.id} />)}
+        {images.map((picture: any) => <ImageDnD key={picture.image} url={picture.url} id={picture.image} />)}
 
       </div>
     </div>
