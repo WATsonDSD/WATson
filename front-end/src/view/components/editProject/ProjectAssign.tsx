@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { findProjectById } from '../../../data';
+import {
+  findProjectById, getUsersOfProject, Image, User,
+} from '../../../data';
 import useData from '../../../data/hooks';
 import { getImages } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
@@ -8,47 +10,22 @@ import Header from '../shared/layout/Header';
 import ImageDnD from './ImageDnD';
 import UserCardDnD from './UserCardDnD';
 
-// const PictureList = [
-//   {
-//     id: 1,
-//     url:
-//       'https://yt3.ggpht.com/ytc/AAUvwnjOQiXUsXYMs8lwrd4litEEqXry1-atqJavJJ09=s900-c-k-c0x00ffffff-no-rj',
-//   },
-//   {
-//     id: 2,
-//     url:
-//       'https://yt3.ggpht.com/pe57RF1GZibOWeZ9GwRWbjnLDCK2EEAeQ3u4iMAFNeaz-PN9uSsg1p2p32TZUedNnrUhKfoOuMM=s900-c-k-c0x00ffffff-no-rj',
-//   },
-// ];
 export default function ProjectAssign() {
   const [toAnnotate, setToAnnotate] = useState([] as {user:string, image:string, url: string}[]);
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, url: string}[]);
-  const [PictureList, setpictureList] = useState([] as {id: number, url: string}[]);
-
-  useEffect(() => {
-    setpictureList([
-      {
-        id: 1,
-        url:
-          'https://yt3.ggpht.com/ytc/AAUvwnjOQiXUsXYMs8lwrd4litEEqXry1-atqJavJJ09=s900-c-k-c0x00ffffff-no-rj',
-      },
-      {
-        id: 2,
-        url:
-          'https://yt3.ggpht.com/pe57RF1GZibOWeZ9GwRWbjnLDCK2EEAeQ3u4iMAFNeaz-PN9uSsg1p2p32TZUedNnrUhKfoOuMM=s900-c-k-c0x00ffffff-no-rj',
-      },
-    ]);
-  }, []);
+  const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
+  const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
 
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
+  let projectUsers: User[] = [];
 
-  const imagesToAnnotate = useData(async () => {
-    getImages(idProject || '', 'toAnnotate');
-  });
-  const imagesToVerify = useData(async () => {
-    getImages(idProject || '', 'toVerify');
-  });
+  useEffect(() => {
+    getImages(idProject || '', 'toAnnotate').then((result) => { setImagesToAnnotate(result); });
+    getImages(idProject || '', 'toVerify').then((result) => { setImagesToVerify(result); });
+    getUsersOfProject(idProject || '').then((result) => { projectUsers = result; });
+  }, []);
+
   console.log(imagesToAnnotate);
   console.log(imagesToVerify);
 
@@ -60,31 +37,31 @@ export default function ProjectAssign() {
     setToVerify((prevState) => [...prevState, newElement]);
   };
 
-  const handleDrop = (index: number, item: { id: string, url: string }, userId: string, action: 'annotate' | 'verify') => {
-    const { id, url } = item;
+  const handleDrop = (index: number, item: { id: string}, userId: string, action: 'annotate' | 'verify') => {
+    const { id } = item;
     if (action === 'annotate') {
       // Remove pic from to annotate pictures
-      const newPictureList = Array.from(PictureList);
-      const pic = newPictureList.findIndex((e) => e.id === Number(id));
-      newPictureList.splice(pic, 1);
-      setpictureList(newPictureList);
+      const newPictureList = Array.from(imagesToAnnotate);
+      const imageUrl = URL.createObjectURL(newPictureList.find((e) => e.id === id)?.data);
+      const imageIndex = newPictureList.findIndex((e) => e.id === id);
+      newPictureList.splice(imageIndex, 1);
+      setImagesToAnnotate(newPictureList);
       // updateToAnnotate 
-      updateToAnnotate({ user: userId, image: id, url });
+      updateToAnnotate({ user: userId, image: id, url: imageUrl });
     } else {
       // Remove pic from to annotate pictures
-      const newPictureList = Array.from(PictureList);
-      const pic = newPictureList.findIndex((e) => e.id === Number(id));
-      newPictureList.splice(pic, 1);
-      setpictureList(newPictureList);
+      const newPictureList = Array.from(imagesToVerify);
+      const imageUrl = URL.createObjectURL(newPictureList.find((e) => e.id === id)?.data);
+      const imageIndex = newPictureList.findIndex((e) => e.id === id);
+      newPictureList.splice(imageIndex, 1);
+      setImagesToVerify(newPictureList);
       // update to verify
-      updateToVerify({ user: userId, image: id, url }); // remove picture from to verify list
+      updateToVerify({ user: userId, image: id, url: imageUrl }); // remove picture from to verify list
     }
-    // TODO handle drop    
   };
 
   const handleSubmit = () => {
     console.log('submit');
-    console.log(PictureList);
     console.log(toVerify);
     console.log(toAnnotate);
   };
@@ -100,12 +77,12 @@ export default function ProjectAssign() {
             Images to annotate
           </header>
           <div className="Pictures flex flex-row gap-2">
-            {PictureList.map((picture) => <ImageDnD key={picture.id} url={picture.url} id={picture.id} />)}
+            {imagesToAnnotate.map((image) => <ImageDnD key={image.id} url={URL.createObjectURL(image.data)} id={image.id} />)}
           </div>
         </div>
         <div className="flex flex-row gap-4">
-          { project?.users.map((user, index) => (
-            <UserCardDnD key={user} userId={user} accept="image" images={toAnnotate.filter((e) => e.user === user)} onDrop={(item: any) => handleDrop(index, item, user, 'annotate')} />
+          { projectUsers.filter((user) => user.role === 'annotator').map((user, index) => (
+            <UserCardDnD key={user} userId={user} accept="image" images={toAnnotate.filter((e) => e.user === user.id)} onDrop={(item: any) => handleDrop(index, item, user.id, 'annotate')} />
           ))}
         </div>
       </div>
@@ -117,12 +94,12 @@ export default function ProjectAssign() {
             Images to verify
           </header>
           <div className="Pictures flex flex-row gap-2">
-            {PictureList.map((picture) => <ImageDnD key={picture.id} url={picture.url} id={picture.id} />)}
+            {imagesToVerify.map((image) => <ImageDnD key={image.id} url={URL.createObjectURL(image.data)} id={image.id} />)}
           </div>
         </div>
         <div className="flex flex-row gap-4">
-          { project?.users.map((user, index) => (
-            <UserCardDnD key={user} userId={user} accept="image" images={toVerify.filter((e) => e.user === user)} onDrop={(item: any) => { console.log(item); handleDrop(index, item, user, 'verify'); }} />
+          { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
+            <UserCardDnD key={user} userId={user} accept="image" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { console.log(item); handleDrop(index, item, user.id, 'verify'); }} />
           ))}
         </div>
       </div>
