@@ -122,7 +122,7 @@ export default function ProjectFinance() {
         </div>
       </div>
       <div className="w-full mx-10">
-        <GraphChart chart={exampleChart} />
+        <GraphChart chart={exampleChart} title="Spendings" />
       </div>
     </div>
   );
