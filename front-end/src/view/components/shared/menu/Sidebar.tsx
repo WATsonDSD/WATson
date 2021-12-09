@@ -66,7 +66,7 @@ function Sidebar() {
               })}
               <hr className="my-6" />
               <NavLink
-                to="./UserSettings" // just for test
+                to="./"
                 className={(navData) => (navData.isActive ? 'capitalize flex items-center px-4 py-2 mt-5 bg-black text-white hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md'
                   : 'capitalize flex items-center px-4 py-2 mt-5 text-black hover:bg-black hover:text-white transition-colors duration-200 transform rounded-md')}
                 id=""

@@ -9,6 +9,7 @@ import Authentication from '../../authentication';
 import Protected from '../../protected';
 import Usersettings from '../menu/UserSettings';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 
 export default function Routing() {
   return (
@@ -27,6 +28,7 @@ export default function Routing() {
       </Route>
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
       <Route path="/usersettings" element={<Protected><Usersettings /></Protected>} />
+      <Route path="/reportFinance" element={<Protected><ReportFinance /></Protected>} />
     </Routes>
   );
 }

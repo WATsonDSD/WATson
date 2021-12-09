@@ -41,7 +41,7 @@ export default function Usersettings() {
       <div className="bg-opacity-0 hover:bg-gray-200 px-4 py-2 rounded text-black focus:outline-none">
         <div className="Dropdown">
 
-          <Menu as="div" className="relative inline-block text-left">
+          <Menu as="div" className="z-0 relative inline-block text-left">
             <div>
               <Menu.Button>
                 <div className="inline-block bg-transparant flex px-3 py-0 text-1 font-semibold text-black mr-1">

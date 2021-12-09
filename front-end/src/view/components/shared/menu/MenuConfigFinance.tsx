@@ -15,7 +15,7 @@ export const links = [
   {
     id: 1,
     name: 'Reports',
-    href: '/dashboard',
+    href: '/reportFinance',
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];
