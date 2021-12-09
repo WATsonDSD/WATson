@@ -8,6 +8,7 @@ import AnnotationView from '../../annotation/AnnotationView';
 import Authentication from '../../authentication';
 import Protected from '../../protected';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import WorkerFinance from '../../projectFinanceSummary/ciao';
 
 export default function Routing() {
   return (
@@ -25,6 +26,7 @@ export default function Routing() {
         <Route path=":idProject" element={<Protected><ProjectFinance /></Protected>} />
       </Route>
       <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+      <Route path="/ciao" element={<WorkerFinance />} />
     </Routes>
   );
 }
