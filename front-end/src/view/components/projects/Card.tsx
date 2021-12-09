@@ -1,10 +1,15 @@
+import React from 'react';
+
 import {
   AiOutlineRise, AiOutlineTeam, AiOutlineRedo, AiTwotoneEdit,
 } from 'react-icons/ai';
-import React from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
-import Dropdown from './Dropdown';
 import { useUserData } from '../../../data';
+
+import { Paths } from '../shared/routes';
+
+import Dropdown from './Dropdown';
 
 const Card = (props: any) => {
   const { project, actions } = props;
@@ -14,16 +19,16 @@ const Card = (props: any) => {
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`/editProject/${project.id}`);
+        navigate(`${Paths.EditProject}/${project.id}`);
         break;
       case 'annotator':
-        navigate(`/annotationView/${project.id}`);
+        navigate(`${Paths.Annotation}/${project.id}`);
         break;
       case 'verifier':
-        navigate(`/verificationView/${project.id}`);
+        navigate(`verificationView/${project.id}`);
         break;
       case 'finance':
-        navigate(`/projectFinance/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project.id}`);
         break;
       default:
         break;

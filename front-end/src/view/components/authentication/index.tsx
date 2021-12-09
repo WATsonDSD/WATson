@@ -21,7 +21,7 @@ export default function Authentication() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || '/';
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });

@@ -5,17 +5,19 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineDashboard } from 'react-icons/md';
 
+import { Paths } from '../routes';
+
 export const links = [
   {
     id: 4,
     name: 'Projects',
-    href: '/dashboard',
+    href: Paths.Projects,
     icon: <MdOutlineDashboard className="w-5 h-5" />,
   },
   {
     id: 1,
     name: 'Reports',
-    href: '/dashboard',
+    href: '/',
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];
