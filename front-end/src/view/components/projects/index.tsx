@@ -7,8 +7,6 @@ import {
   getProjectsOfUser, useUserData,
 } from '../../../data';
 
-import { Paths } from '../shared/routes';
-
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import Card from './Card';
@@ -22,7 +20,7 @@ const actionsProject = [
   {
     role: 'projectManager',
     text: 'Finance',
-    href: Paths.ProjectFinance,
+    href: '/projectFinance',
   },
   {
     role: 'projectManager',
@@ -37,7 +35,7 @@ const actionsProject = [
   {
     role: 'annotator',
     text: 'Annotate Images',
-    href: Paths.Annotation,
+    href: '/annotation',
   },
   {
     role: 'verifier',
