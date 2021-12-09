@@ -17,9 +17,6 @@ export default function ProjectFinance() {
   const project = useData(async () => findProjectById(idProject ?? ''));
   const totalCost = useData(async () => calculateTotalCost(idProject!));
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
-  console.log(totalCost![0]);
-  // const [totalCost] = await calculateTotalCost(idProject!);
-  // const [totalHours] = await totalHoursOfWork(idProject!);
 
   const exampleChart: ChartConfiguration = {
     type: 'line',
