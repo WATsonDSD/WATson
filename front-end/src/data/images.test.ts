@@ -5,6 +5,7 @@ import {
   findImageById, getImages, saveAnnotation, assignVerifierToImage,
 } from './images';
 
+jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });

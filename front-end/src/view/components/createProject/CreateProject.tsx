@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification, User,
+  Project, UserID, LandmarkSpecification,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserContext, Image,
+  addUserToProject, createProject, getAllUsers, useUserData, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../annotation/AnnotatedImage';
@@ -17,7 +17,7 @@ const templateImage: Image = {
 };
 
 export default function CreateProject() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
@@ -80,7 +80,14 @@ export default function CreateProject() {
       createProject(project.name, project.client, project.landmarks, {
         pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
       })
-        .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
+        .then(async (id) => {
+          await addUserToProject(user.id, id);
+          for (let i = 0; i < project.users.length; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await addUserToProject(project.users[i], id);
+          }
+          navigate('/dashboard');
+        });
     }
   }, [project]); // dependency added
 

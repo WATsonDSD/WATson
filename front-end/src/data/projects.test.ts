@@ -3,8 +3,10 @@ import {
   addUserToProject,
   createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
+
 import { findImageById, getImages } from './images';
 
+jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 test('Can find created project', async () => {
