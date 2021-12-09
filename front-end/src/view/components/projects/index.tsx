@@ -1,59 +1,64 @@
 import React from 'react';
+
 import { BsPlusLg } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
+
 import {
-  getProjectsOfUser, User, useUserContext,
+  getProjectsOfUser, useUserData,
 } from '../../../data';
+
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import Card from './Card';
 
-const actionsProject = [
-  {
-    role: 'projectManager',
-    text: 'Edit',
-    href: '/pageC/',
-  },
-  {
-    role: 'projectManager',
-    text: 'Finance',
-    href: '/projectFinance/',
-  },
-  {
-    role: 'projectManager',
-    text: 'Close',
-    href: '/pageC/',
-  },
-  {
-    role: 'projectManager',
-    text: 'Delete',
-    href: '/pageC/',
-  },
-  {
-    role: 'annotator',
-    text: 'Annotate Images',
-    href: '/annotationView/',
-  },
-  {
-    role: 'verifier',
-    text: 'Verify Images',
-    href: '/pageC/',
-  },
-  {
-    role: 'finance',
-    text: 'Generate Finances',
-    href: '/pageC/',
-  },
-  {
-    role: 'finance',
-    text: 'Consult work hours',
-    href: '/pageC/',
-  },
-];
+import { Paths } from '../shared/routes';
 
 export default function Dashboard() {
-  const user = useUserContext();
-  const projects = useData(() => getProjectsOfUser((user as User).id));
+  const [user] = useUserData();
+  const projects = useData(() => getProjectsOfUser(user!.id));
+
+  const actionsProject = [
+    {
+      role: 'projectManager',
+      text: 'Edit',
+      href: '/pageC/',
+    },
+    {
+      role: 'projectManager',
+      text: 'Finance',
+      href: Paths.ProjectFinance,
+    },
+    {
+      role: 'projectManager',
+      text: 'Close',
+      href: '/pageC/',
+    },
+    {
+      role: 'projectManager',
+      text: 'Delete',
+      href: '/pageC/',
+    },
+    {
+      role: 'annotator',
+      text: 'Annotate Images',
+      href: Paths.Annotation,
+    },
+    {
+      role: 'verifier',
+      text: 'Verify Images',
+      href: '/pageC/',
+    },
+    {
+      role: 'finance',
+      text: 'Generate Finances',
+      href: '/pageC/',
+    },
+    {
+      role: 'finance',
+      text: 'Consult work hours',
+      href: '/pageC/',
+    },
+  ];
 
   const addProjectButton = (
     <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
@@ -75,7 +80,7 @@ export default function Dashboard() {
               <Card
                 key={project.id}
                 project={project}
-                actions={actionsProject.filter((a) => a.role === (user as User)?.role)}
+                actions={actionsProject.filter((a) => a.role === user!.role)}
               />
             ))}
           </section>

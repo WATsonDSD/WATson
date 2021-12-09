@@ -13,3 +13,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
 }
+
+#main {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* all except the side menu */
+#main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: auto;
+
+}
+
+/* content without the header and footer  */
+#content {
+  display: flex;
+  flex: 1 0 auto;
+}
+
+#sideMenu {
+  justify-content: flex-start;
+  flex: 1 0 10%;
+}
