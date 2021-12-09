@@ -8,12 +8,14 @@ import {
 import { useUserData } from '../../../data';
 import { Paths } from '../shared/routes';
 
+import Loading from '../loading';
+
 export default function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation();
   const [user, sessionState] = useUserData();
 
   if (sessionState === 'pending') {
-    return (<div>Loading</div>);
+    return <Loading />;
   }
 
   if (!user) {

@@ -7,11 +7,11 @@ import {
   getProjectsOfUser, useUserData,
 } from '../../../data';
 
-import { Paths } from '../shared/routes';
-
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import Card from './Card';
+
+import { Paths } from '../shared/routes';
 
 export default function Dashboard() {
   const [user] = useUserData();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
   useNavigate,
@@ -9,6 +9,8 @@ import { logIn, useUserData } from '../../../data';
 
 import logo from '../../logo.svg';
 import rightArrow from '../../../assets/icons/right-arrow.svg';
+
+import Loading from '../loading';
 
 export default function Authentication() {
   const [formData, setFormData] = useState({
@@ -39,14 +41,17 @@ export default function Authentication() {
     });
   };
 
+  // Show the loading page while we fetch the user data
+  if (sessionState === 'pending') {
+    return <Loading />;
+  }
+
   /**
    * Redirects the user if he is already authenticated.
    */
-  useEffect(() => {
-    if (user && sessionState === 'authenticated') {
-      navigate(from, { replace: true });
-    }
-  }, [user, sessionState]);
+  if (user && sessionState === 'authenticated') {
+    navigate(from, { replace: true });
+  }
 
   return (
     <div className="flex w-full">
