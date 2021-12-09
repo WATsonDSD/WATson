@@ -6,14 +6,13 @@ export default function GraphChart(props : { chart: ChartConfiguration}) {
 
   const { chart } = props;
   useEffect(() => {
-    // const canvas = document.getElementById('myChart') as HTMLCanvasElement;
     const ctx = 'myChart';
 
     const myChart = new Chart(ctx, chart);
     return () => {
       myChart.destroy();
     };
-  });
+  }, []); // use effect runs on Mount only
 
   return (
     <div>

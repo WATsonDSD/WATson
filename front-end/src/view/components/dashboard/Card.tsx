@@ -4,15 +4,15 @@ import {
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Dropdown from './Dropdown';
-import { User, useUserContext } from '../../../data';
+import { useUserData } from '../../../data';
 
 const Card = (props: any) => {
   const { project, actions } = props;
-  const user = useUserContext();
+  const [user] = useUserData();
   const navigate = useNavigate();
 
   const cardClickHandler = () => {
-    switch ((user as User)?.role) {
+    switch (user!.role) {
       case 'projectManager':
         navigate(`/editProject/${project.id}`);
         break;
@@ -20,6 +20,8 @@ const Card = (props: any) => {
         navigate(`/annotationView/${project.id}`);
         break;
       case 'verifier':
+        navigate(`/verificationView/${project.id}`);
+        break;
       case 'finance':
         navigate(`/projectFinance/${project.id}`);
         break;

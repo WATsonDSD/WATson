@@ -1,21 +1,17 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { BiDotsVerticalRounded, BiTimeFive, BiPencil } from 'react-icons/bi';
+import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
 import { findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
-import Dropdown from '../dashboard/Dropdown';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
-  const dropDownActions = [(
-    <button type="button"> Generate a Report </button>
-  )];
 
   const exampleChart: ChartConfiguration = {
     type: 'line',
@@ -38,16 +34,9 @@ export default function ProjectFinance() {
     },
   };
 
-  const generateReportButton = (
-    <Dropdown
-      elements={dropDownActions}
-      icon={<BiDotsVerticalRounded className="w-7 h-7" />}
-    />
-  );
-
   return (
     <div className="h-full w-full">
-      <Header title={`Project finance : ${project?.name ?? ''}`} button={generateReportButton} />
+      <Header title={`Project finance : ${project?.name ?? ''}`} />
       <div className="grid gap-6 mx-10 mt-8 mb-8 md:grid-cols-2 xl:grid-cols-4">
         <div
           className="min-w-0 rounded-lg shadow-xs overflow-hidden bg-blue-50"
