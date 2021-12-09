@@ -8,10 +8,18 @@ import { findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
+import {
+  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+} from '../../../data/financier';
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
+  const totalCost = useData(async () => calculateTotalCost(idProject!));
+  const totalHours = useData(async () => totalHoursOfWork(idProject!));
+  console.log(totalCost![0]);
+  // const [totalCost] = await calculateTotalCost(idProject!);
+  // const [totalHours] = await totalHoursOfWork(idProject!);
 
   const exampleChart: ChartConfiguration = {
     type: 'line',
@@ -50,7 +58,7 @@ export default function ProjectFinance() {
                 Total cost of the project
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                $ 6,760
+                {totalCost}
 
               </p>
             </div>
@@ -70,7 +78,7 @@ export default function ProjectFinance() {
                 Total hours of work
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                234h
+                { totalHours }
               </p>
             </div>
           </div>
@@ -89,7 +97,7 @@ export default function ProjectFinance() {
                 Total annotations made
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                456
+                { totalAnnotationMade(idProject!) }
               </p>
             </div>
           </div>
@@ -108,6 +116,7 @@ export default function ProjectFinance() {
                 Total workers involved
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">15</p>
+              { totalWorkers(idProject!) }
             </div>
           </div>
         </div>

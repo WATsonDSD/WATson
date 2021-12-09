@@ -1,7 +1,7 @@
 import React from 'react';
 import { MdSettings } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { useUserData } from '../../../../data';
+import { logOut, useUserData } from '../../../../data';
 // import { links } from './MenuConfig';
 
 function Sidebar() {
@@ -73,6 +73,9 @@ function Sidebar() {
                 <MdSettings className="w-5 h-5" />
                 <span className="mx-4 font-medium">Profile settings</span>
               </NavLink>
+              <button type="button" onClick={() => logOut()}>
+                logOut
+              </button>
             </nav>
             <div className="flex items-center px-4 -mx-2 mt-5">
               <img
