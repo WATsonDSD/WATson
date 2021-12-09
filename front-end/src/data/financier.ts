@@ -79,6 +79,22 @@ export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
   return project.users.length;
 }
+
+export async function earningsPerUser(userId: string): Promise<number> {
+  const projectsForUser = await getProjectsOfUser(userId);
+  let earnings = 0;
+  projectsForUser.forEach((project) => {
+    project.images.done.forEach((image) => {
+      if (image.annotator === userId) {
+        earnings += project.pricePerImageAnnotation;
+      } else if (image.verifier === userId) {
+        earnings += project.pricePerImageAnnotation;
+      }
+    });
+  });
+  return earnings;
+}
+
 /** 
 * PROJECT
 * total annotation made: just the number of images in done * image.annotation.point
