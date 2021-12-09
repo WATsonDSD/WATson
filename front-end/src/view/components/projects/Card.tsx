@@ -1,13 +1,15 @@
 import React from 'react';
 
 import {
-  AiOutlineRise, AiOutlineTeam, AiOutlineRedo, AiTwotoneEdit,
+  AiOutlineRise, AiOutlineTeam, AiOutlineRedo,
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useUserData } from '../../../data';
 
 import { Paths } from '../shared/routes';
+
+import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 
@@ -50,38 +52,29 @@ const Card = (props: any) => {
 
   return (
 
-    <div className="flex-initial flex flex-wrap cursor-pointer" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
-      <div className="w-full bg-black sahdow-lg flex flex-wrap flex-col rounded-2xl">
-
-        <div className="flex flex-grow justify-between py-2">
-          <p className="text-2x1 text-gray-200 px-3">{project.name}</p>
-          <div className="h-4 fill-current text-grey-dark cursor-pointer">
-            <Dropdown elements={dropDownActions} icon={<AiTwotoneEdit className="text-white" />} />
+    <div className="flex flex-col bg-black cursor-pointer aspect-w-4 aspect-h-3 rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+      <div className="w-full flex flex-col justify-between px-8 py-6">
+        <div className="flex">
+          <div className="flex-grow">
+            <span className="uppercase text-sm text-gray-400 font-medium">{project.client}</span>
+            <h2 className="capitalize text-xl text-white font-normal">{project.name}</h2>
           </div>
-        </div>
-        <div className="flex justify-between py-0">
-          <h2 className="text-2x1 text-white px-3">
-            {project.client}
-          </h2>
+          <Dropdown elements={dropDownActions} icon={<img src={OptionsIcon} alt="Options" />} />
         </div>
 
-        <div className="px-2 pt-8">
-          <div className="text-xs text-gray-400 font-normal py-1">
-            {project.status}
-          </div>
-          <p className="border-b-2" />
-          <div className="flex text-xs font-semibold text-gray-700 flex bg-transparant w-full py-3">
-            <span className="flex text-gray-400 w-full text-left">
+        <div className="flex flex-col gap-y-2">
+          <span className="text-xs text-white font-normal mb-1">{project.status}</span>
+          <div className="border-b border-gray-600" />
+          <div className="flex justify-between text-lg w-full mt-2">
+            <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              {' '}
               60%
-              {' '}
             </span>
-            <span className="flex text-gray-400 w-full">
+            <span className="flex items-center gap-x-1 text-white">
               <AiOutlineRise />
               €
             </span>
-            <span className="flex text-gray-400">
+            <span className="flex items-center gap-x-1 text-white">
               <AiOutlineTeam />
               {project.users.length}
             </span>
@@ -91,4 +84,5 @@ const Card = (props: any) => {
     </div>
   );
 };
+
 export default Card;

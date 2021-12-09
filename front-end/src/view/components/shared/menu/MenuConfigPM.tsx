@@ -11,26 +11,26 @@ import { Paths } from '../routes';
 export const links = [
   {
     id: 1,
-    name: 'Workers',
-    href: Paths.Workers,
-    icon: <FiUsers className="w-5 h-5" />,
-  },
-  {
-    id: 2,
     name: 'Projects',
     href: Paths.Projects,
     icon: <MdOutlineDashboard className="w-5 h-5" />,
   },
   {
+    id: 2,
+    name: 'Workers',
+    href: Paths.Workers,
+    icon: <FiUsers className="w-5 h-5" />,
+  },
+  {
     id: 3,
     name: 'Statistics',
-    href: '/',
+    href: '/statistics',
     icon: <ImStatsBars className="w-5 h-5" />,
   },
   {
     id: 4,
     name: 'Reports',
-    href: '/',
+    href: '/reports',
     icon: <HiOutlineDocumentReport className="w-5 h-5" />,
   },
 ];

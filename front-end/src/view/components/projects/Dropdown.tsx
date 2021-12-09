@@ -1,5 +1,9 @@
-import { Menu, Transition } from '@headlessui/react';
 import React, { Fragment, ReactElement } from 'react';
+
+import {
+  Menu,
+  Transition,
+} from '@headlessui/react';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
@@ -12,12 +16,10 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
 
     <div className="Dropdown">
 
-      <Menu as="div" className="z-0 relative inline-block text-left">
-        <div>
-          <Menu.Button>
-            <span className="inline-block bg-transparant px-5 py-1 text-1 font-semibold mr-1">{icon}</span>
-          </Menu.Button>
-        </div>
+      <Menu as="div" className="z-10 relative inline-block text-left">
+        <Menu.Button>
+          <span className="block p-2 -m-2">{icon}</span>
+        </Menu.Button>
 
         <Transition
           as={Fragment}
@@ -58,4 +60,5 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
 
   );
 };
+
 export default Dropdown;
