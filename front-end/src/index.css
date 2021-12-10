@@ -9,7 +9,38 @@ body {
   font-family: 'Circular', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
+  font-weight: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+}
+
+#main {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* all except the side menu */
+#main-content {
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 4rem;
+  width: 100%;
+  overflow-y: auto;
+}
+
+/* content without the header and footer  */
+#content {
+  display: flex;
+  flex: 1 0 auto;
+}
+
+#side-menu {
+  flex-shrink: 0;
+  justify-content: flex-start;
+  padding: 3rem 2.5rem;
+  width: 15%;
+  min-width: 300px;
+  background-color: #f9f9f9;
 }
