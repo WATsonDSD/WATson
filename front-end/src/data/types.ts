@@ -8,7 +8,8 @@ export type User = {
             waitingForAnnotation: ImageID[], // used when the annotation is rejected
             annotated: ImageID[],
             toVerify: ImageID[],
-            waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again
+            waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again and 
+                                            // when the annotation is annotated for the first time and is not verified yet.
             verified: ImageID[],
         }
     },
@@ -54,7 +55,6 @@ export type Annotation = {
     [landmark: number]: Point
 }
 
-export type RejectionID = string;
 export type RejectedAnnotation = {
     imageID: ImageID,
     comment: String,

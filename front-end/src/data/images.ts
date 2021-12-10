@@ -1,6 +1,6 @@
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, AuthDB,
+  findProjectById, Annotation, LandmarkSpecification,
 } from '.';
 import { ImagesDB, ProjectsDB } from './databases';
 
@@ -41,13 +41,13 @@ export async function getImages(
   userID: UserID | null = null,
 ): Promise<Image[]> {
   if (userID) {
-    if (status === 'done') { throw Error('image in userDB cannot be in status done'); }
+    if (status === 'done') { throw Error('images associated to users must have specification between annotation and verification'); }
     const user = await findUserById(userID);
     return Promise.all(user.projects[projectID][status].map((id) => findImageById(id)));
   }
 
   if (status === 'waitingForAnnotation' || status === 'annotated' || status === 'waitingForVerification' || status === 'verified') {
-    throw Error('image in userDB cannot be in this status');
+    throw Error('images associated to project can be only in -toAnnotate, -toVerify and -done status');
   }
   const project = await findProjectById(projectID);
   return Promise.all(project.images[status].map((entry) => findImageById(entry.imageId)));
@@ -98,15 +98,22 @@ export async function saveAnnotation(
   const annotatorId = image.idAnnotator;
   if (!annotatorId) throw Error('The image to be rejected has no annotator');
   const annotator = await findUserById(annotatorId);
-  const imageIndexUser = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);
+  let imageIndexUser = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);
 
   annotator.projects[projectId].waitingForVerification.push(imageId);
   annotator.projects[projectId].toAnnotate.splice(imageIndexUser, 1);
 
+  if (image.idVerifier) {
+    const verifier = await findUserById(image.idVerifier);
+    imageIndexUser = verifier.projects[projectId].waitingForAnnotation.findIndex((ent) => ent === imageId);
+    verifier.projects[projectId].waitingForAnnotation.splice(imageIndexUser, 1);
+    verifier.projects[projectId].toVerify.push(imageId);
+  }
+
   // reflect the changes to the DB.
   await ImagesDB.put(image);
   await ProjectsDB.put(project);
-  await AuthDB.put(annotator);
+  await updateUser(annotator);
 }
 
 /*
@@ -128,7 +135,11 @@ export async function assignVerifierToImage(
   image.idVerifier = verifierId;
 
   // assign the image to be verified to the verifier
-  verifier.projects[projectId].toVerify.push(imageId);
+  if (!image.annotation) {
+    verifier.projects[projectId].waitingForAnnotation.push(imageId);
+  } else {
+    verifier.projects[projectId].toVerify.push(imageId);
+  }
 
   // reflect changes in the database
   await updateUser(verifier);
