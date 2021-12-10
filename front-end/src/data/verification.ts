@@ -2,7 +2,7 @@ import {
   ImagesDB, ProjectsDB,
 } from './databases';
 import {
-  ImageID, UserID, Annotation, RejectionID, ProjectID,
+  ImageID, Annotation, RejectionID, ProjectID, updateUser, findUserById,
 } from '.';
 
 import { createRejectedImage } from './rejectedImage';
@@ -13,6 +13,7 @@ import { fitsSpecification } from './images';
  * rejects the annotation done by an annotator: 
  * discards what is inside the 'annotation' field of the 'Image', and
  * moves the image from the 'toVerify' field to the 'toAnnotate' field of the project
+
  * also, it creates a 'RejectedAnnotation' object.
  * @returns the id of the 'RejectedAnnotation' object
  */
@@ -28,7 +29,10 @@ export async function rejectAnnotation(
   const imageAnnotatorID = rejectedImage.idAnnotator;
   const imageVerifierID = rejectedImage.idVerifier;
 
-  const rejectedAnnotationId = await createRejectedImage(imageID, imageAnnotatorID!, imageVerifierID!, comment);
+  if (!imageAnnotatorID) throw Error('The image to be rejected has no annotator');
+  if (!imageVerifierID) throw Error('The image to be rejected has no verifier');
+
+  const rejectedAnnotationId = await createRejectedImage(imageID, imageAnnotatorID, imageVerifierID, comment);
 
   // check if the image is waiting to be verified.
   const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
@@ -37,7 +41,7 @@ export async function rejectAnnotation(
   // clear the annotation field of the image
   const imageCleared = {
     ...rejectedImage,
-    annotation: [],
+    annotation: undefined,
   };
   await ImagesDB.put(imageCleared);
 
@@ -48,13 +52,24 @@ export async function rejectAnnotation(
   project.images.toVerify.splice(imageIndex, 1);
   await ProjectsDB.put(project);
 
+  // update user document with the modifed project
+  const annotator = await findUserById(imageAnnotatorID);
+
+  /* annotator.projects[projectID] = {
+    toAnnotate: 
+    toVerify: 
+    done: 
+  }; */
+  updateUser(annotator);
+
   return rejectedAnnotationId;
 }
 
 /**
  * Modifies the annotation with the one suggested by the verifier:
- * modifies the 'annotation' field of the 'Image', and
- * moves the image from the 'toVerify' field to the done field of the project
+ * modifies the 'annotation' field of the 'Image', 
+ * moves the image from the 'toVerify' field to the 'done' field of the project, and
+ * moves the image from the 'toVerify' field to the 'done' field related to the project of the specific user
  */
 export async function modifyAnnotation(
   projectID: ProjectID,
@@ -80,23 +95,22 @@ export async function modifyAnnotation(
 
   // move the image from the toVerify to the done field of the project
   project.images.done.push({
-    imageId: project.images.toVerify[imageIndex].imageId,
+    imageId: imageID,
     annotator: imageAnnotatorID!,
     verifier: imageVerifierID!,
   });
   project.images.toVerify.splice(imageIndex, 1);
+  await ProjectsDB.put(project);
 }
 
 /**
  * it accepts the annotation: 
- * moves the image from the 'toVerify' field 
- * to the 'done' field of the project. 
+ * moves the image from the 'toVerify' field to the 'done' field of the project, and 
+ * moves the image from the 'toVerify' field to the 'done' field related to the project of the specific user
  */
 export async function acceptAnnotatedImage(
   projectID: ProjectID,
   imageID: ImageID,
-  annotatorID: UserID,
-  verifierID: UserID,
 
 ) : Promise<void> {
   const image = await ImagesDB.get(imageID);
@@ -106,11 +120,14 @@ export async function acceptAnnotatedImage(
   const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
   if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
 
+  const annotatorID = image.idAnnotator;
+  const verifierID = image.idVerifier;
+
   // move the image from toVerify to done
   project.images.done.push({
     imageId: project.images.toVerify[imageIndex].imageId,
-    annotator: annotatorID,
-    verifier: verifierID,
+    annotator: annotatorID!,
+    verifier: verifierID!,
   });
   project.images.toVerify.splice(imageIndex, 1);
 

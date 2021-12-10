@@ -29,16 +29,16 @@ export async function createRejectedImage(
 }
 
 // eslint-disable-next-line no-empty-function
-export async function getRejectedImageByVerifierID() {
+export async function ggetRejectedImagesByByVerifierID() {
 }
 // eslint-disable-next-line no-empty-function
-export async function getModifiedAnnotationsByVerifierID() {
+export async function getModifiedAnnotationByVerifierID() {
 }
 // eslint-disable-next-line no-empty-function
-export async function getRejectedImageByAnnotatorID() {
+export async function getRejectedImagesByAnnotatorID() {
 }
 // eslint-disable-next-line no-empty-function
-export async function getRejectImageByProjectID() {
+export async function getRejectedImagesByVerifierID() {
 }
 
 /* TODO
