@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  ImageID, ProjectID, Annotation, createProject, addImageToProject, createUser,
+  ImageID, ProjectID, Annotation, createProject, addImageToProject, createUser, findUserById,
 } from '.';
 import { saveAnnotation } from './images';
 
@@ -38,7 +38,12 @@ describe('addAnnotation', () => {
     saveAnnotation(validAnnotation, imageId1, projectId);
     saveAnnotation(validAnnotation, imageId2, projectId);
     saveAnnotation(validAnnotation, imageId3, projectId);
+    const AnnotatorId = createUser('Cem Cebeci', 'cem@watson.com', 'annotator');
   });
+});
 
-  test('number of annotation correct');
+test('Can find created user', async () => {
+  const id = await createUser('Cem Cebeci', 'cem@watson.com', 'annotator');
+  const name = findUserById(id).then((user) => user.name);
+  return expect(name).resolves.toBe('Cem Cebeci');
 });
