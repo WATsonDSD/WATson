@@ -1,14 +1,16 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 
-function ImageDnD({ id, url }: any) {
+function ImageDnD({ id, data, type }: any) {
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'image',
+    type,
     item: { id },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  console.log(data);
+  const url = URL.createObjectURL(data);
   return (
     <img
       ref={drag}

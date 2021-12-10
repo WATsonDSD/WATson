@@ -19,6 +19,7 @@ const UserCardDnD = ({
     }),
   });
 
+  console.log(images);
   const user = useData(() => findUserById(userId));
 
   const isActive = isOver && canDrop;
@@ -36,7 +37,7 @@ const UserCardDnD = ({
         <header className="font-semibold text-sm py-3 px-4">
           {`${user?.name} (${user?.role})` }
         </header>
-        {images.map((picture: any) => <ImageDnD key={picture.image} url={picture.url} id={picture.image} />)}
+        {images.map((picture: any) => <ImageDnD key={picture.image} type={accept} data={picture.data} id={picture.image} />)}
 
       </div>
     </div>

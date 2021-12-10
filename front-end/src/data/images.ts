@@ -117,11 +117,11 @@ export async function assignAnnotatorToImage(
   projectId: ProjectID,
 ): Promise<void> {
   const annotator = await findUserById(annotatorId);
-  if (annotator.role !== 'verifier') {
-    throw Error('this user is not a verifier');
+  if (annotator.role !== 'annotator') {
+    throw Error('this user is not an annotator');
   }
   const image = await ImagesDB.get(imageId);
-  image.idVerifier = annotatorId;
+  image.idAnnotator = annotatorId;
   annotator.projects[projectId].toAnnotate.push(imageId);
   await updateUser(annotator);
   await ImagesDB.put(image);
