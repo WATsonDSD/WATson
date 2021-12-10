@@ -66,12 +66,12 @@ export default function ProjectEdit() {
   return (
     <div className="h-full w-full">
       <Header title={`Adding and Assigning images : ${project?.name ?? ''}`} />
-      <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white shadow-xl rounded-md">
-        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left ml-2">
+      <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white rounded-md">
+        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left">
           Adding images
         </span>
         <br />
-        <section className="p-8 w-full flex flex-col">
+        <section className="w-full flex flex-col">
           <header className="border-dashed border-2 border-gray-400 py-12 flex flex-col justify-center items-center">
             <input
               id="hidden-input"
@@ -138,12 +138,12 @@ export default function ProjectEdit() {
             </li>
           </ul>
         </section>
-        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left ml-2">
+        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left">
           Assigning images to workers
         </span>
         <br />
         <div className="flex flex-wrap mb-2">
-          <div className="w-full flex flex-col space-x-4 md:w-1/3 px-3 mb-6 md:mb-0">
+          <div className="w-full flex flex-col space-x-4 md:w-1/3 mb-6 md:mb-0">
             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-Worker-role">
               Worker
               {project?.users.map((worker) => (
@@ -153,7 +153,7 @@ export default function ProjectEdit() {
               ))}
             </label>
           </div>
-          <div className="w-full  md:w-1/3 px-3 mb-6 md:mb-0">
+          <div className="w-full  md:w-1/3 mb-6 md:mb-0">
             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
               Number Of images
               {project?.users.map((worker) => (
@@ -166,7 +166,7 @@ export default function ProjectEdit() {
           </div>
         </div>
 
-        <footer className="flex justify-end px-8 pb-8 pt-4">
+        <footer className="flex justify-end pb-8 pt-4">
           <button
             type="button"
             id="submit"

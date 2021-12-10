@@ -11,6 +11,8 @@ import useData from '../../../data/hooks';
 import AnnotatedImage from '../annotation/AnnotatedImage';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
 
+import { Paths } from '../shared/routes';
+
 const templateImage: Image = {
   id: 'template',
   annotation: TemplateAnnotation,
@@ -79,7 +81,7 @@ export default function CreateProject() {
             // eslint-disable-next-line no-await-in-loop
             await addUserToProject(project.users[i], id);
           }
-          navigate('/dashboard');
+          navigate(Paths.Projects);
         });
     }
   }, [project]); // dependency added

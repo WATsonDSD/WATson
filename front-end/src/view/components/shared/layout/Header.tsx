@@ -10,9 +10,9 @@ export default function Header(props: { title: string, button? : ReactElement })
   const [user] = useUserData();
 
   return (
-    <header className="sticky top-0 bg-white shadow">
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex gap-1">
-        <h1 className="text-3xl font-bold text-gray-900 items-start">{title}</h1>
+    <header className="sticky top-0 mb-8">
+      <div className="w-full flex items-center gap-4">
+        <h1 className="text-2xl font-medium uppercase items-start">{title}</h1>
         {user && user.role === 'projectManager' ? button : ''}
       </div>
     </header>

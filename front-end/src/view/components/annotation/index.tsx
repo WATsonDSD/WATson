@@ -19,6 +19,8 @@ import 'rc-slider/assets/index.css';
 import { getImages, saveAnnotation } from '../../../data/images';
 import TemplateAnnotation from './TemplateAnnotation';
 
+import { Paths } from '../shared/routes';
+
 const templateImage: Image = {
   id: 'template',
   annotation: TemplateAnnotation,
@@ -70,7 +72,7 @@ export default function AnnotationView() {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');
-        navigate('/dashboard');
+        navigate(Paths.Projects);
         return;
       }
       setState({
