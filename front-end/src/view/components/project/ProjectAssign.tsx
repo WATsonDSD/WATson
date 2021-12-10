@@ -85,14 +85,14 @@ export default function ProjectAssign() {
     }
   };
 
-  const handleSubmit = () => {
-    toAnnotate.forEach((e) => {
-      assignAnnotatorToImage(e.image, e.user, project?.id || '');
-    });
+  const handleSubmit = async () => {
+    await Promise.all(toAnnotate.map(async (e) => {
+      await assignAnnotatorToImage(e.image, e.user, project?.id || '');
+    }));
 
-    toVerify.forEach((e) => {
-      assignVerifierToImage(e.image, e.user, project?.id || '');
-    });
+    await Promise.all(toVerify.map(async (e) => {
+      await assignVerifierToImage(e.image, e.user, project?.id || '');
+    }));
 
     navigate(Paths.Projects);
   };
