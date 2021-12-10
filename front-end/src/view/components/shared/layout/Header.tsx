@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
-import { User, useUserContext } from '../../../../data';
-import UserSettings from '../menu/UserSettings';
+import { useUserData } from '../../../../data';
+import UserSettings from '../sidebar/UserSettings';
 
 Header.defaultProps = {
   button: null,
@@ -8,14 +8,14 @@ Header.defaultProps = {
 
 export default function Header(props: { title: string, button? : ReactElement }) {
   const { title, button } = props;
-  const user = useUserContext() as User;
+
+  const [user] = useUserData();
 
   return (
-
-    <header className="sticky top-0 bg-white shadow">
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex gap-1">
-        <h1 className="text-3xl font-bold text-gray-900 items-start">{title}</h1>
-        {(user as User)?.role === 'projectManager' ? button : ''}
+    <header className="z-10 bg-white sticky top-0 mb-8">
+      <div className="w-full flex items-center gap-4 h-20">
+        <h1 className="text-2xl font-medium uppercase items-start">{title}</h1>
+        {user && user.role === 'projectManager' ? button : ''}
       </div>
       <div>
         <UserSettings />

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { User, useUserContext } from '../../../../data';
+import { useUserData } from '../../../../data';
 import openModal from '../layout/OpenModal';
 
 function classNames(...classes:any) {
@@ -8,14 +8,14 @@ function classNames(...classes:any) {
 }
 
 export default function UserSettings() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
 
   return (
     <div className="absolute bottom-0 right-0 px-4 py-3 flex justify-end items-center gap-3">
       <div className="bg-opacity-0 hover:bg-gray-200 px-4 py-2 rounded text-black focus:outline-none">
         <div className="Dropdown">
 
-          <Menu as="div" className="relative inline-block text-left">
+          <Menu as="div" className="z-10 relative inline-block text-left">
             <div>
               <Menu.Button>
                 <div className="inline-block bg-transparant flex px-3 py-0 text-1 font-semibold text-black mr-1">

@@ -26,6 +26,7 @@
     "no-console": "off",
     "no-alert": "off",
     "no-undef": "off",
+    "no-shadow": "off",
     "linebreak-style": 0,
     "max-len": "off",
     "no-trailing-spaces": ["error", { "ignoreComments": true }],

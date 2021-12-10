@@ -1,21 +1,25 @@
 /* eslint-disable import/prefer-default-export */
 import React from 'react';
+
 import {
   FaMoneyCheckAlt,
 } from 'react-icons/fa';
+
 import { MdOutlineDashboard } from 'react-icons/md';
 
-export const links = [
+import { Paths } from '../routes';
+
+export const linksVerifier = [
   {
-    id: 4,
+    id: 1,
     name: 'Projects',
-    href: '/dashboard',
+    href: Paths.Projects,
     icon: <MdOutlineDashboard className="w-5 h-5" />,
   },
   {
-    id: 1,
+    id: 2,
     name: 'Finances',
-    href: '/dashboard',
+    href: Paths.Finances,
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];

@@ -15,7 +15,7 @@ function handleSubmitForm(e: any) {
 
 export default function ModalCreateUser() {
   return (
-    <div id="createUser" className="pacity-0 transform -translate-y-full scale-150  relative w-10/2 md:w-1/3 h-1/2 md:h-1/2 bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
+    <div id="createUser" className="pacity-0 transform hidden -translate-y-full scale-150  relative w-10/2 md:w-1/3 h-1/2 md:h-1/2 bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
 
       {/* <!-- button close --> */}
       <button

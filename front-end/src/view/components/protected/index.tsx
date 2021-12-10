@@ -5,16 +5,23 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import { useUserContext } from '../../../data';
+import { useUserData } from '../../../data';
+import { Paths } from '../shared/routes';
+
+import Loading from '../loading';
 
 export default function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation();
-  const userContext = useUserContext();
+  const [user, sessionState] = useUserData();
 
-  if (!userContext) {
+  if (sessionState === 'pending') {
+    return <Loading />;
+  }
+
+  if (!user) {
     // Redirects the user to the login page and saves the current location they were
     // trying to access when they were redirected, which makes for nicer user experience.
-    return <Navigate to="/" state={{ from: location }} />;
+    return <Navigate to={Paths.Authentication} state={{ from: location }} />;
   }
 
   return children;

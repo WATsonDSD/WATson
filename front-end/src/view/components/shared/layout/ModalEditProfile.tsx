@@ -1,10 +1,10 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { User, useUserContext } from '../../../../data';
+import { useUserData } from '../../../../data';
 import openModal from './OpenModal';
 
 export default function ModalEditProfile() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
   return (
     <div id="edit" className="pacity-0 transform hidden -translate-y-full scale-150  relative w-10/2 md:w-1/3 h-1/2 md:h-1/2 bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
       <button
