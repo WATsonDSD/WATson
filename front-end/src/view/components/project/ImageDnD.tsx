@@ -9,7 +9,6 @@ function ImageDnD({ id, data, type }: any) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  console.log(data);
   const url = URL.createObjectURL(data);
   return (
     <img

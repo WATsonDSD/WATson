@@ -114,7 +114,7 @@ export default function ProjectAssign() {
         </div>
         <div className="flex grow shrink flex-row gap-4">
           { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
-            <UserCardDnD key={`${user.id}-verifier`} userId={user.id} accept="verify" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { console.log(item); handleDrop(index, item, user.id, 'verify'); }} />
+            <UserCardDnD key={`${user.id}-verifier`} userId={user.id} accept="verify" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { handleDrop(index, item, user.id, 'verify'); }} />
           ))}
         </div>
       </div>

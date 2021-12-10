@@ -19,7 +19,6 @@ const UserCardDnD = ({
     }),
   });
 
-  console.log(images);
   const user = useData(() => findUserById(userId));
 
   const isActive = isOver && canDrop;
@@ -30,7 +29,6 @@ const UserCardDnD = ({
   } else if (canDrop) {
     backgroundColor = 'bg-gray-100';
   }
-  // console.log(images);
   return (
     <div className={`rounded-lg shadow-xl ${backgroundColor}`} ref={drop}>
       <div className="items-center justify-center">

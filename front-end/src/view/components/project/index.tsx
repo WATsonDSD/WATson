@@ -12,6 +12,11 @@ export default function ProjectEdit() {
   let empty = document.getElementById('empty');
 
   const project = useData(async () => findProjectById(idProject ?? ''));
+  const handleUpload = () => {
+    if (!idProject) throw Error('no project id!');
+    console.log(FILES);
+    Object.values(FILES).forEach((file) => addImageToProject(file, idProject));
+  };
 
   console.log(project);
   function addFile(target: any, file: any) {
@@ -170,11 +175,7 @@ export default function ProjectEdit() {
           <button
             type="button"
             id="submit"
-            onClick={() => {
-              if (!idProject) throw Error('no project id!');
-              console.log(FILES);
-              Object.values(FILES).forEach((file) => addImageToProject(file, idProject));
-            }}
+            onClick={handleUpload}
             className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
           >
             Upload And assign now

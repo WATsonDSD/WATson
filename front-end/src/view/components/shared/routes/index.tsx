@@ -20,16 +20,16 @@ import ProjectAssign from '../../project/ProjectAssign';
 export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
-  Project: 'project',
-  CreateProject: 'createProject',
-  Workers: 'workers',
-  Annotation: 'annotation',
-  Verification: 'verification',
-  Finances: 'finances',
-  ProjectFinance: 'projectFinance',
-  Reports: 'reports',
-  Statistics: 'statistics',
-  ProjectAssign: 'projectAssign',
+  Project: '/project',
+  CreateProject: '/createProject',
+  Workers: '/workers',
+  Annotation: '/annotation',
+  Verification: '/verification',
+  Finances: '/finances',
+  ProjectFinance: '/projectFinance',
+  Reports: '/reports',
+  Statistics: '/statistics',
+  ProjectAssign: '/projectAssign',
 };
 
 export default () => (
