@@ -23,10 +23,22 @@ export default function ProjectAssign() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getImages(idProject || '', 'toAnnotate').then((result) => { setImagesToAnnotate(result.filter((image) => !image.idAnnotator)); });
-    getImages(idProject || '', 'toVerify').then((result) => { setImagesToVerify(result.filter((image) => !image.idVerifier)); });
+    getImages(idProject || '', 'toAnnotate').then((result) => { setImagesToAnnotate(result.filter((image) => !image.idAnnotator)); showAssignedImages(result.filter((image) => image.idAnnotator), 'annotate'); });
+    getImages(idProject || '', 'toVerify').then((result) => { setImagesToVerify(result.filter((image) => !image.idVerifier)); showAssignedImages(result.filter((image) => image.idAnnotator), 'verify'); });
     getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
   }, []);
+
+  const showAssignedImages = (images: Image[], role: string) => {
+    if (role === 'annotate') {
+      images.forEach((image: Image) => {
+        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
+      });
+    } else {
+      images.forEach((image: Image) => {
+        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
+      });
+    }
+  };
 
   const onCancelClick = () => {
     navigate(Paths.Projects);
@@ -102,7 +114,7 @@ export default function ProjectAssign() {
             </div>
           </div>
           <div className="flex flex-row grow shrink gap-4">
-            { projectUsers.filter((user) => user.role === 'annotator').map((user, index) => (
+            { projectUsers.filter((user) => user.role === 'annotator' || user.role === 'verifier').map((user, index) => (
               <UserCardDnD key={`${user.id}-annotator`} userId={user.id} accept="annotate" images={toAnnotate.filter((e) => e.user === user.id)} onDrop={(item: any) => handleDrop(index, item, user.id, 'annotate')} />
             ))}
           </div>
