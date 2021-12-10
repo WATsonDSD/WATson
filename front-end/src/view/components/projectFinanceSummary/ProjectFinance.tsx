@@ -12,32 +12,34 @@ import {
   calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from '../../../data/financier';
 
+const exampleChart: ChartConfiguration = {
+  type: 'line',
+  data: {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Label of the chart',
+        borderColor: '#4A5568',
+        data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200],
+        fill: false,
+        pointBackgroundColor: '#4A5568',
+        borderWidth: 3,
+        pointBorderWidth: 4,
+        pointHoverRadius: 6,
+        pointHoverBorderWidth: 8,
+        pointHoverBorderColor: 'rgb(74,85,104,0.2)',
+      },
+    ],
+  },
+};
+
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
   const totalCost = useData(async () => calculateTotalCost(idProject!));
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
 
-  const exampleChart: ChartConfiguration = {
-    type: 'line',
-    data: {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
-      datasets: [
-        {
-          label: 'Label of the chart',
-          borderColor: '#4A5568',
-          data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200],
-          fill: false,
-          pointBackgroundColor: '#4A5568',
-          borderWidth: 3,
-          pointBorderWidth: 4,
-          pointHoverRadius: 6,
-          pointHoverBorderWidth: 8,
-          pointHoverBorderColor: 'rgb(74,85,104,0.2)',
-        },
-      ],
-    },
-  };
+  if (!project || !totalCost || !totalHours) return null;
 
   return (
     <div className="h-full w-full">

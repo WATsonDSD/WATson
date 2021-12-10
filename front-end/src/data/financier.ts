@@ -1,5 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { CSVLink, CSVDownload } from 'react-csv';
+
 import {
-  findProjectById, getAllUsers, getProjectsOfUser,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser,
 } from '.';
 
 /**
@@ -11,37 +14,50 @@ import {
  */
 
 export async function generateReport() {
-  const listOfUsers = await getAllUsers();
+  // this will be added in the page that generates the reports 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const headers = [
+    { label: 'Name', key: 'username' },
+    { label: 'Project', key: 'project' },
+    { label: 'Client', key: 'client' },
+    { label: 'Role', key: 'role' },
+    { label: 'images', key: 'images' },
+    { label: 'hoursOfWork', key: 'hours' },
+  ];
+  const CSVdata = [];
+  const listOfUsers = await getAllUsers(); // first column. all of user
   listOfUsers.forEach(async (user) => {
     const projectsForUser = await getProjectsOfUser(user.id);
     projectsForUser.forEach((project) => {
       const { client } = project;
-      let numberOfImages = 0;
-      let hourlyRate = 0;
-      let pricePerImage = 0;
-      if (user.role === 'annotator') {
-        hourlyRate = project.hourlyRateAnnotation;
-        pricePerImage = project.pricePerImageAnnotation;
-        project.images.done.forEach((image) => {
-          if (image.annotator && image.annotator === user.id) { numberOfImages += 1; }
-        });
-      } else if (user.role === 'verifier') {
-        hourlyRate = project.hourlyRateVerification;
-        pricePerImage = project.pricePerImageVerification;
-        project.images.done.forEach((image) => {
-          if (image.verifier && image.verifier === user.id) { numberOfImages += 1; }
+      const hoursA = 0;
+      const hoursV = 0;
+      const numberOfImages = user.projects[project.id].done.length;
+      // let numberOfImagesAnnotated = 0;
+      // let numberOfImagesVerified = 0;
+      // project.images.done.forEach((image) => {
+      //   if (image.annotator === user.id) {
+      //     numberOfImagesAnnotated += 1;
+      //   } else if (image.verifier === user.id) {
+      //     numberOfImagesVerified += 1;
+      //   }
+      //   hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+      //   hoursV = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+
+      if (user.projects[project.id].toAnnotate) {
+        CSVdata.push({
+          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImages }, hours: { hoursA },
         });
       }
-      const HHHHH = (numberOfImages * pricePerImage) / hourlyRate;
-      console.log(client);
-      console.log(numberOfImages);
-      console.log(hourlyRate);
-      console.log(pricePerImage);
-      console.log(HHHHH);
-      alert('File creating');
-      // TODO: create the file to download 
+      if (user.projects[project.id].toVerify) {
+        CSVdata.push({
+          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImages }, hours: { hoursV },
+        });
+      }
     });
   });
+  // user1: project 1 Annotating hoursOfWorkA paymentA client 
+  // user1: project 1 Verifing hoursOfWorkV payment client
 }
 
 /** total amount of money spent on a project, 
@@ -79,9 +95,15 @@ export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
   return project.users.length;
 }
+
+export async function earningsPerUserPerProject(projectId: string, userId: string): Promise<number> {
+  const project = await findProjectById(projectId);
+  const user = await findUserById(userId);
+  const numTotal = user.projects[projectId].done.length;
+  return ((numTotal) * project.pricePerImageAnnotation + (numTotal) * project.pricePerImageVerification);
+}
 /** 
 * PROJECT
-* total annotation made: just the number of images in done * image.annotation.point
 * spending?? DATE
 * name-role-annotated images -verified images -hours of work -efficiency -earnings 
 */
