@@ -49,8 +49,8 @@ export default () => (
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
         <Route path=":idProject" element={<ProjectFinance />} />
       </Route>
-      <Route path={Paths.ProjectAssign} element={<Protected><ProjectAssign /></Protected>}>
-        <Route path=":idProject" element={<Protected><ProjectAssign /></Protected>} />
+      <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
+        <Route path=":idProject" element={<ProjectAssign />} />
       </Route>
     </Route>
   </Routes>
