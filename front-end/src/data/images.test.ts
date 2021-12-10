@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  findImageById, getImages, saveAnnotation, assignVerifierToImage,
+  findImageById, getImages, saveAnnotation, assignVerifierToImage, assignAnnotatorToImage,
 } from './images';
 
 jest.mock('axios', () => ({ post: async () => true }));
@@ -13,6 +13,7 @@ const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
 describe('addAnnotation', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
+  let userId: UserID;
   const validAnnotation = {
     0: { x: 1, y: 2, z: 3 },
     3: { x: 1, y: 2, z: 3 },
@@ -25,6 +26,9 @@ describe('addAnnotation', () => {
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
     imageId = await addImageToProject(imageData, projectId);
+    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    await addUserToProject(userId, projectId);
+    assignAnnotatorToImage(imageId, userId, projectId);
     return saveAnnotation(validAnnotation, imageId, projectId);
   });
 

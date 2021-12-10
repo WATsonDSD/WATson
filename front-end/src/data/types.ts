@@ -5,8 +5,11 @@ export type User = {
     projects: {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],
+            waitingForAnnotation: ImageID[], // used when the annotation is rejected
+            annotated: ImageID[],
             toVerify: ImageID[],
-            done: ImageID[],
+            waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again
+            verified: ImageID[],
         }
     },
     name: string,
@@ -49,4 +52,11 @@ export type Image = {
 export type Point = { x: number, y: number, z: number }
 export type Annotation = {
     [landmark: number]: Point
+}
+
+export type RejectionID = string;
+export type RejectedAnnotation = {
+    imageID: ImageID,
+    comment: String,
+    wrongAnnonation: Annotation,
 }

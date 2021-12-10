@@ -68,8 +68,11 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],
+    waitingForAnnotation: [],
+    annotated: [],
     toVerify: [],
-    done: [],
+    waitingForVerification: [],
+    verified: [],
   };
 
   await ProjectsDB.put(project);
