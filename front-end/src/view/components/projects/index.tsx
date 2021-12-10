@@ -61,21 +61,21 @@ export default function Dashboard() {
   ];
 
   const addProjectButton = (
-    <Link id="addProject" className="ml-4  mt-auto mb-auto" type="button" to="/createProject">
+    <Link id="addProject" className="flex justify-center items-center bg-gray-100 w-10 h-10 rounded-full" type="button" to="/createProject">
       <BsPlusLg className="w-30 h-30 mt-auto mb-auto" />
       {' '}
     </Link>
   );
 
   return (
-    <div className="min-h-full w-full">
+    <div className="w-full">
       <div>
         <Header title="Projects" button={addProjectButton} />
       </div>
 
-      <div className="Card min-h-full">
+      <div className="min-h-full">
         <div className="w-full min-h-full">
-          <section className="flex gap-8 max-w-5xl my-1 px-4 sm:px-4 lg:px-6 py-6">
+          <section className="grid grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
                 key={project.id}
