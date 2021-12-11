@@ -13,6 +13,7 @@ export async function createRejectedImage(
   wrongAnnonation: Annotation,
 ) : Promise<void> {
   const rejection = {
+    _id: imageID,
     imageID,
     comment,
     wrongAnnonation,
