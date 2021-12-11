@@ -21,7 +21,7 @@ const Card = (props: any) => {
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.Project}/${project.id}`);
+        navigate(`${Paths.ProjectAssign}/${project.id}`);
         break;
       case 'annotator':
         navigate(`${Paths.Annotation}/${project.id}`);
@@ -45,6 +45,7 @@ const Card = (props: any) => {
       }}
       type="button"
       to={`${action.href}/${project.id}`}
+      className="pl-6 pr-12 py-2"
     >
       {action.text}
     </Link>
