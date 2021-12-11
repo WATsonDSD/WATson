@@ -117,48 +117,49 @@ export default function ProjectEdit() {
                             </i>
                           </span>
 
-                        <p className="p-1 size text-xs">
-                          {
+                          <p className="p-1 size text-xs">
+                            {
                                   file.size > 1048576
                                     ? `${Math.round(file.size / 1048576)}mb`
                                     : `${Math.round(file.size / 1024)}kb`
               }
-                          {
+                            {
                                   file.size < 1024 ? `${file.size}b` : ''
                               }
-                        </p>
-                        <button onClick={() => deleteFile(objectURL)} type="button" className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md">
-                          <svg className="pointer-events-none fill-current w-4 h-4 ml-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path className="pointer-events-none" d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </section>
-                  </article>
-                </li>
-              );
-            })}
-            <li id="empty" className="h-full w-full text-center flex flex-col items-center justify-center items-center">
-              <img className="mx-auto w-32" src="https://user-images.githubusercontent.com/507615/54591670-ac0a0180-4a65-11e9-846c-e55ffce0fe7b.png" alt="no data" />
-              <span className="text-small text-gray-500">No files selected</span>
-            </li>
-          </ul>
-        </section>
+                          </p>
+                          <button onClick={() => deleteFile(objectURL)} type="button" className="delete ml-auto focus:outline-none hover:bg-gray-300 p-1 rounded-md">
+                            <svg className="pointer-events-none fill-current w-4 h-4 ml-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                              <path className="pointer-events-none" d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </section>
+                    </article>
+                  </li>
+                );
+              })}
+              <li id="empty" className="h-full w-full text-center flex flex-col items-center justify-center items-center">
+                <img className="mx-auto w-32" src="https://user-images.githubusercontent.com/507615/54591670-ac0a0180-4a65-11e9-846c-e55ffce0fe7b.png" alt="no data" />
+                <span className="text-small text-gray-500">No files selected</span>
+              </li>
+            </ul>
+          </section>
 
-        <footer className="flex justify-end pb-8 pt-4">
-          <button
-            type="button"
-            id="submit"
-            onClick={handleUpload}
-            className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
-          >
-            Upload
-          </button>
-          <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
-            Cancel
-          </button>
-        </footer>
-      </form>
-    </div>
+          <footer className="flex justify-end pb-8 pt-4">
+            <button
+              type="button"
+              id="submit"
+              onClick={handleUpload}
+              className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
+            >
+              Upload
+            </button>
+            <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
+              Cancel
+            </button>
+          </footer>
+        </form>
+      </div>
+    </>
   );
 }
