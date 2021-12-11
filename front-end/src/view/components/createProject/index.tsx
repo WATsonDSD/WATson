@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification, User,
+  UserID, LandmarkSpecification,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserContext, Image,
+  addUserToProject, createProject, getAllUsers, useUserData, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../annotation/AnnotatedImage';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
+
+import { Paths } from '../shared/routes';
 
 const templateImage: Image = {
   id: 'template',
@@ -17,11 +19,11 @@ const templateImage: Image = {
 };
 
 export default function CreateProject() {
-  const user = useUserContext() as User;
+  const [user] = useUserData();
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<{name: string, client: string, landmarks: LandmarkSpecification, startDate: Date, endDate: Date, users : UserID[]} | null>(null);
   const navigate = useNavigate();
 
   console.log(workers);
@@ -36,13 +38,8 @@ export default function CreateProject() {
     });
 
     const landmarks: LandmarkSpecification = currentLandMarks;
-    const images = {
-      toAnnotate: [{ imageId: '0', annotator: null }],
-      toVerify: [{ imageId: '0', annotator: null, verifier: null }],
-      done: [{ imageId: '0', annotator: null, verifier: null }],
-    };
     setProject({
-      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
+      name, client, landmarks, startDate, endDate, users,
     });
 
     event.preventDefault();
@@ -73,7 +70,14 @@ export default function CreateProject() {
     if (project && user) {
       // the projectManager creating the project is assigned to it
       createProject(project.name, project.client, project.landmarks)
-        .then((id) => { addUserToProject(user.id, id); navigate('/dashboard'); });
+        .then(async (id) => {
+          await addUserToProject(user.id, id);
+          for (let i = 0; i < project.users.length; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await addUserToProject(project.users[i], id);
+          }
+          navigate(Paths.Projects);
+        });
     }
   }, [project]); // dependency added
 

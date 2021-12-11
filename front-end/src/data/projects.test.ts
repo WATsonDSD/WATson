@@ -3,8 +3,10 @@ import {
   addUserToProject,
   createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
-import { findImageById, getImages } from './images';
 
+import { findImageById, getImagesOfProject } from './images';
+
+jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 test('Can find created project', async () => {
@@ -45,5 +47,6 @@ describe('addImageToProject', () => {
     return expect(imageToTest).resolves.toBe(imageId);
   });
 
-  it('adds the image to the project to be annotated', async () => expect(getImages(projectId, 'toAnnotate').then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('adds the image to the project to be assigned an annotator', async () => expect(getImagesOfProject(projectId, 'needsAnnotatorAssignment')
+    .then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 });

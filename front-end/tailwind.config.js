@@ -20,6 +20,9 @@ module.exports = {
             minWidth: {
                 500: '500px',
             },
+			zIndex: {
+				'-100': '-100',
+			},
 			height: heights,
 			width: widths,
 			padding: {
@@ -53,5 +56,8 @@ module.exports = {
 	variants: {
 		extend: {},
 	},
-	plugins: [],
+	plugins: [
+		// eslint-disable-next-line global-require
+		require('@tailwindcss/aspect-ratio'),
+	],
 };

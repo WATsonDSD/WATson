@@ -5,23 +5,19 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineDashboard } from 'react-icons/md';
 
-export const linksVerifier = [
+import { Paths } from '../routes';
+
+export const links = [
+  {
+    id: 4,
+    name: 'Projects',
+    href: Paths.Projects,
+    icon: <MdOutlineDashboard className="w-5 h-5" />,
+  },
   {
     id: 1,
-    name: 'Annotate',
-    href: '/dashboard',
-    icon: <MdOutlineDashboard className="w-5 h-5" />,
-  },
-  {
-    id: 2,
-    name: 'Verify',
-    href: '/dashboard',
-    icon: <MdOutlineDashboard className="w-5 h-5" />,
-  },
-  {
-    id: 3,
-    name: 'Finances',
-    href: '/dashboard',
+    name: 'Reports',
+    href: Paths.Reports,
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];
