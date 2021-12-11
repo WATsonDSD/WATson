@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { useUserData } from '../../../../data';
-import UserSettings from '../sidebar/UserSettings';
 
 Header.defaultProps = {
   buttonPM: null,
