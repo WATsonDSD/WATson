@@ -4,7 +4,9 @@ import {
   findProjectById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import { assignAnnotatorToImage, assignVerifierToImage, getImages } from '../../../data/images';
+import {
+  assignAnnotatorToImage, assignVerifierToImage, getImagesOfProject,
+} from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/layout/Header';
 import { Paths } from '../shared/routes';
@@ -23,8 +25,9 @@ export default function ProjectAssign() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getImages(idProject || '', 'toAnnotate').then((result) => { setImagesToAnnotate(result.filter((image) => !image.idAnnotator)); showAssignedImages(result.filter((image) => image.idAnnotator), 'annotate'); });
-    getImages(idProject || '', 'toVerify').then((result) => { setImagesToVerify(result.filter((image) => !image.idVerifier)); showAssignedImages(result.filter((image) => image.idAnnotator), 'verify'); });
+    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result); });
+    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result); showAssignedImages(result, 'annotate'); });
+    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result, 'annotate'); showAssignedImages(result, 'verify'); });
     getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
   }, []);
 

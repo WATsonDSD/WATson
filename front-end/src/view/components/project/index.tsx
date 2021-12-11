@@ -69,52 +69,53 @@ export default function ProjectEdit() {
   });
 
   return (
-    <div className="h-full w-full">
+    <>
       <Header title={`Adding and Assigning images : ${project?.name ?? ''}`} />
-      <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white rounded-md">
-        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left">
-          Adding images
-        </span>
-        <br />
-        <section className="w-full flex flex-col">
-          <header className="border-dashed border-2 border-gray-400 py-12 flex flex-col justify-center items-center">
-            <input
-              id="hidden-input"
-              type="file"
-              multiple
-              className="hidden"
-              onChange={hiddenOnChange}
-            />
-            <button type="button" id="button" onClick={() => document.getElementById('hidden-input')?.click()} className="mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
-              Upload a file
-            </button>
-          </header>
+      <div id="content" className="h-full w-full">
+        <form aria-label="File Upload Modal" onSubmit={(e) => console.log(e.target)} className="relative h-full flex flex-col bg-white rounded-md">
+          <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left">
+            Adding images
+          </span>
+          <br />
+          <section className="w-full flex flex-col">
+            <header className="border-dashed border-2 border-gray-400 py-12 flex flex-col justify-center items-center">
+              <input
+                id="hidden-input"
+                type="file"
+                multiple
+                className="hidden"
+                onChange={hiddenOnChange}
+              />
+              <button type="button" id="button" onClick={() => document.getElementById('hidden-input')?.click()} className="mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
+                Upload a file
+              </button>
+            </header>
 
-          <h1 className="pt-8 pb-3 font-semibold sm:text-lg text-gray-900">
-            To Upload
-          </h1>
-          <ul
-            id="gallery"
-            className="flex flex-1 flex-wrap -m-1"
-          >
-            {tabFilesPreview.map((file: any, index: number) => {
-              const objectURL = objURLs[index];
-              console.log(tabFilesPreview);
-              return (
-                <li key={objectURL} className="block p-1 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8 h-24">
-                  <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 cursor-pointer relative text-transparent hover:text-black shadow-sm">
-                    <img src={objectURL} alt={file.name} className="img-preview w-full h-full sticky object-cover rounded-md bg-fixed" />
+            <h1 className="pt-8 pb-3 font-semibold sm:text-lg text-gray-900">
+              To Upload
+            </h1>
+            <ul
+              id="gallery"
+              className="flex flex-1 flex-wrap -m-1"
+            >
+              {tabFilesPreview.map((file: any, index: number) => {
+                const objectURL = objURLs[index];
+                console.log(tabFilesPreview);
+                return (
+                  <li key={objectURL} className="block p-1 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8 h-24">
+                    <article className="group hasImage w-full h-full rounded-md focus:outline-none focus:shadow-outline bg-gray-100 cursor-pointer relative text-transparent hover:text-black shadow-sm">
+                      <img src={objectURL} alt={file.name} className="img-preview w-full h-full sticky object-cover rounded-md bg-fixed" />
 
-                    <section className="flex flex-col rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
-                      <h1 className="flex-1">{file.name}</h1>
-                      <div className="flex">
-                        <span className="p-1">
-                          <i>
-                            <svg className="fill-current w-4 h-4 ml-auto pt-" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                              <path d="M5 8.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5c0 .829-.672 1.5-1.5 1.5s-1.5-.671-1.5-1.5zm9 .5l-2.519 4-2.481-1.96-4 5.96h14l-5-8zm8-4v14h-20v-14h20zm2-2h-24v18h24v-18z" />
-                            </svg>
-                          </i>
-                        </span>
+                      <section className="flex flex-col rounded-md text-xs break-words w-full h-full z-20 absolute top-0 py-2 px-3">
+                        <h1 className="flex-1">{file.name}</h1>
+                        <div className="flex">
+                          <span className="p-1">
+                            <i>
+                              <svg className="fill-current w-4 h-4 ml-auto pt-" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path d="M5 8.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5c0 .829-.672 1.5-1.5 1.5s-1.5-.671-1.5-1.5zm9 .5l-2.519 4-2.481-1.96-4 5.96h14l-5-8zm8-4v14h-20v-14h20zm2-2h-24v18h24v-18z" />
+                              </svg>
+                            </i>
+                          </span>
 
                         <p className="p-1 size text-xs">
                           {
