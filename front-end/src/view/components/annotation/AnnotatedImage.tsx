@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import template from './template.png';
 import { Image } from '../../../data';
 
@@ -24,14 +24,13 @@ export default function AnnotatedImage(props: {
   brightness?: number,
   size?: string,
 }) {
-  // eslint-disable-next-line react/destructuring-assignment
-  const h = (props.size || '300');
-  // eslint-disable-next-line react/destructuring-assignment
-  const w = (props.size || '300');
-  const canvasRef = useRef(null);
   const {
-    image, onClick, onMouseWheel, landmarkColor, scale, translatePos,
+    image, onClick, onMouseWheel, landmarkColor, scale, translatePos, size,
   } = props;
+
+  const [imageSize, setImageSize] = useState({ w: size || '300', h: size || '300' });
+  const { w, h } = imageSize;
+  const canvasRef = useRef(null);
 
   const draw = (ctx: any) => {
     const { canvas } = ctx;
@@ -47,6 +46,12 @@ export default function AnnotatedImage(props: {
     if (scale) ctx.scale(scale, scale);
     // draw image after loading
     backgroundImage.onload = () => {
+      if (Number(h) !== (Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth) {
+        setImageSize({
+          ...imageSize,
+          h: String((Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth),
+        });
+      }
       const { brightness, contrast } = props;
       ctx.filter = `
         ${brightness !== undefined ? ctx.filter = `brightness(${brightness}%)` : ''}
