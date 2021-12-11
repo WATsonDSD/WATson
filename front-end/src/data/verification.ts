@@ -18,17 +18,18 @@ export async function rejectAnnotation(
   comment: String,
 ) : Promise<void> {
   const image = await findImageById(imageID);
-  const annotatorId = image.idAnnotator;
 
+  const annotatorId = image.idAnnotator;
   if (!annotatorId) throw Error('The image to be rejected has no annotator');
   const annotator = await findUserById(annotatorId);
-  const verifierId = image.idVerifier;
 
+  const verifierId = image.idVerifier;
   if (!verifierId) throw Error('The image has no verifier');
   const verifier = await findUserById(verifierId);
-  const wrongAnnotation = image.annotation;
 
+  const wrongAnnotation = image.annotation;
   if (!wrongAnnotation) throw Error('The image has no Annotation');
+
   const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
   const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
 
@@ -67,17 +68,18 @@ export async function verifyImage(
   const annotatorId = image.idAnnotator;
   if (!annotatorId) throw Error('The image to be rejected has no annotator');
   const annotator = await findUserById(annotatorId);
-  const verifierId = image.idVerifier;
 
+  const verifierId = image.idVerifier;
   if (!verifierId) throw Error('The image has no verifier');
   const verifier = await findUserById(verifierId);
+
   const project = await findProjectById(projectID);
 
   const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
   const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
   const imageIndexProject = project.images.pending.findIndex((id) => id === imageID);
 
-  // in project, the image foes from pending to done
+  // in project, the image goes from pending to done
   project.images.pending.splice(imageIndexProject, 1);
   project.images.done.push(imageID);
   await ProjectsDB.put(project);
