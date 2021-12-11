@@ -6,11 +6,11 @@ export type User = {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],
             waitingForAnnotation: ImageID[], // used when the annotation is rejected
-            annotated: ImageID[],
+            annotated:{ imageID: ImageID, date: Date}[]
             toVerify: ImageID[],
             waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again and 
                                             // when the annotation is annotated for the first time and is not verified yet.
-            verified: ImageID[],
+            verified: { imageID: ImageID, date: Date}[]
         }
     },
     name: string,
@@ -39,8 +39,9 @@ export type Project = {
         needsAnnotatorAssignment:ImageID[],
         needsVerifierAssignment:ImageID[],
         pending: ImageID[],
-        done: ImageID[],
+        done: ImageID[]
     }
+    doneDates: {[imageId: ImageID]: Date}
 }
 
 export type ImageID = string;

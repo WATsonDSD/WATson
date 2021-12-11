@@ -62,6 +62,7 @@ export async function createProject(
       pending: [],
       done: [],
     },
+    doneDates: {},
   } as Project;
 
   await ProjectsDB.put(project);

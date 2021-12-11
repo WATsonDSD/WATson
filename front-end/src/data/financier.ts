@@ -1,21 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
 } from '.';
-import { Role } from './types';
+import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
+import { ProjectID, Role } from './types';
 
 /**
- * GENERATE REPORT - DOWNLOAD must call this one
-* for each user get the list of projects
-* for each project of each user get the number of images annotated/verified ,
-* the hourly rate and the price per image, calculate the hours: x.lenght(toAnnotate), x.costForHourAnnotation
-* get the client x.client
- */
-
-/**
- * 
- * 
- * @returns this function return a Csv data array with all the fields needed to show up the report
- * 
+ * @returns this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
   // this will be added in the page that generates the reports 
@@ -40,14 +32,6 @@ export async function generateReport(): Promise<any> {
       numberOfImagesVerified = user.projects[project.id].verified.length;
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
       const hoursV = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-      // let numberOfImagesAnnotated = 0;
-      // let numberOfImagesVerified = 0;
-      // project.images.done.forEach((image) => {
-      //   if (image.annotator === user.id) {
-      //     numberOfImagesAnnotated += 1;
-      //   } else if (image.verifier === user.id) {
-      //     numberOfImagesVerified += 1;
-      //   }
 
       if (numberOfImagesAnnotated > 0) {
         CSVdata.push({
@@ -90,11 +74,11 @@ export async function totalHoursOfWork(projectID: string): Promise<[number, numb
 /**
  * Total annotations made
  */
-
 export async function totalAnnotationMade(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
   return project.images.done.length;
 }
+
 /**
  * 
  * @param projectId project id
@@ -118,9 +102,19 @@ export async function earningsPerUserPerProject(projectId: string, userId: strin
   const numTotalVerificated = user.projects[projectId].verified.length;
   return [(numTotalAnnotatated) * project.pricePerImageAnnotation, (numTotalVerificated) * project.pricePerImageVerification];
 }
-/** 
-* PROJECT
-* spending?? DATE
-* name-role-annotated images -verified images -hours of work -efficiency -earnings 
-*/
+
+async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+  const user = await findUserById(userID);
+  const project = await findProjectById(projectId);
+  return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
+ + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation);
+}
+
+async function earningsPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+  const user = await findUserById(userID);
+  const project = await findProjectById(projectId);
+  return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
+  + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation));
+}
+
 export default generateReport;

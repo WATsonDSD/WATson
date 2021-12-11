@@ -38,6 +38,9 @@ export async function getImagesOfUser(
   userID: UserID,
 ): Promise<Image[]> {
   const user = await findUserById(userID);
+  if (status === 'verified' || status === 'annotated') {
+    return Promise.all(user.projects[projectID][status].map((image) => findImageById(image.imageID)));
+  }
   return Promise.all(user.projects[projectID][status].map((id) => findImageById(id)));
 }
 
@@ -46,6 +49,9 @@ export async function getImagesOfProject(
   status: 'needsAnnotatorAssignment' | 'needsVerifierAssignment' | 'pending' | 'done',
 ): Promise <Image[]> {
   const project = await findProjectById(projectId);
+  if (status === 'done') {
+    return Promise.all(project.images[status].map((image) => findImageById(image)));
+  }
   return Promise.all(project.images[status].map((imageId) => findImageById(imageId)));
 }
 

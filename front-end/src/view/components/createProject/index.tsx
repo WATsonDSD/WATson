@@ -63,6 +63,7 @@ export default function CreateProject() {
         pending: [],
         done: [],
       },
+      doneDates: {},
     });
 
     event.preventDefault();

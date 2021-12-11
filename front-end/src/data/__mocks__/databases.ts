@@ -83,4 +83,5 @@ export const AuthDB = {
   putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {
     AuthDB.signUp(email, '', metadata, callback);
   },
+  allDocs: () => AuthDB.users,
 };
