@@ -11,24 +11,26 @@ import Layout from '../layout';
 import Authentication from '../../authentication';
 import Projects from '../../projects';
 import Project from '../../project';
-import Workers from '../../workers/Workers';
+import Workers from '../../workers';
 import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ReportFinance from '../../projectFinanceSummary/ReportFinance';
+import ProjectAssign from '../../project/ProjectAssign';
 
 export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
-  Project: 'project',
-  CreateProject: 'createProject',
-  Workers: 'workers',
-  Annotation: 'annotation',
-  Verification: 'verification',
-  Finances: 'finances',
-  ProjectFinance: 'projectFinance',
-  Reports: 'reports',
-  Statistics: 'statistics',
+  Project: '/project',
+  CreateProject: '/createProject',
+  Workers: '/workers',
+  Annotation: '/annotation',
+  Verification: '/verification',
+  Finances: '/finances',
+  ProjectFinance: '/projectFinance',
+  Reports: '/reports',
+  Statistics: '/statistics',
+  ProjectAssign: '/projectAssign',
 };
 
 export default () => (
@@ -49,6 +51,9 @@ export default () => (
         <Route path=":idProject" element={<ProjectFinance />} />
       </Route>
       <Route path={Paths.Reports} element={<ReportFinance />} />
+      <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
+        <Route path=":idProject" element={<ProjectAssign />} />
+      </Route>
     </Route>
   </Routes>
 );

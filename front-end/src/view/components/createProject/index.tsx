@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification,
+  UserID, LandmarkSpecification,
 } from '../../../data/types';
 import {
   addUserToProject, createProject, getAllUsers, useUserData, Image,
@@ -23,7 +23,7 @@ export default function CreateProject() {
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<{name: string, client: string, landmarks: LandmarkSpecification, startDate: Date, endDate: Date, users : UserID[]} | null>(null);
   const navigate = useNavigate();
 
   console.log(workers);
@@ -38,13 +38,8 @@ export default function CreateProject() {
     });
 
     const landmarks: LandmarkSpecification = currentLandMarks;
-    const images = {
-      toAnnotate: [{ imageId: '0', annotator: null }],
-      toVerify: [{ imageId: '0', annotator: null, verifier: null }],
-      done: [{ imageId: '0', annotator: null, verifier: null }],
-    };
     setProject({
-      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
+      name, client, landmarks, startDate, endDate, users,
     });
 
     event.preventDefault();

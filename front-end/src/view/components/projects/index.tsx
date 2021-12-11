@@ -25,6 +25,11 @@ export default function Dashboard() {
     },
     {
       role: 'projectManager',
+      text: 'Upload Images',
+      href: Paths.Project,
+    },
+    {
+      role: 'projectManager',
       text: 'Finance',
       href: Paths.ProjectFinance,
     },
@@ -72,10 +77,9 @@ export default function Dashboard() {
       <div>
         <Header title="Projects" buttonPM={addProjectButton} />
       </div>
-
-      <div className="min-h-full">
+      <div id="content" className="min-h-full">
         <div className="w-full min-h-full">
-          <section className="grid grid-cols-4 gap-4">
+          <section className="grid grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
                 key={project.id}
