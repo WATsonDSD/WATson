@@ -1,6 +1,6 @@
 import {
   Annotation,
-  ImageID, RejectedAnnotation,  UserID,
+  ImageID, RejectedAnnotation,
 } from '.';
 import { rejectionsDB } from './databases';
 
@@ -23,7 +23,7 @@ export async function createRejectedImage(
   await rejectionsDB.put(rejection);
 }
 
-
+/*
 // eslint-disable-next-line no-empty-function
 export async function ggetRejectedImagesByByVerifierID() {
 }

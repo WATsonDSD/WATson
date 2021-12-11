@@ -4,10 +4,8 @@ import {
 import {
   ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById,
 } from '.';
-
 import { createRejectedImage } from './rejectedImage';
-
-import { findImageById, fitsSpecification } from './images';
+import { findImageById } from './images';
 
 /**
  * rejects the annotation done by an annotator:
@@ -19,24 +17,19 @@ export async function rejectAnnotation(
   projectID: ProjectID,
   comment: String,
 ) : Promise<void> {
-
-  const image = await findImageById(imageID)
-
+  const image = await findImageById(imageID);
   const annotatorId = image.idAnnotator;
   if (!annotatorId) throw Error('The image to be rejected has no annotator');
   const annotator = await findUserById(annotatorId);
-  
   const verifierId = image.idVerifier;
   if (!verifierId) throw Error('The image has no verifier');
   const verifier = await findUserById(annotatorId);
-
   const wrongAnnotation = image.annotation;
   if (!wrongAnnotation) throw Error ('The image has no Annotation');
-
   const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
   const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
   
-  //a new rejectedObject is created
+  // a new rejectedObject is created
   createRejectedImage(imageID, comment, wrongAnnotation);
 
   // for the annotator user, image goes from waitingForVerification to toAnnotate
@@ -104,7 +97,6 @@ export async function modifyAnnotation(
     };
     await ImagesDB.put(newImage);
   }
- 
 
 /**
  * it accepts the annotation: 
@@ -137,9 +129,9 @@ export async function acceptAnnotatedImage(
   await ProjectsDB.put(project);
   
   // for the annotator user, image goes from waitingForVerification to annotated
-   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
-   annotator.projects[projectID].annotated.push(imageID);
-   await updateUser(annotator); 
+  annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
+  annotator.projects[projectID].annotated.push(imageID);
+  await updateUser(annotator); 
 
   // for the verifier user, image goes from toVerify to verified
   verifier.projects[projectID].toVerify.splice(imageIndexVerifier, 1);
