@@ -24,7 +24,9 @@ describe('reject annotation', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
@@ -47,7 +49,9 @@ describe('Accept annotated image', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');

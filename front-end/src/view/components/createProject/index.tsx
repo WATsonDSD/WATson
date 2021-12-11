@@ -51,7 +51,7 @@ export default function CreateProject() {
       client,
       startDate,
       endDate,
-      status: 'inProgress',
+      status: 'active',
       landmarks,
       pricePerImageAnnotation,
       pricePerImageVerification,
