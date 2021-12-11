@@ -21,7 +21,7 @@ const Card = (props: any) => {
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.Project}/${project.id}`);
+        navigate(`${Paths.ProjectAssign}/${project.id}`);
         break;
       case 'annotator':
         navigate(`${Paths.Annotation}/${project.id}`);
@@ -40,18 +40,19 @@ const Card = (props: any) => {
   const dropDownActions = actions.map((action: any) => (
     <Link
       id={`${action.text}-btn`}
-      onClick={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+      }}
       type="button"
       to={`${action.href}/${project.id}`}
+      className="pl-6 pr-12 py-2"
     >
       {action.text}
-
     </Link>
   ));
 
   return (
-
-    <div className="flex flex-col bg-black cursor-pointer aspect-w-4 aspect-h-3 rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+    <div className="flex flex-col bg-gray-800 hover:bg-black cursor-pointer aspect-w-4 aspect-h-3 rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
       <div className="w-full flex flex-col justify-between px-8 py-6">
         <div className="flex">
           <div className="flex-grow">
@@ -62,7 +63,10 @@ const Card = (props: any) => {
         </div>
 
         <div className="flex flex-col gap-y-2">
-          <span className="text-xs text-white font-normal mb-1">{project.status}</span>
+          <div className="flex items-center gap-x-2">
+            <span className="block w-2 h-2 bg-green-500 rounded-full" />
+            <span className="capitalize text-sm text-white font-normal">{project.status}</span>
+          </div>
           <div className="border-b border-gray-600" />
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">

@@ -2,13 +2,15 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
 } from '.';
+
 import { ImagesDB, ProjectsDB } from './databases';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
   return ProjectsDB.get(id);
 }
+
 /**
  * Finds and returns all projects of a user.
  */
@@ -17,6 +19,7 @@ export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
     Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
   );
 }
+
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
@@ -47,7 +50,7 @@ export async function createProject(
     client,
     startDate: new Date().toJSON(),
     endDate: '',
-    status: 'inProgress', // A newly created project start in progress.
+    status: 'active', // A newly created project start in progress.
     landmarks,
     pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
     pricePerImageVerification: financialModel.pricePerImageVerification,
@@ -64,6 +67,43 @@ export async function createProject(
   await ProjectsDB.put(project);
   return id;
 }
+
+/**
+ * Deletes a project.
+ */
+export async function deleteProject(projectID: ProjectID): Promise<void> {
+  // Fetches the project
+  const project: Project = await findProjectById(projectID);
+
+  const images: ImageID[] = Object.values(project.images).flat();
+
+  // Removes all the images associated with the project from ImagesDB
+  await Promise.all(images.map(async (imageID) => {
+    const image = await ImagesDB.get(imageID);
+
+    // Deletes the attachment
+    // eslint-disable-next-line no-underscore-dangle
+    await ImagesDB.removeAttachment(imageID, 'image', image._rev);
+
+    // Removes the image from ImagesDB
+    return ImagesDB.remove(image);
+  }));
+
+  // Fetches the users of this project
+  const users: User[] = await Promise.all(project.users.map((userID) => findUserById(userID)));
+
+  // Removes the project from the list of projects of each user
+  await Promise.all(users.map(async (user) => {
+    const updatedUser = user;
+    delete updatedUser.projects[projectID];
+
+    return updateUser(updatedUser);
+  }));
+
+  // Removes the project from ProjectsDB
+  await ProjectsDB.get(projectID).then((project) => ProjectsDB.remove(project));
+}
+
 /**
  * Adds the user (whatever the role) to the project.  
  * If they are an annotator or a verifier, this function will not assign them any image.

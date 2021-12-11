@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [user] = useUserData();
   const projects = useData(() => getProjectsOfUser(user!.id));
 
-  const actionsProject = [
+  const projectActions = [
     {
       role: 'projectManager',
       text: 'Edit',
@@ -25,8 +25,8 @@ export default function Dashboard() {
     },
     {
       role: 'projectManager',
-      text: 'Assign Images',
-      href: Paths.ProjectAssign,
+      text: 'Upload Images',
+      href: Paths.Project,
     },
     {
       role: 'projectManager',
@@ -66,7 +66,7 @@ export default function Dashboard() {
   ];
 
   const addProjectButton = (
-    <Link id="addProject" className="flex justify-center items-center bg-gray-100 w-10 h-10 rounded-full" type="button" to="/createProject">
+    <Link id="addProject" className="flex justify-center items-center bg-gray-100 hover:bg-gray-200 w-10 h-10 rounded-full" type="button" to="/createProject">
       <BsPlusLg className="w-30 h-30 mt-auto mb-auto" />
       {' '}
     </Link>
@@ -83,7 +83,7 @@ export default function Dashboard() {
               <Card
                 key={project.id}
                 project={project}
-                actions={actionsProject.filter((a) => a.role === user!.role)}
+                actions={projectActions.filter((a) => a.role === user!.role)}
               />
             ))}
           </section>
