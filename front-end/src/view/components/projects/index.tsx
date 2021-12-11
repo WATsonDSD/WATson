@@ -25,8 +25,8 @@ export default function Dashboard() {
     },
     {
       role: 'projectManager',
-      text: 'Assign Images',
-      href: Paths.ProjectAssign,
+      text: 'Upload Images',
+      href: Paths.Project,
     },
     {
       role: 'projectManager',
