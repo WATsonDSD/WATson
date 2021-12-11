@@ -1,5 +1,6 @@
 import {
-  ImageID, RejectedAnnotation, RejectionID, UserID,
+  Annotation,
+  ImageID, RejectedAnnotation,  UserID,
 } from '.';
 import { rejectionsDB } from './databases';
 
@@ -9,24 +10,19 @@ import { rejectionsDB } from './databases';
  */
 export async function createRejectedImage(
   imageID: ImageID,
-  imageAnnotatorID: UserID,
-  imageVerifierID: UserID,
   comment: String,
-) : Promise<RejectionID> {
-  const id = new Date().toISOString(); // unique id's.
+  wrongAnnonation: Annotation,
+) : Promise<void> {
 
   const rejection = {
-    _id: id,
-    id,
     imageID,
-    imageAnnotatorID,
-    imageVerifierID,
     comment,
+    wrongAnnonation,
   } as RejectedAnnotation;
-
+  
   await rejectionsDB.put(rejection);
-  return id;
 }
+
 
 // eslint-disable-next-line no-empty-function
 export async function ggetRejectedImagesByByVerifierID() {

@@ -9,7 +9,7 @@ import { MdOutlineDashboard } from 'react-icons/md';
 
 import { Paths } from '../routes';
 
-export const linksVerifier = [
+export const links = [
   {
     id: 1,
     name: 'Projects',

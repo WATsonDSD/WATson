@@ -2,106 +2,109 @@ import {
   ImagesDB, ProjectsDB,
 } from './databases';
 import {
-  ImageID, Annotation, RejectionID, ProjectID, updateUser, findUserById,
+  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById,
 } from '.';
 
 import { createRejectedImage } from './rejectedImage';
 
-import { fitsSpecification } from './images';
+import { findImageById, fitsSpecification } from './images';
 
 /**
- * rejects the annotation done by an annotator: 
- * discards what is inside the 'annotation' field of the 'Image', and
- * moves the image from the 'toVerify' field to the 'toAnnotate' field of the project
-
- * also, it creates a 'RejectedAnnotation' object.
- * @returns the id of the 'RejectedAnnotation' object
+ * rejects the annotation done by an annotator:
+ * it is expected that later the annotator will correct the annotation
+ * also, the function creates a 'RejectedAnnotation' object.
  */
 export async function rejectAnnotation(
   imageID: ImageID,
   projectID: ProjectID,
   comment: String,
-) : Promise<RejectionID> {
-// retrieve annotation and create the 'rejectedAnnotation' object to be returned
-  const rejectedImage = await ImagesDB.get(imageID);
-  const project = await ProjectsDB.get(projectID);
+) : Promise<void> {
 
-  const imageAnnotatorID = rejectedImage.idAnnotator;
-  const imageVerifierID = rejectedImage.idVerifier;
+  const image = await findImageById(imageID)
 
-  if (!imageAnnotatorID) throw Error('The image to be rejected has no annotator');
-  if (!imageVerifierID) throw Error('The image to be rejected has no verifier');
+  const annotatorId = image.idAnnotator;
+  if (!annotatorId) throw Error('The image to be rejected has no annotator');
+  const annotator = await findUserById(annotatorId);
+  
+  const verifierId = image.idVerifier;
+  if (!verifierId) throw Error('The image has no verifier');
+  const verifier = await findUserById(annotatorId);
 
-  const rejectedAnnotationId = await createRejectedImage(imageID, imageAnnotatorID, imageVerifierID, comment);
+  const wrongAnnotation = image.annotation;
+  if (!wrongAnnotation) throw Error ('The image has no Annotation');
 
-  // check if the image is waiting to be verified.
-  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
-  if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
+  const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
+  const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
+  
+  //a new rejectedObject is created
+  createRejectedImage(imageID, comment, wrongAnnotation);
 
-  // clear the annotation field of the image
+  // for the annotator user, image goes from waitingForVerification to toAnnotate
+  annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
+  annotator.projects[projectID].toAnnotate.push(imageID);
+  await updateUser(annotator); 
+
+  // for the verifier user, image goes from toVerify to waitingForAnnotation
+  verifier.projects[projectID].toVerify.splice(imageIndexVerifier, 1);
+  verifier.projects[projectID].waitingForAnnotation.push(imageID);
+  await updateUser(verifier); 
+
+  // the image's annotation becomes undefined
   const imageCleared = {
-    ...rejectedImage,
+    ...image,
     annotation: undefined,
   };
   await ImagesDB.put(imageCleared);
-
-  // move the image from the toVerify field to the toAnnotate field of Project
-  project.images.toAnnotate.push({
-    imageId: project.images.toVerify[imageIndex].imageId,
-  });
-  project.images.toVerify.splice(imageIndex, 1);
-  await ProjectsDB.put(project);
-
-  // update user document with the modifed project
-  const annotator = await findUserById(imageAnnotatorID);
-
-  /* annotator.projects[projectID] = {
-    toAnnotate: 
-    toVerify: 
-    done: 
-  }; */
-  updateUser(annotator);
-
-  return rejectedAnnotationId;
 }
 
 /**
- * Modifies the annotation with the one suggested by the verifier:
- * modifies the 'annotation' field of the 'Image', 
- * moves the image from the 'toVerify' field to the 'done' field of the project, and
- * moves the image from the 'toVerify' field to the 'done' field related to the project of the specific user
+ * Modifies the annotation with the one suggested by the verifier
  */
 export async function modifyAnnotation(
   projectID: ProjectID,
   imageID: ImageID,
   newAnnotation: Annotation,
 ) : Promise<void> {
-  const image = await ImagesDB.get(imageID);
-  const imageAnnotatorID = image.idAnnotator;
-  const imageVerifierID = image.idVerifier;
 
-  // check if the annotation is valid.
-  const project = await ProjectsDB.get(projectID);
-  if (!fitsSpecification(newAnnotation, project.landmarks)) {
-    throw Error("The annotation does not fit the project's specification");
-  }
-  // check if the image is waiting to be verified.
-  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
-  if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
+  const image = await findImageById(imageID)
 
-  // assign the new annotation to the imaage
-  image.annotation = newAnnotation;
-  await ImagesDB.put(image);
+  const annotatorId = image.idAnnotator;
+  if (!annotatorId) throw Error('The image to be rejected has no annotator');
+  const annotator = await findUserById(annotatorId);
+  
+  const verifierId = image.idVerifier;
+  if (!verifierId) throw Error('The image has no verifier');
+  const verifier = await findUserById(annotatorId);
 
-  // move the image from the toVerify to the done field of the project
-  project.images.done.push({
-    imageId: imageID,
-    annotator: imageAnnotatorID!,
-    verifier: imageVerifierID!,
-  });
-  project.images.toVerify.splice(imageIndex, 1);
+  const project = await findProjectById(projectID);
+
+  const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
+  const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
+  const imageIndexProject = project.images.pending.findIndex((id) => id === imageID);
+ 
+  // in project, the image foes from pending to done
+  project.images.pending.splice(imageIndexProject, 1);
+  project.images.done.push(imageID);
   await ProjectsDB.put(project);
-}
+
+   // for the annotator user, image goes from waitingForVerification to annotated
+   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
+   annotator.projects[projectID].annotated.push(imageID);
+   await updateUser(annotator); 
+
+     // for the verifier user, image goes from toVerify to verified
+  verifier.projects[projectID].toVerify.splice(imageIndexVerifier, 1);
+  verifier.projects[projectID].verified.push(imageID);
+  await updateUser(verifier); 
+
+    // the image's annotation becomes undefined
+    const newImage = {
+      ...image,
+      annotation: newAnnotation,
+    };
+    await ImagesDB.put(newImage);
+  }
+ 
 
 /**
  * it accepts the annotation: 
@@ -111,27 +114,36 @@ export async function modifyAnnotation(
 export async function acceptAnnotatedImage(
   projectID: ProjectID,
   imageID: ImageID,
-
 ) : Promise<void> {
-  const image = await ImagesDB.get(imageID);
-  const project = await ProjectsDB.get(projectID);
+  const image = await findImageById(imageID)
 
-  // check if the image is waiting to be verified.
-  const imageIndex = project.images.toVerify.findIndex((entry) => entry.imageId === imageID);
-  if (imageIndex < 0) { throw Error('The image does not expect to be verified'); }
+  const annotatorId = image.idAnnotator;
+  if (!annotatorId) throw Error('The image to be rejected has no annotator');
+  const annotator = await findUserById(annotatorId);
+  
+  const verifierId = image.idVerifier;
+  if (!verifierId) throw Error('The image has no verifier');
+  const verifier = await findUserById(annotatorId);
 
-  const annotatorID = image.idAnnotator;
-  const verifierID = image.idVerifier;
+  const project = await findProjectById(projectID);
 
-  // move the image from toVerify to done
-  project.images.done.push({
-    imageId: project.images.toVerify[imageIndex].imageId,
-    annotator: annotatorID!,
-    verifier: verifierID!,
-  });
-  project.images.toVerify.splice(imageIndex, 1);
-
-  // reflect the changes to the DB.
-  await ImagesDB.put(image);
+  const imageIndexAnnotator = annotator.projects[projectID].waitingForVerification.findIndex((id) => id === imageID);
+  const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
+  const imageIndexProject = project.images.pending.findIndex((id) => id === imageID);
+ 
+  // in project, the image foes from pending to done
+  project.images.pending.splice(imageIndexProject, 1);
+  project.images.done.push(imageID);
   await ProjectsDB.put(project);
+  
+  // for the annotator user, image goes from waitingForVerification to annotated
+   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
+   annotator.projects[projectID].annotated.push(imageID);
+   await updateUser(annotator); 
+
+  // for the verifier user, image goes from toVerify to verified
+  verifier.projects[projectID].toVerify.splice(imageIndexVerifier, 1);
+  verifier.projects[projectID].verified.push(imageID);
+  await updateUser(verifier); 
+
 }
