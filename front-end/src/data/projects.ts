@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
@@ -36,7 +37,7 @@ export async function createProject(
   hourlyRateVerification: number,
   },
 ) : Promise<ProjectID> {
-  const id = new Date().toISOString(); // unique id's.
+  const id = uuid(); // unique id's.
 
   const project = {
     _id: id,
@@ -53,8 +54,9 @@ export async function createProject(
     hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
     hourlyRateVerification: financialModel.hourlyRateVerification,
     images: { // A newly created project has no images.
-      toAnnotate: [],
-      toVerify: [],
+      needsAnnotatorAssignment: [],
+      needsVerifierAssignment: [],
+      pending: [],
       done: [],
     },
   } as Project;
@@ -78,8 +80,11 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],
+    waitingForAnnotation: [],
+    annotated: [],
     toVerify: [],
-    done: [],
+    waitingForVerification: [],
+    verified: [],
   };
 
   await ProjectsDB.put(project);
@@ -91,11 +96,11 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
  * ! This function does not assign an annotator (for now).
  */
 export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
-  const imageId = new Date().toJSON(); // unique id's.
+  const imageId = uuid(); // unique id's.
   const project = await findProjectById(projectId);
 
   // store the image id to the project it is associated to
-  project.images.toAnnotate.push({ imageId });
+  project.images.needsAnnotatorAssignment.push(imageId);
 
   // store the image in the database (_attachment)
   await ImagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');

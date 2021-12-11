@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../shared/layout/Header';
 import {
-  Project, UserID, LandmarkSpecification,
+  UserID, LandmarkSpecification, Project,
 } from '../../../data/types';
 import {
   addUserToProject, createProject, getAllUsers, useUserData, Image,
@@ -23,7 +24,7 @@ export default function CreateProject() {
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<Project|null>(null);
   const navigate = useNavigate();
 
   console.log(workers);
@@ -35,21 +36,33 @@ export default function CreateProject() {
     // ! change this when you use them to be updated when they are inserted in the creation of a project !! 
     const pricePerImageAnnotation = event.target.paymentPerAnnotation.value;
     const pricePerImageVerification = event.target.paymentPerVerification.value;
-    const hourlyRateAnnotation = event.target.paymentPerH.value;
-    const hourlyRateVerification = event.target.paymentPerH.value;
+    const hourlyRateAnnotation = event.target.paymentPerAnn.value;
+    const hourlyRateVerification = event.target.paymentPerVer.value;
     const users: UserID[] = [];
     workers?.forEach((worker) => {
       users.push(worker.worker);
     });
 
     const landmarks: LandmarkSpecification = currentLandMarks;
-    const images = {
-      toAnnotate: [{ imageId: '0', annotator: null }],
-      toVerify: [{ imageId: '0', annotator: null, verifier: null }],
-      done: [{ imageId: '0', annotator: null, verifier: null }],
-    };
     setProject({
-      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, pricePerImageAnnotation, pricePerImageVerification, hourlyRateVerification, hourlyRateAnnotation, images,
+      id: '',
+      users,
+      name,
+      client,
+      startDate,
+      endDate,
+      status: 'inProgress',
+      landmarks,
+      pricePerImageAnnotation,
+      pricePerImageVerification,
+      hourlyRateAnnotation,
+      hourlyRateVerification,
+      images: {
+        needsAnnotatorAssignment: [],
+        needsVerifierAssignment: [],
+        pending: [],
+        done: [],
+      },
     });
 
     event.preventDefault();
@@ -442,10 +455,13 @@ export default function CreateProject() {
               </div>
               <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Role
+                  Payment
                 </span>
                 <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
-                  Financial
+                  Annotator Hourly Rate
+                </div>
+                <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
+                  Verifier Hourly Rate
                 </div>
                 <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
                   Annotator
@@ -458,7 +474,8 @@ export default function CreateProject() {
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   Param
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerH" name="paymentPerH" type="number" placeholder="Payment per hour" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per annotator" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per verifier" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per annotation" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
 
