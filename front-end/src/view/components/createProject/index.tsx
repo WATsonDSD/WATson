@@ -44,7 +44,7 @@ export default function CreateProject() {
       done: [{ imageId: '0', annotator: null, verifier: null }],
     };
     setProject({
-      id: 'createProjectId', name, client, startDate, endDate, users, status: 'inProgress', landmarks, images,
+      id: 'createProjectId', name, client, startDate, endDate, users, status: 'active', landmarks, images,
     });
 
     event.preventDefault();

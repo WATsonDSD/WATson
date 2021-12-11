@@ -15,7 +15,7 @@ export type User = {
 };
 
 export type ProjectID = string;
-export type ProjectStatus = 'inProgress' | 'done'; // perhaps even more.
+export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
