@@ -13,10 +13,12 @@ import {
   mdiHelpCircle,
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Annotation, findProjectById, Image } from '../../../data';
+import {
+  Annotation, findProjectById, Image, useUserData,
+} from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
-import { getImages, saveAnnotation } from '../../../data/images';
+import { getImagesOfUser, saveAnnotation } from '../../../data/images';
 import TemplateAnnotation from './TemplateAnnotation';
 
 import { Paths } from '../shared/routes';
@@ -54,6 +56,7 @@ export default function AnnotationView() {
   const [state, setState] = useState(initialState);
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const [user] = useUserData();
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -68,7 +71,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImages(projectId ?? '', 'toAnnotate').then((result) => {
+    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.id).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');

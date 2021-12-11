@@ -19,7 +19,7 @@ export const links = [
   {
     id: 1,
     name: 'Finances',
-    href: '/',
+    href: Paths.Finances,
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,
   },
 ];
