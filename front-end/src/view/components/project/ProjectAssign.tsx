@@ -30,12 +30,12 @@ export default function ProjectAssign() {
 
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
-      images.forEach((image: Image) => {
-        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
+      images.forEach(async (image: Image) => {
+        await updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
       });
     } else {
-      images.forEach((image: Image) => {
-        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
+      images.forEach(async (image: Image) => {
+        await updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
       });
     }
   };
