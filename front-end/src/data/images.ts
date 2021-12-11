@@ -20,15 +20,12 @@ import { ImagesDB } from './databases';
 export async function findImageById(id: ImageID): Promise<Image> {
   const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
   const im = await ImagesDB.get(id);
-  const image : Image = {
+  return {
+    ...im,
+    data: attach,
     // eslint-disable-next-line no-underscore-dangle
     id: im._id,
-    data: attach,
-    annotation: im.annotation,
-    idAnnotator: im.idAnnotator,
-    idVerifier: im.idVerifier,
   };
-  return image;
 }
 
 /**
@@ -82,7 +79,7 @@ export async function saveAnnotation(
   }
 
   // save the annotation
-  const image = await ImagesDB.get(imageId);
+  const image = await findImageById(imageId);
   image.annotation = annotation;
 
   // move from toAnnotate to waitingForVerification in the user annotator
@@ -123,7 +120,7 @@ export async function assignVerifierToImage(
   }
 
   // assign verifier to the image
-  const image = await ImagesDB.get(imageId);
+  const image = await findImageById(imageId);
   if (!image.idAnnotator) { throw Error('The images needs to be assigned an annotator first'); }
   image.idVerifier = verifierId;
 
@@ -159,7 +156,7 @@ export async function assignAnnotatorToImage(
   }
 
   // assign annotator to image
-  const image = await ImagesDB.get(imageId);
+  const image = await findImageById(imageId);
   image.idAnnotator = annotatorId;
   // assign image to be annotated the user
   annotator.projects[projectId].toAnnotate.push(imageId);
