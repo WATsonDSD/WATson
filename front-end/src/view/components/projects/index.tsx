@@ -25,6 +25,11 @@ export default function Dashboard() {
     },
     {
       role: 'projectManager',
+      text: 'Assign Images',
+      href: Paths.ProjectAssign,
+    },
+    {
+      role: 'projectManager',
       text: 'Finance',
       href: Paths.ProjectFinance,
     },

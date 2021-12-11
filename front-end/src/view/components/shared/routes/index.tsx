@@ -15,19 +15,21 @@ import Workers from '../../workers';
 import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import ProjectAssign from '../../project/ProjectAssign';
 
 export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
-  Project: 'project',
-  CreateProject: 'createProject',
-  Workers: 'workers',
-  Annotation: 'annotation',
-  Verification: 'verification',
-  Finances: 'finances',
-  ProjectFinance: 'projectFinance',
-  Reports: 'reports',
-  Statistics: 'statistics',
+  Project: '/project',
+  CreateProject: '/createProject',
+  Workers: '/workers',
+  Annotation: '/annotation',
+  Verification: '/verification',
+  Finances: '/finances',
+  ProjectFinance: '/projectFinance',
+  Reports: '/reports',
+  Statistics: '/statistics',
+  ProjectAssign: '/projectAssign',
 };
 
 export default () => (
@@ -46,6 +48,9 @@ export default () => (
       </Route>
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
         <Route path=":idProject" element={<ProjectFinance />} />
+      </Route>
+      <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
+        <Route path=":idProject" element={<ProjectAssign />} />
       </Route>
     </Route>
   </Routes>
