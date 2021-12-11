@@ -42,7 +42,7 @@ const Card = (props: any) => {
       id={`${action.text}-btn`}
       onClick={(event) => event.stopPropagation()}
       type="button"
-      to={`${action.href}${project.id}`}
+      to={`${action.href}/${project.id}`}
     >
       {action.text}
 
