@@ -60,14 +60,12 @@ export async function createProject(
 
 /**
  * Deletes a project.
- * 
- * 1 - Remove all the images associated with the project from ImagesDB
  */
 export async function deleteProject(projectID: ProjectID): Promise<void> {
   // Fetches the project
   const project: Project = await findProjectById(projectID);
 
-  const images: ImageID[] = Object.values(project.images).flat().map((obj) => obj.imageId);
+  const images: ImageID[] = Object.values(project.images).flat();
 
   // Removes all the images associated with the project from ImagesDB
   await Promise.all(images.map(async (imageID) => {
