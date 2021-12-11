@@ -25,17 +25,18 @@ body {
 #main-content {
   display: flex;
   flex-direction: column;
-  padding: 2.5rem 4rem;
-  padding-top: 0;
   width: 100%;
   overflow-y: auto;
   
 }
 
+header {
+  padding: 2.5rem 4rem;
+}
+
 /* content without the header and footer  */
 #content {
-  display: flex;
-  flex: 1 0 auto;
+  padding: 0rem 4rem 2.5rem;
 }
 
 #side-menu {

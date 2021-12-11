@@ -10,8 +10,6 @@ export default function Workers() {
     </button>
   );
   return (
-    <div className="h-full w-full">
-      <Header title="Workers" button={button} />
-    </div>
+    <Header title="Workers" button={button} />
   );
 }

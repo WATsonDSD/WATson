@@ -69,13 +69,11 @@ export default function Dashboard() {
 
   return (
     <div className="w-full">
-      <div>
-        <Header title="Projects" button={addProjectButton} />
-      </div>
+      <Header title="Projects" button={addProjectButton} />
 
-      <div className="min-h-full">
+      <div id="content" className="min-h-full">
         <div className="w-full min-h-full">
-          <section className="grid grid-cols-4 gap-4">
+          <section className="grid grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
                 key={project.id}

@@ -11,7 +11,7 @@ import Layout from '../layout';
 import Authentication from '../../authentication';
 import Projects from '../../projects';
 import Project from '../../project';
-import Workers from '../../workers/Workers';
+import Workers from '../../workers';
 import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
