@@ -32,9 +32,10 @@ export type Project = {
     landmarks: LandmarkSpecification,
 
     images: {
-        toAnnotate: {imageId: ImageID }[],
-        toVerify: {imageId: ImageID }[],
-        done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
+        needsAnnotatorAssignment:ImageID[],
+        needsVerifierAssignment:ImageID[],
+        pending: ImageID[],
+        done: ImageID[],
     }
 }
 
