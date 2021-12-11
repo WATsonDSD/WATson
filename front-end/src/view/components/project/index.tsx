@@ -143,33 +143,6 @@ export default function ProjectEdit() {
             </li>
           </ul>
         </section>
-        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left">
-          Assigning images to workers
-        </span>
-        <br />
-        <div className="flex flex-wrap mb-2">
-          <div className="w-full flex flex-col space-x-4 md:w-1/3 mb-6 md:mb-0">
-            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-Worker-role">
-              Worker
-              {project?.users.map((worker) => (
-                <div className="relative" key={worker}>
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} />
-                </div>
-              ))}
-            </label>
-          </div>
-          <div className="w-full  md:w-1/3 mb-6 md:mb-0">
-            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-              Number Of images
-              {project?.users.map((worker) => (
-                <div className="relative" key={`${worker}`}>
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" max={Object.keys(FILES).length} id={`${worker}-nbImages`} name={`${worker}-nbImages`} type="number" placeholder="Number of Images" />
-
-                </div>
-              ))}
-            </label>
-          </div>
-        </div>
 
         <footer className="flex justify-end pb-8 pt-4">
           <button
@@ -178,7 +151,7 @@ export default function ProjectEdit() {
             onClick={handleUpload}
             className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
           >
-            Upload And assign now
+            Upload
           </button>
           <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
             Cancel
