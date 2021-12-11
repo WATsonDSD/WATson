@@ -47,7 +47,7 @@ export default function PageA() {
   return (
 
     <div className="h-full w-full">
-      <Header title="Workers" button={button} />
+      <Header title="Workers" buttonPM={button} />
       <div id="modalOverlay" className="hidden absolute inset-0 bg-black bg-opacity-30 h-screen w-full flex justify-center items-start md:items-center pt-10 md:pt-0">
 
         {/* <!-- modal --> */}

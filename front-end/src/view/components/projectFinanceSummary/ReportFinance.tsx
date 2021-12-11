@@ -23,7 +23,7 @@ export default function ReportFinance() {
   );
   return (
     <div className="h-full w-full">
-      <Header title="Reports" button={button} />
+      <Header title="Reports" buttonF={button} />
       <div className="inline-block w-full ml-8">
         <table className="w-11/12 leading-normal m-3">
           <thead>

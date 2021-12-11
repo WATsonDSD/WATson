@@ -70,7 +70,7 @@ export default function Dashboard() {
   return (
     <div className="w-full">
       <div>
-        <Header title="Projects" button={addProjectButton} />
+        <Header title="Projects" buttonPM={addProjectButton} />
       </div>
 
       <div className="min-h-full">
