@@ -8,31 +8,40 @@ import { findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
+import {
+  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+} from '../../../data/financier';
+
+const exampleChart: ChartConfiguration = {
+  type: 'line',
+  data: {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
+    datasets: [
+      {
+        label: 'Label of the chart',
+        borderColor: '#4A5568',
+        data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200],
+        fill: false,
+        pointBackgroundColor: '#4A5568',
+        borderWidth: 3,
+        pointBorderWidth: 4,
+        pointHoverRadius: 6,
+        pointHoverBorderWidth: 8,
+        pointHoverBorderColor: 'rgb(74,85,104,0.2)',
+      },
+    ],
+  },
+};
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
+  const totalCost = useData(async () => calculateTotalCost(idProject!));
+  const totalHours = useData(async () => totalHoursOfWork(idProject!));
+  const totalWork = useData(async () => totalWorkers(idProject!));
+  const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
 
-  const exampleChart: ChartConfiguration = {
-    type: 'line',
-    data: {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
-      datasets: [
-        {
-          label: 'Label of the chart',
-          borderColor: '#4A5568',
-          data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200],
-          fill: false,
-          pointBackgroundColor: '#4A5568',
-          borderWidth: 3,
-          pointBorderWidth: 4,
-          pointHoverRadius: 6,
-          pointHoverBorderWidth: 8,
-          pointHoverBorderColor: 'rgb(74,85,104,0.2)',
-        },
-      ],
-    },
-  };
+  if (!project || !totalCost || !totalHours) return null;
 
   return (
     <div className="h-full w-full">
@@ -50,7 +59,7 @@ export default function ProjectFinance() {
                 Total cost of the project
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                $ 6,760
+                {totalCost}
 
               </p>
             </div>
@@ -70,7 +79,7 @@ export default function ProjectFinance() {
                 Total hours of work
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                234h
+                { totalHours }
               </p>
             </div>
           </div>
@@ -89,7 +98,7 @@ export default function ProjectFinance() {
                 Total annotations made
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                456
+                { totalAnnotation }
               </p>
             </div>
           </div>
@@ -108,6 +117,7 @@ export default function ProjectFinance() {
                 Total workers involved
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">15</p>
+              { totalWork }
             </div>
           </div>
         </div>

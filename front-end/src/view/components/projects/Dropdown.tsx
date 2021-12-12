@@ -11,6 +11,7 @@ function classNames(...classes: any) {
 
 const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
   const { elements, icon } = props;
+
   let counter = 0;
 
   return (
@@ -39,7 +40,7 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
                       key={counter}
                       className={classNames(
                         active ? 'bg-gray-700 text-white' : 'text-white',
-                        'block pl-6 pr-12 py-2 text-base',
+                        'block text-base',
                       )}
                     >
                       {element}
