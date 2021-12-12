@@ -14,7 +14,7 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 import Dropdown from './Dropdown';
 
 const Card = (props: any) => {
-  const { project, actions } = props;
+  const { project, options } = props;
   const [user] = useUserData();
   const navigate = useNavigate();
 
@@ -37,18 +37,34 @@ const Card = (props: any) => {
     }
   };
 
-  const dropDownActions = actions.map((action: any) => (
-    <Link
-      id={`${action.text}-btn`}
-      onClick={(event) => {
-        event.stopPropagation();
-      }}
-      type="button"
-      to={`${action.href}/${project.id}`}
-      className="pl-6 pr-12 py-2"
-    >
-      {action.text}
-    </Link>
+  const dropDownOptions = options.map((option: {name: string, to?: string, action?: Function}) => (
+    option.to
+      ? (
+        <Link
+          id={`${option.name}-btn`}
+          className="block pl-6 pr-12 py-2"
+          type="button"
+          to={`${option.to}/${project.id}`}
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          {option.name}
+        </Link>
+      )
+      : (
+        <button
+          id={`${option.name}-btn`}
+          className="pl-6 pr-12 py-2"
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            option.action!(project.id);
+          }}
+        >
+          {option.name}
+        </button>
+      )
   ));
 
   return (
@@ -59,7 +75,7 @@ const Card = (props: any) => {
             <span className="uppercase text-sm text-gray-400 font-medium">{project.client}</span>
             <h2 className="capitalize text-xl text-white font-normal">{project.name}</h2>
           </div>
-          <Dropdown elements={dropDownActions} icon={<img src={OptionsIcon} alt="Options" />} />
+          <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />
         </div>
 
         <div className="flex flex-col gap-y-2">
