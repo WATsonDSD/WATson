@@ -7,7 +7,6 @@ import {
 
 import { rejectAnnotation, verifyImage } from './verification';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
