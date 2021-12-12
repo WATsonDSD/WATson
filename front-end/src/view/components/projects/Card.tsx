@@ -12,11 +12,16 @@ import { Paths } from '../shared/routes';
 import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
+import useData from '../../../data/hooks';
+import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
 
 const Card = (props: any) => {
   const { project, options } = props;
   const [user] = useUserData();
   const navigate = useNavigate();
+  const totalSpending = useData(async () => calculateTotalCost(project));
+  const percentage = useData(async () => percentageOfImagesDone(project));
+  if (!totalSpending || !percentage) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
@@ -87,11 +92,12 @@ const Card = (props: any) => {
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              60%
+              {percentage}
+              %
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineRise />
-              €
+              { totalSpending[0] }
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineTeam />
