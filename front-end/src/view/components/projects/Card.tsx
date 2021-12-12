@@ -5,7 +5,7 @@ import {
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserData } from '../../../data';
+import { Project, useUserData } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
@@ -16,12 +16,12 @@ import useData from '../../../data/hooks';
 import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
 
 const Card = (props: any) => {
-  const { project, options } = props;
+  const { project, options }: { project: Project, options: any} = props;
   const [user] = useUserData();
   const navigate = useNavigate();
-  const totalSpending = useData(async () => calculateTotalCost(project));
-  const percentage = useData(async () => percentageOfImagesDone(project));
-  if (!totalSpending || !percentage) return null;
+  const totalSpending = useData(async () => calculateTotalCost(project.id));
+  const percentage = useData(async () => percentageOfImagesDone(project.id));
+  if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
