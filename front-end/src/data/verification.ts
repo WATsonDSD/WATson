@@ -81,17 +81,20 @@ export async function verifyImage(
 
   // in project, the image goes from pending to done
   project.images.pending.splice(imageIndexProject, 1);
-  project.images.done.push(imageID);
+  const dateTime = new Date();
+  project.images.done.push({ imageId: imageID, doneDate: dateTime });
+
   await ProjectsDB.put(project);
 
   // for the annotator user, image goes from waitingForVerification to annotated
   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
-  annotator.projects[projectID].annotated.push(imageID);
+  annotator.projects[projectID].annotated.push({ imageID, date: dateTime });
   await updateUser(annotator);
 
   // for the verifier user, image goes from toVerify to verified
   verifier.projects[projectID].toVerify.splice(imageIndexVerifier, 1);
-  verifier.projects[projectID].verified.push(imageID);
+
+  verifier.projects[projectID].verified.push({ imageID, date: dateTime });
   await updateUser(verifier);
 
   // the image's annotation becomes undefined

@@ -25,7 +25,9 @@ describe('addAnnotation', () => {
   let projectId: ProjectID;
   let userId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     await addUserToProject(userId, projectId);
@@ -54,7 +56,9 @@ describe('assignVerifierToImage', () => {
   let annotatorId: UserID;
   let annotatedImageId: ImageID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatedImageId = await addImageToProject(imageData, projectId);
     verifierId = await createUser('Bob', 'bob@verifier.com', 'verifier');

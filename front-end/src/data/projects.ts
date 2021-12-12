@@ -33,6 +33,12 @@ export async function createProject(
   name: string,
   client: string,
   landmarks: LandmarkSpecification,
+  financialModel: {
+  pricePerImageAnnotation: number
+  pricePerImageVerification: number,
+  hourlyRateAnnotation: number,
+  hourlyRateVerification: number,
+  },
 ) : Promise<ProjectID> {
   const id = uuid(); // unique id's.
 
@@ -46,6 +52,10 @@ export async function createProject(
     endDate: '',
     status: 'active', // A newly created project start in progress.
     landmarks,
+    pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
+    pricePerImageVerification: financialModel.pricePerImageVerification,
+    hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
+    hourlyRateVerification: financialModel.hourlyRateVerification,
     images: { // A newly created project has no images.
       needsAnnotatorAssignment: [],
       needsVerifierAssignment: [],
@@ -65,7 +75,11 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
   // Fetches the project
   const project: Project = await findProjectById(projectID);
 
-  const images: ImageID[] = Object.values(project.images).flat();
+  const images: ImageID[] = [
+    project.images.needsAnnotatorAssignment,
+    project.images.needsVerifierAssignment,
+    project.images.pending,
+    project.images.done.map((im) => im.imageId)].flat();
 
   // Removes all the images associated with the project from ImagesDB
   await Promise.all(images.map(async (imageID) => {
