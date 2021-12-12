@@ -13,6 +13,7 @@ import AnnotatedImage from '../annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfProject } from '../../../data/images';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
+import { rejectAnnotation, verifyImage } from '../../../data/verification';
 
 const templateImage: Image = {
   id: 'template',
@@ -32,13 +33,13 @@ backspace - undo last landmark
 
 export default function VerificationView(props: { projectId: ProjectID }) {
   const initialState: {
-    imageToAnnotate: Image,
+    imageToVerify: Image,
     imageTransform: {
       scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
     },
     showReject: boolean;
   } = {
-    imageToAnnotate: { ...templateImage },
+    imageToVerify: { ...templateImage },
     imageTransform: {
       scale: 1, translatePos: { x: 0, y: 0 }, constrast: 100, brighness: 100,
     },
@@ -47,7 +48,11 @@ export default function VerificationView(props: { projectId: ProjectID }) {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    getImagesOfProject(props.projectId ?? '', 'needsVerifierAssignment').then((result) => {
+    nextImage();
+  }, []);
+
+  const nextImage = () => {
+    getImagesOfProject(props.projectId ?? '', 'pending').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         // navigate(Paths.Projects);
@@ -55,10 +60,10 @@ export default function VerificationView(props: { projectId: ProjectID }) {
       }
       setState({
         ...state,
-        imageToAnnotate: result[0],
+        imageToVerify: result[0],
       });
     });
-  }, []);
+  };
 
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
@@ -81,31 +86,31 @@ export default function VerificationView(props: { projectId: ProjectID }) {
     });
   };
 
-  const save = () => {
-    // saveVerification(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId);
-    // TODO: Go to next image of project, if no other image, go to dashboard
+  const saveAsValid = () => {
+    verifyImage(props.projectId, state.imageToVerify.id);
+    nextImage();
   };
 
   const templateLandmarkColor = (id: number) => {
-    if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
+    if (!state.imageToVerify.annotation || !state.imageToVerify.annotation[id]) {
       return { stroke: '#525252' };
     }
-    if (state.imageToAnnotate.annotation[id].z === 0) {
+    if (state.imageToVerify.annotation[id].z === 0) {
       return { fill: '#FF0000' };
     }
-    if (state.imageToAnnotate.annotation[id].z === 2) {
+    if (state.imageToVerify.annotation[id].z === 2) {
       return { fill: '#40C000' };
     }
     return { fill: '#525252' };
   };
 
   const imageLandmarkColor = (id: number) => {
-    if (!state.imageToAnnotate.annotation
-      || !state.imageToAnnotate.annotation[id]
-      || state.imageToAnnotate.annotation[id].z === 0) {
+    if (!state.imageToVerify.annotation
+      || !state.imageToVerify.annotation[id]
+      || state.imageToVerify.annotation[id].z === 0) {
       return { };
     }
-    if (state.imageToAnnotate.annotation[id].z === 2) {
+    if (state.imageToVerify.annotation[id].z === 2) {
       return { fill: '#40C000' };
     }
     return { fill: '#525252' };
@@ -124,6 +129,9 @@ export default function VerificationView(props: { projectId: ProjectID }) {
     });
   };
   const sendReject = () => {
+    const comment = document.getElementById('rejectionComment')?.innerText;
+    console.log(comment);
+    rejectAnnotation(state.imageToVerify.id, props.projectId, comment ?? '');
     hideRejectMenu();
   };
 
@@ -148,7 +156,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
               <span>Rejection Comments: </span>
             </div>
             <br />
-            <textarea className="w-50v h-50v p-3 text-left align-top inline-block" placeholder="Write comments for annotation rejection." />
+            <textarea className="w-50v h-50v p-3 text-left align-top inline-block" id="rejectionComment" placeholder="Write comments for annotation rejection." />
             <div className="grid grid-cols-6 h-10v mt-5vh mb-0 w-full">
               <button
                 className="col-start-1 col-span-1 h-6v"
@@ -201,8 +209,8 @@ export default function VerificationView(props: { projectId: ProjectID }) {
             <br />
             <span className="text-5xl pl-4 text font-bold">
               {/* Get Here the data of the verification of images in the current session */}
-              { state.imageToAnnotate.annotation
-                ? Object.keys(state.imageToAnnotate.annotation).length
+              { state.imageToVerify.annotation
+                ? Object.keys(state.imageToVerify.annotation).length
                 : 1 }
               {' / '}
               {templateImage.annotation ? Object.keys(templateImage.annotation).length : 1}
@@ -219,7 +227,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
         <div className="h-full p-4 col-span-5 row-span-full w-full">
           <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
             <AnnotatedImage
-              image={state.imageToAnnotate}
+              image={state.imageToVerify}
               onMouseWheel={onImageWheel}
               landmarkColor={imageLandmarkColor}
               scale={state.imageTransform.scale}
@@ -228,7 +236,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }} onClick={save}>
+          <button type="button" style={{ width: '6vw' }}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
@@ -256,7 +264,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
                 <span className="text-ui-darkred mx-auto"> Reject Annotation </span>
               </div>
             </button>
-            <button className="col-start-1 col-span-1 row-start-2 row-span-1 h-6v" type="button">
+            <button className="col-start-1 col-span-1 row-start-2 row-span-1 h-6v" type="button" onClick={saveAsValid}>
               <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
                 <span className="mx-auto text-white"> Accept Annotation </span>
               </div>
