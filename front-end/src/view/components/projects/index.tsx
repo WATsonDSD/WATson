@@ -26,6 +26,10 @@ export default function Dashboard() {
         to: Paths.Project,
       },
       {
+        name: 'Assign Images',
+        to: Paths.ProjectAssign,
+      },
+      {
         name: 'Upload Images',
         to: Paths.Project,
       },
