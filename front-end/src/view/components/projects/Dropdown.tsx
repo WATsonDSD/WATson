@@ -11,6 +11,7 @@ function classNames(...classes: any) {
 
 const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
   const { elements, icon } = props;
+
   let counter = 0;
 
   return (
