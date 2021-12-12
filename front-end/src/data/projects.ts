@@ -62,7 +62,6 @@ export async function createProject(
       pending: [],
       done: [],
     },
-    doneDates: {},
   } as Project;
 
   await ProjectsDB.put(project);
@@ -76,7 +75,11 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
   // Fetches the project
   const project: Project = await findProjectById(projectID);
 
-  const images: ImageID[] = Object.values(project.images).flat();
+  const images: ImageID[] = [
+    project.images.needsAnnotatorAssignment,
+    project.images.needsVerifierAssignment,
+    project.images.pending,
+    project.images.done.map((im) => im.imageId)].flat();
 
   // Removes all the images associated with the project from ImagesDB
   await Promise.all(images.map(async (imageID) => {

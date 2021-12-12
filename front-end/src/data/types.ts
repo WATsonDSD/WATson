@@ -39,10 +39,8 @@ export type Project = {
         needsAnnotatorAssignment:ImageID[],
         needsVerifierAssignment:ImageID[],
         pending: ImageID[],
-        done: ImageID[]
-    }
-    doneDates: {[imageId: ImageID]: Date}
-}
+        done: {imageId: ImageID, doneDate: Date}[],
+    }}
 
 export type ImageID = string;
 
