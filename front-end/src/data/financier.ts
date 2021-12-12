@@ -110,11 +110,18 @@ async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) 
  + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation);
 }
 
-async function earningsPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function earningsPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
   + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation));
+}
+
+export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
+  const project = await findProjectById(projectID);
+  const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
+  const percentage = project.images.done.length / totalImages;
+  return percentage;
 }
 
 export default generateReport;

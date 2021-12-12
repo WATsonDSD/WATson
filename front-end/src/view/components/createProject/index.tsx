@@ -36,7 +36,6 @@ export default function CreateProject() {
     const client = event.target.client.value;
     const startDate = event.target.startDate.value;
     const endDate = event.target.endDate.value;
-    // ! change this when you use them to be updated when they are inserted in the creation of a project !! 
     const pricePerImageAnnotation = event.target.paymentPerAnnotation.value;
     const pricePerImageVerification = event.target.paymentPerVerification.value;
     const hourlyRateAnnotation = event.target.paymentPerAnn.value;
@@ -91,10 +90,9 @@ export default function CreateProject() {
   useEffect(() => {
     if (project && user) {
       // the projectManager creating the project is assigned to it
-      createProject(project.name, project.client, project.landmarks,
-        {
-          pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
-        })
+      createProject(project.name, project.client, project.landmarks, project.startDate, project.endDate, {
+        pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
+      })
         .then(async (id) => {
           await addUserToProject(user.id, id);
           for (let i = 0; i < project.users.length; i += 1) {
@@ -519,10 +517,10 @@ export default function CreateProject() {
                   Verifier Hourly Rate
                 </div>
                 <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
-                  Annotator
+                  Price per annotation
                 </div>
                 <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
-                  Verifier
+                  Price per verification
                 </div>
               </div>
               <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
@@ -531,7 +529,7 @@ export default function CreateProject() {
                 </span>
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per annotator" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per verifier" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per annotation" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per Annotation" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
 
               </div>

@@ -74,7 +74,7 @@ export default function Dashboard() {
 
       <div id="content" className="min-h-full">
         <div className="w-full min-h-full">
-          <section className="grid grid-cols-3 2xl:grid-cols-4 gap-4">
+          <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
                 key={project.id}
