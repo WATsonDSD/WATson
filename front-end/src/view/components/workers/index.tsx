@@ -20,41 +20,45 @@ export default function Workers() {
 
   const actions = [
     {
-      text: 'Worker Info.',
-      href: '/pageC/',
-    },
-    {
       text: 'Update Data',
-      href: Paths.ProjectAssign,
+      onClick: openModal(true, '#createUser'),
     },
     {
       text: 'Assign Work',
       href: Paths.ProjectFinance,
     },
     {
-      text: 'Generate Report',
-      href: '/pageC/',
-    },
-    {
       text: 'Give Bonification',
-      href: '/pageC/',
+      href: '/Bonification/',
     },
     {
       text: 'Delete User',
       href: Paths.Annotation,
     },
   ];
-  const dropDownActions = actions.map((action: any) => (
-    <Link
-      id={`${action.text}-btn`}
-      onClick={(event) => event.stopPropagation()}
-      type="button"
-      to={`${action.href}`}
-    >
-      {action.text}
-
-    </Link>
-  ));
+  const dropDownActions = actions.map((action: any) => {
+    if (action.href) {
+      return (
+        <button
+          id={`${action.text}-btn`}
+          type="button"
+          onClick={() => action.onClick}
+        >
+          {action.text}
+        </button>
+      );
+    }
+    return (
+      <Link
+        id={`${action.text}-btn`}
+        type="button"
+        onClick={(event) => event.stopPropagation()}
+        to={`${action.href}`}
+      >
+        {action.text}
+      </Link>
+    );
+  });
 
   const genHours = () => {
     const sel = (Math.floor(Math.random() * 6) + 1);
