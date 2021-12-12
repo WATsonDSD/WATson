@@ -5,8 +5,9 @@ import {
   calculateTotalCost, totalAnnotationMade, totalWorkers,
 } from './financier';
 import {
-  saveAnnotation, assignAnnotatorToImage,
+  saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
 } from './images';
+import { verifyImage } from './verification';
 
 jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
@@ -25,14 +26,15 @@ const invalidAnnotation = {
 const imageData1 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData2 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData3 = new Blob(['Hello, world!'], { type: 'text/plain' });
+let imageId1: ImageID;
+let imageId2: ImageID;
+let imageId3: ImageID;
+let projectId: ProjectID;
+let userId: UserID;
+let userId2: UserID;
+let userId3: UserID;
 
-describe('addinf first', () => {
-  let imageId1: ImageID;
-  let imageId2: ImageID;
-  let imageId3: ImageID;
-  let projectId: ProjectID;
-  let userId: UserID;
-  let userId2: UserID;
+describe('adding annotation', () => {
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
@@ -65,5 +67,54 @@ describe('addinf first', () => {
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
     expect(data).toBe(2);
+  }));
+});
+
+describe('adding verification', () => {
+  beforeAll(async () => {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    imageId1 = await addImageToProject(imageData1, projectId);
+    imageId2 = await addImageToProject(imageData2, projectId);
+    imageId3 = await addImageToProject(imageData3, projectId);
+    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    userId2 = await createUser('Cem', 'cem@watson', 'verifier');
+    userId3 = await createUser('Ari', 'ari@watson', 'annotator');
+    await addUserToProject(userId, projectId);
+    await addUserToProject(userId2, projectId);
+    await addUserToProject(userId3, projectId);
+    await assignAnnotatorToImage(imageId1, userId, projectId);
+    await assignAnnotatorToImage(imageId2, userId, projectId);
+    await assignAnnotatorToImage(imageId3, userId, projectId);
+    await saveAnnotation(validAnnotation, imageId1, projectId);
+    await saveAnnotation(validAnnotation, imageId2, projectId);
+    await saveAnnotation(validAnnotation, imageId3, projectId);
+    await assignVerifierToImage(imageId2, userId2, projectId);
+    await assignVerifierToImage(imageId1, userId2, projectId);
+    await assignVerifierToImage(imageId3, userId2, projectId);
+    await verifyImage(projectId, imageId1);
+    await verifyImage(projectId, imageId2);
+    await verifyImage(projectId, imageId3);
+  });
+
+  it('number of images in annotated is 3',
+    () => expect(findUserById(userId).then((user) => user.projects[projectId].waitingForVerification.length)).resolves.toBe(0));
+
+  // 3 images annotated + 3 images verified 30 + 23*3 
+  test('total cost of the project', () => calculateTotalCost(projectId).then((data) => {
+    expect(data[0]).toBe(99);
+  }));
+
+  test('total cost of annotation for the project', () => calculateTotalCost(projectId).then((data) => {
+    expect(data[1]).toBe(30);
+  }));
+
+  test('total cost of verification for the project', () => calculateTotalCost(projectId).then((data) => {
+    expect(data[2]).toBe(69);
+  }));
+
+  test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
+    expect(data).toBe(3);
   }));
 });
