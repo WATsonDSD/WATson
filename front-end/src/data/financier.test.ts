@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, totalAnnotationMade, totalWorkers,
+  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -73,7 +73,7 @@ describe('adding annotation', () => {
 describe('adding verification', () => {
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
-      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 4, hourlyRateVerification: 8,
     });
     imageId1 = await addImageToProject(imageData1, projectId);
     imageId2 = await addImageToProject(imageData2, projectId);
@@ -116,5 +116,12 @@ describe('adding verification', () => {
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
     expect(data).toBe(3);
+  }));
+  // 30/4 + 23*3/8-> 7,5 + 8,625
+  test('total hours of work in total ', () => totalHoursOfWork(projectId).then((data) => {
+    expect(data[0]).toBe(16.125);
+  }));
+  test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
+    expect(data[1]).toBe(7.5);
   }));
 });
