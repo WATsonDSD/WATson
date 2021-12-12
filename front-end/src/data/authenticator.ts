@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
@@ -105,24 +103,6 @@ export async function logIn(email: string, password: string): Promise<boolean> {
 }
 
 /**
- * Helper function that sets user's permissions
- * so that he can have access to the databases.
- */
-async function setUserPermissions(email: string) : Promise<boolean> {
-  let result: boolean = false;
-
-  // ! 'http://localhost:8080' will need to change for this to be deployable
-  await axios.post('http://localhost:8080/setUserPermissions', { email })
-    .then((response) => {
-      result = response as unknown as boolean;
-    }).catch((error) => {
-      console.log(error);
-    });
-
-  return result;
-}
-
-/**
  * Signs up a new user who didn't exist yet and sets
  * up the right permissions for each database this
  * user should have access to.
@@ -143,7 +123,7 @@ export async function signUp(name: string, email: string, password: string, role
          */
         reject(error);
       } else if (response) {
-        resolve(setUserPermissions(email));
+        resolve(true);
       } else {
         // Something went wrong...
         resolve(false);

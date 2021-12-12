@@ -14,8 +14,8 @@ import Project from '../../project';
 import Workers from '../../workers';
 import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
-import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ProjectAssign from '../../project/ProjectAssign';
+import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 
 export const Paths = {
   Authentication: '/authentication',
@@ -26,10 +26,10 @@ export const Paths = {
   Annotation: '/annotation',
   Verification: '/verification',
   Finances: '/finances',
+  ProjectAssign: '/projectAssign',
   ProjectFinance: '/projectFinance',
   Reports: '/reports',
   Statistics: '/statistics',
-  ProjectAssign: '/projectAssign',
 };
 
 export default () => (
