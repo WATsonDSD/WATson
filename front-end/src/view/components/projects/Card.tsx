@@ -26,7 +26,7 @@ const Card = (props: any) => {
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.ProjectAssign}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project.id}`);
         break;
       case 'annotator':
         navigate(`${Paths.Annotation}/${project.id}`);
