@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { useUserData } from '../../../../data';
+import { useUserNotNull } from '../../../../data';
 import UserSettings from '../sidebar/UserSettings';
 
 Header.defaultProps = {
@@ -9,7 +9,7 @@ Header.defaultProps = {
 export default function Header(props: { title: string, button? : ReactElement }) {
   const { title, button } = props;
 
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
 
   return (
     <header className="flex items-center justify-between bg-white sticky top-0 z-10">

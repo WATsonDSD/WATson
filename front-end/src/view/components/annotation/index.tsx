@@ -14,7 +14,7 @@ import {
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Annotation, findProjectById, Image, useUserData,
+  Annotation, findProjectById, Image, useUserNotNull,
 } from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
@@ -56,7 +56,7 @@ export default function AnnotationView() {
   const [state, setState] = useState(initialState);
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
 
   useEffect(() => {
     findProjectById(projectId ?? '')
