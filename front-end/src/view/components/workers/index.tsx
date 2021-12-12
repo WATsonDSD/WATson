@@ -5,9 +5,8 @@ import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import openModal from '../shared/layout/OpenModal';
-import Dropdown from './Dropdown';
-import OptionsIcon from '../../../assets/icons/options-black.svg';
-import { Paths } from '../shared/routes';
+// import Dropdown from './Dropdown';
+// import OptionsIcon from '../../../assets/icons/options-black.svg';
 
 export default function Workers() {
   const users = useData(async () => getAllUsers());
@@ -21,28 +20,33 @@ export default function Workers() {
   const actions = [
     {
       text: 'Update Data',
-      onClick: openModal(true, '#createUser'),
+      onClick: () => openModal(true, '#edit'),
+      href: '',
     },
     {
       text: 'Assign Work',
-      href: Paths.ProjectFinance,
+      // href: '/Assign/',
+      href: '/Workers/',
     },
     {
       text: 'Give Bonification',
-      href: '/Bonification/',
+      // href: '/Bonification/',
+      href: '/Workers/',
     },
     {
       text: 'Delete User',
-      href: Paths.Annotation,
+      onClick: () => openModal(true, '#delete'),
+      href: '',
     },
   ];
+
   const dropDownActions = actions.map((action: any) => {
-    if (action.href) {
+    if (action.href === '') {
       return (
         <button
           id={`${action.text}-btn`}
           type="button"
-          onClick={() => action.onClick}
+          onClick={action.onClick}
         >
           {action.text}
         </button>
@@ -59,6 +63,7 @@ export default function Workers() {
       </Link>
     );
   });
+  console.log(dropDownActions);
 
   const genHours = () => {
     const sel = (Math.floor(Math.random() * 6) + 1);
@@ -102,7 +107,6 @@ export default function Workers() {
                   <span className="my-0.5 block w-auto text-black font-bold py-1 px-2">
                     { worker.name }
                   </span>
-                  {/* <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={`${worker.name}`} /> */}
                 </div>
               ))}
             </label>
@@ -115,7 +119,6 @@ export default function Workers() {
                   <span className="my-0.5 block w-auto text-black font-bold py-1 px-2">
                     { genHours() }
                   </span>
-                  {/* <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} /> */}
                 </div>
               ))}
             </label>
@@ -126,37 +129,48 @@ export default function Workers() {
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
                   { genStyledLabel(worker.role) }
-                  {/* <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} /> */}
                 </div>
               ))}
             </label>
           </div>
           <div className="w-full flex flex-col space-x-4 md:w-1/3 mb-6 md:mb-0 mx-2 max-h-6">
             <label className="whitespace-nowrap block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 align-middle text-center" htmlFor="grid-Worker-role">
-              Quick Actions
+              Actions
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
-                  <span className="my-0.5 block w-auto font-bold py-1 px-2">
-                    <span className="normal-case bg-black text-gray-50 rounded-full py-1 px-2 hover:bg-gray-800 hover:text-gray-200">
-                      WIP
-                    </span>
+                  <span className="my-0.5 block w-auto font-bold px-2">
+                    {worker.role === 'projectManager'
+                      ? (
+                        <span className="normal-case block h-6 bg-transparent text-gray-50 rounded-full py-1 px-2"> </span>
+                      )
+                      : (
+                        <Link
+                          className="normal-case bg-black text-gray-50 rounded-full py-1 px-2 hover:bg-gray-800 hover:text-gray-200"
+                          id="Bonification-btn"
+                          type="button"
+                          onClick={(event) => event.stopPropagation()}
+                          to="/Bonification/"
+                        >
+                          Asign Bonification
+                        </Link>
+                      )}
                   </span>
-                  {/* <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} /> */}
                 </div>
               ))}
             </label>
           </div>
+          {/* 
           <div className="whitespace-nowrap w-full flex flex-col space-x-4 md:w-1/12 mb-6 md:mb-0 mx-2 max-h-6">
             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-Worker-role">
               Actions
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
                   <Dropdown elements={dropDownActions} icon={<img src={OptionsIcon} alt="Options" />} />
-                  {/* <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" readOnly value={worker} /> */}
                 </div>
               ))}
             </label>
-          </div>
+          </div> 
+          */}
         </div>
       </div>
     </>
