@@ -5,8 +5,12 @@ export type User = {
     projects: {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],
+            waitingForAnnotation: ImageID[], // used when the annotation is rejected
+            annotated:{ imageID: ImageID, date: Date}[]
             toVerify: ImageID[],
-            done: ImageID[],
+            waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again and 
+                                            // when the annotation is annotated for the first time and is not verified yet.
+            verified: { imageID: ImageID, date: Date}[]
         }
     },
     name: string,
@@ -15,7 +19,7 @@ export type User = {
 };
 
 export type ProjectID = string;
-export type ProjectStatus = 'inProgress' | 'done'; // perhaps even more.
+export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
 export type Project = {
     id: ProjectID,
@@ -32,11 +36,11 @@ export type Project = {
     hourlyRateVerification: number
 
     images: {
-        toAnnotate: {imageId: ImageID }[],
-        toVerify: {imageId: ImageID }[],
-        done: {imageId: ImageID, annotator: UserID | null, verifier: UserID | null}[],
-    }
-}
+        needsAnnotatorAssignment:ImageID[],
+        needsVerifierAssignment:ImageID[],
+        pending: ImageID[],
+        done: {imageId: ImageID, doneDate: Date}[],
+    }}
 
 export type ImageID = string;
 
@@ -53,4 +57,10 @@ export type Image = {
 export type Point = { x: number, y: number, z: number }
 export type Annotation = {
     [landmark: number]: Point
+}
+
+export type RejectedAnnotation = {
+    imageID: ImageID,
+    comment: String,
+    wrongAnnonation: Annotation,
 }
