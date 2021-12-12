@@ -447,24 +447,24 @@ export default function CreateProject() {
                   Payment params
                 </span>
               </div>
-              <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-2/5 px-2 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   Payment
                 </span>
-                <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
+                <div className="w-48 align-middle relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
                   Annotator Hourly Rate
                 </div>
-                <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
+                <div className="w-48 relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
                   Verifier Hourly Rate
                 </div>
-                <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
+                <div className="w-48 relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
                   Price per annotation
                 </div>
-                <div className="w-full relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
+                <div className="w-48 relative bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight">
                   Price per verification
                 </div>
               </div>
-              <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
+              <div className="w-full md:w-3/5 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   Param
                 </span>
