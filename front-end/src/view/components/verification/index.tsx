@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Slider from 'rc-slider';
 import Icon from '@mdi/react';
 import {
@@ -8,12 +9,13 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Image, ProjectID } from '../../../data';
+import { Image } from '../../../data';
 import AnnotatedImage from '../annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfProject } from '../../../data/images';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
+// import { Paths } from '../shared/routes';
 
 const templateImage: Image = {
   id: 'template',
@@ -31,28 +33,30 @@ g - Optical Flow prediction
 backspace - undo last landmark
 */
 
-export default function VerificationView(props: { projectId: ProjectID }) {
+export default function VerificationView() {
   const initialState: {
     imageToVerify: Image,
     imageTransform: {
-      scale: number, translatePos: { x: number, y: number }, constrast: number, brighness: number,
+      scale: number, translatePos: { x: number, y: number }, contrast: number, brighness: number,
     },
     showReject: boolean;
   } = {
     imageToVerify: { ...templateImage },
     imageTransform: {
-      scale: 1, translatePos: { x: 0, y: 0 }, constrast: 100, brighness: 100,
+      scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
     },
     showReject: false,
   };
   const [state, setState] = useState(initialState);
-
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  console.log(projectId, navigate);
   useEffect(() => {
     nextImage();
   }, []);
 
   const nextImage = () => {
-    getImagesOfProject(props.projectId ?? '', 'pending').then((result) => {
+    getImagesOfProject(projectId ?? '', 'pending').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         // navigate(Paths.Projects);
@@ -87,8 +91,16 @@ export default function VerificationView(props: { projectId: ProjectID }) {
   };
 
   const saveAsValid = () => {
-    verifyImage(props.projectId, state.imageToVerify.id);
+    verifyImage(projectId ?? '', state.imageToVerify.id);
     nextImage();
+  };
+
+  const changeContrast = (contrast: number) => {
+    setState({ ...state, imageTransform: { ...state.imageTransform, contrast } });
+  };
+
+  const changeBrighness = (brighness: number) => {
+    setState({ ...state, imageTransform: { ...state.imageTransform, brighness } });
   };
 
   const templateLandmarkColor = (id: number) => {
@@ -131,7 +143,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
   const sendReject = () => {
     const comment = document.getElementById('rejectionComment')?.innerText;
     console.log(comment);
-    rejectAnnotation(state.imageToVerify.id, props.projectId, comment ?? '');
+    rejectAnnotation(state.imageToVerify.id, projectId ?? '', comment ?? '');
     hideRejectMenu();
   };
 
@@ -186,10 +198,20 @@ export default function VerificationView(props: { projectId: ProjectID }) {
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-1 h-60v my-4">
-                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                  <Slider
+                    onChange={changeContrast}
+                    value={state.imageTransform.contrast}
+                    className="col-span-1 p-auto mx-auto"
+                    vertical
+                  />
                 </div>
                 <div className="col-span-1 h-60v my-4">
-                  <Slider className="col-span-1 p-auto mx-auto" vertical />
+                  <Slider
+                    onChange={changeBrighness}
+                    value={state.imageTransform.brighness}
+                    className="col-span-1 p-auto mx-auto"
+                    vertical
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -205,7 +227,7 @@ export default function VerificationView(props: { projectId: ProjectID }) {
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
           <div className="h-full p-4 w-20v ml-1 mr-auto text-left ">
-            <span className="text-lg pl-1 font-bold">Images to verify:</span>
+            <span className="text-lg pl-1 font-bold">Image Landmarks:</span>
             <br />
             <span className="text-5xl pl-4 text font-bold">
               {/* Get Here the data of the verification of images in the current session */}
