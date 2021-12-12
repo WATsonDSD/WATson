@@ -8,8 +8,11 @@ import { findImageById, getImagesOfProject } from './images';
 
 jest.mock('./databases');
 
+const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
+const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
+
 test('Can find created project', async () => {
-  const id = await createProject('Test Project', 'The Flintstones', [], {
+  const id = await createProject('Test Project', 'The Flintstones', [], startDate, endDate, {
     pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
   });
   const name = findProjectById(id).then((project) => project.name);
@@ -21,7 +24,7 @@ describe('addUserToProject', () => {
   let projectId: ProjectID;
   beforeAll(async () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
-    projectId = await createProject('Project 1', 'Client 1', [], {
+    projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     await addUserToProject(userId, projectId);
@@ -41,7 +44,7 @@ describe('addImageToProject', () => {
   let imageId: ImageID;
 
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', [], {
+    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
