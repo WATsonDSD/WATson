@@ -82,8 +82,7 @@ export async function verifyImage(
   // in project, the image goes from pending to done
   project.images.pending.splice(imageIndexProject, 1);
   const dateTime = new Date();
-  project.images.done.push(imageID);
-  project.doneDates[imageID] = dateTime; // take object donedates, create key with idImage and associate date 
+  project.images.done.push({ imageId: imageID, doneDate: dateTime });
 
   await ProjectsDB.put(project);
 

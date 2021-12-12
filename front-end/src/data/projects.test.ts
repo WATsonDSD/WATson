@@ -6,7 +6,6 @@ import {
 
 import { findImageById, getImagesOfProject } from './images';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 test('Can find created project', async () => {

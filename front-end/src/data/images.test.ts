@@ -5,7 +5,6 @@ import {
   findImageById, saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser,
 } from './images';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 const validAnnotation = {

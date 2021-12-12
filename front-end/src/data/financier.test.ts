@@ -9,7 +9,6 @@ import {
 } from './images';
 import { verifyImage } from './verification';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 const validAnnotation = {
