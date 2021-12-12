@@ -24,7 +24,9 @@ describe('reject annotation', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
@@ -47,7 +49,9 @@ describe('Accept annotated image', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
@@ -59,7 +63,7 @@ describe('Accept annotated image', () => {
     return verifyImage(projectId, imageId);
   });
 
-  it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageId === imageId))).resolves.toBeGreaterThanOrEqual(0));
   it('moves the image in annotated for the annotator', () => expect(getImagesOfUser(projectId, 'annotated', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
   it('moves the image in verified for the verifier', () => expect(getImagesOfUser(projectId, 'verified', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 });
