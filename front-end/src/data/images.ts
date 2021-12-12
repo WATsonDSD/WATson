@@ -50,7 +50,7 @@ export async function getImagesOfProject(
 ): Promise <Image[]> {
   const project = await findProjectById(projectId);
   if (status === 'done') {
-    return Promise.all(project.images[status].map((image) => findImageById(image)));
+    return Promise.all(project.images[status].map((image) => findImageById(image.imageId)));
   }
   return Promise.all(project.images[status].map((imageId) => findImageById(imageId)));
 }
