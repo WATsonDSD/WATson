@@ -39,6 +39,7 @@ const MockPouch = <T>() => ({
 export const UsersDB = MockPouch();
 export const ImagesDB = MockPouch();
 export const ProjectsDB = MockPouch();
+export const rejectionsDB = MockPouch();
 
 export const AuthDB = {
   users: {} as {[email: string]: any},
@@ -55,4 +56,5 @@ export const AuthDB = {
   putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {
     AuthDB.signUp(email, '', metadata, callback);
   },
+  allDocs: () => AuthDB.users,
 };

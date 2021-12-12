@@ -5,7 +5,6 @@ import {
   findImageById, saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser,
 } from './images';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 const validAnnotation = {
@@ -19,13 +18,17 @@ const invalidAnnotation = {
 } as Annotation;
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
+const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 
 describe('addAnnotation', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
   let userId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     await addUserToProject(userId, projectId);
@@ -54,7 +57,9 @@ describe('assignVerifierToImage', () => {
   let annotatorId: UserID;
   let annotatedImageId: ImageID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27]);
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
     imageId = await addImageToProject(imageData, projectId);
     annotatedImageId = await addImageToProject(imageData, projectId);
     verifierId = await createUser('Bob', 'bob@verifier.com', 'verifier');

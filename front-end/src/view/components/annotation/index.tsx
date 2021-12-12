@@ -114,7 +114,7 @@ export default function AnnotationView() {
       const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
       let z = 1;
       if (rightClick) z = 0;
-      else if (event.ctrlKey) z = 2;
+      else if (event.ctrlKey || event.metaKey) z = 2;
       if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
       state.imageToAnnotate.annotation[state.landmarkId] = { x, y, z };
       setState({
