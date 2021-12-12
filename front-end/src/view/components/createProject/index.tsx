@@ -24,7 +24,10 @@ export default function CreateProject() {
   const allUsers = useData(() => getAllUsers());
   const [workers, setWorkers] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
-  const [project, setProject] = useState<Project|null>(null);
+  const [project, setProject] = useState< { name: string, client: string, landmarks: LandmarkSpecification, startDate: Date, endDate: Date, users : UserID[], pricePerImageAnnotation: number,
+    pricePerImageVerification: number,
+    hourlyRateAnnotation: number,
+    hourlyRateVerification: number} |null>(null);
   const navigate = useNavigate();
 
   console.log(workers);
@@ -45,25 +48,16 @@ export default function CreateProject() {
 
     const landmarks: LandmarkSpecification = currentLandMarks;
     setProject({
-      id: '',
       users,
       name,
       client,
       startDate,
       endDate,
-      status: 'active',
       landmarks,
       pricePerImageAnnotation,
       pricePerImageVerification,
       hourlyRateAnnotation,
       hourlyRateVerification,
-      images: {
-        needsAnnotatorAssignment: [],
-        needsVerifierAssignment: [],
-        pending: [],
-        done: [],
-      },
-      doneDates: {},
     });
 
     event.preventDefault();

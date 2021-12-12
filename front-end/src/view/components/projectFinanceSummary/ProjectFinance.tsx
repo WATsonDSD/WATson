@@ -38,6 +38,8 @@ export default function ProjectFinance() {
   const project = useData(async () => findProjectById(idProject ?? ''));
   const totalCost = useData(async () => calculateTotalCost(idProject!));
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
+  const totalWork = useData(async () => totalWorkers(idProject!));
+  const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
 
   if (!project || !totalCost || !totalHours) return null;
 
@@ -96,7 +98,7 @@ export default function ProjectFinance() {
                 Total annotations made
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                { totalAnnotationMade(idProject!) }
+                { totalAnnotation }
               </p>
             </div>
           </div>
@@ -115,7 +117,7 @@ export default function ProjectFinance() {
                 Total workers involved
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">15</p>
-              { totalWorkers(idProject!) }
+              { totalWork }
             </div>
           </div>
         </div>

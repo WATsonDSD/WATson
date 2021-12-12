@@ -62,7 +62,7 @@ export async function calculateTotalCost(projectID: string): Promise<[number, nu
   const totalCost = totalVerifiedCost + totalAnnotatedCost;
   return [totalCost, totalAnnotatedCost, totalVerifiedCost];
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
   const project = await findProjectById(projectID);
   const numberOfImages = project.images.done.length;
