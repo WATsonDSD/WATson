@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -139,5 +139,8 @@ describe('adding verification', () => {
   }));
   test('earnings verifier', () => earningsInTotalPerProjectPerUser(userId2, projectId).then((data) => {
     expect(data).toBe(69);
+  }));
+  test('chart project', () => dataChartProjects(projectId).then((data) => {
+    expect(data[11]).toBe(99);
   }));
 });

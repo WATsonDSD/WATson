@@ -143,6 +143,22 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
   return percentage;
 }
 
+export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
+  const project = await findProjectById(projectId);
+  const earningPerMonth: number[] = [];
+  let numberImages = 0;
+  for (let i = 0; i < 12; i += 1) {
+    Object.entries(project.images.done).forEach(
+      async ([key, value]) => {
+        if (value.doneDate.getMonth() === i) {
+          numberImages += 1;
+        }
+      },
+    );
+    earningPerMonth[i] = numberImages * (project.pricePerImageAnnotation + project.pricePerImageVerification);
+  }
+  return earningPerMonth;
+}
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = [];
   const user = await findUserById(userId);

@@ -9,29 +9,8 @@ import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
 import {
-  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartWorker, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from '../../../data/financier';
-
-const exampleChart: ChartConfiguration = {
-  type: 'line',
-  data: {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
-    datasets: [
-      {
-        label: 'Label of the chart',
-        borderColor: '#4A5568',
-        data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200],
-        fill: false,
-        pointBackgroundColor: '#4A5568',
-        borderWidth: 3,
-        pointBorderWidth: 4,
-        pointHoverRadius: 6,
-        pointHoverBorderWidth: 8,
-        pointHoverBorderColor: 'rgb(74,85,104,0.2)',
-      },
-    ],
-  },
-};
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
@@ -40,8 +19,32 @@ export default function ProjectFinance() {
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
   const totalWork = useData(async () => totalWorkers(idProject!));
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
+  const data = useData(async () => dataChartWorker(idProject!));
+
+  if (!idProject || !data) return null;
 
   if (!project || !totalCost || !totalHours) return null;
+
+  const exampleChart: ChartConfiguration = {
+    type: 'line',
+    data: {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Nov', 'Dec'],
+      datasets: [
+        {
+          label: 'Label of the chart',
+          borderColor: '#4A5568',
+          data,
+          fill: false,
+          pointBackgroundColor: '#4A5568',
+          borderWidth: 3,
+          pointBorderWidth: 4,
+          pointHoverRadius: 6,
+          pointHoverBorderWidth: 8,
+          pointHoverBorderColor: 'rgb(74,85,104,0.2)',
+        },
+      ],
+    },
+  };
 
   return (
     <div className="h-full w-full">
