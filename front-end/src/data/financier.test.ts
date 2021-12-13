@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalHoursOfWorkPerUser, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -67,7 +67,7 @@ describe('adding annotation', () => {
   }));
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
-    expect(data).toBe(2);
+    expect(data).toBe(1);
   }));
 });
 
@@ -116,7 +116,7 @@ describe('adding verification', () => {
   }));
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
-    expect(data).toBe(3);
+    expect(data).toBe(2);
   }));
   // 30/4 + 23*3/8-> 7,5 + 8,625
   test('total hours of work in total ', () => totalHoursOfWork(projectId).then((data) => {
@@ -124,5 +124,8 @@ describe('adding verification', () => {
   }));
   test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
     expect(data[1]).toBe(7.5);
+  }));
+  test('total hours of work per user', () => totalHoursOfWorkPerUser(userId).then((data) => {
+    expect(data).toBe(7.5);
   }));
 });

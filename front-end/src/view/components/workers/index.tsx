@@ -5,6 +5,7 @@ import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import openModal from '../shared/layout/OpenModal';
+import { totalHoursOfWorkPerUser } from '../../../data/financier';
 // import Dropdown from './Dropdown';
 // import OptionsIcon from '../../../assets/icons/options-black.svg';
 
@@ -65,15 +66,15 @@ export default function Workers() {
   });
   console.log(dropDownActions);
 
-  const genHours = () => {
-    const sel = (Math.floor(Math.random() * 6) + 1);
-    if (sel === 1) return '1:24';
-    if (sel === 2) return '1:52';
-    if (sel === 3) return '0:32';
-    if (sel === 4) return '3:54';
-    if (sel === 5) return '6:11';
-    return '2:37';
-  };
+  // const genHours = () => {
+  //   const sel = (Math.floor(Math.random() * 6) + 1);
+  //   if (sel === 1) return '1:24';
+  //   if (sel === 2) return '1:52';
+  //   if (sel === 3) return '0:32';
+  //   if (sel === 4) return '3:54';
+  //   if (sel === 5) return '6:11';
+  //   return '2:37';
+  // };
   const genStyledLabel = (role: String) => {
     console.log(role);
     let style;
@@ -117,7 +118,7 @@ export default function Workers() {
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
                   <span className="my-0.5 block w-auto text-black font-bold py-1 px-2">
-                    { genHours() }
+                    { totalHoursOfWorkPerUser(worker.id) }
                   </span>
                 </div>
               ))}

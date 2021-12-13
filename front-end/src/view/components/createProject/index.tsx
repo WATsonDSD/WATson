@@ -525,7 +525,7 @@ export default function CreateProject() {
               </div>
               <div className="w-full md:w-3/5 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Param
+                  HRK
                 </span>
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per Annotator" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per Verifier" />
@@ -533,14 +533,6 @@ export default function CreateProject() {
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
 
               </div>
-            </div>
-            <div className="flex flex-wrap space-x-1">
-              <button className="bg-black hover:bg-gray-700 text-gray-200 font-bold rounded-full py-1 px-2" type="button">
-                Connect Remote Storage
-              </button>
-              <button className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2" type="button">
-                Create Storage and Upload Media
-              </button>
             </div>
 
             <button

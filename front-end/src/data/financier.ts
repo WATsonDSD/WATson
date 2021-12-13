@@ -71,6 +71,39 @@ export async function totalHoursOfWork(projectID: string): Promise<[number, numb
   return [hoursAnnotation + hoursVerification, hoursAnnotation, hoursVerification];
 }
 
+export async function totalHoursOfWorkPerUser(userID: UserID): Promise<number> {
+  let numberAnnotated = 0;
+  let numberVerified = 0;
+  let totalHours = 0;
+  const user = await findUserById(userID);
+  await Promise.all(Object.keys(user.projects).map(async (projectId) => {
+    const project = await findProjectById(projectId);
+    numberAnnotated = user.projects[projectId].annotated.length;
+    numberVerified = user.projects[projectId].verified.length;
+    const hoursAnnotated = (numberAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+    const hoursVerified = (numberVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+    totalHours += hoursAnnotated;
+    totalHours += hoursVerified;
+    console.log(totalHours);
+  }));
+
+  // Object.entries(user.projects).forEach(
+  //   async ([key, value]) => // id project -> value valye
+  //   // eslint-disable-next-line brace-style
+  //   {
+  //     const project = await findProjectById(key);
+  //     numberAnnotated = value.annotated.length;
+  //     numberVerified = value.verified.length;
+  //     const hoursAnnotated = (numberAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+  //     const hoursVerified = (numberVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+  //     totalHours += hoursAnnotated;
+  //     totalHours += hoursVerified;
+  //     console.log(totalHours);
+  //   },
+  // );
+  console.log(totalHours);
+  return totalHours;
+}
 /**
  * Total annotations made
  */
@@ -86,7 +119,7 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
-  return project.users.length;
+  return (project.users.length - 1);
 }
 
 /**
