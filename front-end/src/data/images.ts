@@ -168,6 +168,7 @@ export async function assignAnnotatorToImage(
   const image = await findImageById(imageId);
   image.idAnnotator = annotatorId;
   // assign image to be annotated the user
+  // Users have in their cards the pictures already assigned to them
   if (!annotator.projects[projectId].toAnnotate.find((i) => i === imageId)) {
     annotator.projects[projectId].toAnnotate.push(imageId);
   }
