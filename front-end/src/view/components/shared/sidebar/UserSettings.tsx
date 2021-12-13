@@ -7,9 +7,9 @@ import openModal from '../layout/OpenModal';
 
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
-function classNames(...classes:any) {
-  return classes.filter(Boolean).join(' ');
-}
+// function classNames(...classes:any) {
+//   return classes.filter(Boolean).join(' ');
+// }
 
 export default function UserSettings() {
   const [user] = useUserNotNull();
@@ -37,7 +37,7 @@ export default function UserSettings() {
           leaveTo="transform opacity-0 scale-95"
         >
           <Menu.Items className="origin-top-right absolute right-16 mt-12 px-6 rounded-sm shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
-            <Menu.Item>
+            {/* <Menu.Item>
               <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => openModal(true, '#edit')}>
                 Edit Profile
               </button>
@@ -73,7 +73,7 @@ export default function UserSettings() {
               )}
             </Menu.Item>
 
-            <span className="block border-b" />
+            <span className="block border-b" /> */}
 
             <Menu.Item>
               <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => openModal(true, '#signout')}>
