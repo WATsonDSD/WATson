@@ -24,11 +24,15 @@ export default class PouchWrapper<T> {
     return buffer(() => this.pouch.remove(doc));
   }
 
-  public async removeAttachment(docId: string, attachmentId: string, rev: string, callback: PouchDB.Core.Callback<PouchDB.Core.RemoveAttachmentResponse>) {
-    return buffer(async () => this.pouch.removeAttachment(docId, attachmentId, rev, callback));
+  public async removeAttachment(docId: string, attachmentId: string, rev: string) {
+    return buffer(async () => this.pouch.removeAttachment(docId, attachmentId, rev));
   }
 
   public async putAttachment(docId: string, imageId: string, attachment: Blob, type: string) {
     return buffer(async () => this.pouch.putAttachment(docId, imageId, attachment, type));
+  }
+
+  public async getAttachment(docId: string, attachmentId: string) {
+    return buffer(async () => this.pouch.getAttachment(docId, attachmentId));
   }
 }
