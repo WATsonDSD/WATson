@@ -5,7 +5,7 @@ import {
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserData } from '../../../data';
+import { Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
@@ -13,14 +13,14 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
-// import { percentageOfImagesDone } from '../../../data/financier';
+import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
 
 const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const navigate = useNavigate();
-  const totalSpending = useData(async () => [8] /* calculateTotalCost(project.id) */);
-  const percentage = useData(async () => [4] /* percentageOfImagesDone(project.id) */);
+  const totalSpending = useData(async () => calculateTotalCost(project.id));
+  const percentage = useData(async () => percentageOfImagesDone(project.id));
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {

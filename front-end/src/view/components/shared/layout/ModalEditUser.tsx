@@ -1,10 +1,10 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { useUserNotNull } from '../../../../data';
+import { useUserData } from '../../../../data';
 import openModal from './OpenModal';
 
 export default function ModalEditProfile() {
-  const [user] = useUserNotNull();
+  const [user] = useUserData();
   return (
     <div id="edit" className="pacity-0 transform hidden -translate-y-full scale-150  relative w-10/2 md:w-1/3 h-1/2 md:h-1/2 bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
       <button
@@ -18,7 +18,7 @@ export default function ModalEditProfile() {
       </button>
       {/* <!-- header --> */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-600">Edit Profile</h2>
+        <h2 className="text-xl font-semibold text-gray-600">Edit Profil</h2>
       </div>
       <form className="w-full max-w-lg">
         {/* <!-- body --> */}
