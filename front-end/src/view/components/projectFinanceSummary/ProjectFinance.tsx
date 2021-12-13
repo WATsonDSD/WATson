@@ -59,7 +59,7 @@ export default function ProjectFinance() {
                 Total cost of the project
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                {totalCost}
+                {totalCost[0]}
 
               </p>
             </div>
@@ -79,7 +79,7 @@ export default function ProjectFinance() {
                 Total hours of work
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                { totalHours }
+                { totalHours[0] }
               </p>
             </div>
           </div>
@@ -116,8 +116,9 @@ export default function ProjectFinance() {
               <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                 Total workers involved
               </p>
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">15</p>
-              { totalWork }
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                { totalWork }
+              </p>
             </div>
           </div>
         </div>
