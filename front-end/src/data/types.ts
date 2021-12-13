@@ -36,8 +36,8 @@ export type Project = {
     hourlyRateVerification: number
 
     images: {
-        needsAnnotatorAssignment:ImageID[],
-        needsVerifierAssignment:ImageID[],
+        needsAnnotatorAssignment: ImageID[],
+        needsVerifierAssignment: ImageID[],
         pending: ImageID[],
         done: {imageId: ImageID, doneDate: Date}[],
     }}

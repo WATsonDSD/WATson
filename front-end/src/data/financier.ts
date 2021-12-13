@@ -134,4 +134,11 @@ export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId
   + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation));
 }
 
+export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
+  const project = await findProjectById(projectID);
+  const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
+  const percentage = project.images.done.length / totalImages;
+  return percentage;
+}
+
 export default generateReport;

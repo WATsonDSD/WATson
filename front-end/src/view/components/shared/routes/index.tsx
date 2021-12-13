@@ -16,6 +16,7 @@ import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
 import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 
 export const Paths = {
   Authentication: '/authentication',
@@ -49,6 +50,7 @@ export default () => (
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
         <Route path=":idProject" element={<ProjectFinance />} />
       </Route>
+      <Route path={Paths.Reports} element={<ReportFinance />} />
       <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
         <Route path=":idProject" element={<ProjectAssign />} />
       </Route>

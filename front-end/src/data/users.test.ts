@@ -1,6 +1,5 @@
 import { createUser, findUserById } from '.';
 
-jest.mock('axios', () => ({ post: async () => true }));
 jest.mock('./databases');
 
 test('Can find created user', async () => {

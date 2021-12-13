@@ -43,7 +43,7 @@ export const Projects = {
     client: 'Dummy Client Inc.',
     startDate: '' + new Date(),
     endDate: '' + new Date(),
-    status: 'inProgress',
+    status: 'active',
     landmarks: [0],
     images: {
       toAnnotate: [{ imageId: 'image1', annotator: null }],

@@ -12,10 +12,14 @@ export default function ProjectEdit() {
   let empty = document.getElementById('empty');
 
   const project = useData(async () => findProjectById(idProject ?? ''));
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!idProject) throw Error('no project id!');
-    console.log(FILES);
-    Object.values(FILES).forEach((file) => addImageToProject(file, idProject));
+
+    const files = Object.values(FILES);
+    for (let i = 0; i < files.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await addImageToProject(files[i], idProject);
+    }
   };
 
   console.log(project);
