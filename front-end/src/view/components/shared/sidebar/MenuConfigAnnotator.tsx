@@ -11,13 +11,13 @@ import { Paths } from '../routes';
 
 export const links = [
   {
-    id: 4,
+    id: 1,
     name: 'Projects',
     href: Paths.Projects,
     icon: <MdOutlineDashboard className="w-5 h-5" />,
   },
   {
-    id: 1,
+    id: 2,
     name: 'Finances',
     href: Paths.Finances,
     icon: <FaMoneyCheckAlt className="w-5 h-5" />,

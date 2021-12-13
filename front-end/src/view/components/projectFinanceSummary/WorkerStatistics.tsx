@@ -5,7 +5,7 @@ import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
-import { findProjectById } from '../../../data';
+import { findProjectById, useUserNotNull } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
@@ -14,7 +14,8 @@ import {
 } from '../../../data/financier';
 
 export default function WorkerFinance() {
-  const { idUser } = useParams();
+  const [user] = useUserNotNull();
+  const idUser = user.id;
   const payment = useData(async () => earningsPerUser(idUser!));
 
   const exampleChart: ChartConfiguration = {
