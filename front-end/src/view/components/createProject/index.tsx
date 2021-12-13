@@ -553,8 +553,8 @@ export default function CreateProject() {
         </div>
         {/* right column */}
         <div>
-          <div className=" h-full mt-40">
-            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} />
+          <div className="h-full mt-40">
+            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} size="400" />
           </div>
         </div>
       </div>

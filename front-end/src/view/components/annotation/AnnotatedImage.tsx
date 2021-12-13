@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import template from './template.png';
 import { Image } from '../../../data';
 
@@ -11,6 +11,7 @@ AnnotatedImage.defaultProps = {
   translatePos: { x: 0, y: 0 },
   contrast: 100,
   brightness: 100,
+  size: '300',
 };
 export default function AnnotatedImage(props: {
   image: Image,
@@ -21,11 +22,15 @@ export default function AnnotatedImage(props: {
   translatePos?: { x: number, y: number },
   contrast?: number,
   brightness?: number,
+  size?: string,
 }) {
-  const canvasRef = useRef(null);
   const {
-    image, onClick, onMouseWheel, landmarkColor, scale, translatePos,
+    image, onClick, onMouseWheel, landmarkColor, scale, translatePos, size,
   } = props;
+
+  const [imageSize, setImageSize] = useState({ w: size || '300', h: size || '300' });
+  const { w, h } = imageSize;
+  const canvasRef = useRef(null);
 
   const draw = (ctx: any) => {
     const { canvas } = ctx;
@@ -41,6 +46,12 @@ export default function AnnotatedImage(props: {
     if (scale) ctx.scale(scale, scale);
     // draw image after loading
     backgroundImage.onload = () => {
+      if (Number(h) !== (Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth) {
+        setImageSize({
+          ...imageSize,
+          h: String((Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth),
+        });
+      }
       const { brightness, contrast } = props;
       ctx.filter = `
         ${brightness !== undefined ? ctx.filter = `brightness(${brightness}%)` : ''}
@@ -83,5 +94,9 @@ export default function AnnotatedImage(props: {
     }
   }, [draw]);
 
-  return <canvas ref={canvasRef} width="300" height="300" />;
+  return (
+    <div className="h-full w-full">
+      <canvas className="w-full py-auto" ref={canvasRef} width={w} height={h} />
+    </div>
+  );
 }
