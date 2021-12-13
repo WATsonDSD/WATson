@@ -18,6 +18,7 @@ import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 import VerificationView from '../../verification';
+import WorkerFinance from '../../projectFinanceSummary/WorkerStatistics';
 
 export const Paths = {
   Authentication: '/authentication',
@@ -58,6 +59,7 @@ export default () => (
       <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
         <Route path=":idProject" element={<ProjectAssign />} />
       </Route>
+      <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
   </Routes>
 );
