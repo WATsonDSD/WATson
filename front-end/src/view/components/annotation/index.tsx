@@ -314,7 +314,7 @@ export default function AnnotationView() {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }} onClick={save}>
+          <button type="button" style={{ width: '6vw' }}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
@@ -338,9 +338,9 @@ export default function AnnotationView() {
         </div>
         <div className="h-full p-4 col-start-9 col-span-4 row-start-5 row-end-6 w-full">
           <div className="h-20v px-4 w-30v mx-auto grid m-auto grid-cols-2 gap-6">
-            <button className="col-span-1 pt-auto pb-0" type="button">
+            <button className="col-span-1 pt-auto pb-0" type="button" onClick={save}>
               <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                <span className="mx-auto text-white"> Save For Later </span>
+                <span className="mx-auto text-white"> Save Annotation </span>
               </div>
             </button>
             <button className="col-span-1" type="button">
