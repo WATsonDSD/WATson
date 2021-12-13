@@ -18,7 +18,7 @@ export default function ModalEditProfile() {
       </button>
       {/* <!-- header --> */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-600">Edit Profil</h2>
+        <h2 className="text-xl font-semibold text-gray-600">Edit Profile</h2>
       </div>
       <form className="w-full max-w-lg">
         {/* <!-- body --> */}
