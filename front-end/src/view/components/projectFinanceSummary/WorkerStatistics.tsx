@@ -10,12 +10,16 @@ import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
 import {
+  dataChartWorker,
   earningsPerUser,
 } from '../../../data/financier';
 
 export default function WorkerFinance() {
   const { idUser } = useParams();
   const payment = useData(async () => earningsPerUser(idUser!));
+  const data = useData(async () => dataChartWorker(idUser!));
+
+  if (!idUser || !data) return null;
 
   const exampleChart: ChartConfiguration = {
     type: 'line',
@@ -25,7 +29,7 @@ export default function WorkerFinance() {
         {
           label: 'Label of the chart',
           borderColor: '#4A5568',
-          data: [600, 400, 620, 300, 200, 600, 230, 300, 200, 200, 100, 1200], // funzione che ritorna 12 valori 
+          data,
           fill: false,
           pointBackgroundColor: '#4A5568',
           borderWidth: 3,
