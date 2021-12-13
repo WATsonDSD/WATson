@@ -2,6 +2,7 @@ import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
 import { Image, Project, RejectedAnnotation } from '.';
+import PouchCache from './PouchCache';
 
 PouchDB.plugin(PouchDBAuthentication);
 
@@ -11,3 +12,7 @@ export const AuthDB: PouchDB.Database = new PouchDB(`${baseURL}/_users`, { skip_
 export const ImagesDB: PouchDB.Database<Image> = new PouchDB<Image>(`${baseURL}/images`);
 export const ProjectsDB: PouchDB.Database<Project> = new PouchDB<Project>(`${baseURL}/projects`);
 export const rejectionsDB: PouchDB.Database<RejectedAnnotation> = new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`);
+
+export const ImagesDBCache = PouchCache<Image>();
+export const ProjectsDBCache = PouchCache<Project>();
+export const RejectionsDBCache = PouchCache<RejectedAnnotation>();

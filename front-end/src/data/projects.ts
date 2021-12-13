@@ -2,13 +2,20 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, ProjectsDBCache,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
 
 export async function findProjectById(id: ProjectID): Promise<Project> {
-  return ProjectsDB.get(id);
+  const cachedResult = ProjectsDBCache.get(id);
+  console.log('cachedResult:', cachedResult);
+  if (cachedResult) return cachedResult;
+
+  const fetchedResult = await ProjectsDB.get(id);
+  ProjectsDBCache.put(fetchedResult);
+
+  return fetchedResult;
 }
 
 /**
