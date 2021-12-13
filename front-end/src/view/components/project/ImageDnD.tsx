@@ -15,6 +15,7 @@ function ImageDnD({ id, data, type }: any) {
       ref={drag}
       src={url}
       width="80px"
+      height="80px"
       className="flex img-preview cursor-pointer sticky object-cover rounded-md bg-fixed"
       alt="imageAlT"
       style={{ border: isDragging ? '5px solid pink' : '0px' }}
