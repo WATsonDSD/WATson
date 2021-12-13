@@ -62,5 +62,6 @@ export type Annotation = {
 export type RejectedAnnotation = {
     imageID: ImageID,
     comment: String,
+    annotatorID: UserID,
     wrongAnnonation: Annotation,
 }
