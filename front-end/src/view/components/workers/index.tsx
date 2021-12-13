@@ -10,6 +10,6 @@ export default function Workers() {
     </button>
   );
   return (
-    <Header title="Workers" button={button} />
+    <Header title="Workers" buttonPM={button} />
   );
 }
