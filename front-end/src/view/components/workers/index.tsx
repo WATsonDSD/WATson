@@ -96,7 +96,7 @@ export default function Workers() {
 
   return (
     <>
-      <Header title="Workers" button={button} />
+      <Header title="Workers" buttonPM={button} />
       <div id="contentPage">
         <div className="flex flex-nowrap mb-2">
           <div className="w-full flex flex-col space-x-4 md:w-1/6 mb-6 md:mb-0 mx-2 max-h-6">
