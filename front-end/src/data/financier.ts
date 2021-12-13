@@ -145,52 +145,40 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
 
 export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
   const project = await findProjectById(projectId);
-  const earningPerMonth: number[] = [];
-  let numberImages = 0;
-  for (let i = 0; i < 12; i += 1) {
-    Object.entries(project.images.done).forEach(
-      async ([key, value]) => {
-        if (value.doneDate.getMonth() === i) {
-          numberImages += 1;
-        }
-      },
-    );
-    earningPerMonth[i] = numberImages * (project.pricePerImageAnnotation + project.pricePerImageVerification);
-  }
-  return earningPerMonth;
+  const earningMonth: number[] = new Array(12).fill(0);
+  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
+  Object.entries(project.images.done).forEach(
+    async ([key, value]) => {
+      const month = value.doneDate.getMonth();
+      earningMonth[month] += totIm;
+    },
+  );
+  return earningMonth;
 }
+
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
-  const earningPerMonth: number[] = [];
+  const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
-  let numberAnnotated = 0;
-  let numberVerified = 0;
-  let totalEarningsAnnotated = 0;
-  let totalEarningsVerified = 0;
   Object.entries(user.projects).forEach(
-    async ([key, value]) => // id project -> value valye
-    // eslint-disable-next-line brace-style
-    {
+    async ([key, value]) => {
       const project = await findProjectById(key);
-      for (let i = 0; i < 12; i += 1) {
-        Object.entries(value.annotated).forEach(
-          async ([key, value]) => {
-            if (value.date.getMonth() === i) {
-              numberAnnotated += 1;
-            }
-          },
-        );
-        totalEarningsAnnotated += numberAnnotated * project.pricePerImageAnnotation;
-        earningPerMonth[i] = totalEarningsAnnotated;
-        Object.entries(value.verified).forEach(
-          async ([key, value]) => {
-            if (value.date.getMonth() === i) {
-              numberVerified += 1;
-            }
-          },
-        );
-        totalEarningsVerified += numberVerified * project.pricePerImageVerification;
-        earningPerMonth[i] += totalEarningsVerified;
-      }
+      const priceAnnotation = project.pricePerImageAnnotation;
+      const priceVerification = project.pricePerImageVerification;
+
+      // adding earning per month of annotated images
+      Object.entries(value.annotated).forEach(
+        async ([key, value]) => {
+          const month = value.date.getMonth();
+          earningPerMonth[month] += priceAnnotation;
+        },
+      );
+      // adding earning per month of verified images
+      Object.entries(value.verified).forEach(
+        async ([key, value]) => {
+          const month = value.date.getMonth();
+          earningPerMonth[month] += priceVerification;
+        },
+      );
     },
   );
   return earningPerMonth;
