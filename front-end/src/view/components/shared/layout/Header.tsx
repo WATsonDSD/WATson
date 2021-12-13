@@ -7,7 +7,6 @@ Header.defaultProps = {
   buttonF: null,
 };
 
-
 export default function Header(props: { title: string, buttonPM? : ReactElement, buttonF? : ReactElement }) {
   const { title, buttonPM, buttonF } = props;
   const [user] = useUserNotNull();
