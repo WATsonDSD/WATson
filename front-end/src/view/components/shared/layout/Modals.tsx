@@ -1,6 +1,7 @@
 import React from 'react';
 import ModalCreateUser from './ModalCreateUser';
 import ModalEditProfile from './ModalEditProfile';
+import ModalEditUser from './ModalEditUser';
 import ModalSignOut from './ModalSignOut';
 
 export default function Modals() {
@@ -9,6 +10,7 @@ export default function Modals() {
       <ModalEditProfile />
       <ModalSignOut />
       <ModalCreateUser />
+      <ModalEditUser />
     </div>
   );
 }
