@@ -184,3 +184,30 @@ export function useUserData(): UserData {
 
   return _userData;
 }
+
+export function useUserNotNull() {
+  const [_userData, setData] = useState<UserData>(userData);
+
+  // Each component that invokes this hook will have a unique subscriberID
+  const subscriberID = uuid();
+
+  useEffect(() => {
+    let timeOut: NodeJS.Timeout;
+    // Setting the callback function for the new subscriber
+    subscribers[subscriberID] = (newUserData: UserData) => {
+      timeOut = setTimeout(() => setData(newUserData), 300);
+    };
+
+    // Update the user data only if the sessionState is still pending
+    if (_userData[1] === SessionState.PENDING) {
+      updateUserData();
+    }
+
+    return () => {
+      delete subscribers[subscriberID];
+      clearTimeout(timeOut);
+    };
+  }, []);
+
+  return [userData[0], userData[1]] as [User, SessionState];
+}

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
 import { Menu, Transition } from '@headlessui/react';
-import { useUserData } from '../../../../data';
+import { useUserNotNull } from '../../../../data';
 
 import openModal from '../layout/OpenModal';
 
@@ -12,7 +12,7 @@ function classNames(...classes:any) {
 }
 
 export default function UserSettings() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
 
   return (
     <div className="Dropdown text-black focus:outline-none">

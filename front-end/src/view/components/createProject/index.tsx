@@ -6,7 +6,7 @@ import {
   UserID, LandmarkSpecification, Project,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserData, Image,
+  addUserToProject, createProject, getAllUsers, useUserNotNull, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../annotation/AnnotatedImage';
@@ -20,7 +20,7 @@ const templateImage: Image = {
 };
 
 export default function CreateProject() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const allUsers = useData(() => getAllUsers());
   const [verifiers, setVerifiers] = useState([{ id: 0, worker: '' }]);
   const [annotators, setAnnotators] = useState([{ id: 0, worker: '' }]);

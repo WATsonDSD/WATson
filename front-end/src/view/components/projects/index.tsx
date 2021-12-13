@@ -4,7 +4,7 @@ import { BsPlusLg } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 
 import {
-  useUserData,
+  useUserNotNull,
   deleteProject,
   getProjectsOfUser,
 } from '../../../data';
@@ -17,7 +17,7 @@ import { Paths } from '../shared/routes';
 import Loading from '../loading';
 
 export default function Dashboard() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const projects = useData(() => getProjectsOfUser(user!.id));
 
   if (!projects) {
