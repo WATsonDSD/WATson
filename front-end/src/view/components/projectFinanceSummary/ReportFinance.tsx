@@ -1,8 +1,11 @@
 import React from 'react';
 import { BiDotsVertical } from 'react-icons/bi';
 import { AiOutlinePlus } from 'react-icons/ai';
+import { CSVLink } from 'react-csv';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/layout/Header';
+import generateReport from '../../../data/financier';
+import useData from '../../../data/hooks';
 
 const dropDownActions: any = [(
   <button type="button" className="text-white">
@@ -16,6 +19,16 @@ const dropDownActions: any = [(
 ];
 
 export default function ReportFinance() {
+  const data = useData(async () => generateReport());
+  console.log(data);
+  const headers = [
+    { label: 'Name', key: 'username' },
+    { label: 'Project', key: 'project' },
+    { label: 'Client', key: 'client' },
+    { label: 'Role', key: 'role' },
+    { label: 'images', key: 'images' },
+    { label: 'hoursOfWork', key: 'hours' },
+  ];
   const button = (
     <button type="button" className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
       <AiOutlinePlus />
@@ -89,7 +102,15 @@ export default function ReportFinance() {
               <td className="">
                 <div className="flex pr-8">
                   <div className="py-1">
-                    <button type="button" className="bg-gray-900 text-white rounded-full px-6 ">Download</button>
+                    <button type="button" className="bg-gray-900 text-white rounded-full px-6 ">
+                      Download
+                      <CSVLink
+                        data={data}
+                        headers={headers}
+                      >
+                        Generate report
+                      </CSVLink>
+                    </button>
                   </div>
                   <Dropdown elements={dropDownActions} icon={<BiDotsVertical className="ml-8 mt-1" />} />
                 </div>
