@@ -56,7 +56,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfProject(projectId ?? '', 'needsVerifierAssignment').then((result) => {
+    getImagesOfProject(projectId ?? '', 'pending').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         // navigate(Paths.Projects);
