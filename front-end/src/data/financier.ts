@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-loop-func */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
@@ -124,14 +126,14 @@ export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: Proj
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
- + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation);
+ + ((user.projects[projectId].verified.length * project.pricePerImageVerification) / project.hourlyRateVerification);
 }
 
 export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
-  + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation));
+  + ((user.projects[projectId].verified.length * project.pricePerImageVerification));
 }
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
@@ -139,6 +141,43 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
   const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
   const percentage = project.images.done.length / totalImages;
   return percentage;
+}
+
+export async function dataChartWorker(userId: UserID): Promise<number[]> {
+  const earningPerMonth: number[] = [];
+  const user = await findUserById(userId);
+  let numberAnnotated = 0;
+  let numberVerified = 0;
+  let totalEarningsAnnotated = 0;
+  let totalEarningsVerified = 0;
+  Object.entries(user.projects).forEach(
+    async ([key, value]) => // id project -> value valye
+    // eslint-disable-next-line brace-style
+    {
+      const project = await findProjectById(key);
+      for (let i = 0; i < 12; i += 1) {
+        Object.entries(value.annotated).forEach(
+          async ([key, value]) => {
+            if (value.date.getMonth() === i) {
+              numberAnnotated += 1;
+            }
+          },
+        );
+        totalEarningsAnnotated += numberAnnotated * project.pricePerImageAnnotation;
+        earningPerMonth[i] = totalEarningsAnnotated;
+        Object.entries(value.verified).forEach(
+          async ([key, value]) => {
+            if (value.date.getMonth() === i) {
+              numberVerified += 1;
+            }
+          },
+        );
+        totalEarningsVerified += numberVerified * project.pricePerImageVerification;
+        earningPerMonth[i] += totalEarningsVerified;
+      }
+    },
+  );
+  return earningPerMonth;
 }
 
 export default generateReport;
