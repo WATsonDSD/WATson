@@ -19,7 +19,6 @@ import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 import VerificationView from '../../verification';
 
-
 export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
