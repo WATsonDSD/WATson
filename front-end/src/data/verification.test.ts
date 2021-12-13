@@ -10,6 +10,8 @@ import { rejectAnnotation, verifyImage } from './verification';
 jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
+const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 
 const annotation = {
   0: { x: 1, y: 2, z: 3 },
@@ -23,7 +25,7 @@ describe('reject annotation', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(imageData, projectId);
@@ -48,7 +50,7 @@ describe('Accept annotated image', () => {
   let annotatorId: UserID;
   let verifierId: UserID;
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(imageData, projectId);
