@@ -4,7 +4,7 @@ import React from 'react';
 import { FiUsers } from 'react-icons/fi';
 import { ImStatsBars } from 'react-icons/im';
 import { MdOutlineDashboard } from 'react-icons/md';
-import { HiOutlineDocumentReport } from 'react-icons/hi';
+// import { HiOutlineDocumentReport } from 'react-icons/hi';
 
 import { Paths } from '../routes';
 
