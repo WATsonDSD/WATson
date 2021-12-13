@@ -33,6 +33,8 @@ export async function createProject(
   name: string,
   client: string,
   landmarks: LandmarkSpecification,
+  startDate: Date,
+  endDate: Date,
   financialModel: {
   pricePerImageAnnotation: number
   pricePerImageVerification: number,

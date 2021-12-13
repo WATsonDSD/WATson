@@ -34,11 +34,11 @@ export default function ProjectAssign() {
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
       images.forEach(async (image: Image) => {
-        await updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
+        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
       });
     } else {
       images.forEach(async (image: Image) => {
-        await updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
+        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
       });
     }
   };
@@ -88,14 +88,16 @@ export default function ProjectAssign() {
     }
   };
 
-  const handleSubmit = () => {
-    toAnnotate.forEach((e) => {
-      assignAnnotatorToImage(e.image, e.user, project?.id || '');
-    });
+  const handleSubmit = async () => {
+    for (let i = 0; i < toAnnotate.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
+    }
 
-    toVerify.forEach((e) => {
-      assignVerifierToImage(e.image, e.user, project?.id || '');
-    });
+    for (let i = 0; i < toVerify.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+    }
 
     navigate(Paths.Projects);
   };
