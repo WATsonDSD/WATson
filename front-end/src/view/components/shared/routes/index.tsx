@@ -16,6 +16,7 @@ import CreateProject from '../../createProject';
 import Annotation from '../../annotation';
 import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
+import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 
 export const Paths = {
   Authentication: '/authentication',
