@@ -2,29 +2,23 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, ProjectsDBCache,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
 
-export async function findProjectById(id: ProjectID): Promise<Project> {
-  const cachedResult = ProjectsDBCache.get(id);
-  console.log('cachedResult:', cachedResult);
-  if (cachedResult) return cachedResult;
-
-  const fetchedResult = await ProjectsDB.get(id);
-  ProjectsDBCache.put(fetchedResult);
-
-  return fetchedResult;
+export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
+  return ProjectsDB.get(id);
 }
-
 /**
  * Finds and returns all projects of a user.
  */
 export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
-  return Promise.all(
+  console.log('fetcginf projects of user');
+  const projects = await Promise.all(
     Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
   );
+  return projects;
 }
 
 /**
@@ -71,7 +65,7 @@ export async function createProject(
       pending: [],
       done: [],
     },
-  } as Project;
+  } as Project & {_id: string};
 
   await ProjectsDB.put(project);
   return id;

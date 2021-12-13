@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-type DBDocument<T> = T & { _id: string, _rev?: string}
+export type DBDocument<T> = T & { _id: string, _rev?: string}
 
-const TTL = 1000;
+const TTL = 4000;
 
-export default <T>() => ({
-  documents: {} as { [id: string]: DBDocument<T> },
+export default class <T> {
+  documents = {} as { [id: string]: DBDocument<T> };
 
   put(document: DBDocument<T>) {
     if (!document._id) { throw Error('document must have an _id'); }
@@ -13,12 +13,16 @@ export default <T>() => ({
     }
     this.documents[document._id] = { ...document };
     setTimeout(() => { delete this.documents[document._id]; }, TTL);
-  },
+  }
 
   get(id: string) {
     if (!this.documents[id]) { return null; }
-    return { ...this.documents[id] };
-  },
+    return { ...this.documents[id] } as DBDocument<T> & {_rev: string};
+  }
+
+  flush() {
+    this.documents = {};
+  }
 
   //   putAttachment(docId: string, attachmentId: string, attachment: Blob, type: string) {
   //     const doc = this.documents[docId];
@@ -34,4 +38,4 @@ export default <T>() => ({
 //   getAttachment(docId: string) {
 //     return this.documents[docId].attach.data;
 //   },
-});
+}
