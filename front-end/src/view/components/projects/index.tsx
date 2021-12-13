@@ -4,7 +4,7 @@ import { BsPlusLg } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 
 import {
-  useUserData,
+  useUserNotNull,
   deleteProject,
   getProjectsOfUser,
 } from '../../../data';
@@ -14,10 +14,15 @@ import Header from '../shared/layout/Header';
 import Card from './Card';
 
 import { Paths } from '../shared/routes';
+import Loading from '../loading';
 
 export default function Dashboard() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const projects = useData(() => getProjectsOfUser(user!.id));
+
+  if (!projects) {
+    return <Loading />;
+  }
 
   const projectOptions: {[role: string] : {name: string, to?: string, action?: Function}[]} = {
     projectManager: [
@@ -74,8 +79,9 @@ export default function Dashboard() {
 
   return (
     <div className="w-full">
-      <Header title="Projects" button={addProjectButton} />
-
+      <div>
+        <Header title="Projects" buttonPM={addProjectButton} />
+      </div>
       <div id="content" className="min-h-full">
         <div className="w-full min-h-full">
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">

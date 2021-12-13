@@ -3,6 +3,7 @@ import {
   findProjectById, Annotation, LandmarkSpecification, ProjectsDB,
 } from '.';
 import { ImagesDB } from './databases';
+import { DBDocument } from './PouchWrapper/PouchCache';
 
 /*
   Note: Notice that there is no method `createImage`.
@@ -17,7 +18,7 @@ import { ImagesDB } from './databases';
  * This function is used to display the image to the user. 
  * @param id The identificator of the requested image 
  */
-export async function findImageById(id: ImageID): Promise<Image> {
+export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
   const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
   const im = await ImagesDB.get(id);
   return {

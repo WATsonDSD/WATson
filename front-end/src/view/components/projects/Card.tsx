@@ -5,7 +5,7 @@ import {
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserData } from '../../../data';
+import { Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
@@ -17,7 +17,7 @@ import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financ
 
 const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
   const percentage = useData(async () => percentageOfImagesDone(project.id));
