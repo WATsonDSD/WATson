@@ -27,10 +27,4 @@ export const links = [
     href: Paths.Statistics,
     icon: <ImStatsBars className="w-5 h-5" />,
   },
-  {
-    id: 4,
-    name: 'Reports',
-    href: Paths.Reports,
-    icon: <HiOutlineDocumentReport className="w-5 h-5" />,
-  },
 ];
