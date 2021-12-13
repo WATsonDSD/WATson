@@ -131,21 +131,24 @@ export async function assignVerifierToImage(
   image.idVerifier = verifierId;
 
   // assign the image to be verified to the verifier
-  if (!image.annotation) {
+  if (!image.annotation && !verifier.projects[projectId].waitingForAnnotation.find((i) => i === imageId)) {
     verifier.projects[projectId].waitingForAnnotation.push(imageId);
-  } else {
+  } else if (image.annotation && !verifier.projects[projectId].toVerify.find((i) => i === imageId)) {
     verifier.projects[projectId].toVerify.push(imageId);
   }
 
   // move the image to pending in the project.
   const project = await findProjectById(projectId);
   const imageIndex = project.images.needsVerifierAssignment.findIndex((id) => id === imageId);
-  project.images.needsVerifierAssignment.splice(imageIndex, 1);
-  project.images.pending.push(image.id);
+  if (imageIndex >= 0) {
+    project.images.needsVerifierAssignment.splice(imageIndex, 1);
+    project.images.pending.push(image.id);
+  }
 
   // reflect changes in the database
   await updateUser(verifier);
   await ImagesDB.put(image);
+  await ProjectsDB.put(project);
 }
 
 /*
@@ -165,13 +168,17 @@ export async function assignAnnotatorToImage(
   const image = await findImageById(imageId);
   image.idAnnotator = annotatorId;
   // assign image to be annotated the user
-  annotator.projects[projectId].toAnnotate.push(imageId);
+  if (!annotator.projects[projectId].toAnnotate.find((i) => i === imageId)) {
+    annotator.projects[projectId].toAnnotate.push(imageId);
+  }
 
   // move the image to needsVerifierAssignment in the project.
   const project = await findProjectById(projectId);
   const imageIndex = project.images.needsAnnotatorAssignment.findIndex((id) => id === imageId);
-  project.images.needsAnnotatorAssignment.splice(imageIndex, 1);
-  project.images.needsVerifierAssignment.push(image.id);
+  if (imageIndex >= 0) {
+    project.images.needsAnnotatorAssignment.splice(imageIndex, 1);
+    project.images.needsVerifierAssignment.push(image.id);
+  }
 
   // reflect changes in the database
   await updateUser(annotator);

@@ -127,11 +127,11 @@ export default function ProjectAssign() {
       <div id="verification" className="h-1/2 my-5">
         <h2 className="ml-2 pl-2 mt-3 text-gray-800 text-2xl font-bold ">Verification :</h2>
         <div className="flex flex-row flex-wrap gap-4 h-full">
-          <div className="flex rounded-lg shadow-xl bg-gray-50">
+          <div className="flex flex-col rounded-lg shadow-xl bg-gray-50 ">
             <header className="font-semibold text-sm py-3 px-4">
               Images to verify
             </header>
-            <div className="Pictures grow shrink flex flex-row gap-2">
+            <div className="Pictures grow shrink flex flex-col gap-2">
               {imagesToVerify.map((image) => <ImageDnD key={image.id} type="verify" data={image.data} id={image.id} />)}
             </div>
           </div>
