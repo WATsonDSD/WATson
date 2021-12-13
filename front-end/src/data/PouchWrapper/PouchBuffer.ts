@@ -1,6 +1,8 @@
 const INTERVAL = 1000;
 const OPS_PER_INTERVAL = 10;
 
+const DEQUEUE_INTERVAL = INTERVAL + 50; // the interval with which to look for new operations to queue.
+
 const bufferedOperations = [] as {resolve: Function, reject: Function, operation: () => Promise<any>}[];
 let operationsInInterval = 0;
 
@@ -15,14 +17,12 @@ export default <T>(operation: () => Promise<T>) : Promise<T> => {
   }
   console.log('executing');
   operationsInInterval += 1;
-  return operation();
+  return operation().then((val) => { setTimeout(() => { operationsInInterval -= 1; }, INTERVAL); return val; });
 };
 
 const handleNewInterval = () => {
-  operationsInInterval = 0;
   for (let curOperation = bufferedOperations.shift();
     curOperation !== undefined && operationsInInterval < OPS_PER_INTERVAL;) {
-    operationsInInterval += 1;
     executeBufferedOperation(curOperation);
     if (operationsInInterval < OPS_PER_INTERVAL) { curOperation = bufferedOperations.shift(); }
   }
@@ -30,10 +30,12 @@ const handleNewInterval = () => {
 
 const executeBufferedOperation = (op: {resolve: Function, reject: Function, operation: () => Promise<any>}) => {
   console.log('executing buffered');
+  operationsInInterval += 1;
   op.resolve(
     op.operation()
+      .then((val) => { setTimeout(() => { operationsInInterval -= 1; }, INTERVAL); return val; })
       .catch((e) => op?.reject(e)),
   );
 };
 
-setInterval(handleNewInterval, INTERVAL);
+setInterval(handleNewInterval, DEQUEUE_INTERVAL);
