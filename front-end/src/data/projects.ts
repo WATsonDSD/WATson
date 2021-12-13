@@ -14,7 +14,6 @@ export async function findProjectById(id: ProjectID): Promise<Project & {_id: st
  * Finds and returns all projects of a user.
  */
 export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
-  console.log('fetcginf projects of user');
   const projects = await Promise.all(
     Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
   );
