@@ -87,7 +87,6 @@ export default function AnnotationView() {
   };
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
-    // TODO: move to logic
     if (templateAnnotation === undefined) return undefined;
     if (imageAnnotation === undefined) return +Object.keys(templateAnnotation)[0];
 
@@ -98,7 +97,6 @@ export default function AnnotationView() {
   };
 
   const lastLandmark = (imageAnnotation?: Annotation) => {
-    // TODO: move to logic
     if (imageAnnotation === undefined) return undefined;
 
     const strId = Object.keys(imageAnnotation).pop();
@@ -108,10 +106,9 @@ export default function AnnotationView() {
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     const { canvas } = ctx;
     const { translatePos, scale } = state.imageTransform;
-    // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
-      const x = ((event.clientX - canvas.offsetLeft) / canvas.width - translatePos.x) / scale;
-      const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
+      const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
+      const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
       let z = 1;
       if (rightClick) z = 0;
       else if (event.ctrlKey || event.metaKey) z = 2;
