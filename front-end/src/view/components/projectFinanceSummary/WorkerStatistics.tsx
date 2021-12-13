@@ -41,6 +41,13 @@ export default function WorkerFinance() {
         },
       ],
     },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
   };
   return (
     <div className="h-full w-full">
