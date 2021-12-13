@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { useUserData } from '../../../../data';
+import UserSettings from '../sidebar/UserSettings';
 
 Header.defaultProps = {
   buttonPM: null,
@@ -17,6 +18,7 @@ export default function Header(props: { title: string, buttonPM? : ReactElement,
         {user && user.role === 'projectManager' ? buttonPM : ''}
         {user && user.role === 'finance' ? buttonF : ''}
       </div>
+      <UserSettings />
     </header>
   );
 }
