@@ -23,9 +23,9 @@ export default function Authentication() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
+  let from = location.state?.from?.pathname || '/';
 
-  useEffect(() => { if (!user) location.state.from = '/'; }, [user]);
+  useEffect(() => { if (!user) from = '/'; }, [user]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
