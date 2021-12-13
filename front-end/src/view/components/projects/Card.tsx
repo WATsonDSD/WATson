@@ -5,23 +5,28 @@ import {
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserData } from '../../../data';
+import { Project, useUserData } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
 import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
+import useData from '../../../data/hooks';
+import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
 
 const Card = (props: any) => {
-  const { project, options } = props;
+  const { project, options }: { project: Project, options: any} = props;
   const [user] = useUserData();
   const navigate = useNavigate();
+  const totalSpending = useData(async () => calculateTotalCost(project.id));
+  const percentage = useData(async () => percentageOfImagesDone(project.id));
+  if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.ProjectAssign}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project.id}`);
         break;
       case 'annotator':
         navigate(`${Paths.Annotation}/${project.id}`);
@@ -87,11 +92,12 @@ const Card = (props: any) => {
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              60%
+              {percentage}
+              %
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineRise />
-              €
+              { totalSpending[0] }
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineTeam />
