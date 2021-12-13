@@ -95,7 +95,7 @@ export async function totalWorkers(projectId: string): Promise<number> {
  * @param userId of the user we want to calculate the earnings of
  * @returns total earnings of the user per [annotation, verification]
  */
-export async function earningsPerUserPerProject(projectId: string, userId: string): Promise<[ number, number ]> {
+export async function paymentPerUserPerProject(projectId: string, userId: string): Promise<[ number, number ]> {
   const project = await findProjectById(projectId);
   const user = await findUserById(userId);
   const numTotalAnnotatated = user.projects[projectId].annotated.length;
@@ -120,14 +120,14 @@ export async function earningsPerUser(userID: UserID) {
   return totalEarnings;
 }
 
-async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
  + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation);
 }
 
-async function earningsPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
