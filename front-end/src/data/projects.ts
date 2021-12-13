@@ -13,10 +13,13 @@ export async function findProjectById(id: ProjectID): Promise<Project & {_id: st
 /**
  * Finds and returns all projects of a user.
  */
-export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
+export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
+  const user: User = await findUserById(userID);
+
   const projects = await Promise.all(
-    Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
+    Object.keys(user.projects).map((id) => findProjectById(id)),
   );
+
   return projects;
 }
 
