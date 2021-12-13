@@ -21,8 +21,11 @@ export default <T>(operation: () => Promise<T>) : Promise<T> => {
 };
 
 const handleNewInterval = () => {
+  // Very poorly written, will attend later.
+  if (operationsInInterval >= OPS_PER_INTERVAL) { return; }
   for (let curOperation = bufferedOperations.shift();
     curOperation !== undefined && operationsInInterval < OPS_PER_INTERVAL;) {
+    operationsInInterval += 1;
     executeBufferedOperation(curOperation);
     if (operationsInInterval < OPS_PER_INTERVAL) { curOperation = bufferedOperations.shift(); }
   }
@@ -30,7 +33,7 @@ const handleNewInterval = () => {
 
 const executeBufferedOperation = (op: {resolve: Function, reject: Function, operation: () => Promise<any>}) => {
   console.log('executing buffered');
-  operationsInInterval += 1;
+
   op.resolve(
     op.operation()
       .then((val) => { setTimeout(() => { operationsInInterval -= 1; }, INTERVAL); return val; })
