@@ -4,7 +4,7 @@ import {
 import {
   ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById,
 } from '.';
-import { createRejectedImage } from './rejectedImage';
+import { createRejectedImage } from './rejectedAnnotation';
 import { findImageById } from './images';
 
 /**
@@ -34,7 +34,7 @@ export async function rejectAnnotation(
   const imageIndexVerifier = verifier.projects[projectID].toVerify.findIndex((id) => id === imageID);
 
   // a new rejectedObject is created
-  createRejectedImage(imageID, comment, wrongAnnotation);
+  createRejectedImage(imageID, comment, annotatorId, wrongAnnotation);
 
   // for the annotator user, image goes from waitingForVerification to toAnnotate
   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
