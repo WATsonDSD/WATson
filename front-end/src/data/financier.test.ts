@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, totalAnnotationMade, totalHoursOfWork, totalHoursOfWorkPerUser, totalWorkers,
+  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalHoursOfWorkPerUser, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -27,9 +27,11 @@ const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 const imageData1 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData2 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData3 = new Blob(['Hello, world!'], { type: 'text/plain' });
+const imageData4 = new Blob(['Hello,sdvfdsfsworld!'], { type: 'text/plain' });
 let imageId1: ImageID;
 let imageId2: ImageID;
 let imageId3: ImageID;
+let imageId4: ImageID;
 let projectId: ProjectID;
 let userId: UserID;
 let userId2: UserID;
@@ -79,6 +81,7 @@ describe('adding verification', () => {
     imageId1 = await addImageToProject(imageData1, projectId);
     imageId2 = await addImageToProject(imageData2, projectId);
     imageId3 = await addImageToProject(imageData3, projectId);
+    imageId4 = await addImageToProject(imageData4, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
     userId3 = await createUser('Ari', 'ari@watson', 'annotator');
@@ -88,6 +91,7 @@ describe('adding verification', () => {
     await assignAnnotatorToImage(imageId1, userId, projectId);
     await assignAnnotatorToImage(imageId2, userId, projectId);
     await assignAnnotatorToImage(imageId3, userId, projectId);
+    await assignAnnotatorToImage(imageId4, userId, projectId);
     await saveAnnotation(validAnnotation, imageId1, projectId);
     await saveAnnotation(validAnnotation, imageId2, projectId);
     await saveAnnotation(validAnnotation, imageId3, projectId);
@@ -145,5 +149,8 @@ describe('adding verification', () => {
   }));
   test('chart project', () => dataChartProjects(projectId).then((data) => {
     expect(data[11]).toBe(99);
+  }));
+  test('percentage ', () => percentageOfImagesDone(projectId).then((data) => {
+    expect(data).toBe(0.75);
   }));
 });

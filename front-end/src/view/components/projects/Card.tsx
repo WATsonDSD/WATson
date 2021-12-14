@@ -13,7 +13,7 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
-import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
+import { calculateTotalCost, percentageOfImagesDone, totalWorkers } from '../../../data/financier';
 
 const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
@@ -92,7 +92,7 @@ const Card = (props: any) => {
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              {Math.floor(percentage * 100)}
+              { percentage * 100}
               %
             </span>
             <span className="flex items-center gap-x-1 text-white">
@@ -101,7 +101,7 @@ const Card = (props: any) => {
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineTeam />
-              {project.users.length}
+              {totalWorkers(project.id)}
             </span>
           </div>
         </div>
