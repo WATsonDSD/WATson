@@ -82,7 +82,7 @@ export default function ProjectFinance() {
                 Total hours of work
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                { totalHours[0] }
+                { totalHours[0].toFixed(2) }
               </p>
             </div>
           </div>

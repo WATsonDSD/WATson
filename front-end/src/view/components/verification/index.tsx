@@ -15,6 +15,7 @@ import 'rc-slider/assets/index.css';
 import { getImagesOfProject } from '../../../data/images';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
+import { Paths } from '../shared/routes';
 // import { Paths } from '../shared/routes';
 
 const templateImage: Image = {
@@ -59,7 +60,7 @@ export default function VerificationView() {
     getImagesOfProject(projectId ?? '', 'pending').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
-        // navigate(Paths.Projects);
+        navigate(Paths.Projects);
         return;
       }
       setState({

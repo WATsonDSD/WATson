@@ -92,7 +92,7 @@ const Card = (props: any) => {
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              {percentage}
+              {Math.floor(percentage * 100)}
               %
             </span>
             <span className="flex items-center gap-x-1 text-white">
