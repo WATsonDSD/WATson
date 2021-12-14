@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-loop-func */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
@@ -95,33 +97,94 @@ export async function totalWorkers(projectId: string): Promise<number> {
  * @param userId of the user we want to calculate the earnings of
  * @returns total earnings of the user per [annotation, verification]
  */
-export async function earningsPerUserPerProject(projectId: string, userId: string): Promise<[ number, number ]> {
+export async function paymentPerUserPerProject(projectId: string, userId: string): Promise<[ number, number ]> {
   const project = await findProjectById(projectId);
   const user = await findUserById(userId);
   const numTotalAnnotatated = user.projects[projectId].annotated.length;
   const numTotalVerificated = user.projects[projectId].verified.length;
   return [(numTotalAnnotatated) * project.pricePerImageAnnotation, (numTotalVerificated) * project.pricePerImageVerification];
 }
+export async function earningsPerUser(userID: UserID) {
+  const user = await findUserById(userID);
+  let numberAnnotated = 0;
+  let numberVerified = 0;
+  let totalEarnings = 0;
+  Object.entries(user.projects).forEach(
+    async ([key, value]) => // id project -> value valye
+    // eslint-disable-next-line brace-style
+    {
+      numberAnnotated = value.annotated.length;
+      numberVerified = value.verified.length;
+      const project = await findProjectById(key);
+      totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+    },
+  );
+  return totalEarnings;
+}
 
-async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
- + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation);
+ + ((user.projects[projectId].verified.length * project.pricePerImageVerification) / project.hourlyRateVerification);
 }
 
-export async function earningsPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID) {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
-  + ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation));
+  + ((user.projects[projectId].verified.length * project.pricePerImageVerification));
 }
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
   const project = await findProjectById(projectID);
   const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
+  if (totalImages === 0) {
+    return 0;
+  }
   const percentage = project.images.done.length / totalImages;
   return percentage;
+}
+
+export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
+  const project = await findProjectById(projectId);
+  const earningMonth: number[] = new Array(12).fill(0);
+  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
+  Object.entries(project.images.done).forEach(
+    async ([key, value]) => {
+      const month = value.doneDate.getMonth();
+      earningMonth[month] += totIm;
+    },
+  );
+  return earningMonth;
+}
+
+export async function dataChartWorker(userId: UserID): Promise<number[]> {
+  const earningPerMonth: number[] = new Array(12).fill(0);
+  const user = await findUserById(userId);
+  Object.entries(user.projects).forEach(
+    async ([key, value]) => {
+      const project = await findProjectById(key);
+      const priceAnnotation = project.pricePerImageAnnotation;
+      const priceVerification = project.pricePerImageVerification;
+
+      // adding earning per month of annotated images
+      Object.entries(value.annotated).forEach(
+        async ([key, value]) => {
+          const month = value.date.getMonth();
+          earningPerMonth[month] += priceAnnotation;
+        },
+      );
+      // adding earning per month of verified images
+      Object.entries(value.verified).forEach(
+        async ([key, value]) => {
+          const month = value.date.getMonth();
+          earningPerMonth[month] += priceVerification;
+        },
+      );
+    },
+  );
+  return earningPerMonth;
 }
 
 export default generateReport;
