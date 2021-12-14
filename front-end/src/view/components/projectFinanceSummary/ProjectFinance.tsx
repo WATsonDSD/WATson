@@ -9,7 +9,7 @@ import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 import GraphChart from './GraphChart';
 import {
-  calculateTotalCost, dataChartWorker, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from '../../../data/financier';
 
 export default function ProjectFinance() {
@@ -19,7 +19,7 @@ export default function ProjectFinance() {
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
   const totalWork = useData(async () => totalWorkers(idProject!));
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
-  const data = useData(async () => dataChartWorker(idProject!));
+  const data = useData(async () => dataChartProjects(idProject!));
 
   if (!idProject || !data) return null;
 
