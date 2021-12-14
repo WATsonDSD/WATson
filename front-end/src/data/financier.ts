@@ -171,7 +171,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
         async ([key, value]) => {
-          const month = value.date.getMonth();
+          const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
