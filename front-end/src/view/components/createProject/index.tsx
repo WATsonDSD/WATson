@@ -535,6 +535,7 @@ export default function CreateProject() {
 
               </div>
             </div>
+            <div className="flex flex-wrap space-x-1" />
 
             <button
               className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
