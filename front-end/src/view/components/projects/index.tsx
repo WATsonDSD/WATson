@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [user] = useUserNotNull();
   const projects = useData(() => getProjectsOfUser(user!.id));
 
-  if (!projects) {
+  if (!projects || !user) {
     return <Loading />;
   }
 
