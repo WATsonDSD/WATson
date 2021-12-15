@@ -67,6 +67,9 @@ export default function VerificationView() {
       setState({
         ...state,
         imageToVerify: result[0],
+        imageTransform: {
+          scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
+        },
       });
     });
   };
@@ -92,8 +95,8 @@ export default function VerificationView() {
     });
   };
 
-  const saveAsValid = () => {
-    verifyImage(projectId ?? '', state.imageToVerify.id);
+  const saveAsValid = async () => {
+    await verifyImage(projectId ?? '', state.imageToVerify.id);
     nextImage();
   };
 
