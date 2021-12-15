@@ -88,7 +88,16 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
-  return project.users.length;
+  let workers = 0;
+  await Promise.all(project.users.map(async (userId) => {
+    const worker = await findUserById(userId);
+    if (worker.role !== 'projectManager' && worker.role !== 'finance') {
+      console.log(worker.role);
+      workers += 1;
+    }
+  }));
+
+  return workers; // 2 for PM and Finance guy 
 }
 
 /**
@@ -109,16 +118,13 @@ export async function earningsPerUser(userID: UserID) {
   let numberAnnotated = 0;
   let numberVerified = 0;
   let totalEarnings = 0;
-  Object.entries(user.projects).forEach(
-    async ([key, value]) => // id project -> value valye
-    // eslint-disable-next-line brace-style
-    {
-      numberAnnotated = value.annotated.length;
-      numberVerified = value.verified.length;
-      const project = await findProjectById(key);
-      totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
-    },
-  );
+  await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
+    numberAnnotated = proj.annotated.length;
+    numberVerified = proj.verified.length;
+    const project = await findProjectById(id);
+    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+  }));
+
   return totalEarnings;
 }
 
@@ -143,6 +149,7 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
     return 0;
   }
   const percentage = project.images.done.length / totalImages;
+  console.log(percentage);
   return percentage;
 }
 

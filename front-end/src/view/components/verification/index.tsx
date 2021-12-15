@@ -91,8 +91,8 @@ export default function VerificationView() {
     });
   };
 
-  const saveAsValid = () => {
-    verifyImage(projectId ?? '', state.imageToVerify.id);
+  const saveAsValid = async () => {
+    await verifyImage(projectId ?? '', state.imageToVerify.id);
     nextImage();
   };
 

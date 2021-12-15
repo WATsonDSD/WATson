@@ -54,9 +54,11 @@ export async function getRejectedImagesByAnnotatorID(annotatorId : UserID) : Pro
   const annotatorRejections: ImageID[] = [];
   const rejections = await getAllRejections();
 
-  rejections.forEach(async (rejection) => {
-    if (rejection.annotatorID === annotatorId) {
-      const image = rejection.imageID;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Object.entries(rejections).forEach(async ([key, value]) => {
+    if (value.annotatorID === annotatorId) {
+      const image = value.imageID;
+
       annotatorRejections.push(image);
     }
   });

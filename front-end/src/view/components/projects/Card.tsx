@@ -13,7 +13,7 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
-import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
+import { calculateTotalCost, percentageOfImagesDone, totalWorkers } from '../../../data/financier';
 
 const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
@@ -21,6 +21,8 @@ const Card = (props: any) => {
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
   const percentage = useData(async () => percentageOfImagesDone(project.id));
+  const numberOfWorkers = useData(async () => totalWorkers(project.id));
+  console.log('number of workers:', numberOfWorkers);
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
@@ -101,7 +103,7 @@ const Card = (props: any) => {
             </span>
             <span className="flex items-center gap-x-1 text-white">
               <AiOutlineTeam />
-              {project.users.length}
+              { numberOfWorkers }
             </span>
           </div>
         </div>
