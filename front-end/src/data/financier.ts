@@ -160,7 +160,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
   Object.entries(project.images.done).forEach(
     async ([key, value]) => {
-      const month = value.doneDate.getMonth();
+      const month = new Date(value.doneDate).getMonth();
       earningMonth[month] += totIm;
     },
   );
@@ -186,7 +186,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
         async ([key, value]) => {
-          const month = value.date.getMonth();
+          const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
       );
