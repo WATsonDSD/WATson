@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '@mdi/react';
+import { mdiDelete } from '@mdi/js';
 import Header from '../shared/layout/Header';
 import {
   UserID, LandmarkSpecification, Project,
@@ -411,7 +413,7 @@ export default function CreateProject() {
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
@@ -420,6 +422,9 @@ export default function CreateProject() {
                         value={allUsers?.find((u) => u.id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...annotators]; newState.splice(index, 1); setAnnotators(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -455,7 +460,7 @@ export default function CreateProject() {
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
@@ -464,6 +469,9 @@ export default function CreateProject() {
                         value={allUsers?.find((u) => u.id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...verifiers]; newState.splice(index, 1); setVerifiers(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -557,8 +565,4 @@ export default function CreateProject() {
       </div>
     </div>
   );
-}
-
-function deleteUser() {
-  alert('fdsfs');
 }
