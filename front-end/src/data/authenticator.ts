@@ -72,7 +72,9 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await findUserById(IDPrefix + response.userCtx.name), SessionState.AUTHENTICATED];
+        await findUserById(IDPrefix + response.userCtx.name)
+          .then((user) => { userData = [user, SessionState.AUTHENTICATED]; })
+          .catch((err) => reject(err));
       }
       notifySubscribers(userData);
       resolve(userData);
@@ -89,11 +91,17 @@ export async function logIn(email: string, password: string): Promise<boolean> {
     AuthDB.logIn(email, password, (error, response) => {
       if (error) {
         // Email or password might be incorrent
-        reject(error);
+        if (error.name === 'unauthorized' || error.name === 'forbidden') {
+          reject(new Error('Email or password might be incorrect.'));
+        } else {
+          reject(error);
+        }
       } else if (response) {
-        updateUserData().then(() => {
-          resolve(true);
-        });
+        updateUserData()
+          .then(() => {
+            resolve(true);
+          })
+          .catch((err) => reject(err));
       } else {
         // Something went wrong...
         resolve(false);

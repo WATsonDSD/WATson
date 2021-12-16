@@ -17,10 +17,18 @@ export async function findUserById(id: UserID): Promise<User> {
      * and usernames are strictly tied together. In particular, each
      * id follows this pattern: 'org.couchdb.user:{username}'. This
      * allows us to swap id and username internally.
+     * 
+     * P.S.: We adopt the user email as his username.
      */
-    AuthDB.getUser(id.substring(IDPrefix.length), (error, response: any) => {
+    const email = id.substring(IDPrefix.length);
+
+    AuthDB.getUser(email, (error, response: any) => {
       if (error) {
-        reject(error);
+        if (error.name === 'not_found') {
+          reject(new Error('This user could not be found. Check for typos, or make sure you have the right permissions.'));
+        } else {
+          reject(error);
+        }
       } else if (response) {
         const user: User = {
           id: response._id,
