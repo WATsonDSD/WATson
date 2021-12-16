@@ -98,7 +98,10 @@ export default function CreateProject() {
           await addUserToProject('org.couchdb.user:finance@watson.com', id);
           for (let i = 0; i < project.users.length; i += 1) {
             // eslint-disable-next-line no-await-in-loop
-            await addUserToProject(project.users[i], id);
+            if (project.users[i] !== '') {
+              // eslint-disable-next-line no-await-in-loop
+              await addUserToProject(project.users[i], id);
+            }
           }
           navigate(Paths.Projects);
         });
@@ -528,10 +531,10 @@ export default function CreateProject() {
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   HRK
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per Annotator" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per Verifier" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per Annotation" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" min="0" placeholder="Payment per hour per Annotator" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" min="0" placeholder="Payment per hour per Verifier" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" min="0" type="number" placeholder="Payment per Annotation" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" min="0" placeholder="Payment per Verification" />
 
               </div>
             </div>
@@ -554,4 +557,8 @@ export default function CreateProject() {
       </div>
     </div>
   );
+}
+
+function deleteUser() {
+  alert('fdsfs');
 }
