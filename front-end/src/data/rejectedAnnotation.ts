@@ -25,13 +25,11 @@ export async function createRejectedImage(
 
 export async function getAllRejections(): Promise<RejectedAnnotation[]> {
   let rejections: RejectedAnnotation[] = [];
-
   return new Promise((resolve, reject) => {
     RejectionsDB.allDocs({
       startkey: 'a',
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
         rejections = response.rows.map((row: any) => ({
           imageID: row.doc.imageID,
@@ -51,14 +49,6 @@ export async function getRejectedAnnotationByID(imageID: ImageID): Promise <Reje
 }
 
 export async function getRejectedImagesByAnnotatorID(annotatorId : UserID) : Promise<ImageID[]> {
-  const annotatorRejections: ImageID[] = [];
   const rejections = await getAllRejections();
-
-  rejections.forEach(async (rejection) => {
-    if (rejection.annotatorID === annotatorId) {
-      const image = rejection.imageID;
-      annotatorRejections.push(image);
-    }
-  });
-  return annotatorRejections;
+  return rejections.filter((rej) => rej.annotatorID === annotatorId).map((rej) => rej.imageID);
 }
