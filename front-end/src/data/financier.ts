@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, Project, User, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { ProjectID, Role } from './types';
@@ -90,10 +90,11 @@ export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
   let workers = 0;
   await Promise.all(project.users.map(async (userId) => {
-    const worker = await findUserById(userId);
-    if (worker.role !== 'projectManager' && worker.role !== 'finance') {
-      console.log(worker.role);
+    const user = await findUserById(userId);
+    if (user.role !== 'projectManager' && user.role !== 'finance') {
+      console.log(project, user.role, workers);
       workers += 1;
+      console.log(project.name, user.role, workers);
     }
   }));
 

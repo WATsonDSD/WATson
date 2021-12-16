@@ -21,6 +21,7 @@ const Card = (props: any) => {
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
   const percentage = useData(async () => percentageOfImagesDone(project.id));
+  console.log('user', user);
   const numberOfWorkers = useData(async () => totalWorkers(project.id));
   console.log('number of workers:', numberOfWorkers);
   if (!totalSpending || percentage === null) return null;
