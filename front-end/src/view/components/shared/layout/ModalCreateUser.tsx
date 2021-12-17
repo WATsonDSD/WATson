@@ -1,7 +1,6 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { createUser } from '../../../../data';
-import openModal from './OpenModal';
 
 function handleSubmitForm(e: any) {
   const name = e.target.name.value;
@@ -9,7 +8,7 @@ function handleSubmitForm(e: any) {
   const role = e.target.role.value;
 
   createUser(name, email, role);
-  openModal(false, '#createUser');
+  // TODO: openModal(false, '#createUser');
   e.preventDefault();
 }
 
@@ -17,10 +16,10 @@ export default function ModalCreateUser() {
   return (
     <div id="createUser" className="pacity-0 transform hidden -translate-y-full scale-150  relative bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
 
-      {/* <!-- button close --> */}
+      {/* <!-- CLOSE BUTTON --> */}
       <button
         type="button"
-        onClick={() => openModal(false, '#createUser')}
+        // TODO: onClick={() => openModal(false, '#createUser')}
         className="absolute -top-3 -right-3 bg-gray-500 hover:bg-gray-800 text-2xl w-10 h-10 rounded-full focus:outline-none text-white"
       >
         <h2 className="text-center ml-2 font-semibold text-gray-100">
@@ -28,12 +27,12 @@ export default function ModalCreateUser() {
         </h2>
       </button>
 
-      {/* <!-- header --> */}
+      {/* <!-- HEADER --> */}
       <div className="px-4 py-3 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-600">Create User</h2>
       </div>
       <form className="w-full max-w-lg" onSubmit={handleSubmitForm}>
-        {/* <!-- body --> */}
+        {/* <!-- BODY --> */}
         <div className="w-full p-3 mt-5">
 
           <div className="flex flex-wrap -mx-3 mb-6">
@@ -75,7 +74,7 @@ export default function ModalCreateUser() {
           <input type="submit" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white focus:outline-none" value="Save" />
           <button
             type="button"
-            onClick={() => openModal(false, '#createUser')}
+            // TODO: onClick={() => openModal(false, '#createUser')}
             className="bg-gray-500 hover:bg-gray-800 px-4 py-2 rounded text-white focus:outline-none"
           >
             Close

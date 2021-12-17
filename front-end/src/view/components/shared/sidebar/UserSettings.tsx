@@ -3,13 +3,9 @@ import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { useUserNotNull } from '../../../../data';
 
-import openModal from '../layout/OpenModal';
-
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
-// function classNames(...classes:any) {
-//   return classes.filter(Boolean).join(' ');
-// }
+// TODO: implement signout dialog
 
 export default function UserSettings() {
   const [user] = useUserNotNull();
@@ -76,7 +72,7 @@ export default function UserSettings() {
             <span className="block border-b" /> */}
 
             <Menu.Item>
-              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => openModal(true, '#signout')}>
+              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => {}}>
                 Sign Out
               </button>
             </Menu.Item>

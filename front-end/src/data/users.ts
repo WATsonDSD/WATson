@@ -1,6 +1,20 @@
 import {
-  signUp, findProjectById, Role, User, ProjectID, UserID, AuthDB,
+  signUp,
+  findProjectById,
+  Role,
+  User,
+  ProjectID,
+  UserID,
+  AuthDB,
 } from '.';
+
+import {
+  FetchingError,
+  UserNotFoundError,
+  UpdateError,
+  UpdateUserError,
+  CreateUserError,
+} from '../utils/errors';
 
 export const IDPrefix: string = 'org.couchdb.user:';
 
@@ -25,9 +39,9 @@ export async function findUserById(id: UserID): Promise<User> {
     AuthDB.getUser(email, (error, response: any) => {
       if (error) {
         if (error.name === 'not_found') {
-          reject(new Error('This user could not be found. Check for typos, or make sure you have the right permissions.'));
+          reject(new UserNotFoundError());
         } else {
-          reject(error);
+          reject(new FetchingError(error.message));
         }
       } else if (response) {
         const user: User = {
@@ -40,8 +54,7 @@ export async function findUserById(id: UserID): Promise<User> {
 
         resolve(user);
       } else {
-        // TODO: Eventually it will be ideal to throw custom errors
-        reject(new Error('Undefined response.'));
+        reject(new FetchingError());
       }
     });
   });
@@ -57,12 +70,11 @@ export async function updateUser(user: User): Promise<void> {
       },
     }, (error, response) => {
       if (error) {
-        reject(error);
+        reject(new UpdateUserError());
       } else if (response) {
         resolve();
       } else {
-        // TODO: Eventually it will be ideal to throw custom errors
-        reject(new Error('Undefined response.'));
+        reject(new UpdateError());
       }
     });
   });
@@ -71,6 +83,7 @@ export async function updateUser(user: User): Promise<void> {
 /**
  * Fetches and returns all the users of a given project.
  */
+// TODO: Use ProjectsDB.allDocs with the keys parameter instead
 export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
   return Promise.all(
     (await findProjectById(projectId)).users.map((id) => findUserById(id)),
@@ -101,8 +114,8 @@ export async function getAllUsers(): Promise<User[]> {
         } as User));
       }
       resolve(users);
-    }).catch((error) => {
-      reject(error);
+    }).catch(() => {
+      reject(new FetchingError());
     });
   });
 }
@@ -111,23 +124,31 @@ export async function getAllUsers(): Promise<User[]> {
  * Adds a new user to the application.
  */
 export async function createUser(name: string, email: string, role: Role): Promise<UserID> {
-  /**
-   * We don't want the project manager to manually set the password
-   * for each user he adds to the application. For this reason the
-   * initial password will be set as a substring of the email.
-   * 
-   * @example: email: 'cemcebeci@watson.com' ---> password: 'cemcebeci'
-   */
-  const password = email.substring(0, email.lastIndexOf('@'));
+  return new Promise((resolve, reject) => {
+    /**
+     * We don't want the project manager to manually set the password
+     * for each user he adds to the application. For this reason the
+     * initial password will be set as a substring of the email.
+     * 
+     * @example: email: 'cemcebeci@watson.com' ---> password: 'cemcebeci'
+     */
+    const password = email.substring(0, email.lastIndexOf('@'));
 
-  // Signing up the user
-  await signUp(name, email, password, role);
-
-  /**
-   * Since we are adopting CouchDB as the underying
-   * [authentication] database, and because of the
-   * predictable nature of the id that it generates,
-   * we can get away with hard-coding the user id.
-   */
-  return IDPrefix + email;
+    // Signing up the user
+    signUp(name, email, password, role)
+      .then((result) => {
+        /**
+         * Since we are adopting CouchDB as the underying
+         * [authentication] database, and because of the
+         * predictable nature of the id that it generates,
+         * we can get away with hard-coding the user id.
+         */
+        if (result) {
+          resolve(IDPrefix + email);
+        } else {
+          reject(new CreateUserError());
+        }
+      })
+      .catch((error) => reject(error));
+  });
 }

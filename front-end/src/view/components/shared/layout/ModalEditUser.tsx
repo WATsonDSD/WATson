@@ -1,7 +1,6 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { useUserData } from '../../../../data';
-import openModal from './OpenModal';
 
 export default function ModalEditProfile() {
   const [user] = useUserData();
@@ -9,7 +8,7 @@ export default function ModalEditProfile() {
     <div id="edit" className="pacity-0 transform hidden -translate-y-full scale-150 relative bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
       <button
         type="button"
-        onClick={() => openModal(false, '#edit')}
+        // TODO onClick={() => openModal(false, '#edit')}
         className="absolute -top-3 -right-3 bg-gray-500 hover:bg-gray-800 text-2xl w-10 h-10 rounded-full focus:outline-none text-white"
       >
         <h2 className="text-center ml-2 font-semibold text-gray-100">
@@ -50,7 +49,7 @@ export default function ModalEditProfile() {
           <input type="submit" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white focus:outline-none" value="Save" />
           <button
             type="button"
-            onClick={() => openModal(false, '#edit')}
+            // TODO onClick={() => openModal(false, '#edit')}
             className="bg-gray-500 hover:bg-gray-800 px-4 py-2 rounded text-white focus:outline-none"
           >
             Close
