@@ -65,3 +65,9 @@ export type RejectedAnnotation = {
     annotatorID: UserID,
     wrongAnnonation: Annotation,
 }
+export type ReportID = string;
+export type Report = {
+    reportID: ReportID,
+    date: Date,
+    reportRow: {user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string }[]
+}
