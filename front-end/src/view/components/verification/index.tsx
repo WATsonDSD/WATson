@@ -9,10 +9,10 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Image } from '../../../data';
+import { Image, useUserNotNull } from '../../../data';
 import AnnotatedImage from '../annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
-import { getImagesOfProject } from '../../../data/images';
+import { getImagesOfUser } from '../../../data/images';
 import TemplateAnnotation from '../annotation/TemplateAnnotation';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
 import { Paths } from '../shared/routes';
@@ -51,13 +51,14 @@ export default function VerificationView() {
   const [state, setState] = useState(initialState);
   const { projectId } = useParams();
   const navigate = useNavigate();
-  console.log(projectId, navigate);
+  const [user] = useUserNotNull();
+
   useEffect(() => {
     nextImage();
   }, []);
 
   const nextImage = () => {
-    getImagesOfProject(projectId ?? '', 'pending').then((result) => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -66,6 +67,9 @@ export default function VerificationView() {
       setState({
         ...state,
         imageToVerify: result[0],
+        imageTransform: {
+          scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
+        },
       });
     });
   };
@@ -91,8 +95,8 @@ export default function VerificationView() {
     });
   };
 
-  const saveAsValid = () => {
-    verifyImage(projectId ?? '', state.imageToVerify.id);
+  const saveAsValid = async () => {
+    await verifyImage(projectId ?? '', state.imageToVerify.id);
     nextImage();
   };
 

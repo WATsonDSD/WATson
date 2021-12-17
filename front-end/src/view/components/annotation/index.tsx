@@ -82,6 +82,9 @@ export default function AnnotationView() {
         ...state,
         imageToAnnotate: result[0],
         landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
+        imageTransform: {
+          scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
+        },
       });
     });
   };
