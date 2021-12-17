@@ -16,7 +16,7 @@ import useData from '../../../data/hooks';
 import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
 
 const Card = (props: any) => {
-  const { project, options }: { project: Project, options: any} = props;
+  const { project, options, verifierAction }: { project: Project, options: any, verifierAction: string | undefined} = props;
   const [user] = useUserNotNull();
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
@@ -32,7 +32,11 @@ const Card = (props: any) => {
         navigate(`${Paths.Annotation}/${project.id}`);
         break;
       case 'verifier':
-        navigate(`${Paths.Verification}/${project.id}`);
+        if (verifierAction === 'annotate') {
+          navigate(`${Paths.Annotation}/${project.id}`);
+        } else if (verifierAction === 'verify') {
+          navigate(`${Paths.Verification}/${project.id}`);
+        }
         break;
       case 'finance':
         navigate(`${Paths.ProjectFinance}/${project.id}`);

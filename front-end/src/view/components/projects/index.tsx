@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { BsPlusLg } from 'react-icons/bs';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
   useUserNotNull,
@@ -18,7 +18,29 @@ import Loading from '../loading';
 
 export default function Dashboard() {
   const [user] = useUserNotNull();
-  const projects = useData(() => getProjectsOfUser(user!.id));
+  const { type } = useParams();
+  const navigate = useNavigate();
+
+  let projects;
+
+  const toV = Object.keys(user.projects)
+    .filter((projectId) => (user.projects[projectId].toVerify.length !== 0));
+  const toA = Object.keys(user.projects)
+    .filter((projectId) => (user.projects[projectId].toAnnotate.length !== 0));
+
+  switch (type) {
+    case 'annotate':
+      projects = useData(() => getProjectsOfUser(user!.id));
+      projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
+      break;
+    case 'verify':
+      projects = useData(() => getProjectsOfUser(user!.id));
+      projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
+      break;
+    default:
+      if (user.role === 'verifier') navigate('/annotate');
+      projects = useData(() => getProjectsOfUser(user!.id));
+  }
 
   if (!projects || !user) {
     return <Loading />;
@@ -90,6 +112,7 @@ export default function Dashboard() {
                 key={project.id}
                 project={project}
                 options={projectOptions[user!.role]}
+                verifierAction={type}
               />
             ))}
           </section>

@@ -41,6 +41,7 @@ export default () => (
 
     <Route path={Paths.Projects} element={<Protected><Layout /></Protected>}>
       <Route index element={<Projects />} />
+      <Route path="/:type" element={<Projects />} />
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
         <Route path=":idProject" element={<Workers />} />
