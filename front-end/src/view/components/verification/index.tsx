@@ -146,7 +146,7 @@ export default function VerificationView() {
     });
   };
   const sendReject = () => {
-    const comment = document.getElementById('rejectionComment')?.innerText;
+    const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
     rejectAnnotation(state.imageToVerify.id, projectId ?? '', comment ?? '');
     hideRejectMenu();
