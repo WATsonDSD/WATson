@@ -117,7 +117,7 @@ export async function logIn(email: string, password: string): Promise<boolean> {
           .catch((err) => reject(err));
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });
@@ -153,7 +153,7 @@ export async function signUp(name: string, email: string, password: string, role
         resolve(true);
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });
@@ -176,7 +176,7 @@ export async function logOut(): Promise<boolean> {
         });
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });

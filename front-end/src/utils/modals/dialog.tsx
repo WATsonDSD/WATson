@@ -53,7 +53,7 @@ const Dialog = forwardRef<HandleClose, Props>(({ children }: { children: JSX.Ele
   return visible
     ? (
       <div id="modal" className="inset-0 flex items-center justify-center bg-black bg-opacity-25">
-        <div id="modal-content" className="px-8 py-6 rounded-md shadow-md bg-white">
+        <div id="dialog-content" className="px-8 py-6 rounded-md shadow-md bg-white">
           {children}
         </div>
       </div>

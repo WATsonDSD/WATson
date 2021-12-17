@@ -149,6 +149,6 @@ export async function createUser(name: string, email: string, role: Role): Promi
           reject(new CreateUserError());
         }
       })
-      .catch((error) => reject(error));
+      .catch((error) => reject(new CreateUserError(error.message)));
   });
 }

@@ -38,7 +38,8 @@ export default function Authentication() {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    logIn(formData.email, formData.password).catch((error) => snackBar({ title: error.name, message: error.message }, SnackBarType.Error));
+    logIn(formData.email, formData.password)
+      .catch((error) => snackBar({ title: error.name, message: error.message }, SnackBarType.Error));
   };
 
   // Show the loading page while we fetch the user data
@@ -70,10 +71,10 @@ export default function Authentication() {
             Password
             <input id="password" name="password" type="password" autoComplete="current-password" required value={formData.password} onChange={handleInputChange} className="w-full py-2 text-black text-xs tracking-widest border-b focus:outline-none focus:border-black" />
           </label>
-          <div className="flex items-center justify-end">
-            <span className="text-gray-400 mr-5">Sign in</span>
-            <button type="submit" className="hover:bg-black flex justify-center items-center bg-gray-700 w-16 h-16 rounded-full">
-              <img src={rightArrow} alt="Submit" className="w-1/3" />
+          <div className="flex items-center justify-end mt-4">
+            <button type="submit" className="flex justify-center items-center gap-x-4 px-6 py-3 bg-gray-600 hover:bg-black text-white rounded-full">
+              Sign in
+              <img src={rightArrow} alt="Submit" />
             </button>
           </div>
         </form>
