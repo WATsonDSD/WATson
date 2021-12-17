@@ -40,7 +40,11 @@ describe('reject annotation', () => {
   });
 
   it('moves the image in toAnnotate for the annotator', () => expect(getImagesOfUser(projectId, 'toAnnotate', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('removes the image from waitingForVerification for the verifier', () => expect(getImagesOfUser(projectId, 'waitingForVerification', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
+
   it('moves the image in waitingForAnnotation for the verifier', () => expect(getImagesOfUser(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('removes the image from toVerify for the verifier', () => expect(getImagesOfUser(projectId, 'toVerify', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
+
   it('removes the annotation to the image', () => expect(findImageById(imageId).then((image) => image.annotation)).resolves.toBeUndefined());
 });
 
