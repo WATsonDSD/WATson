@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, getUsersOfProject,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
