@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById,
 } from '.';
 import {
   saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser, findImageById,
@@ -71,4 +71,17 @@ describe('Accept annotated image', () => {
   it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageId === imageId))).resolves.toBeGreaterThanOrEqual(0));
   it('moves the image in annotated for the annotator', () => expect(getImagesOfUser(projectId, 'annotated', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
   it('moves the image in verified for the verifier', () => expect(getImagesOfUser(projectId, 'verified', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+
+  it('correctly modifies all workDoneInTime fields', async () => {
+    const project = await findProjectById(projectId);
+    const annotator = await findUserById(annotatorId);
+    const verifier = await findUserById(verifierId);
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = now.getMonth().toString();
+    const day = now.getDay().toString();
+    expect(project.workDoneInTime[year][month][day]).toContainEqual({ imageId, annotator: annotatorId, verifier: verifierId });
+    expect(annotator.workDoneInTime[year][month][day][projectId].annotated).toContain(imageId);
+    expect(verifier.workDoneInTime[year][month][day][projectId].verified).toContain(imageId);
+  });
 });
