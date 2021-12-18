@@ -114,6 +114,7 @@ export async function signUp(name: string, email: string, password: string, role
       metadata: {
         fullname: name,
         projects: {},
+        workDoneInTime: {},
       },
     }, (error, response) => {
       if (error) {

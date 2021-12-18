@@ -28,6 +28,7 @@ export async function findUserById(id: UserID): Promise<User> {
           name: response.fullname,
           role: response.roles[0],
           projects: response.projects,
+          workDoneInTime: response.workDoneInTime,
         };
 
         resolve(user);
@@ -46,6 +47,7 @@ export async function updateUser(user: User): Promise<void> {
       metadata: {
         fullname: user.name,
         projects: user.projects,
+        workDoneInTime: user.workDoneInTime,
       },
     }, (error, response) => {
       if (error) {
