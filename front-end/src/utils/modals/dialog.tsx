@@ -1,7 +1,6 @@
 import React, {
   useRef,
   useState,
-  useEffect,
   forwardRef,
   ElementRef,
   useImperativeHandle,
@@ -31,24 +30,6 @@ const Dialog = forwardRef<HandleClose, Props>(({ children }: { children: JSX.Ele
   useImperativeHandle(ref, () => ({
     close: () => setVisibility(false),
   }));
-
-  /**
-   * The user can leave the dialog
-   * by pressing the ESC button.
-   */
-  function handleEscape(event: any) {
-    if (event.keyCode === 27) {
-      setVisibility(false);
-    }
-  }
-
-  useEffect(() => {
-    if (visible) document.addEventListener('keydown', handleEscape, false);
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape, false);
-    };
-  }, [visible]);
 
   return visible
     ? (

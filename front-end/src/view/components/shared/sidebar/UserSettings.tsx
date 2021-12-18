@@ -20,8 +20,8 @@ export default function UserSettings() {
     <div className="Dropdown text-black focus:outline-none">
       <Menu as="div" className="flex">
         <Menu.Button>
-          <div className="flex items-center gap-3 font-medium text-black bg-blue-50 hover:bg-blue-100 rounded-full">
-            <span className="block h-10 w-10 bg-blue-300 rounded-full" />
+          <div className="flex items-center gap-3 p-1 text-black bg-blue-50 hover:bg-blue-100 transition-all rounded-full">
+            <span className="block h-9 w-9 bg-blue-200 rounded-full" />
             {user ? user.name : 'loading...'}
             <img className="mr-4" src={DownArrow} alt="Profile Options" />
           </div>
@@ -76,7 +76,7 @@ export default function UserSettings() {
             <span className="block border-b" />
 
             <Menu.Item>
-              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<SignOutDialog onClose={dialog.close} />)}>
+              <button className="block pr-16 py-4 text-red-600 hover:text-black" type="button" onClick={() => dialog.open(<SignOutDialog onClose={dialog.close} />)}>
                 Sign Out
               </button>
             </Menu.Item>
