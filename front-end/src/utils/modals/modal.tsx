@@ -53,7 +53,7 @@ function Modal(props: { title: string, message: string, type: ModalType }) {
             onClick={() => {
               setVisibility(false);
             }}
-            className="self-end mt-5 uppercase text-sm font-bold opacity-80 hover:opacity-100"
+            className="self-end mt-5 uppercase text-sm font-bold opacity-60 hover:opacity-100"
           >
             Close
           </button>
