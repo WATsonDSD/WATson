@@ -170,7 +170,6 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const project = await findProjectById(key);
       const priceAnnotation = project.pricePerImageAnnotation;
       const priceVerification = project.pricePerImageVerification;
-
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
         async ([key, value]) => {

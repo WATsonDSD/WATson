@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, getUsersOfProject,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
@@ -168,4 +168,57 @@ export async function closeProject(projectID: ProjectID) {
   const project = await findProjectById(projectID);
   project.status = 'closed';
   await ProjectsDB.put(project);
+}
+
+/**
+ * removes a worke to a project and changes the status of the assigned images in project. 
+ * if the worker was a verifier for that project, images goes in needsVerifierAssignment, 
+ * otherwise images goes in needsAnnotatorAssignment
+ */
+
+export async function removeWorkerToProject(userId: UserID, projectId: ProjectID): Promise<void> {
+  const user = await findUserById(userId);
+
+  const toAnnotateUser = user.projects[projectId].toAnnotate;
+  const waitingForAnnotationUser = user.projects[projectId].waitingForAnnotation;
+  const toVerifyUser = user.projects[projectId].toVerify;
+  const waitingForVerificationUser = user.projects[projectId].waitingForVerification;
+  const annotatedUser: ImageID[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Object.entries(user.projects[projectId].annotated).forEach(async ([key, value]) => annotatedUser.push(value.imageID));
+
+  await projectMoveTo(projectId, toAnnotateUser, 'needsAnnotatorAssignment');
+  await projectMoveTo(projectId, waitingForAnnotationUser, 'needsVerifierAssignment');
+  await projectMoveTo(projectId, toVerifyUser, 'needsVerifierAssignment');
+  await projectMoveTo(projectId, waitingForVerificationUser, 'needsAnnotatorAssignment');
+  await projectMoveTo(projectId, annotatedUser, 'needsVerifierAssignment');
+}
+
+/**
+ * moves the images in the indicated field in the project
+ * @param To where to move the images
+ */
+async function projectMoveTo(
+  projectID: ProjectID,
+  images: ImageID[],
+  To: 'needsAnnotatorAssignment' | 'needsVerifierAssignment' | 'pending',
+) : Promise<void> {
+  // search each image and remove it
+  const project = await findProjectById(projectID);
+  images.forEach((imageId) => {
+    const indexnnA = project.images.needsAnnotatorAssignment.findIndex((id) => id === imageId);
+    if (indexnnA !== -1) {
+      project.images.needsAnnotatorAssignment.splice(indexnnA, 1);
+    } else {
+      const indexnnV = project.images.needsVerifierAssignment.findIndex((id) => id === imageId);
+      if (indexnnV !== -1) {
+        project.images.needsVerifierAssignment.splice(indexnnA, 1);
+      } else {
+        const indexP = project.images.pending.findIndex((id) => id === imageId);
+        project.images.pending.splice(indexP, 1);
+      }
+    }
+    // add the image in the To field
+    project.images[To].push(imageId);
+  });
 }
