@@ -4,19 +4,8 @@ import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
 
-// import { useDialog } from '../../../utils/modals';
-// import { CreateUserDialog } from '../shared/dialogs';
-
 export default function Workers() {
   const users = useData(async () => getAllUsers());
-
-  // const dialog = useDialog();
-
-  // const button = (
-  //   <button type="button" onClick={() => dialog.open(<CreateUserDialog onClose={dialog.close} />)} className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
-  //     <AiOutlinePlus />
-  //   </button>
-  // );
 
   const actions = [
     {
