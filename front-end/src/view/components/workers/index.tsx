@@ -66,10 +66,12 @@ export default function Workers() {
   });
   console.log(dropDownActions);
 
-  const genHours = () => {
+  // Here is the mapping to get the workers hours
+  const genHours = () => { // worker: User) => {
     const sel = (Math.floor(Math.random() * 240) + 1);
     if (sel % 60 < 10) return `${Math.floor(sel / 60)}:0${sel % 60}`;
     return `${Math.floor(sel / 60)}:${sel % 60}`;
+    // return useData(async () => hoursWorkPerUser(worker.id));
   };
 
   const genStyledLabel = (role: String) => {
@@ -144,7 +146,7 @@ export default function Workers() {
                       onClick={(event) => event.stopPropagation()}
                       to="/Bonification/"
                     >
-                      Asign Bonification
+                      Asign Bonus
                     </Link>
                   </span>
                 </div>
