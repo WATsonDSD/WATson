@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 
 export default function Workers() {
   const users = useData(async () => getAllUsers());

@@ -7,7 +7,7 @@ import {
 } from '../../../data';
 
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import Card from './Card';
 
 import { Paths } from '../shared/routes';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BiDotsVertical } from 'react-icons/bi';
 import Dropdown from '../projects/Dropdown';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 
 const dropDownActions: any = [(
   <button type="button" className="text-white">
