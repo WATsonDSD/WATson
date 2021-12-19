@@ -41,7 +41,7 @@ export default function AnnotatedImage(props: {
     // scale and translate
     ctx.save();
     if (translatePos) {
-      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.width);
+      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.height);
     }
     if (scale) ctx.scale(scale, scale);
     // draw image after loading

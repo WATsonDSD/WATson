@@ -128,8 +128,8 @@ export default function AnnotationView() {
   };
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
-    const x = (event.clientX - canvas.offsetLeft) / canvas.width;
-    const y = (event.clientY - canvas.offsetTop) / canvas.height;
+    const x = (event.clientX - canvas.offsetLeft) / canvas.clientWidth;
+    const y = (event.clientY - canvas.offsetTop) / canvas.clientHeight;
     zoom(event.deltaY > 0 ? zoomOut : zoomIn, { x, y });
   };
 
