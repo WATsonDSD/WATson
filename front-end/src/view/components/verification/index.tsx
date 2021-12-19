@@ -126,6 +126,7 @@ export default function VerificationView() {
                     value={transform.contrast}
                     className="col-span-1 p-auto mx-auto"
                     vertical
+                    max={200}
                   />
                 </div>
                 <div className="col-span-1 h-60v my-4">
@@ -134,6 +135,7 @@ export default function VerificationView() {
                     value={transform.brightness}
                     className="col-span-1 p-auto mx-auto"
                     vertical
+                    max={200}
                   />
                 </div>
               </div>
