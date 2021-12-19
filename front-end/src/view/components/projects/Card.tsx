@@ -47,7 +47,7 @@ const Card = (props: any) => {
       ? (
         <Link
           id={`${option.name}-btn`}
-          className="block pl-6 pr-12 py-2"
+          className="block pl-6 pr-12 py-2 whitespace-nowrap"
           type="button"
           to={`${option.to}/${project.id}`}
           onClick={(event) => {
@@ -60,7 +60,7 @@ const Card = (props: any) => {
       : (
         <button
           id={`${option.name}-btn`}
-          className="pl-6 pr-12 py-2"
+          className="pl-6 pr-12 py-2 whitespace-nowrap"
           type="button"
           onClick={(event) => {
             event.stopPropagation();

@@ -3,32 +3,38 @@ import { Link } from 'react-router-dom';
 import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
-import openModal from '../shared/layout/OpenModal';
-// import Dropdown from './Dropdown';
-// import OptionsIcon from '../../../assets/icons/options-black.svg';
+
+// import { useDialog } from '../../../utils/modals';
+// import { CreateUserDialog } from '../shared/dialogs';
 
 export default function Workers() {
   const users = useData(async () => getAllUsers());
 
+  // const dialog = useDialog();
+
+  // const button = (
+  //   <button type="button" onClick={() => dialog.open(<CreateUserDialog onClose={dialog.close} />)} className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
+  //     <AiOutlinePlus />
+  //   </button>
+  // );
+
   const actions = [
     {
       text: 'Update Data',
-      onClick: () => openModal(true, '#edit'),
+      onClick: () => {}, // TODO: implement update user data dialog
       href: '',
     },
     {
       text: 'Assign Work',
-      // href: '/Assign/',
       href: '/Workers/',
     },
     {
       text: 'Give Bonification',
-      // href: '/Bonification/',
       href: '/Workers/',
     },
     {
       text: 'Delete User',
-      onClick: () => openModal(true, '#delete'),
+      onClick: () => {}, // TODO: implement delete user dialog
       href: '',
     },
   ];
