@@ -1,8 +1,5 @@
 import React from 'react';
 
-import { BsPlusLg } from 'react-icons/bs';
-import { Link } from 'react-router-dom';
-
 import {
   useUserNotNull,
   deleteProject,
@@ -71,16 +68,10 @@ export default function Dashboard() {
     ],
   };
 
-  const addProjectButton = (
-    <Link id="addProject" className="flex justify-center items-center bg-gray-100 hover:bg-gray-200 w-10 h-10 rounded-full" type="button" to={Paths.CreateProject}>
-      <BsPlusLg className="w-30 h-30 mt-auto mb-auto" />
-    </Link>
-  );
-
   return (
     <div className="w-full">
       <div>
-        <Header title="Projects" buttonPM={addProjectButton} />
+        <Header title="Projects" />
       </div>
       <div id="content" className="min-h-full">
         <div className="w-full min-h-full">

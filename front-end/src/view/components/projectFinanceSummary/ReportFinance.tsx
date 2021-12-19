@@ -1,6 +1,5 @@
 import React from 'react';
 import { BiDotsVertical } from 'react-icons/bi';
-import { AiOutlinePlus } from 'react-icons/ai';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/layout/Header';
 
@@ -16,14 +15,9 @@ const dropDownActions: any = [(
 ];
 
 export default function ReportFinance() {
-  const button = (
-    <button type="button" className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
-      <AiOutlinePlus />
-    </button>
-  );
   return (
     <div className="h-full w-full">
-      <Header title="Reports" buttonF={button} />
+      <Header title="Reports" />
       <div className="inline-block w-full ml-8">
         <table className="w-11/12 leading-normal m-3">
           <thead>
