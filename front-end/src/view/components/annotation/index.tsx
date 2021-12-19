@@ -14,22 +14,22 @@ import {
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Annotation, findProjectById, Image, useUserNotNull,
+  findProjectById, useUserNotNull,
 } from '../../../data';
-import AnnotatedImage from './AnnotatedImage';
+import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser, saveAnnotation } from '../../../data/images';
-import TemplateAnnotation from './TemplateAnnotation';
+import AnnotVerif, {
+  emptyImage,
+  templateImage,
+  zoomIn,
+  zoomOut,
+  defaultTransform,
+  nextLandmark,
+  lastLandmark,
+} from '../shared/annotation/AnnotVerif';
 
 import { Paths } from '../shared/routes';
-
-const templateImage: Image = {
-  id: 'template',
-  annotation: TemplateAnnotation,
-};
-
-const zoomIn = 1.6;
-const zoomOut = 0.625;
 
 /* TODO: Keyboard shortcuts
 a - Go to previous image
@@ -40,23 +40,22 @@ backspace - undo last landmark
 */
 
 export default function AnnotationView() {
-  const initialState: {
-    imageToAnnotate: Image,
-    landmarkId?: number,
-    imageTransform: {
-      scale: number, translatePos: { x: number, y: number }, contrast: number, brighness: number,
-    },
-  } = {
-    imageToAnnotate: { ...templateImage },
-    landmarkId: undefined,
-    imageTransform: {
-      scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
-    },
-  };
-  const [state, setState] = useState(initialState);
+  const [image, setImage] = useState({ ...emptyImage });
+  const [transform, setTransform] = useState({ ...defaultTransform });
+  const [landmarkId, setLandmarkId] = useState(undefined as number|undefined);
+
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
+
+  const {
+    onImageWheel,
+    zoom,
+    changeContrast,
+    changeBrightness,
+    imageLandmarkColor,
+    templateLandmarkColor: defaultTemplateLandmarkColor,
+  } = AnnotVerif(image, setImage, transform, setTransform);
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -78,103 +77,49 @@ export default function AnnotationView() {
         navigate(Paths.Projects);
         return;
       }
-      setState({
-        ...state,
-        imageToAnnotate: result[0],
-        landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
-        imageTransform: {
-          scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
-        },
-      });
+      setImage(result[0]);
+      const next = nextLandmark(image.annotation, templateImage.annotation);
+      setLandmarkId(next);
+      setTransform(defaultTransform);
     });
-  };
-
-  const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
-    if (templateAnnotation === undefined) return undefined;
-    if (imageAnnotation === undefined) return +Object.keys(templateAnnotation)[0];
-
-    const strId = Object.keys(templateAnnotation).find(
-      (id: string) => imageAnnotation[+id] === undefined,
-    );
-    return strId === undefined ? undefined : +strId;
-  };
-
-  const lastLandmark = (imageAnnotation?: Annotation) => {
-    if (imageAnnotation === undefined) return undefined;
-
-    const strId = Object.keys(imageAnnotation).pop();
-    return strId === undefined ? undefined : +strId;
   };
 
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     const { canvas } = ctx;
-    const { translatePos, scale } = state.imageTransform;
-    if (templateImage.annotation && state.landmarkId !== undefined) {
+    const { translatePos, scale } = transform;
+    if (templateImage.annotation && landmarkId !== undefined) {
       const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
       const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
       let z = 1;
       if (rightClick) z = 0;
       else if (event.ctrlKey || event.metaKey) z = 2;
-      if (!state.imageToAnnotate.annotation) state.imageToAnnotate.annotation = {};
-      state.imageToAnnotate.annotation[state.landmarkId] = { x, y, z };
-      setState({
-        ...state,
-        landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
-      });
+      if (!image.annotation) image.annotation = {};
+      image.annotation[landmarkId] = { x, y, z };
+      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
     } else {
       // TODO: Alert user that every landmark has been annotated
       console.warn('Every landmark has been annotated');
     }
   };
-  const onImageWheel = (ctx: any, event: WheelEvent) => {
-    const { canvas } = ctx;
-    const x = (event.clientX - canvas.offsetLeft) / canvas.clientWidth;
-    const y = (event.clientY - canvas.offsetTop) / canvas.clientHeight;
-    zoom(event.deltaY > 0 ? zoomOut : zoomIn, { x, y });
-  };
 
   const removeLandmark = (id: number|undefined) => {
-    if (state.imageToAnnotate.annotation && id !== undefined) {
-      delete state.imageToAnnotate.annotation[id];
-      setState({
-        ...state,
-        landmarkId: nextLandmark(state.imageToAnnotate.annotation, templateImage.annotation),
-      });
+    if (image.annotation && id !== undefined) {
+      delete image.annotation[id];
+      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
     } else {
       console.warn(`Could not remove landmark with id: ${id}`);
     }
   };
   const removeLastLandmark = () => {
-    removeLandmark(lastLandmark(state.imageToAnnotate.annotation));
-  };
-
-  const changeContrast = (contrast: number) => {
-    setState({ ...state, imageTransform: { ...state.imageTransform, contrast } });
-  };
-  const changeBrighness = (brighness: number) => {
-    setState({ ...state, imageTransform: { ...state.imageTransform, brighness } });
-  };
-
-  const zoom = (scale: number, position: { x: number, y: number }) => {
-    const { imageTransform } = state;
-    const x = position.x - (position.x - imageTransform.translatePos.x) * scale;
-    const y = position.y - (position.y - imageTransform.translatePos.y) * scale;
-    setState({
-      ...state,
-      imageTransform: {
-        ...imageTransform,
-        scale: imageTransform.scale * scale,
-        translatePos: { x, y },
-      },
-    });
+    removeLandmark(lastLandmark(image.annotation));
   };
 
   const save = () => {
-    if (state.imageToAnnotate.annotation === undefined) {
-      console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
+    if (image.annotation === undefined) {
+      console.warn(`Could not save annotation for image ${image.id}`);
       return;
     }
-    saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string)
+    saveAnnotation(image.annotation, image.id, projectId as string)
       .then(() => {
         nextImage();
       })
@@ -185,42 +130,13 @@ export default function AnnotationView() {
   };
 
   const templateLandmarkColor = (id: number) => {
-    if (!state.imageToAnnotate.annotation || !state.imageToAnnotate.annotation[id]) {
-      if (id === state.landmarkId) {
-        return { fill: '#FFFFFF', stroke: '#000000' };
-      }
-      return { stroke: '#525252' };
+    // Highlight the current landmark
+    if (id === landmarkId) {
+      return { fill: '#FFFF60', stroke: '#000000' };
     }
-    if (state.imageToAnnotate.annotation[id].z === 0) {
-      return { fill: '#FF0000' };
-    }
-    if (state.imageToAnnotate.annotation[id].z === 2) {
-      return { fill: '#40C000' };
-    }
-    return { fill: '#525252' };
+    return defaultTemplateLandmarkColor(id);
   };
 
-  const imageLandmarkColor = (id: number) => {
-    if (!state.imageToAnnotate.annotation
-      || !state.imageToAnnotate.annotation[id]
-      || state.imageToAnnotate.annotation[id].z === 0) {
-      return { };
-    }
-    if (state.imageToAnnotate.annotation[id].z === 2) {
-      return { fill: '#40C000' };
-    }
-    return { fill: '#525252' };
-  };
-
-  // Here goes the image count condition if images to annotate is empty, allDone = true
-  const allDone = false;
-  if (allDone) {
-    return (
-      <div className="text-7xl m-auto p-auto">
-        <h1 className="pt-24 pl-24"> No Image to annotate </h1>
-      </div>
-    );
-  }
   return (
     <div>
       <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
@@ -251,7 +167,7 @@ export default function AnnotationView() {
                     className="col-span-1 p-auto mx-auto"
                     vertical
                     max={200}
-                    value={state.imageTransform.contrast}
+                    value={transform.contrast}
                     onChange={changeContrast}
                   />
                 </div>
@@ -260,8 +176,8 @@ export default function AnnotationView() {
                     className="col-span-1 p-auto mx-auto"
                     vertical
                     max={200}
-                    value={state.imageTransform.brighness}
-                    onChange={changeBrighness}
+                    value={transform.brightness}
+                    onChange={changeBrightness}
                   />
                 </div>
               </div>
@@ -281,12 +197,10 @@ export default function AnnotationView() {
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
           <div className="h-full p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
-            Landmarks set:
-            { state.imageToAnnotate.annotation
-              ? Object.keys(state.imageToAnnotate.annotation).length
-              : 0 }
+            Progress (WIP):
+            {0}
             /
-            {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
+            {0}
             <br />
             <button className="pt-4 pb-2" type="button">
               <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
@@ -305,14 +219,14 @@ export default function AnnotationView() {
         <div className="h-full p-4 col-span-5 row-span-full w-full">
           <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
             <AnnotatedImage
-              image={state.imageToAnnotate}
+              image={image}
               onClick={onImageClick}
               onMouseWheel={onImageWheel}
               landmarkColor={imageLandmarkColor}
-              scale={state.imageTransform.scale}
-              translatePos={state.imageTransform.translatePos}
-              contrast={state.imageTransform.contrast}
-              brightness={state.imageTransform.brighness}
+              scale={transform.scale}
+              translatePos={transform.translatePos}
+              contrast={transform.contrast}
+              brightness={transform.brightness}
             />
           </div>
         </div>
@@ -328,8 +242,8 @@ export default function AnnotationView() {
             <div className="h-10v p-4 w-fill bg-ui-light shadow-lg rounded-3xl mx-auto">
               Landmarks set:
               <br />
-              { state.imageToAnnotate.annotation
-                ? Object.keys(state.imageToAnnotate.annotation).length
+              { image.annotation
+                ? Object.keys(image.annotation).length
                 : 0 }
               /
               {templateImage.annotation ? Object.keys(templateImage.annotation).length : 0}
