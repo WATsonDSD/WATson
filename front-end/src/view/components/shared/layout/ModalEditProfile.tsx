@@ -1,12 +1,12 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import { useUserData } from '../../../../data';
+import { useUserNotNull } from '../../../../data';
 import openModal from './OpenModal';
 
 export default function ModalEditProfile() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   return (
-    <div id="edit" className="pacity-0 transform hidden -translate-y-full scale-150  relative w-10/2 md:w-1/3 h-1/2 md:h-1/2 bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
+    <div id="edit" className="pacity-0 transform hidden -translate-y-full scale-150  relative bg-white rounded shadow-lg transition-opacity transition-transform duration-300">
       <button
         type="button"
         onClick={() => openModal(false, '#edit')}
@@ -18,7 +18,7 @@ export default function ModalEditProfile() {
       </button>
       {/* <!-- header --> */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-600">Edit Profil</h2>
+        <h2 className="text-xl font-semibold text-gray-600">Edit Profile</h2>
       </div>
       <form className="w-full max-w-lg">
         {/* <!-- body --> */}
@@ -46,7 +46,7 @@ export default function ModalEditProfile() {
           </div>
         </div>
         {/* <!-- footer --> */}
-        <div className="absolute bottom-0 left-0 px-4 py-3 border-t border-gray-200 w-full flex justify-end items-center gap-3">
+        <div className="bottom-0 left-0 px-4 py-3 border-t border-gray-200 w-full flex justify-end items-center gap-3">
           <input type="submit" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white focus:outline-none" value="Save" />
           <button
             type="button"

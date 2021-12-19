@@ -6,6 +6,11 @@ const heights = {};
 for (let i = 0; i < 101; i++) {
 	heights[i + 'v'] = i + 'vh';
 }
+const widths = {};
+for (let i = 0; i < 101; i++) {
+	widths[i + 'v'] = i + 'vw';
+}
+widths['90h'] = '90vh';
 
 module.exports = {
 	purge: [],
@@ -19,27 +24,25 @@ module.exports = {
 				'-100': '-100',
 			},
 			height: heights,
-			width: {
-				'2v': '2vw',
-				'4v': '4vw',
-				'5v': '5vw',
-				'6v': '6vw',
-				'8v': '8vw',
-				'9v': '9vw',
-				'10w': '10vw',
-				'20v': '20vw',
-				'30v': '30vw',
-				'40v': '40vw',
-				'50v': '50vw',
-				'60v': '60vw',
-				'70v': '70vw',
-				'80v': '80vw',
-				'90v': '90vw',
-				'95v': '95vw',
-				'100v': '100vw',
+			width: widths,
+			padding: {
+				'5vh': '5vh',
+				'10vh': '10vh',
+				'5vw': '5vw',
+				'10vw': '10vw',
+			},
+			margin: {
+				'2vh': '2vh',
+				'5vh': '5vh',
+				'10vh': '10vh',
+				'60vh': '60vh',
+				'5vw': '5vw',
+				'10vw': '10vw',
+				'20vw': '20vw',
 			},
 			colors: {
 				ui: {
+					graygloss: '#44444477',
 					gray: '#444444',
 					darkgray: '#111111',
 					darkred: '#DF2C00',
@@ -61,11 +64,11 @@ module.exports = {
 			},
 		},
 	},
-  variants: {
-    extend: {},
-  },
-  plugins: [
-	// eslint-disable-next-line global-require
-	require('@tailwindcss/aspect-ratio'),
-  ],
+	variants: {
+		extend: {},
+	},
+	plugins: [
+		// eslint-disable-next-line global-require
+		require('@tailwindcss/aspect-ratio'),
+	],
 };

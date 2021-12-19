@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { addImageToProject, findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/layout/Header';
+import { Paths } from '../shared/routes';
 
 export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
     [id: string]: Blob,
   });
   const { idProject } = useParams();
+  const navigate = useNavigate();
+
   let empty = document.getElementById('empty');
 
   const project = useData(async () => findProjectById(idProject ?? ''));
@@ -20,6 +23,8 @@ export default function ProjectEdit() {
       // eslint-disable-next-line no-await-in-loop
       await addImageToProject(files[i], idProject);
     }
+
+    navigate(`${Paths.ProjectAssign}/${idProject}`);
   };
 
   console.log(project);

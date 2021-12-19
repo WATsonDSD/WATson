@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { NavLink } from 'react-router-dom';
-import { useUserData } from '../../../../data';
+import { useUserNotNull } from '../../../../data';
 
 import logo from '../../../logo.svg';
 
 function Sidebar() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
 
   let links: any = [];
 

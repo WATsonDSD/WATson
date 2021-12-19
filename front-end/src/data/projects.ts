@@ -7,17 +7,20 @@ import {
 
 import { ImagesDB, ProjectsDB } from './databases';
 
-export async function findProjectById(id: ProjectID): Promise<Project> {
+export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
 }
-
 /**
  * Finds and returns all projects of a user.
  */
-export async function getProjectsOfUser(userId: UserID): Promise<Project[]> {
-  return Promise.all(
-    Object.keys((await findUserById(userId)).projects).map((id) => findProjectById(id)),
+export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
+  const user: User = await findUserById(userID);
+
+  const projects = await Promise.all(
+    Object.keys(user.projects).map((id) => findProjectById(id)),
   );
+
+  return projects;
 }
 
 /**
@@ -58,13 +61,14 @@ export async function createProject(
     pricePerImageVerification: financialModel.pricePerImageVerification,
     hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
     hourlyRateVerification: financialModel.hourlyRateVerification,
+    workDoneInTime: {},
     images: { // A newly created project has no images.
       needsAnnotatorAssignment: [],
       needsVerifierAssignment: [],
       pending: [],
       done: [],
     },
-  } as Project;
+  } as Project & {_id: string};
 
   await ProjectsDB.put(project);
   return id;

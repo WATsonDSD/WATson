@@ -6,7 +6,7 @@ import {
   UserID, LandmarkSpecification, Project,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserData, Image,
+  addUserToProject, createProject, getAllUsers, useUserNotNull, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../annotation/AnnotatedImage';
@@ -20,7 +20,7 @@ const templateImage: Image = {
 };
 
 export default function CreateProject() {
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const allUsers = useData(() => getAllUsers());
   const [verifiers, setVerifiers] = useState([{ id: 0, worker: '' }]);
   const [annotators, setAnnotators] = useState([{ id: 0, worker: '' }]);
@@ -95,6 +95,7 @@ export default function CreateProject() {
       })
         .then(async (id) => {
           await addUserToProject(user.id, id);
+          await addUserToProject('org.couchdb.user:finance@watson.com', id);
           for (let i = 0; i < project.users.length; i += 1) {
             // eslint-disable-next-line no-await-in-loop
             await addUserToProject(project.users[i], id);
@@ -525,7 +526,7 @@ export default function CreateProject() {
               </div>
               <div className="w-full md:w-3/5 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Param
+                  HRK
                 </span>
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per Annotator" />
                 <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per Verifier" />
@@ -534,14 +535,7 @@ export default function CreateProject() {
 
               </div>
             </div>
-            <div className="flex flex-wrap space-x-1">
-              <button className="bg-black hover:bg-gray-700 text-gray-200 font-bold rounded-full py-1 px-2" type="button">
-                Connect Remote Storage
-              </button>
-              <button className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2" type="button">
-                Create Storage and Upload Media
-              </button>
-            </div>
+            <div className="flex flex-wrap space-x-1" />
 
             <button
               className="bg-black hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
@@ -553,8 +547,8 @@ export default function CreateProject() {
         </div>
         {/* right column */}
         <div>
-          <div className=" h-full mt-40">
-            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} />
+          <div className="h-full mt-40">
+            <AnnotatedImage image={templateImage} landmarkColor={landmarkColor} size="400" />
           </div>
         </div>
       </div>

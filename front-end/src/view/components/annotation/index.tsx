@@ -4,7 +4,7 @@ import Icon from '@mdi/react';
 import {
   mdiLeadPencil,
   mdiCursorMove,
-  mdiUndo,
+  mdiUndoVariant,
   mdiDelete,
   mdiMagnifyPlus,
   mdiMagnifyMinus,
@@ -14,7 +14,7 @@ import {
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Annotation, findProjectById, Image, useUserData,
+  Annotation, findProjectById, Image, useUserNotNull,
 } from '../../../data';
 import AnnotatedImage from './AnnotatedImage';
 import 'rc-slider/assets/index.css';
@@ -56,7 +56,7 @@ export default function AnnotationView() {
   const [state, setState] = useState(initialState);
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -82,12 +82,14 @@ export default function AnnotationView() {
         ...state,
         imageToAnnotate: result[0],
         landmarkId: nextLandmark(result[0].annotation, templateImage.annotation),
+        imageTransform: {
+          scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
+        },
       });
     });
   };
 
   const nextLandmark = (imageAnnotation?: Annotation, templateAnnotation?: Annotation) => {
-    // TODO: move to logic
     if (templateAnnotation === undefined) return undefined;
     if (imageAnnotation === undefined) return +Object.keys(templateAnnotation)[0];
 
@@ -98,7 +100,6 @@ export default function AnnotationView() {
   };
 
   const lastLandmark = (imageAnnotation?: Annotation) => {
-    // TODO: move to logic
     if (imageAnnotation === undefined) return undefined;
 
     const strId = Object.keys(imageAnnotation).pop();
@@ -108,10 +109,9 @@ export default function AnnotationView() {
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     const { canvas } = ctx;
     const { translatePos, scale } = state.imageTransform;
-    // TODO: move partially to logic
     if (templateImage.annotation && state.landmarkId !== undefined) {
-      const x = ((event.clientX - canvas.offsetLeft) / canvas.width - translatePos.x) / scale;
-      const y = ((event.clientY - canvas.offsetTop) / canvas.height - translatePos.y) / scale;
+      const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
+      const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
       let z = 1;
       if (rightClick) z = 0;
       else if (event.ctrlKey || event.metaKey) z = 2;
@@ -229,7 +229,7 @@ export default function AnnotationView() {
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 grid-rows-2 gap-2">
                 <button type="button" onClick={removeLastLandmark}>
-                  <Icon className="col-span-1" path={mdiUndo} horizontal />
+                  <Icon className="col-span-1" rotate={180} path={mdiUndoVariant} horizontal />
                   Undo
                 </button>
                 <button type="button">
@@ -317,7 +317,7 @@ export default function AnnotationView() {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }} onClick={save}>
+          <button type="button" style={{ width: '6vw' }}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
@@ -325,7 +325,7 @@ export default function AnnotationView() {
         </div>
         <div className="h-full p-4 col-span-3 row-span-4 w-full">
           <div className="h-80v p-4 w-fill bg-ui shadow-lg rounded-3xl mx-auto">
-            <div className="h-10v p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
+            <div className="h-10v p-4 w-fill bg-ui-light shadow-lg rounded-3xl mx-auto">
               Landmarks set:
               <br />
               { state.imageToAnnotate.annotation
@@ -339,11 +339,11 @@ export default function AnnotationView() {
             </div>
           </div>
         </div>
-        <div className="h-full p-4 col-start-9 col-span-4 row-start-5 row-end-6 w-full">
-          <div className="h-20v px-4 w-30v mx-auto grid m-auto grid-cols-2 gap-6">
-            <button className="col-span-1 pt-auto pb-0" type="button">
+        <div className="h-full p-4 w-25v  col-start-9 col-span-4 row-start-5 row-end-6 ">
+          <div className="h-20v px-4  mx-auto grid m-auto grid-cols-2 gap-6">
+            <button className="col-span-1 pt-auto pb-0" type="button" onClick={save}>
               <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                <span className="mx-auto text-white"> Save For Later </span>
+                <span className="mx-auto text-white"> Save Annotation </span>
               </div>
             </button>
             <button className="col-span-1" type="button">

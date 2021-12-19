@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -124,5 +124,26 @@ describe('adding verification', () => {
   }));
   test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
     expect(data[1]).toBe(7.5);
+  }));
+  test('chart december', () => dataChartWorker(userId).then((data) => {
+    expect(data[11]).toBe(30);
+  }));
+  test('chart january', () => dataChartWorker(userId).then((data) => {
+    expect(data[0]).toBe(0);
+  }));
+  test('hours work', () => hoursWorkPerProjectPerUser(userId, projectId).then((data) => {
+    expect(data).toBe(7.5);
+  }));
+  test('hours work', () => hoursWorkPerProjectPerUser(userId2, projectId).then((data) => {
+    expect(data).toBe(8.625);
+  }));
+  test('earnings verifier', () => earningsInTotalPerProjectPerUser(userId2, projectId).then((data) => {
+    expect(data).toBe(69);
+  }));
+  test('chart project', () => dataChartProjects(projectId).then((data) => {
+    expect(data[11]).toBe(99);
+  }));
+  test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
+    expect(data).toBe(7.5);
   }));
 });

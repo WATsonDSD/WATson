@@ -17,6 +17,8 @@ import Annotation from '../../annotation';
 import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ReportFinance from '../../projectFinanceSummary/ReportFinance';
+import VerificationView from '../../verification';
+import WorkerFinance from '../../projectFinanceSummary/WorkerStatistics';
 
 export const Paths = {
   Authentication: '/authentication',
@@ -47,6 +49,9 @@ export default () => (
       <Route path={Paths.Annotation} element={<Annotation />}>
         <Route path=":projectId" element={<Annotation />} />
       </Route>
+      <Route path={Paths.Verification} element={<VerificationView />}>
+        <Route path=":projectId" element={<VerificationView />} />
+      </Route>
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
         <Route path=":idProject" element={<ProjectFinance />} />
       </Route>
@@ -54,6 +59,7 @@ export default () => (
       <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
         <Route path=":idProject" element={<ProjectAssign />} />
       </Route>
+      <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
   </Routes>
 );

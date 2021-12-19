@@ -5,7 +5,7 @@ import {
 } from 'react-icons/ai';
 
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserData } from '../../../data';
+import { Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
@@ -17,7 +17,7 @@ import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financ
 
 const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
-  const [user] = useUserData();
+  const [user] = useUserNotNull();
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
   const percentage = useData(async () => percentageOfImagesDone(project.id));
@@ -92,7 +92,7 @@ const Card = (props: any) => {
           <div className="flex justify-between text-lg w-full mt-2">
             <span className="flex items-center gap-x-1 text-white text-left">
               <AiOutlineRedo />
-              {percentage}
+              {Math.floor(percentage * 100)}
               %
             </span>
             <span className="flex items-center gap-x-1 text-white">
