@@ -159,6 +159,7 @@ describe('adding verification', () => {
   }));
   test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
     expect(data).toBe(0.75);
+  }));
   test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
     expect(data).toBe(7.5);
   }));
