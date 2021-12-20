@@ -33,7 +33,7 @@ export async function generateReport(): Promise<any> {
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-      const hoursV = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+      const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
       if (numberOfImagesAnnotated > 0) {
         CSVdata.push({
@@ -114,7 +114,7 @@ export async function paymentPerUserPerProject(projectId: string, userId: string
   const numTotalVerificated = user.projects[projectId].verified.length;
   return [(numTotalAnnotatated) * project.pricePerImageAnnotation, (numTotalVerificated) * project.pricePerImageVerification];
 }
-export async function earningsPerUser(userID: UserID) {
+export async function earningsPerUser(userID: UserID): Promise<number> {
   const user = await findUserById(userID);
   let numberAnnotated = 0;
   let numberVerified = 0;
@@ -129,14 +129,31 @@ export async function earningsPerUser(userID: UserID) {
   return totalEarnings;
 }
 
-export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID): Promise<number> {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
  + ((user.projects[projectId].verified.length * project.pricePerImageVerification) / project.hourlyRateVerification);
 }
 
-export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID) {
+export async function hoursWorkPerUser(userID: UserID): Promise<number> {
+  const user = await findUserById(userID);
+  const projectsForUser = await getProjectsOfUser(userID);
+  let hoursA = 0;
+  let hoursV = 0;
+  let numberOfImagesAnnotated = 0;
+  let numberOfImagesVerified = 0;
+  projectsForUser.forEach((project) => {
+    numberOfImagesAnnotated = user.projects[project.id].annotated.length;
+    numberOfImagesVerified = user.projects[project.id].verified.length;
+    hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+    hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+  });
+
+  return (hoursV + hoursA);
+}
+
+export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID): Promise<number> {
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))

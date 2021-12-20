@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
 } from '.';
 import {
-  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   saveAnnotation, assignAnnotatorToImage, assignVerifierToImage,
@@ -159,5 +159,7 @@ describe('adding verification', () => {
   }));
   test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
     expect(data).toBe(0.75);
+  test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
+    expect(data).toBe(7.5);
   }));
 });
