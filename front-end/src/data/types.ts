@@ -1,5 +1,4 @@
 export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: string]: T } } };
-
 export type UserID = string;
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
