@@ -9,15 +9,10 @@ import {
   addUserToProject, createProject, getAllUsers, useUserNotNull, Image,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import AnnotatedImage from '../annotation/AnnotatedImage';
-import TemplateAnnotation from '../annotation/TemplateAnnotation';
+import AnnotatedImage from '../shared/annotation/AnnotatedImage';
+import { templateImage } from '../shared/annotation/AnnotVerif';
 
 import { Paths } from '../shared/routes';
-
-const templateImage: Image = {
-  id: 'template',
-  annotation: TemplateAnnotation,
-};
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
