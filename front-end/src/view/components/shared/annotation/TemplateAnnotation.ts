@@ -1,4 +1,4 @@
-import { Annotation } from '../../../data';
+import { Annotation } from '../../../../data';
 
 export default {
   1: { x: 0.03, y: 0.3, z: 1 },
