@@ -2,8 +2,20 @@ import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import {
-  AuthDB, User, Role, findUserById, IDPrefix,
+  AuthDB,
+  User,
+  Role,
+  findUserById,
+  IDPrefix,
 } from '.';
+
+import {
+  NetworkError,
+  AuthenticationError,
+  UserAlreadyExistsError,
+  InvalidCredentialsError,
+  IncorrectCredentialsError,
+} from '../utils/errors';
 
 /**
  * Defines the three possible states for the user session.
@@ -66,13 +78,16 @@ async function updateUserData(): Promise<UserData> {
   return new Promise((resolve, reject) => {
     AuthDB.getSession(async (error, response) => {
       if (error) {
-        reject(error);
+        // Network error
+        reject(new NetworkError(error.message));
       } else if (!response?.userCtx.name) {
         // Nobody's is logged in
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        userData = [await findUserById(IDPrefix + response.userCtx.name), SessionState.AUTHENTICATED];
+        await findUserById(IDPrefix + response.userCtx.name)
+          .then((user) => { userData = [user, SessionState.AUTHENTICATED]; })
+          .catch((err) => reject(err));
       }
       notifySubscribers(userData);
       resolve(userData);
@@ -89,14 +104,20 @@ export async function logIn(email: string, password: string): Promise<boolean> {
     AuthDB.logIn(email, password, (error, response) => {
       if (error) {
         // Email or password might be incorrent
-        reject(error);
+        if (error.name === 'unauthorized' || error.name === 'forbidden') {
+          reject(new IncorrectCredentialsError());
+        } else {
+          reject(new AuthenticationError(error.message));
+        }
       } else if (response) {
-        updateUserData().then(() => {
-          resolve(true);
-        });
+        updateUserData()
+          .then(() => {
+            resolve(true);
+          })
+          .catch((err) => reject(err));
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });
@@ -122,12 +143,18 @@ export async function signUp(name: string, email: string, password: string, role
          * The user already exists or you don't have the
          * right permissions to add him to the database.
          */
-        reject(error);
+        if (error.name === 'conflict') {
+          reject(new UserAlreadyExistsError());
+        } else if (error.name === 'forbidden') {
+          reject(new InvalidCredentialsError());
+        } else {
+          reject(new AuthenticationError(error.message));
+        }
       } else if (response) {
         resolve(true);
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });
@@ -142,7 +169,7 @@ export async function logOut(): Promise<boolean> {
     AuthDB.logOut((error, response) => {
       if (error) {
         // Network error
-        reject(error);
+        reject(new NetworkError(error.message));
       } else if (response) {
         // When the logout is successfull, updateUserData should return [null, 'none']
         updateUserData().then(() => {
@@ -150,7 +177,7 @@ export async function logOut(): Promise<boolean> {
         });
       } else {
         // Something went wrong...
-        resolve(false);
+        reject(new AuthenticationError());
       }
     });
   });
