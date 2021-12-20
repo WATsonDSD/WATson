@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  findProjectById, getUsersOfProject, Image, User,
+  findProjectById, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import {
@@ -18,17 +18,17 @@ export default function ProjectAssign() {
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
   const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-  const [projectUsers, setProjectUsers] = useState([] as User[]);
+  const [projectUsers] = useState([] as User[]);
 
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
   const navigate = useNavigate();
 
   useEffect(() => {
-    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result); });
-    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result); showAssignedImages(result, 'annotate'); });
-    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result, 'annotate'); showAssignedImages(result, 'verify'); });
-    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
+    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result!); });
+    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result!); showAssignedImages(result!, 'annotate'); });
+    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result!, 'annotate'); showAssignedImages(result!, 'verify'); });
+    // getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
   }, []);
 
   const showAssignedImages = (images: Image[], role: string) => {

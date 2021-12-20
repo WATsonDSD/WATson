@@ -6,6 +6,7 @@ import {
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
+import { deleteImage } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
@@ -26,11 +27,6 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
- * 
- * @example
- * const projectId = await createUser('Laura's project', 'Laura', []);
- * // returns 'Laura's project'
- * getUserById(projecId).then(project => project.name);
  */
 export async function createProject(
   name: string,
@@ -63,14 +59,12 @@ export async function createProject(
     hourlyRateVerification: financialModel.hourlyRateVerification,
     annVer: [],
     workDoneInTime: {},
-    images: { // A newly created project has no images.
-      needsAnnotatorAssignment: [],
-      needsVerifierAssignment: [],
-      pending: [],
+    images: {
+      blocks: {},
+      imagesWithoutAnnotator: [],
       done: [],
-      blocks: [],
-      allImagesWithoutAnnotator: [],
-    },
+    }, // A newly created project has no images.
+
   } as Project & {_id: string};
 
   await ProjectsDB.put(project);
@@ -78,29 +72,43 @@ export async function createProject(
 }
 
 /**
- * Deletes a project.
+ * Deletes a project:
+ * it deletes the images from the database, 
+ * remove the projects[projectId] field from all the users, and 
+ * remove the project from the database
+ * notice that it does not remove the project from the workDoneInTime since 
+ * the user will be paid for images already done
  */
 export async function deleteProject(projectID: ProjectID): Promise<void> {
   // Fetches the project
   const project: Project = await findProjectById(projectID);
 
-  const images: ImageID[] = [
-    project.images.needsAnnotatorAssignment,
-    project.images.needsVerifierAssignment,
-    project.images.pending,
-    project.images.done.map((im) => im.imageId)].flat();
-
-  // Removes all the images associated with the project from ImagesDB
-  await Promise.all(images.map(async (imageID) => {
-    const image = await ImagesDB.get(imageID);
-
-    // Deletes the attachment
-    // eslint-disable-next-line no-underscore-dangle
-    await ImagesDB.removeAttachment(imageID, 'image', image._rev);
-
-    // Removes the image from ImagesDB
-    return ImagesDB.remove(image);
-  }));
+  // delete all the images from the images' database
+  Object.entries(project.images.blocks).forEach(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, value]) => {
+      Object.entries(value.block.toAnnotate).forEach(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        async ([key, imageID]) => {
+          await deleteImage(imageID);
+        },
+      );
+      Object.entries(value.block.toVerify).forEach(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        async ([key, imageID]) => {
+          await deleteImage(imageID);
+        },
+      );
+    },
+  );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Object.entries(project.images.done).forEach(async ([key, image]) => {
+    await deleteImage(image.imageId);
+  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Object.entries(project.images.imagesWithoutAnnotator).forEach(async ([key, imageId]) => {
+    await deleteImage(imageId);
+  });
 
   // Fetches the users of this project
   const users: User[] = await Promise.all(project.users.map((userID) => findUserById(userID)));
@@ -151,9 +159,8 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
 export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
   const imageId = uuid(); // unique id's.
   const project = await findProjectById(projectId);
-
   // store the image id to the project it is associated to
-  project.images.needsAnnotatorAssignment.push(imageId);
+  project.images.imagesWithoutAnnotator.push(imageId);
 
   // store the image in the database (_attachment)
   await ImagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
@@ -161,4 +168,16 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   await ProjectsDB.put(project);
 
   return imageId;
+}
+
+export async function numberOfImagesInProject(projectId: ProjectID): Promise <number> {
+  const project = await findProjectById(projectId);
+  let totImages = project.images.imagesWithoutAnnotator.length + project.images.done.length;
+  Object.entries(project.images.blocks).forEach(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, value]) => {
+      totImages += value.block.toAnnotate.length + value.block.toVerify.length;
+    },
+  );
+  return totImages;
 }

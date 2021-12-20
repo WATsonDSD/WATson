@@ -29,7 +29,6 @@ export type User = {
 export type BlockID = string;
 export type Block = {
     blockId: BlockID,
-    size: number,
     toAnnotate: ImageID[],
     toVerify: ImageID[],
     idAnnotator: UserID,
@@ -62,13 +61,13 @@ export type Project = {
     }[]>
 
     images: {
-        blocks: Block[], // block of images instanziated by the annotator
-        allImagesWithoutAnnotator: ImageID[]// images that doesn't have annotator : ALL THE IMAGES
-        needsAnnotatorAssignment: ImageID[],
-        needsVerifierAssignment: ImageID[],
-        pending: ImageID[],
+        blocks: { // block of images instanziated by the annotator
+            [blockID: BlockID]: {
+                block: Block
+            }}
+        imagesWithoutAnnotator: ImageID[], // images that doesn't have annotator : ALL THE IMAGES
         done: {imageId: ImageID, doneDate: Date}[],
-    }}
+    }};
 
 export type ImageID = string;
 
@@ -76,6 +75,7 @@ export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
+    blockId?: BlockID
     data?: ImageData,
     annotation?: Annotation,
     idAnnotator?: UserID,

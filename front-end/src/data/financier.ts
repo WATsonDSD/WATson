@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { ProjectID, Role } from './types';
@@ -155,7 +155,7 @@ export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
   const project = await findProjectById(projectID);
-  const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
+  const totalImages = await numberOfImagesInProject(projectID);
   if (totalImages === 0) {
     return 0;
   }

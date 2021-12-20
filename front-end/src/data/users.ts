@@ -6,6 +6,7 @@ import {
   ProjectID,
   UserID,
   AuthDB,
+  ProjectsDB,
 } from '.';
 
 import {
@@ -153,4 +154,17 @@ export async function createUser(name: string, email: string, role: Role): Promi
       })
       .catch((error) => reject(new CreateUserError(error.message)));
   });
+}
+
+/**
+ * if the annotator has not a verifier assigned, it creates the new link
+ */
+export async function createAnnotatorVerfierLink(projectId: ProjectID, annotatorId: UserID, verifierId: UserID): Promise<void> {
+  const project = await findProjectById(projectId);
+  const annVerLinks = project.annVer;
+  annVerLinks.forEach((anVer) => {
+    if (anVer.annotatorId === annotatorId) throw Error('annotator has already been assigned to a verifier');
+  });
+  project.annVer.push({ annotatorId, verifierId });
+  ProjectsDB.put(project);
 }
