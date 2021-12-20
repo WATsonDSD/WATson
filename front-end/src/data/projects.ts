@@ -197,6 +197,10 @@ export async function removeWorkerToProject(userId: UserID, projectId: ProjectID
 /**
  * moves the images in the indicated field in the project
  * @param To where to move the images
+ * dovrebbe essere: per ogni immagine: 
+- se l'imm è in pending allora toglila e mettila o in needsVerifier o in needsAnnotator,
+-se l'imm è in needsVerifier, o resta lì o va in needsAnnotator, 
+- se è in needsAnnotator resta li
  */
 async function projectMoveTo(
   projectID: ProjectID,
@@ -220,5 +224,6 @@ async function projectMoveTo(
     }
     // add the image in the To field
     project.images[To].push(imageId);
+    ProjectsDB.put(project);
   });
 }
