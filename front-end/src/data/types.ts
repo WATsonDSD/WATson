@@ -52,7 +52,8 @@ export type Project = {
     pricePerImageAnnotation: number,
     pricePerImageVerification: number,
     hourlyRateAnnotation: number,
-    hourlyRateVerification: number
+    hourlyRateVerification: number,
+    annVer: { annotatorId: UserID, verifierId: UserID}[],
 
     workDoneInTime: YearMonthDay <{
         imageId: ImageID,
@@ -63,9 +64,6 @@ export type Project = {
     images: {
         blocks: Block[], // block of images instanziated by the annotator
         allImagesWithoutAnnotator: ImageID[]// images that doesn't have annotator : ALL THE IMAGES
-        annotatorsWithoutVerifier: UserID[],
-        annVer: { annotatorId: UserID, verifierId: UserID}[],
-
         needsAnnotatorAssignment: ImageID[],
         needsVerifierAssignment: ImageID[],
         pending: ImageID[],

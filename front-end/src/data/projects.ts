@@ -61,6 +61,7 @@ export async function createProject(
     pricePerImageVerification: financialModel.pricePerImageVerification,
     hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
     hourlyRateVerification: financialModel.hourlyRateVerification,
+    annVer: [],
     workDoneInTime: {},
     images: { // A newly created project has no images.
       needsAnnotatorAssignment: [],
@@ -69,8 +70,6 @@ export async function createProject(
       done: [],
       blocks: [],
       allImagesWithoutAnnotator: [],
-      annotatorsWithoutVerifier: [],
-      annVer: [],
     },
   } as Project & {_id: string};
 

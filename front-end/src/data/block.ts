@@ -24,7 +24,7 @@ export async function createBlock(
 
   let idVerifier: UserID | undefined;
 
-  Object.entries(project.images.annVer).forEach(
+  Object.entries(project.annVer).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       if (value.annotatorId === idAnnotator) {
