@@ -49,7 +49,7 @@ export default function VerificationView() {
     showReject: false,
   };
   const [state, setState] = useState(initialState);
-  const { projectId } = useParams();
+  const { projectID } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
 
@@ -58,7 +58,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
+    getImagesOfUser(projectID ?? '', 'toVerify', user.id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -96,7 +96,7 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectId ?? '', state.imageToVerify.id);
+    await verifyImage(projectID ?? '', state.imageToVerify.id);
     nextImage();
   };
 
@@ -148,7 +148,7 @@ export default function VerificationView() {
   const sendReject = () => {
     const comment = document.getElementById('rejectionComment')?.innerText;
     console.log(comment);
-    rejectAnnotation(state.imageToVerify.id, projectId ?? '', comment ?? '');
+    rejectAnnotation(state.imageToVerify.id, projectID ?? '', comment ?? '');
     hideRejectMenu();
   };
 

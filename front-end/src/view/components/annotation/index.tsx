@@ -54,12 +54,12 @@ export default function AnnotationView() {
     },
   };
   const [state, setState] = useState(initialState);
-  const { projectId } = useParams();
+  const { projectID } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
 
   useEffect(() => {
-    findProjectById(projectId ?? '')
+    findProjectById(projectID ?? '')
       .then((project) => {
         Object.keys(templateImage.annotation ?? {}).forEach((a) => {
           if (!project.landmarks.includes(+a) && templateImage.annotation) {
@@ -71,7 +71,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.id).then((result) => {
+    getImagesOfUser(projectID ?? '', 'toAnnotate', user!.id).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');
@@ -174,7 +174,7 @@ export default function AnnotationView() {
       console.warn(`Could not save annotation for image ${state.imageToAnnotate.id}`);
       return;
     }
-    saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectId as string)
+    saveAnnotation(state.imageToAnnotate.annotation, state.imageToAnnotate.id, projectID as string)
       .then(() => {
         nextImage();
       })

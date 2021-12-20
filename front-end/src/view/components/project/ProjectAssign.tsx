@@ -20,15 +20,15 @@ export default function ProjectAssign() {
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
   const [projectUsers, setProjectUsers] = useState([] as User[]);
 
-  const { idProject } = useParams();
-  const project = useData(async () => findProjectById(idProject ?? ''));
+  const { projectID } = useParams();
+  const project = useData(async () => findProjectById(projectID ?? ''));
   const navigate = useNavigate();
 
   useEffect(() => {
-    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result); });
-    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result); showAssignedImages(result, 'annotate'); });
-    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result, 'annotate'); showAssignedImages(result, 'verify'); });
-    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
+    getImagesOfProject(projectID || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result); });
+    getImagesOfProject(projectID || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result); showAssignedImages(result, 'annotate'); });
+    getImagesOfProject(projectID || '', 'pending').then((result) => { showAssignedImages(result, 'annotate'); showAssignedImages(result, 'verify'); });
+    getUsersOfProject(projectID || '').then((result) => { setProjectUsers(result); });
   }, []);
 
   const showAssignedImages = (images: Image[], role: string) => {

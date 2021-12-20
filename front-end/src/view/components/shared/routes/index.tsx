@@ -43,23 +43,24 @@ export default () => (
       <Route index element={<Projects />} />
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
-        <Route path=":idProject" element={<Workers />} />
+        <Route path=":projectID" />
       </Route>
-      <Route path={Paths.CreateProject} element={<CreateProject />} />
       <Route path={Paths.Annotation} element={<Annotation />}>
-        <Route path=":projectId" element={<Annotation />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.Verification} element={<VerificationView />}>
-        <Route path=":projectId" element={<VerificationView />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
-        <Route path=":idProject" element={<ProjectFinance />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.Reports} element={<ReportFinance />} />
       <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
-        <Route path=":idProject" element={<ProjectAssign />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
+
+    <Route path={Paths.CreateProject} element={<Protected><CreateProject /></Protected>} />
   </Routes>
 );

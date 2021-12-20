@@ -13,15 +13,15 @@ import {
 } from '../../../data/financier';
 
 export default function ProjectFinance() {
-  const { idProject } = useParams();
-  const project = useData(async () => findProjectById(idProject ?? ''));
-  const totalCost = useData(async () => calculateTotalCost(idProject!));
-  const totalHours = useData(async () => totalHoursOfWork(idProject!));
-  const totalWork = useData(async () => totalWorkers(idProject!));
-  const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
-  const data = useData(async () => dataChartProjects(idProject!));
+  const { projectID } = useParams();
+  const project = useData(async () => findProjectById(projectID ?? ''));
+  const totalCost = useData(async () => calculateTotalCost(projectID!));
+  const totalHours = useData(async () => totalHoursOfWork(projectID!));
+  const totalWork = useData(async () => totalWorkers(projectID!));
+  const totalAnnotation = useData(async () => totalAnnotationMade(projectID!));
+  const data = useData(async () => dataChartProjects(projectID!));
 
-  if (!idProject || !data) return null;
+  if (!projectID || !data) return null;
 
   if (!project || !totalCost || !totalHours) return null;
 

@@ -9,22 +9,22 @@ export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
     [id: string]: Blob,
   });
-  const { idProject } = useParams();
+  const { projectID } = useParams();
   const navigate = useNavigate();
 
   let empty = document.getElementById('empty');
 
-  const project = useData(async () => findProjectById(idProject ?? ''));
+  const project = useData(async () => findProjectById(projectID ?? ''));
   const handleUpload = async () => {
-    if (!idProject) throw Error('no project id!');
+    if (!projectID) throw Error('no project id!');
 
     const files = Object.values(FILES);
     for (let i = 0; i < files.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await addImageToProject(files[i], idProject);
+      await addImageToProject(files[i], projectID);
     }
 
-    navigate(`${Paths.ProjectAssign}/${idProject}`);
+    navigate(`${Paths.ProjectAssign}/${projectID}`);
   };
 
   console.log(project);
