@@ -67,6 +67,10 @@ export async function createProject(
       needsVerifierAssignment: [],
       pending: [],
       done: [],
+      blocks: [],
+      allImagesWithoutAnnotator: [],
+      annotatorsWithoutVerifier: [],
+      annVer: [],
     },
   } as Project & {_id: string};
 

@@ -26,6 +26,17 @@ export type User = {
     role: Role,
 };
 
+export type BlockID = string;
+export type Block = {
+    blockId: BlockID,
+    size: number,
+    toAnnotate: ImageID[],
+    toVerify: ImageID[],
+    idAnnotator: UserID,
+    idVerifier: UserID | undefined,
+    projectId: ProjectID,
+}
+
 export type ProjectID = string;
 export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
@@ -50,6 +61,11 @@ export type Project = {
     }[]>
 
     images: {
+        blocks: Block[], // block of images instanziated by the annotator
+        allImagesWithoutAnnotator: ImageID[]// images that doesn't have annotator : ALL THE IMAGES
+        annotatorsWithoutVerifier: UserID[],
+        annVer: { annotatorId: UserID, verifierId: UserID}[],
+
         needsAnnotatorAssignment: ImageID[],
         needsVerifierAssignment: ImageID[],
         pending: ImageID[],
