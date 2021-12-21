@@ -2,11 +2,11 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, Block, findBlockOfProject,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
-import { deleteImage } from './images';
+import { deleteImage, findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
@@ -180,4 +180,52 @@ export async function numberOfImagesInProject(projectId: ProjectID): Promise <nu
     },
   );
   return totImages;
+}
+
+export async function updateBlock(block: Block, projectId: ProjectID): Promise<void> {
+  const project = await findProjectById(projectId);
+  project.images.blocks[block.blockId] = { block };
+  await ProjectsDB.put(project);
+}
+
+/**
+ * 
+ * Never  -> check that image is not annotated 
+CASO A: IMAGE HAS NO ANNOTATOR AND NO VERIFIER ASSIGNED
+PROJECT: image removed from project.images.allImagesWithoutAnnotator and from project.images.needaAnnotatorAssignement
+BLOCCO: not exists
+ANNOTATOR: not exists
+VERIFIER: not exists
+IMAGE: removed from the db
+   @param projectId 
+ * @param imageId 
+ */
+
+export async function deleteNewImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
+  const project = await findProjectById(projectId);
+  const image = await findImageById(imageId);
+
+  if (image.idAnnotator) {
+    // delete from the annotator
+    const annotator = await findUserById(image.idAnnotator);
+    const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((id) => id === imageId);
+    annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
+  }
+  if (image.idVerifier) {
+    // delete from the verifier
+    const verifier = await findUserById(image.idVerifier);
+    const imageIndexVerifier = verifier.projects[projectId].waitingForAnnotation.findIndex((id) => id === imageId);
+    verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
+  }
+  if (image.blockId) {
+    // image is in a block, so we remove the image from the block 
+    const block = await findBlockOfProject(image.blockId, projectId);
+    if (!block) throw Error('the block does not exist');
+    const imageIndexBlock = block.toAnnotate.findIndex((id) => id === imageId);
+    block.toAnnotate.splice(imageIndexBlock, 1);
+  } else {
+    // image is not assigned yet, we remove the image from imagesWithoutAnnotator
+    const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
+    project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
+  }
 }

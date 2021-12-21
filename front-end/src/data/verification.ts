@@ -2,7 +2,7 @@ import {
   ImagesDB, ProjectsDB,
 } from './databases';
 import {
-  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, User, Project, findAnnotatorBlockOfProject,
+  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, User, Project, findAnnotatorBlockOfProject, updateBlock,
 } from '.';
 import { createRejectedImage } from './rejectedAnnotation';
 import { findImageById } from './images';
@@ -45,12 +45,20 @@ export async function rejectAnnotation(
   verifier.projects[projectID].waitingForAnnotation.push(imageID);
   await updateUser(verifier);
 
+  // move the image from to verify to to annotate in the block 
+  const block = await findAnnotatorBlockOfProject(annotatorId, projectID);
+  if (!block) throw Error('the block does not exist');
+  const index = block.toVerify.findIndex((imId) => imId === imageID);
+  block.toVerify.splice(index, 1);
+  block.toAnnotate.push(imageID);
+
   // the image's annotation becomes undefined
   const imageCleared = {
     ...image,
     annotation: undefined,
   };
   await ImagesDB.put(imageCleared);
+  await updateBlock(block, projectID);
 }
 
 /**

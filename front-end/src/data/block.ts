@@ -32,7 +32,9 @@ export async function addBlock(
 
   let idVerifier: UserID | undefined;
 
-  // search the verifier
+  /**
+   * search the verifier->if link exixts-> add verifier to block (is the one in annVer)
+   */
   Object.entries(project.annVer).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
@@ -59,13 +61,13 @@ export async function addBlock(
 
   // assign images to the annotator
   const annotator = await findUserById(idAnnotator);
-  annotator.projects[projectId].toAnnotate = toAnnotate;
+  annotator.projects[projectId].toAnnotate.concat(toAnnotate);
   updateUser(annotator);
 
-  // assign images to the verifier if assigned
+  // if verifier-ass exixted assign images to the verifier 
   if (idVerifier) {
     const verifier = await findUserById(idVerifier);
-    verifier.projects[projectId].waitingForAnnotation = toAnnotate;
+    verifier.projects[projectId].waitingForAnnotation.concat(toAnnotate);
     updateUser(verifier);
   }
 
@@ -76,6 +78,7 @@ export async function addBlock(
       const image = await findImageById(value);
       image.idAnnotator = idAnnotator;
       image.idVerifier = idVerifier;
+      image.blockId = block.blockId;
       ImagesDB.put(image);
     },
   );
@@ -105,18 +108,16 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(toAdd + 1, toBeAssigned.length);
   project.images.imagesWithoutAnnotator = remainedToBeAssigned;
 
-  imagesToAdd.forEach((im) => {
-    // add the image to the block
-    block.toAnnotate.push(im);
-    // assign the image to the annotator (put it in toAnnotate field)
-    annotator.projects[projectId].toAnnotate.push(im);
-    updateUser(annotator);
-    // if the verifier exists, assign the image to the verifier (put it in waitingForAnnotation field)
-    if (verifier) {
-      verifier.projects[projectId].waitingForAnnotation.push(im);
-      updateUser(verifier);
-    }
-  });
+  // add the images to the block
+  block.toAnnotate.concat(imagesToAdd);
+  // assign the images to the annotator (put it in toAnnotate field)
+  annotator.projects[projectId].toAnnotate.concat(imagesToAdd);
+  updateUser(annotator);
+  // if the verifier exists, assign the image to the verifier (put it in waitingForAnnotation field)
+  if (verifier) {
+    verifier.projects[projectId].waitingForAnnotation.concat(imagesToAdd);
+    updateUser(verifier);
+  }
 
   // update the annotator and verifier field for each assigned image
   Object.entries(imagesToAdd).forEach(
