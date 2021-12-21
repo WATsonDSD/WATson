@@ -131,9 +131,10 @@ export default function AnnotationView() {
       const { translatePos, scale } = transform;
       const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
       const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
-      image.annotation[movedLandmark].x = x;
-      image.annotation[movedLandmark].y = y;
-      setImage(image);
+      const newAnnotation = { ...image.annotation };
+      newAnnotation[movedLandmark].x = x;
+      newAnnotation[movedLandmark].y = y;
+      setImage({ ...image, annotation: newAnnotation });
     }
   };
 
@@ -166,7 +167,7 @@ export default function AnnotationView() {
 
   const templateLandmarkColor = (id: number) => {
     // Highlight the current landmark
-    if (id === landmarkId) {
+    if ((tool === 'normal' && id === landmarkId) || (tool === 'move' && id === movedLandmark)) {
       return { fill: '#FFFF60', stroke: '#000000' };
     }
     return defaultTemplateLandmarkColor(id);

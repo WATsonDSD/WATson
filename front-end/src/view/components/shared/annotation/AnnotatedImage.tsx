@@ -40,22 +40,23 @@ export default function AnnotatedImage(props: {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
     backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
-    // clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // scale and translate
-    ctx.save();
-    if (translatePos) {
-      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.height);
-    }
-    if (scale) ctx.scale(scale, scale);
-    // draw image after loading
+    // draw canvas after image loading
     backgroundImage.onload = () => {
+      // clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // scale and translate
+      ctx.save();
+      if (translatePos) {
+        ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.height);
+      }
+      if (scale) ctx.scale(scale, scale);
       if (Number(h) !== (Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth) {
         setImageSize({
           ...imageSize,
           h: String((Number(imageSize.w) * backgroundImage.naturalHeight) / backgroundImage.naturalWidth),
         });
       }
+      // draw image
       const { brightness, contrast } = props;
       ctx.filter = `
         ${brightness !== undefined ? ctx.filter = `brightness(${brightness}%)` : ''}

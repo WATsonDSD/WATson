@@ -98,7 +98,7 @@ export default (
   const getHoveredLandmark = (x: number, y: number): number|null => {
     // Taking the closest point to the mouse, then checking if it's close enough to really touch the landmark
     const dist = (point: Point) => Math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y));
-    if (image.annotation === undefined) return null;
+    if (image.annotation === undefined || Object.keys(image.annotation).length === 0) return null;
     const [closestId, closestPoint] = Object.entries(image.annotation).reduce((previousValue, currentValue) => {
       const [previousId, previousPoint] = previousValue;
       const [currentId, currentPoint] = currentValue;
