@@ -210,12 +210,14 @@ export async function deleteNewImageFromProject(projectId: ProjectID, imageId: I
     const annotator = await findUserById(image.idAnnotator);
     const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((id) => id === imageId);
     annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
+    await updateUser(annotator);
   }
   if (image.idVerifier) {
     // delete from the verifier
     const verifier = await findUserById(image.idVerifier);
     const imageIndexVerifier = verifier.projects[projectId].waitingForAnnotation.findIndex((id) => id === imageId);
     verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
+    await updateUser(verifier);
   }
   if (image.blockId) {
     // image is in a block, so we remove the image from the block 
@@ -223,9 +225,30 @@ export async function deleteNewImageFromProject(projectId: ProjectID, imageId: I
     if (!block) throw Error('the block does not exist');
     const imageIndexBlock = block.toAnnotate.findIndex((id) => id === imageId);
     block.toAnnotate.splice(imageIndexBlock, 1);
+    await updateBlock(block, projectId);
   } else {
     // image is not assigned yet, we remove the image from imagesWithoutAnnotator
     const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
     project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
+    await ProjectsDB.put(project);
+  }
+}
+
+export async function deleteDoneImageFromProject(projectId: ProjectID, imageId: ImageID): Promise <void> {
+  const project = await findProjectById(projectId);
+  const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
+  project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
+  await ProjectsDB.put(project);
+}
+
+export async function deleteImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
+  const image = await findImageById(imageId);
+  const project = await findProjectById(imageId);
+  if (!image.annotation) {
+    await deleteNewImageFromProject(projectId, imageId);
+  } else if (project.images.done.find((im) => im.imageId === imageId)) {
+    await deleteDoneImageFromProject(projectId, imageId);
+  } else {
+    throw Error('This image cannot be removed!');
   }
 }

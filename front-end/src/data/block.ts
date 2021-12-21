@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import {
-  Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateUser, User, UserID,
+  Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateBlock, updateUser, User, UserID,
 } from '.';
 import { findImageById } from './images';
 
@@ -26,7 +26,7 @@ export async function addBlock(
     project.images.imagesWithoutAnnotator = [];
   } else {
     toAnnotate = toBeAssigned.slice(0, size);
-    const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(size + 1, toBeAssigned.length);
+    const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(size, toBeAssigned.length);
     project.images.imagesWithoutAnnotator = remainedToBeAssigned;
   }
 
@@ -43,7 +43,6 @@ export async function addBlock(
       }
     },
   );
-
   const block = {
     _id: id,
     blockId: id,
@@ -57,18 +56,19 @@ export async function addBlock(
 
   // add block to the project
   project.images.blocks[id] = { block };
-  ProjectsDB.put(project);
+  await ProjectsDB.put(project);
 
   // assign images to the annotator
   const annotator = await findUserById(idAnnotator);
-  annotator.projects[projectId].toAnnotate.concat(toAnnotate);
-  updateUser(annotator);
+  annotator.projects[projectId].toAnnotate.push(...toAnnotate);
+  await updateUser(annotator);
 
   // if verifier-ass exixted assign images to the verifier 
+
   if (idVerifier) {
     const verifier = await findUserById(idVerifier);
-    verifier.projects[projectId].waitingForAnnotation.concat(toAnnotate);
-    updateUser(verifier);
+    verifier.projects[projectId].waitingForAnnotation = (toAnnotate);
+    await updateUser(verifier);
   }
 
   // update the annotator and verifier field for each assigned image
@@ -79,7 +79,7 @@ export async function addBlock(
       image.idAnnotator = idAnnotator;
       image.idVerifier = idVerifier;
       image.blockId = block.blockId;
-      ImagesDB.put(image);
+      await ImagesDB.put(image);
     },
   );
   return id;
@@ -131,38 +131,57 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
       ImagesDB.put(image);
     },
   );
+  await updateBlock(block, projectId);
+  await ProjectsDB.put(project);
 }
 
 /**
  * assigns the verifier to the block
  */
-export async function assignVerifier(blockId: BlockID, verifierId: UserID, projectId: ProjectID) {
+export async function assignVerifier(blockId: BlockID, verifierId: UserID, projectId: ProjectID): Promise<void> {
   const project = await findProjectById(projectId);
   const verifier = await findUserById(verifierId);
+  const block = await findBlockOfProject(blockId, projectId);
 
-  await findBlockOfProject(blockId, projectId).then((block) => {
-    if (!block) throw Error('the block does not exist');
-    const annotatorId = block.idAnnotator;
+  if (!block) throw Error('the block does not exist');
+  const annotatorId = block.idAnnotator;
 
-    // add the annotator-verifier link to the project
-    project.annVer.push({ annotatorId, verifierId });
+  // add the annotator-verifier link to the project
+  project.annVer.push({ annotatorId, verifierId });
 
-    if (block.idVerifier) throw Error('the verifies has been already assigned!');
+  if (block.idVerifier) throw Error('the verifies has been already assigned!');
 
-    // add idVerifier to the block
-    // eslint-disable-next-line no-param-reassign
-    block.idVerifier = verifierId;
-    ProjectsDB.put(project);
+  // add idVerifier to the block
+  // eslint-disable-next-line no-param-reassign
+  block.idVerifier = verifierId;
 
-    // add the images to the waitingForAnnotation and/or toVerify field of the verifier
-    const blockImagestoAnnotate = block.toAnnotate;
-    verifier.projects[projectId].waitingForAnnotation.concat(blockImagestoAnnotate);
+  // add the images to the waitingForAnnotation and/or toVerify field of the verifier
+  const blockImagestoAnnotate = block.toAnnotate;
+  verifier.projects[projectId].waitingForAnnotation.push(...blockImagestoAnnotate);
 
-    const blockImagesToVerify = block.toVerify;
-    verifier.projects[projectId].toVerify.concat(blockImagesToVerify);
+  const blockImagesToVerify = block.toVerify;
+  verifier.projects[projectId].toVerify.push(...blockImagesToVerify);
 
-    updateUser(verifier);
-  });
+  Object.entries(blockImagestoAnnotate).forEach(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, value]) => {
+      const image = await findImageById(value);
+      image.idVerifier = verifierId;
+      await ImagesDB.put(image);
+    },
+  );
+  Object.entries(blockImagesToVerify).forEach(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, value]) => {
+      const image = await findImageById(value);
+      image.idVerifier = verifierId;
+      await ImagesDB.put(image);
+    },
+  );
+
+  await ProjectsDB.put(project);
+  await updateBlock(block, projectId);
+  await updateUser(verifier);
 }
 
 /**

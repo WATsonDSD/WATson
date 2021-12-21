@@ -170,13 +170,13 @@ export async function createAnnotatorVerifierLink(projectId: ProjectID, annotato
   const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
   // se già esiste un blocco 
   if (block) {
-    assignVerifier(block.blockId, verifierId, projectId);
+    await assignVerifier(block.blockId, verifierId, projectId);
   } else {
     project.annVer.push({ annotatorId, verifierId });
+    await ProjectsDB.put(project);
   }
 
   // search a block with that annotator 
   // if the block exixts-> update the images of the verifier 
   // if the block doesn0t exist-> nothing 
-  ProjectsDB.put(project);
 }

@@ -46,7 +46,7 @@ export async function rejectAnnotation(
   await updateUser(verifier);
 
   // move the image from to verify to to annotate in the block 
-  const block = await findAnnotatorBlockOfProject(annotatorId, projectID);
+  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
   const index = block.toVerify.findIndex((imId) => imId === imageID);
   block.toVerify.splice(index, 1);
@@ -74,6 +74,7 @@ export async function acceptAnnotation(
   if (!annotatorId) throw Error('The image to be rejected has no annotator');
   const annotator = await findUserById(annotatorId);
 
+  console.log(image.idVerifier);
   const verifierId = image.idVerifier;
   if (!verifierId) throw Error('The image has no verifier');
   const verifier = await findUserById(verifierId);
@@ -84,7 +85,8 @@ export async function acceptAnnotation(
   putWorkDoneInTime(annotator, verifier, project, imageID);
 
   // remove the image from the block
-  const block = await findAnnotatorBlockOfProject(annotatorId, projectID);
+  console.log(project.images.blocks);
+  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
   const index = block.toVerify.findIndex((imId) => imId === imageID);
   block.toVerify.splice(index, 1);
@@ -141,7 +143,7 @@ IMAGE: no changes
   putWorkDoneInTime(annotator, verifier, project, imageID);
 
   // remove the image from the block
-  const block = await findAnnotatorBlockOfProject(annotatorId, projectID);
+  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
   const index = block.toVerify.findIndex((imId) => imId === imageID);
   block.toVerify.splice(index, 1);

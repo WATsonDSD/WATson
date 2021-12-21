@@ -1,6 +1,6 @@
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, User,
+  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, User, BlockID,
 } from '.';
 import { ImagesDB } from './databases';
 import { DBDocument } from './PouchWrapper/PouchCache';
@@ -249,14 +249,17 @@ export async function assignImagesToAnnotator(
   size: number,
   annotatorId: UserID,
   projectId: ProjectID,
-) : Promise <void> {
+) : Promise <BlockID> {
+  let blockId: BlockID = '';
   // create the block and assign images to annotator (and verifier if exists)
   const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
   if (!block) {
-    await addBlock(size, annotatorId, projectId);
+    blockId = await addBlock(size, annotatorId, projectId);
   } else {
-    await addImagesToBlock(size, block.blockId, projectId);
+    blockId = block.blockId;
+    await addImagesToBlock(size, blockId, projectId);
   }
+  return blockId;
 }
 
 export async function deleteImage(imageId: ImageID): Promise <void> {
