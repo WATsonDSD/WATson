@@ -53,6 +53,8 @@ export default (
     scale: number, translatePos: { x: number, y: number }, contrast: number, brightness: number,
   },
   setTransform: Function,
+  movedLandmark: number|null,
+  setMovedLandmark: Function,
 ) => {
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
@@ -121,6 +123,26 @@ export default (
     return null;
   };
 
+  // landmark moving functions
+  const onMouseDownMove = (ctx: any, event: MouseEvent) => {
+    const { x, y } = mousePosition(ctx.canvas, transform, event);
+    if (movedLandmark === null) {
+      setMovedLandmark(getHoveredLandmark(x, y));
+    }
+  };
+  const onMouseMoveMove = (ctx: any, event: MouseEvent) => {
+    if (movedLandmark !== null && image.annotation) {
+      const { x, y } = mousePosition(ctx.canvas, transform, event);
+      const newAnnotation = { ...image.annotation };
+      newAnnotation[movedLandmark].x = x;
+      newAnnotation[movedLandmark].y = y;
+      setImage({ ...image, annotation: newAnnotation });
+    }
+  };
+  const onMouseUpMove = () => {
+    setMovedLandmark(null);
+  };
+
   return {
     onImageWheel,
     zoom,
@@ -129,5 +151,8 @@ export default (
     imageLandmarkColor,
     templateLandmarkColor,
     getHoveredLandmark,
+    onMouseDownMove,
+    onMouseMoveMove,
+    onMouseUpMove,
   };
 };

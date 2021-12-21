@@ -59,7 +59,10 @@ export default function AnnotationView() {
     imageLandmarkColor,
     templateLandmarkColor: defaultTemplateLandmarkColor,
     getHoveredLandmark,
-  } = AnnotVerif(image, setImage, transform, setTransform);
+    onMouseDownMove,
+    onMouseMoveMove,
+    onMouseUpMove,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -109,25 +112,15 @@ export default function AnnotationView() {
       if (hoveredLandmark) removeLandmark(hoveredLandmark);
       setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
     } else if (tool === 'move') {
-      setMovedLandmark(null);
+      onMouseUpMove();
     }
   };
 
   const onMouseDown = (ctx: any, event: MouseEvent) => {
-    const { x, y } = mousePosition(ctx.canvas, transform, event);
-    if (tool === 'move' && movedLandmark === null) {
-      setMovedLandmark(getHoveredLandmark(x, y));
-    }
+    if (tool === 'move') onMouseDownMove(ctx, event);
   };
-
   const onMouseMove = (ctx: any, event: MouseEvent) => {
-    if (tool === 'move' && movedLandmark !== null && image.annotation) {
-      const { x, y } = mousePosition(ctx.canvas, transform, event);
-      const newAnnotation = { ...image.annotation };
-      newAnnotation[movedLandmark].x = x;
-      newAnnotation[movedLandmark].y = y;
-      setImage({ ...image, annotation: newAnnotation });
-    }
+    if (tool === 'move') onMouseMoveMove(ctx, event);
   };
 
   const removeLandmark = (id: number|undefined) => {
