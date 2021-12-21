@@ -7,6 +7,8 @@ import { Image } from '../../../../data';
 AnnotatedImage.defaultProps = {
   onClick: undefined,
   onMouseWheel: undefined,
+  onMouseDown: undefined,
+  onMouseMove: undefined,
   scale: 1,
   translatePos: { x: 0, y: 0 },
   contrast: 100,
@@ -17,6 +19,8 @@ export default function AnnotatedImage(props: {
   image: Image,
   onClick?: Function,
   onMouseWheel?: Function,
+  onMouseDown?: Function,
+  onMouseMove?: Function,
   landmarkColor: Function,
   scale?: number,
   translatePos?: { x: number, y: number },
@@ -25,7 +29,7 @@ export default function AnnotatedImage(props: {
   size?: string,
 }) {
   const {
-    image, onClick, onMouseWheel, landmarkColor, scale, translatePos, size,
+    image, onClick, onMouseWheel, onMouseDown, onMouseMove, landmarkColor, scale, translatePos, size,
   } = props;
 
   const [imageSize, setImageSize] = useState({ w: size || '300', h: size || '300' });
@@ -66,7 +70,7 @@ export default function AnnotatedImage(props: {
           [ctx.fillStyle, ctx.strokeStyle] = [fill || '#00000000', stroke || '#00000000'];
 
           ctx.beginPath();
-          ctx.arc(point.x * canvas.width, point.y * canvas.height, 4 / (props.scale ?? 1), 0, 2 * Math.PI);
+          ctx.arc(point.x * canvas.width, point.y * canvas.height, 4 / (scale ?? 1), 0, 2 * Math.PI);
           if (fill) ctx.fill();
           if (stroke) ctx.stroke();
         });
@@ -91,6 +95,12 @@ export default function AnnotatedImage(props: {
         event.preventDefault();
         onMouseWheel(context, event);
       };
+    }
+    if (onMouseDown) {
+      context.canvas.onmousedown = (event: any) => onMouseDown(context, event);
+    }
+    if (onMouseMove) {
+      context.canvas.onmousemove = (event: any) => onMouseMove(context, event);
     }
   }, [draw]);
 

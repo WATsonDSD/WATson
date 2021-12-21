@@ -4,7 +4,7 @@ import Icon from '@mdi/react';
 import {
   mdiLeadPencil,
   mdiCursorMove,
-  mdiUndoVariant,
+  mdiUndo,
   mdiDelete,
   mdiMagnifyPlus,
   mdiMagnifyMinus,
@@ -43,6 +43,8 @@ export default function AnnotationView() {
   const [image, setImage] = useState({ ...emptyImage });
   const [transform, setTransform] = useState({ ...defaultTransform });
   const [landmarkId, setLandmarkId] = useState(undefined as number|undefined);
+  const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
+  const [movedLandmark, setMovedLandmark] = useState(null as number|null);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -55,6 +57,7 @@ export default function AnnotationView() {
     changeBrightness,
     imageLandmarkColor,
     templateLandmarkColor: defaultTemplateLandmarkColor,
+    getHoveredLandmark,
   } = AnnotVerif(image, setImage, transform, setTransform);
 
   useEffect(() => {
@@ -87,18 +90,50 @@ export default function AnnotationView() {
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     const { canvas } = ctx;
     const { translatePos, scale } = transform;
-    if (templateImage.annotation && landmarkId !== undefined) {
+    const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
+    const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
+
+    if (tool === 'normal') {
+      if (templateImage.annotation && landmarkId !== undefined) {
+        let z = 1;
+        if (rightClick) z = 0;
+        else if (event.ctrlKey || event.metaKey) z = 2;
+        if (!image.annotation) image.annotation = {};
+        image.annotation[landmarkId] = { x, y, z };
+        setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
+      } else {
+      // TODO: Alert user that every landmark has been annotated
+        console.warn('Every landmark has been annotated');
+      }
+    } else if (tool === 'delete') {
+      const hoveredLandmark = getHoveredLandmark(x, y);
+      console.log('deleting landmark', hoveredLandmark);
+      if (hoveredLandmark) removeLandmark(hoveredLandmark);
+      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
+    } else if (tool === 'move') {
+      setMovedLandmark(null);
+    }
+  };
+
+  const onMouseDown = (ctx: any, event: MouseEvent) => {
+    const { canvas } = ctx;
+    const { translatePos, scale } = transform;
+    const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
+    const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
+    if (tool === 'move' && movedLandmark === null) {
+      setMovedLandmark(getHoveredLandmark(x, y));
+    }
+  };
+
+  const onMouseMove = (ctx: any, event: MouseEvent) => {
+    if (tool === 'move' && movedLandmark !== null && image.annotation) {
+      const { canvas } = ctx;
+      const { translatePos, scale } = transform;
       const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
       const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
-      let z = 1;
-      if (rightClick) z = 0;
-      else if (event.ctrlKey || event.metaKey) z = 2;
-      if (!image.annotation) image.annotation = {};
-      image.annotation[landmarkId] = { x, y, z };
-      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
-    } else {
-      // TODO: Alert user that every landmark has been annotated
-      console.warn('Every landmark has been annotated');
+      image.annotation[movedLandmark].x = x;
+      image.annotation[movedLandmark].y = y;
+      setImage(image);
     }
   };
 
@@ -145,19 +180,19 @@ export default function AnnotationView() {
             <div className="divide-y divide-gray-400">
               <div className="grid grid-cols-2 grid-rows-2 gap-2">
                 <button type="button" onClick={removeLastLandmark}>
-                  <Icon className="col-span-1" rotate={180} path={mdiUndoVariant} horizontal />
+                  <Icon className="col-span-1" path={mdiUndo} />
                   Undo
                 </button>
-                <button type="button">
-                  <Icon className="col-span-1" path={mdiLeadPencil} horizontal />
+                <button className={tool === 'normal' ? 'bg-blue-500' : ''} type="button" onClick={() => setTool('normal')}>
+                  <Icon className="col-span-1" path={mdiLeadPencil} />
                   Normal
                 </button>
-                <button type="button">
-                  <Icon className="col-span-1" path={mdiCursorMove} horizontal />
+                <button className={tool === 'move' ? 'bg-blue-500' : ''} type="button" onClick={() => setTool('move')}>
+                  <Icon className="col-span-1" path={mdiCursorMove} />
                   Move
                 </button>
-                <button type="button">
-                  <Icon className="col-span-1" path={mdiDelete} horizontal />
+                <button className={tool === 'delete' ? 'bg-blue-500' : ''} type="button" onClick={() => setTool('delete')}>
+                  <Icon className="col-span-1" path={mdiDelete} />
                   Delete
                 </button>
               </div>
@@ -222,6 +257,8 @@ export default function AnnotationView() {
               image={image}
               onClick={onImageClick}
               onMouseWheel={onImageWheel}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
               landmarkColor={imageLandmarkColor}
               scale={transform.scale}
               translatePos={transform.translatePos}

@@ -1,6 +1,7 @@
 import {
   Annotation,
   Image,
+  Point,
 } from '../../../../data';
 import TemplateAnnotation from './TemplateAnnotation';
 
@@ -94,22 +95,34 @@ export default (
     return { fill: '#525252' };
   };
 
+  const getHoveredLandmark = (x: number, y: number): number|null => {
+    // Taking the closest point to the mouse, then checking if it's close enough to really touch the landmark
+    const dist = (point: Point) => Math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y));
+    if (image.annotation === undefined) return null;
+    const [closestId, closestPoint] = Object.entries(image.annotation).reduce((previousValue, currentValue) => {
+      const [previousId, previousPoint] = previousValue;
+      const [currentId, currentPoint] = currentValue;
+      const previousDist = dist(previousPoint);
+      const currentDist = dist(currentPoint);
+      if (currentDist < previousDist) {
+        return [currentId, currentPoint];
+      }
+      return [previousId, previousPoint];
+    });
+    const maxDist = 0.2; // TODO: depend on the zoom, size of image...
+    if (dist(closestPoint) < maxDist) {
+      return Number(closestId);
+    }
+    return null;
+  };
+
   return {
-    templateImage,
-    zoomIn,
-    zoomOut,
-    defaultTransform,
-    image,
-    setImage,
-    transform,
-    setTransform,
     onImageWheel,
     zoom,
     changeContrast,
     changeBrightness,
     imageLandmarkColor,
     templateLandmarkColor,
-    nextLandmark,
-    lastLandmark,
+    getHoveredLandmark,
   };
 };
