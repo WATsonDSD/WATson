@@ -41,6 +41,11 @@ export const lastLandmark = (imageAnnotation: Annotation|undefined) => {
   return strId === undefined ? undefined : +strId;
 };
 
+export const mousePosition = (canvas: any, transform: any, event: MouseEvent) => ({
+  x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - transform.translatePos.x) / transform.scale,
+  y: ((event.clientY - canvas.offsetTop) / canvas.clientHeight - transform.translatePos.y) / transform.scale,
+});
+
 export default (
   image: Image,
   setImage: Function,

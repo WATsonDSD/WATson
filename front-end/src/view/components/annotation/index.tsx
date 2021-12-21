@@ -27,6 +27,7 @@ import AnnotVerif, {
   defaultTransform,
   nextLandmark,
   lastLandmark,
+  mousePosition,
 } from '../shared/annotation/AnnotVerif';
 
 import { Paths } from '../shared/routes';
@@ -88,10 +89,7 @@ export default function AnnotationView() {
   };
 
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
-    const { canvas } = ctx;
-    const { translatePos, scale } = transform;
-    const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
-    const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
+    const { x, y } = mousePosition(ctx.canvas, transform, event);
 
     if (tool === 'normal') {
       if (templateImage.annotation && landmarkId !== undefined) {
@@ -116,10 +114,7 @@ export default function AnnotationView() {
   };
 
   const onMouseDown = (ctx: any, event: MouseEvent) => {
-    const { canvas } = ctx;
-    const { translatePos, scale } = transform;
-    const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
-    const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
+    const { x, y } = mousePosition(ctx.canvas, transform, event);
     if (tool === 'move' && movedLandmark === null) {
       setMovedLandmark(getHoveredLandmark(x, y));
     }
@@ -127,10 +122,7 @@ export default function AnnotationView() {
 
   const onMouseMove = (ctx: any, event: MouseEvent) => {
     if (tool === 'move' && movedLandmark !== null && image.annotation) {
-      const { canvas } = ctx;
-      const { translatePos, scale } = transform;
-      const x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - translatePos.x) / scale;
-      const y = ((event.clientY - canvas.offsetTop) / canvas.clientHeight - translatePos.y) / scale;
+      const { x, y } = mousePosition(ctx.canvas, transform, event);
       const newAnnotation = { ...image.annotation };
       newAnnotation[movedLandmark].x = x;
       newAnnotation[movedLandmark].y = y;
