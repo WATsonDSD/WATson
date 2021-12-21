@@ -34,6 +34,11 @@ const MockPouch = <T>() => ({
     return this.documents[docId].attach.data;
   },
 
+  allDocs: async () => new Promise((resolve) => resolve({
+    rows: Object.values(RejectionsDB.documents)
+      .map((doc) => ({ doc })),
+  })),
+
 });
 
 export const UsersDB = MockPouch();
@@ -56,5 +61,6 @@ export const AuthDB = {
   putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {
     AuthDB.signUp(email, '', metadata, callback);
   },
+
   allDocs: () => AuthDB.users,
 };
