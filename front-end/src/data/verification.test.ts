@@ -79,7 +79,7 @@ describe('Accept annotated image', () => {
     const now = new Date();
     const year = now.getFullYear().toString();
     const month = now.getMonth().toString();
-    const day = now.getDay().toString();
+    const day = now.getDate().toString();
     expect(project.workDoneInTime[year][month][day]).toContainEqual({ imageId, annotator: annotatorId, verifier: verifierId });
     expect(annotator.workDoneInTime[year][month][day][projectId].annotated).toContain(imageId);
     expect(verifier.workDoneInTime[year][month][day][projectId].verified).toContain(imageId);
