@@ -189,19 +189,10 @@ export async function updateBlock(block: Block, projectId: ProjectID): Promise<v
 }
 
 /**
- * 
- * Never  -> check that image is not annotated 
-CASO A: IMAGE HAS NO ANNOTATOR AND NO VERIFIER ASSIGNED
-PROJECT: image removed from project.images.allImagesWithoutAnnotator and from project.images.needaAnnotatorAssignement
-BLOCCO: not exists
-ANNOTATOR: not exists
-VERIFIER: not exists
-IMAGE: removed from the db
-   @param projectId 
- * @param imageId 
+ * deletes an image that has never been annotated and/or verified
  */
 
-export async function deleteNewImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
+async function deleteNewImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
   const project = await findProjectById(projectId);
   const image = await findImageById(imageId);
 
@@ -233,14 +224,21 @@ export async function deleteNewImageFromProject(projectId: ProjectID, imageId: I
     await ProjectsDB.put(project);
   }
 }
-
-export async function deleteDoneImageFromProject(projectId: ProjectID, imageId: ImageID): Promise <void> {
+/**
+ * delete an image that has been annotated and verified
+ */
+async function deleteDoneImageFromProject(projectId: ProjectID, imageId: ImageID): Promise <void> {
   const project = await findProjectById(projectId);
   const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
   project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
   await ProjectsDB.put(project);
 }
 
+/**
+ * deletes an image from a project.
+ * notice that this function throws an error if the image is in progress,
+ * since it is possible to remove only new and done images
+ */
 export async function deleteImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
   const image = await findImageById(imageId);
   const project = await findProjectById(imageId);

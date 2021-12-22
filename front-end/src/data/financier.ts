@@ -9,7 +9,7 @@ import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { ProjectID, Role } from './types';
 
 /**
- * @returns this function return a Csv data array with all the fields needed to show up the report * 
+ * this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
   // this will be added in the page that generates the reports 

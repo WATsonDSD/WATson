@@ -46,25 +46,6 @@ export async function getImagesOfUser(
 }
 
 /**
- * this function will be removed once the view components will be updated with the new requirements from the client.
- * the following three functions will be used instead
- * @param projectId 
- * @param status 
- * @returns 
- */
-// eslint-disable-next-line consistent-return
-export async function getImagesOfProject(
-  projectId: ProjectID,
-  status: 'needsAnnotatorAssignment' | 'needsVerifierAssignment' | 'pending' | 'done',
-): Promise <Image[] | undefined> {
-  const project = await findProjectById(projectId);
-  if (status === 'done') {
-    return Promise.all(project.images[status].map((image) => findImageById(image.imageId)));
-  }
-  // return Promise.all(project.images[status].map((imageId) => findImageById(imageId)));
-}
-
-/**
  * @returns the images of the project without annotator
  */
 export async function getImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <Image[]> {
@@ -176,67 +157,6 @@ export async function saveAnnotation(
   await ProjectsDB.put(project);
   await ImagesDB.put(image);
   await updateUser(annotator);
-}
-
-/*
-* assign the image to the verifier
-*THIS FUNCTION WILL NEVER BE USED! USE assignVerifier IN BLOCKS.TS
-*/
-export async function assignVerifierToImage(
-  imageId: ImageID,
-  verifierId: UserID,
-  projectId: ProjectID,
-): Promise<void> {
-  const verifier = await findUserById(verifierId);
-
-  if (verifier.role !== 'verifier') {
-    throw Error('this user is not a verifier');
-  }
-
-  // assign verifier to the image
-  const image = await findImageById(imageId);
-  if (!image.idAnnotator) { throw Error('The images needs to be assigned an annotator first'); }
-  image.idVerifier = verifierId;
-
-  // assign the image to be verified to the verifier
-  if (!image.annotation && !verifier.projects[projectId].waitingForAnnotation.find((i) => i === imageId)) {
-    verifier.projects[projectId].waitingForAnnotation.push(imageId);
-  } else if (image.annotation && !verifier.projects[projectId].toVerify.find((i) => i === imageId)) {
-    verifier.projects[projectId].toVerify.push(imageId);
-  }
-
-  // move the image to pending in the project.
-
-  // reflect changes in the database
-  await updateUser(verifier);
-  await ImagesDB.put(image);
-}
-
-/* this function is no more used: USE ASSIGNIMAGESTOANNOTATOR IN BLOCK.IT
-* assign the image to the annotator
-*/
-export async function assignAnnotatorToImage(
-  imageId: ImageID,
-  annotatorId: UserID,
-  projectId: ProjectID,
-): Promise<void> {
-  const annotator = await findUserById(annotatorId);
-  if (annotator.role !== 'annotator' && annotator.role !== 'verifier') {
-    throw Error('this user is not is not allowed to annotate images!');
-  }
-
-  // assign annotator to image
-  const image = await findImageById(imageId);
-  image.idAnnotator = annotatorId;
-  // assign image to be annotated the user
-  // Users have in their cards the pictures already assigned to them
-  if (!annotator.projects[projectId].toAnnotate.find((i) => i === imageId)) {
-    annotator.projects[projectId].toAnnotate.push(imageId);
-  }
-
-  // reflect changes in the database
-  await updateUser(annotator);
-  await ImagesDB.put(image);
 }
 
 /**

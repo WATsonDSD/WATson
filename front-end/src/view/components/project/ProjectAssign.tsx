@@ -4,9 +4,6 @@ import {
   findProjectById, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import {
-  assignAnnotatorToImage, assignVerifierToImage, getImagesOfProject,
-} from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/layout/Header';
 import { Paths } from '../shared/routes';
@@ -25,12 +22,12 @@ export default function ProjectAssign() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result!); });
-    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result!); showAssignedImages(result!, 'annotate'); });
-    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result!, 'annotate'); showAssignedImages(result!, 'verify'); });
+    // getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result!); });
+    // getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result!); showAssignedImages(result!, 'annotate'); });
+    // getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result!, 'annotate'); showAssignedImages(result!, 'verify'); });
     // getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
   }, []);
-
+  /*
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
       images.forEach(async (image: Image) => {
@@ -42,7 +39,7 @@ export default function ProjectAssign() {
       });
     }
   };
-
+*/
   const onCancelClick = () => {
     navigate(Paths.Projects);
   };
@@ -91,12 +88,13 @@ export default function ProjectAssign() {
   const handleSubmit = async () => {
     for (let i = 0; i < toAnnotate.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
+      // await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
     }
 
     for (let i = 0; i < toVerify.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+      // await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+
     }
 
     navigate(Paths.Projects);

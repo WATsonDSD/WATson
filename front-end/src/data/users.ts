@@ -175,8 +175,4 @@ export async function createAnnotatorVerifierLink(projectId: ProjectID, annotato
     project.annVer.push({ annotatorId, verifierId });
     await ProjectsDB.put(project);
   }
-
-  // search a block with that annotator 
-  // if the block exixts-> update the images of the verifier 
-  // if the block doesn0t exist-> nothing 
 }

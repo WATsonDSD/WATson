@@ -13,7 +13,7 @@ import { useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
-import { rejectAnnotation, verifyImage } from '../../../data/verification';
+import { acceptAnnotation, rejectAnnotation } from '../../../data/verification';
 import { Paths } from '../shared/routes';
 
 import AnnotVerif, {
@@ -59,7 +59,8 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectId ?? '', image.id);
+    await acceptAnnotation(projectId ?? '', image.id);
+    // await verifyImage(projectId ?? '', image.id);
     nextImage();
   };
 
