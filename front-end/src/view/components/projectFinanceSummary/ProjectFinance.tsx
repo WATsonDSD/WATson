@@ -6,7 +6,7 @@ import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
 import { findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
   calculateTotalCost, dataChartProjects, totalAnnotationMade, totalHoursOfWork, totalWorkers,

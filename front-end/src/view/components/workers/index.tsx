@@ -1,24 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AiOutlinePlus } from 'react-icons/ai';
-
-import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
-
 import { getAllUsers } from '../../../data';
-import { useDialog } from '../../../utils/modals';
-import { CreateUserDialog } from '../shared/dialogs';
+import useData from '../../../data/hooks';
+import Header from '../shared/header';
 
 export default function Workers() {
   const users = useData(async () => getAllUsers());
-
-  const dialog = useDialog();
-
-  const button = (
-    <button type="button" onClick={() => dialog.open(<CreateUserDialog onClose={dialog.close} />)} className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
-      <AiOutlinePlus />
-    </button>
-  );
 
   const actions = [
     {
@@ -97,7 +84,7 @@ export default function Workers() {
 
   return (
     <>
-      <Header title="Workers" buttonPM={button} />
+      <Header title="Workers" />
       <div id="contentPage">
         <div className="flex flex-nowrap mb-2">
           <div className="w-full flex flex-col space-x-4 md:w-1/6 mb-6 md:mb-0 mx-2 max-h-6">

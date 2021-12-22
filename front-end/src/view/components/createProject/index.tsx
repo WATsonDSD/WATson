@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import {
   UserID, LandmarkSpecification, Project,
 } from '../../../data/types';

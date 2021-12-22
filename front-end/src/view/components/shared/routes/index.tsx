@@ -5,10 +5,10 @@ import {
   Routes,
 } from 'react-router-dom';
 
+import Authentication from '../../authentication';
+
 import Protected from '../../protected';
 import Layout from '../layout';
-
-import Authentication from '../../authentication';
 import Projects from '../../projects';
 import Project from '../../project';
 import Workers from '../../workers';
