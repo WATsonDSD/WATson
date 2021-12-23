@@ -146,7 +146,7 @@ export default function Workers() {
                       onClick={(event) => event.stopPropagation()}
                       to="/Bonification/"
                     >
-                      Asign Bonus
+                      Give Bonus
                     </Link>
                   </span>
                 </div>
