@@ -28,18 +28,16 @@ export default function Dashboard() {
   const toA = Object.keys(user.projects)
     .filter((projectId) => (user.projects[projectId].toAnnotate.length !== 0));
 
+  projects = useData(() => getProjectsOfUser(user!.id));
   switch (type) {
     case 'annotate':
-      projects = useData(() => getProjectsOfUser(user!.id));
       projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
       break;
     case 'verify':
-      projects = useData(() => getProjectsOfUser(user!.id));
       projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
       break;
     default:
       if (user.role === 'verifier') navigate('/annotate');
-      projects = useData(() => getProjectsOfUser(user!.id));
   }
 
   if (!projects || !user) {
