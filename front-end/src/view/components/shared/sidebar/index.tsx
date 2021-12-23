@@ -46,7 +46,7 @@ function Sidebar() {
               <NavLink
                 to={href}
                 className={(navData) => (navData.isActive ? 'capitalize flex items-center px-6 py-3 max-w-min bg-black text-white rounded-full'
-                  : 'capitalize flex items-center px-6 py-3 max-w-min text-black hover:bg-black hover:text-white transition-colors duration-200 transform rounded-full')}
+                  : 'capitalize flex items-center px-6 py-3 max-w-min text-black hover:bg-gray-200 transition-colors duration-200 rounded-full')}
                 key={id ? `${id}` : ''}
                 id={id ? `${id}` : ''}
               >

@@ -7,7 +7,7 @@ import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
 import { findProjectById, useUserNotNull } from '../../../data';
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
   dataChartWorker,

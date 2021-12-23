@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import template from './template.png';
-import { Image } from '../../../data';
+import { Image } from '../../../../data';
 
 // Used for template image, image to annotate and image to verify.
 // Has a background image and some points drawn on it that represents landmarks
@@ -41,7 +41,7 @@ export default function AnnotatedImage(props: {
     // scale and translate
     ctx.save();
     if (translatePos) {
-      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.width);
+      ctx.translate(translatePos.x * canvas.width, translatePos.y * canvas.height);
     }
     if (scale) ctx.scale(scale, scale);
     // draw image after loading
@@ -66,7 +66,7 @@ export default function AnnotatedImage(props: {
           [ctx.fillStyle, ctx.strokeStyle] = [fill || '#00000000', stroke || '#00000000'];
 
           ctx.beginPath();
-          ctx.arc(point.x * canvas.width, point.y * canvas.height, 5, 0, 2 * Math.PI);
+          ctx.arc(point.x * canvas.width, point.y * canvas.height, 4 / (props.scale ?? 1), 0, 2 * Math.PI);
           if (fill) ctx.fill();
           if (stroke) ctx.stroke();
         });
