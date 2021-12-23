@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { BsPlusLg } from 'react-icons/bs';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   useUserNotNull,
   deleteProject,
