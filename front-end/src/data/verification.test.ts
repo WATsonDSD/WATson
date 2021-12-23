@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, getWorkDoneByUser,
 } from '.';
 import {
   saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser, findImageById,
@@ -83,5 +83,18 @@ describe('Accept annotated image', () => {
     expect(project.workDoneInTime[year][month][day]).toContainEqual({ imageId, annotator: annotatorId, verifier: verifierId });
     expect(annotator.workDoneInTime[year][month][day][projectId].annotated).toContain(imageId);
     expect(verifier.workDoneInTime[year][month][day][projectId].verified).toContain(imageId);
+    // exhaust inputs to getWorkDoneByUser
+    expect(getWorkDoneByUser(annotatorId, { year })).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(annotatorId, { year, month })).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(annotatorId, { year, month, day })).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(annotatorId, { year }, projectId)).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(annotatorId, { year, month }, projectId)).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(annotatorId, { year, month, day }, projectId)).resolves.toEqual({ annotation: 1, verification: 0 });
+    expect(getWorkDoneByUser(verifierId, { year })).resolves.toEqual({ annotation: 0, verification: 1 });
+    expect(getWorkDoneByUser(verifierId, { year, month })).resolves.toEqual({ annotation: 0, verification: 1 });
+    expect(getWorkDoneByUser(verifierId, { year, month, day })).resolves.toEqual({ annotation: 0, verification: 1 });
+    expect(getWorkDoneByUser(verifierId, { year }, projectId)).resolves.toEqual({ annotation: 0, verification: 1 });
+    expect(getWorkDoneByUser(verifierId, { year, month }, projectId)).resolves.toEqual({ annotation: 0, verification: 1 });
+    expect(getWorkDoneByUser(verifierId, { year, month, day }, projectId)).resolves.toEqual({ annotation: 0, verification: 1 });
   });
 });
