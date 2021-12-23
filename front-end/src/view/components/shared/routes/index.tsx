@@ -24,7 +24,7 @@ export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
   Project: '/project',
-  CreateProject: '/createProject',
+  CreateProject: '/create-project',
   Workers: '/workers',
   Annotation: '/annotation',
   Verification: '/verification',

@@ -53,8 +53,8 @@ export async function createProject(
     users: [], // A newly created project has no users.
     name,
     client,
-    startDate: new Date().toJSON(),
-    endDate: '',
+    startDate: new Date(),
+    endDate: new Date(),
     status: 'active', // A newly created project start in progress.
     landmarks,
     pricePerImageAnnotation: financialModel.pricePerImageAnnotation,

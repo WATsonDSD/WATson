@@ -105,7 +105,6 @@ export async function getAllUsers(): Promise<User[]> {
       startkey: 'a', // excludes the design documents
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
         users = response.rows.map((row: any) => ({
           id: row.doc._id,
