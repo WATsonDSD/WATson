@@ -27,6 +27,10 @@ export default function Header(props: { title: string}) {
     },
     finance: {
     },
+    annotator: {
+    },
+    verifier: {
+    },
   };
 
   return (
