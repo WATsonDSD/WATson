@@ -31,7 +31,7 @@ export type Block = {
     blockId: BlockID,
     toAnnotate: ImageID[],
     toVerify: ImageID[],
-    idAnnotator: UserID,
+    idAnnotator: UserID | undefined,
     idVerifier: UserID | undefined,
     projectId: ProjectID,
 }

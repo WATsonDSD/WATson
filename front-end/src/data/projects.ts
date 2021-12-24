@@ -250,3 +250,95 @@ export async function deleteImageFromProject(projectId: ProjectID, imageId: Imag
     throw Error('This image cannot be removed!');
   }
 }
+
+export async function removeUserFromProject(projectId: ProjectID, userId: UserID): Promise<void> {
+  const project = await findProjectById(projectId);
+  const user = await findUserById(userId);
+
+  Object.entries(project.images.blocks).forEach(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, block]) => {
+      const myBlock = await findBlockOfProject(projectId, block.block.blockId);
+      if (!myBlock) throw Error('block not found');
+
+      if (block.block.idAnnotator === userId) { // if user is an annotator
+        if (block.block.idVerifier) { // if verifier assigned, remains a block with images in toVerify and the verifierId
+          const verifier = await findUserById(block.block.idVerifier);
+
+          // remove the link annotator-verifier
+          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === userId && anVe.verifierId === verifier.id);
+          project.annVer.splice(index, 1);
+
+          // put the toAnnotate images in imagesWithoutAnnotator and remove them from the block
+          project.images.imagesWithoutAnnotator.push(...block.block.toAnnotate);
+          myBlock.toAnnotate = [];
+
+          // delete idAnnotator from the block
+          myBlock.idAnnotator = undefined;
+
+          // reflect changes in the db
+          await updateBlock(myBlock, projectId);
+          await updateUser(verifier);
+          await ProjectsDB.put(project);
+        } else { // if verifier not assigned, remove the block and put all the images in the block in imagesWithoutAnnotator
+          // put the images in imagesWithoutAnnotator
+          project.images.imagesWithoutAnnotator.push(...myBlock.toAnnotate);
+          // remove the block from the project 
+          delete project.images.blocks[myBlock.blockId];
+          await ProjectsDB.put(project);
+        }
+        // remove idAnnotator from images
+        Object.entries(myBlock.toAnnotate).forEach(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          async ([key, imId]) => {
+            const image = await findImageById(imId);
+            image.idAnnotator = undefined;
+            await ImagesDB.put(image);
+          },
+        );
+      } else if (block.block.idVerifier === userId) { // if the user is a verifier
+        // remove idVerifier from images
+        Object.entries(myBlock.toAnnotate).forEach(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          async ([key, imId]) => {
+            const image = await findImageById(imId);
+            image.idVerifier = undefined;
+            await ImagesDB.put(image);
+          },
+        );
+
+        Object.entries(myBlock.toVerify).forEach(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          async ([key, imId]) => {
+            const image = await findImageById(imId);
+            image.idVerifier = undefined;
+            await ImagesDB.put(image);
+          },
+        );
+        if (block.block.idAnnotator) { // if the annotator is linked
+        // remove the pair annotator-verifier
+          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === block.block.idAnnotator && anVe.verifierId === user.id);
+          project.annVer.splice(index, 1);
+          // remove the verifier id from the block
+          myBlock.idVerifier = undefined;
+          updateBlock(myBlock, projectId);
+        } else { // if the annotator is not linked
+          delete project.images.blocks[myBlock.blockId];
+          await ProjectsDB.put(project);
+        }
+      }
+    },
+  );
+  delete user.projects[projectId];
+  await updateUser(user);
+}
+
+// delete the blocks for the user
+//  if the user is an annotator, remove the block and if there is a verifier in the block, remove the link
+//    and put the images in imagesWithoutAnnotator
+//  if the user is a verifier, remove the verifierId field of the block,
+//    remove the links with that verifier
+
+// delete the user from users
+
+// delete projects[projectId] for the user

@@ -97,8 +97,10 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
 
   const toBeAssigned = project.images.imagesWithoutAnnotator;
   const imagesToAdd = toBeAssigned.slice(0, toAdd);
+  const annotatorId = block.idAnnotator;
+  if (!annotatorId) throw Error('the block does not have an annotator');
 
-  const annotator = await findUserById(block.idAnnotator);
+  const annotator = await findUserById(annotatorId);
   let verifier: User|undefined;
   if (block.idVerifier) {
     verifier = await findUserById(block.idVerifier);
@@ -145,6 +147,7 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
 
   if (!block) throw Error('the block does not exist');
   const annotatorId = block.idAnnotator;
+  if (!annotatorId) throw Error('the block does not have an annotator');
 
   // add the annotator-verifier link to the project
   project.annVer.push({ annotatorId, verifierId });
