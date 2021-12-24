@@ -88,13 +88,16 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
+  const users = await getAllUsers();
   let workers = 0;
-  await Promise.all(project.users.map(async (userId) => {
-    const user = await findUserById(userId);
-    if (user.role !== 'projectManager' && user.role !== 'finance') {
-      console.log(project, user.role, workers);
-      workers += 1;
-      console.log(project.name, user.role, workers);
+  await Promise.all(users.map(async (user) => {
+    // const user = await findUserById(userId);
+    if (user.projects[projectId]) {
+      if (user.role !== 'projectManager' && user.role !== 'finance') {
+        console.log(project, user.role, workers);
+        workers += 1;
+        console.log(project.name, user.role, workers);
+      }
     }
   }));
 
