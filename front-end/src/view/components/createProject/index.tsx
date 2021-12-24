@@ -10,7 +10,8 @@ import {
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import { templateImage } from '../shared/annotation/AnnotVerif';
-import TemplateAnnotation, { categories } from '../shared/annotation/TemplateAnnotation';
+// eslint-disable-next-line import/extensions
+import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
 import { Paths } from '../shared/routes';
 
