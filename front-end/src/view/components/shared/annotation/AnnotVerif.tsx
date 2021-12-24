@@ -5,12 +5,23 @@ import {
 import TemplateAnnotation from './TemplateAnnotation';
 
 export const emptyImage: Image = {
-  id: '',
-  data: new Blob(),
+  _id: '',
+  _attachments: {
+    asset: {
+      content_type: '',
+      data: new Blob(),
+    },
+  },
   annotation: {},
 };
 export const templateImage: Image = {
-  id: 'template',
+  _id: 'template',
+  _attachments: {
+    asset: {
+      content_type: '',
+      data: new Blob(),
+    },
+  },
   annotation: TemplateAnnotation,
 };
 

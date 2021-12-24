@@ -30,7 +30,7 @@ export type ProjectID = string;
 export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
 export type Project = {
-    id: ProjectID,
+    _id: ProjectID,
     users: UserID[],
     name: string,
     client: string,
@@ -61,8 +61,9 @@ export type ImageID = string;
 export type ImageData = Blob;
 
 export type Image = {
-    id: ImageID,
-    data?: ImageData,
+    _id: ImageID,
+    // eslint-disable-next-line camelcase
+    _attachments: { asset : { content_type: string, data: ImageData } },
     annotation?: Annotation,
     idAnnotator?: UserID,
     idVerifier?: UserID

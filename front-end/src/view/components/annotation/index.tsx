@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import Slider from 'rc-slider';
 import Icon from '@mdi/react';
@@ -116,10 +117,10 @@ export default function AnnotationView() {
 
   const save = () => {
     if (image.annotation === undefined) {
-      console.warn(`Could not save annotation for image ${image.id}`);
+      console.warn(`Could not save annotation for image ${image._id}`);
       return;
     }
-    saveAnnotation(image.annotation, image.id, projectID as string)
+    saveAnnotation(image.annotation, image._id, projectID as string)
       .then(() => {
         nextImage();
       })

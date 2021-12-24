@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -34,11 +35,11 @@ export default function ProjectAssign() {
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
       images.forEach(async (image: Image) => {
-        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
+        updateToAnnotate({ user: image.idAnnotator, image: image._id, data: image._attachments.asset.data });
       });
     } else {
       images.forEach(async (image: Image) => {
-        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
+        updateToVerify({ user: image.idVerifier, image: image._id, data: image._attachments.asset.data });
       });
     }
   };
@@ -60,9 +61,9 @@ export default function ProjectAssign() {
     if (action === 'annotate') {
       // Remove pic from to annotate pictures
       const newPictureList = Array.from(imagesToAnnotate);
-      const selected = newPictureList.find((e) => e.id === id);
-      const data = selected ? selected.data : toAnnotate.find((e) => e.image === id)?.data;
-      const imageIndex = newPictureList.findIndex((e) => e.id === id);
+      const selected = newPictureList.find((e) => e._id === id);
+      const data = selected ? selected._attachments.asset.data : toAnnotate.find((e) => e.image === id)?.data;
+      const imageIndex = newPictureList.findIndex((e) => e._id === id);
       if (selected) {
         newPictureList.splice(imageIndex, 1);
       } else {
@@ -74,9 +75,9 @@ export default function ProjectAssign() {
     } else {
       // Remove pic from to annotate pictures
       const newPictureList = Array.from(imagesToVerify);
-      const selected = newPictureList.find((e) => e.id === id);
-      const data = selected ? selected.data : toVerify.find((e) => e.image === id)?.data;
-      const imageIndex = newPictureList.findIndex((e) => e.id === id);
+      const selected = newPictureList.find((e) => e._id === id);
+      const data = selected ? selected._attachments.asset.data : toVerify.find((e) => e.image === id)?.data;
+      const imageIndex = newPictureList.findIndex((e) => e._id === id);
       if (selected) {
         newPictureList.splice(imageIndex, 1);
       } else {
@@ -91,12 +92,12 @@ export default function ProjectAssign() {
   const handleSubmit = async () => {
     for (let i = 0; i < toAnnotate.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
+      await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?._id || '');
     }
 
     for (let i = 0; i < toVerify.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+      await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?._id || '');
     }
 
     navigate(Paths.Projects);
@@ -115,7 +116,7 @@ export default function ProjectAssign() {
               Images to annotate
             </header>
             <div className="Pictures grow shrink flex flex-col gap-2">
-              {imagesToAnnotate.map((image) => <ImageDnD key={image.id} type="annotate" data={image.data} id={image.id} />)}
+              {imagesToAnnotate.map((image) => <ImageDnD key={image._id} type="annotate" data={image._attachments.asset.data} id={image._id} />)}
             </div>
           </div>
           <div className="flex flex-row grow shrink gap-4">
@@ -134,7 +135,7 @@ export default function ProjectAssign() {
               Images to verify
             </header>
             <div className="Pictures grow shrink flex flex-col gap-2">
-              {imagesToVerify.map((image) => <ImageDnD key={image.id} type="verify" data={image.data} id={image.id} />)}
+              {imagesToVerify.map((image) => <ImageDnD key={image._id} type="verify" data={image._attachments.asset.data} id={image._id} />)}
             </div>
           </div>
           <div className="flex grow shrink flex-row gap-4">

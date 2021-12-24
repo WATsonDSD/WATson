@@ -35,7 +35,8 @@ export default function AnnotatedImage(props: {
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
+    // eslint-disable-next-line no-underscore-dangle
+    backgroundImage.src = image._attachments.asset.data ? URL.createObjectURL(image._attachments.asset.data) : template;
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // scale and translate

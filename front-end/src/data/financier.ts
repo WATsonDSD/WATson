@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-loop-func */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -30,8 +31,8 @@ export async function generateReport(): Promise<any> {
     let numberOfImagesVerified = 0;
     projectsForUser.forEach((project) => {
       const { client } = project;
-      numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-      numberOfImagesVerified = user.projects[project.id].verified.length;
+      numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+      numberOfImagesVerified = user.projects[project._id].verified.length;
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
       const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
@@ -137,8 +138,8 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
   projectsForUser.forEach((project) => {
-    numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-    numberOfImagesVerified = user.projects[project.id].verified.length;
+    numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+    numberOfImagesVerified = user.projects[project._id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
     hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   });

@@ -1,6 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, ProjectsDB,
+  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, nonWrappedImagesDB,
 } from '.';
 import { ImagesDB } from './databases';
 import { DBDocument } from './PouchWrapper/PouchCache';
@@ -19,14 +20,7 @@ import { DBDocument } from './PouchWrapper/PouchCache';
  * @param id The identificator of the requested image 
  */
 export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
-  const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
-  const im = await ImagesDB.get(id);
-  return {
-    ...im,
-    data: attach,
-    // eslint-disable-next-line no-underscore-dangle
-    id: im._id,
-  };
+  return nonWrappedImagesDB.get(id, { attachments: true, binary: true });
 }
 
 /**
@@ -143,7 +137,7 @@ export async function assignVerifierToImage(
   const imageIndex = project.images.needsVerifierAssignment.findIndex((id) => id === imageId);
   if (imageIndex >= 0) {
     project.images.needsVerifierAssignment.splice(imageIndex, 1);
-    project.images.pending.push(image.id);
+    project.images.pending.push(image._id);
   }
 
   // reflect changes in the database
@@ -179,7 +173,7 @@ export async function assignAnnotatorToImage(
   const imageIndex = project.images.needsAnnotatorAssignment.findIndex((id) => id === imageId);
   if (imageIndex >= 0) {
     project.images.needsAnnotatorAssignment.splice(imageIndex, 1);
-    project.images.needsVerifierAssignment.push(image.id);
+    project.images.needsVerifierAssignment.push(image._id);
   }
 
   // reflect changes in the database

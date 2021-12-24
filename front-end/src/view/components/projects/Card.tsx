@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React from 'react';
 
 import {
@@ -19,23 +20,23 @@ const Card = (props: any) => {
   const { project, options }: { project: Project, options: any} = props;
   const [user] = useUserNotNull();
   const navigate = useNavigate();
-  const totalSpending = useData(async () => calculateTotalCost(project.id));
-  const percentage = useData(async () => percentageOfImagesDone(project.id));
+  const totalSpending = useData(async () => calculateTotalCost(project._id));
+  const percentage = useData(async () => percentageOfImagesDone(project._id));
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       case 'annotator':
-        navigate(`${Paths.Annotation}/${project.id}`);
+        navigate(`${Paths.Annotation}/${project._id}`);
         break;
       case 'verifier':
-        navigate(`${Paths.Verification}/${project.id}`);
+        navigate(`${Paths.Verification}/${project._id}`);
         break;
       case 'finance':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       default:
         break;
@@ -49,7 +50,7 @@ const Card = (props: any) => {
           id={`${option.name}-btn`}
           className="block pl-6 pr-12 py-2 whitespace-nowrap"
           type="button"
-          to={`${option.to}/${project.id}`}
+          to={`${option.to}/${project._id}`}
           onClick={(event) => {
             event.stopPropagation();
           }}
@@ -64,7 +65,7 @@ const Card = (props: any) => {
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            option.action!(project.id);
+            option.action!(project._id);
           }}
         >
           {option.name}

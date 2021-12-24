@@ -78,7 +78,8 @@ export default function Dashboard() {
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
-                key={project.id}
+                // eslint-disable-next-line no-underscore-dangle
+                key={project._id}
                 project={project}
                 options={projectOptions[user!.role]}
               />

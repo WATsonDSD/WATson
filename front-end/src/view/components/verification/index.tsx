@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Slider from 'rc-slider';
@@ -59,14 +60,14 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectID ?? '', image.id);
+    await verifyImage(projectID ?? '', image._id);
     nextImage();
   };
 
   const sendReject = () => {
     const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    rejectAnnotation(image.id, projectID ?? '', comment ?? '');
+    rejectAnnotation(image._id, projectID ?? '', comment ?? '');
     setShowReject(false);
   };
 

@@ -4,7 +4,7 @@ import React, {
   useEffect,
 } from 'react';
 
-// import { v4 } from 'uuid';
+import { v4 } from 'uuid';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,9 +13,12 @@ import {
 } from '../../../data/types';
 
 import {
+  Image,
   Project,
+  ProjectsDB,
+  updateUser,
   getAllUsers,
-  // createProject,
+  nonWrappedImagesDB,
 } from '../../../data';
 
 import useData from '../../../data/hooks';
@@ -29,8 +32,9 @@ import UploadIcon from '../../../assets/icons/upload.svg';
 import { Paths } from '../shared/routes';
 
 export default function CreateProject() {
-  const [project, setProject] = useState<Omit<Project, 'id'>>(
+  const [project, setProject] = useState<Project>(
     {
+      _id: '',
       name: '',
       client: '',
       startDate: new Date(0),
@@ -39,20 +43,21 @@ export default function CreateProject() {
       users: [],
       status: 'active',
       workDoneInTime: {},
+      hourlyRateAnnotation: 0,
+      hourlyRateVerification: 0,
+      pricePerImageAnnotation: 0,
+      pricePerImageVerification: 0,
       images: {
         needsAnnotatorAssignment: [],
         needsVerifierAssignment: [],
         pending: [],
         done: [],
       },
-      hourlyRateAnnotation: 0,
-      hourlyRateVerification: 0,
-      pricePerImageAnnotation: 0,
-      pricePerImageVerification: 0,
     },
   );
 
-  const [validProject, setProjectValidity] = useState<boolean>(false);
+  const [projectIsValid, updateProjectValidity] = useState<boolean>(false);
+  // const [projectIsPending, setProjectIsPending] = useState<boolean>(false);
 
   const [files, setFiles] = useState<File[]>([]);
 
@@ -60,7 +65,6 @@ export default function CreateProject() {
     accept: 'image/*',
     onDrop: (acceptedFiles) => {
       setFiles((previousFiles) => [...previousFiles, ...acceptedFiles]);
-      // TODO: acceptedFiles.map((file) => ({ [v4()]: new Blob([file]) })),
     },
   });
 
@@ -68,7 +72,7 @@ export default function CreateProject() {
   const selectedVerifiers = useRef<UserID[]>([]);
   const selectedLandmarks = useRef<number[]>([]);
 
-  const workers = useData(() => getAllUsers());
+  const workers = useData(() => getAllUsers()) ?? [];
 
   const annotators = workers ? workers.filter((user) => user.role === 'annotator') : [];
   const verifiers = workers ? workers.filter((user) => user.role === 'verifier') : [];
@@ -102,38 +106,69 @@ export default function CreateProject() {
     if (validPricing) validateStep('step-5');
     else invalidateStep('step-5');
 
-    setProjectValidity(validGeneralInformation && validLandmarks && validAssets && validWorkers && validPricing);
+    updateProjectValidity(validGeneralInformation && validLandmarks && validAssets && validWorkers && validPricing);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setProject({ ...project, [event.target.name]: event.target.value.trim() });
+    setProject({ ...project, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(project);
-    // TODO: handle images
+    const images: Image[] = files.map((file) => (
+      {
+        _id: v4(),
+        _attachments: {
+          asset: {
+            content_type: file.type,
+            data: new Blob([file]),
+          },
+        },
+        name: file.name,
+      }
+    ));
+
+    /* eslint-disable no-underscore-dangle */
+    project.users = [...project.users, 'org.couchdb.user:pm@watson.com', 'org.couchdb.user:finance@watson.com'];
+    project.images.needsAnnotatorAssignment = images.map((image) => image._id);
+    project._id = v4();
+
+    await ProjectsDB
+      .put(project)
+      .then(() => {
+        nonWrappedImagesDB.bulkDocs(images)
+          .catch((error) => { throw error; });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    await Promise.all(workers.filter((user) => project.users.includes(user.id)).map(async (selectedWorker) => {
+      updateUser(
+        {
+          ...selectedWorker,
+          projects: {
+            ...selectedWorker.projects,
+            [project._id]: {
+              toAnnotate: [],
+              waitingForAnnotation: [],
+              annotated: [],
+              toVerify: [],
+              waitingForVerification: [],
+              verified: [],
+            },
+          },
+        },
+      );
+    }));
+
+    navigate(Paths.Projects);
   };
 
   useEffect(() => {
     handleValidation();
-    // if (project && user) {
-    //   // the projectManager creating the project is assigned to it
-    //   createProject(project.name, project.client, project.landmarks, project.startDate, project.endDate, {
-    //     pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
-    //   })
-    //     .then(async (id) => {
-    //       await addUserToProject(user.id, id);
-    //       await addUserToProject('org.couchdb.user:finance@watson.com', id);
-    //       for (let i = 0; i < project.users.length; i += 1) {
-    //         // eslint-disable-next-line no-await-in-loop
-    //         await addUserToProject(project.users[i], id);
-    //       }
-    //       navigate(Paths.Projects);
-    //     });
-    // }
-  }, [project]);
+  }, [project, files]);
 
   const range = (startAt: number, endAt: number): number[] => Array.from({ length: endAt - startAt }, (_x, i) => i + startAt);
 
@@ -187,18 +222,20 @@ export default function CreateProject() {
         </button>
         <div className="flex justify-between">
           <h1 className="self-center text-2xl font-bold">Create a new project</h1>
-          <button
-            id="submit"
-            className={`justify-self-end col-start-2 py-2 px-6 border transition-all rounded-full ${
-              validProject
-                ? 'border-black text-white bg-gray-700 hover:bg-black'
-                : 'border-gray-400 text-gray-500'
-            }`}
-            type="button"
-            onClick={() => inputRef?.current?.click()}
-          >
-            Create the project
-          </button>
+          <div>
+            <button
+              id="submit"
+              type="button"
+              className={`justify-self-end col-start-2 py-2 px-6 border transition-all rounded-full ${
+                projectIsValid
+                  ? 'border-black text-white bg-gray-700 hover:bg-black'
+                  : 'border-gray-400 text-gray-500'
+              }`}
+              onClick={() => projectIsValid && inputRef?.current?.click()}
+            >
+              Create the project
+            </button>
+          </div>
         </div>
       </header>
 

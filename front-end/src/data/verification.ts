@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import {
   ImagesDB, ProjectsDB,
 } from './databases';
@@ -131,7 +132,7 @@ function putWorkDoneInTime(annotator:User, verifier: User, project: Project, ima
     // eslint-disable-next-line no-param-reassign
     if (!user.workDoneInTime[year][month][day]) { user.workDoneInTime[year][month][day] = {}; }
     // eslint-disable-next-line no-param-reassign
-    if (!user.workDoneInTime[year][month][day][project.id]) { user.workDoneInTime[year][month][day][project.id] = { annotated: [], verified: [] }; }
+    if (!user.workDoneInTime[year][month][day][project._id]) { user.workDoneInTime[year][month][day][project._id] = { annotated: [], verified: [] }; }
   });
   // eslint-disable-next-line no-param-reassign
   if (!project.workDoneInTime[year]) { project.workDoneInTime[year] = {}; }
@@ -142,7 +143,7 @@ function putWorkDoneInTime(annotator:User, verifier: User, project: Project, ima
   // ! ---------------------------------------------------------------------------------------------
 
   // put the new entry in the required fields.
-  annotator.workDoneInTime[year][month][day][project.id].annotated.push(image);
-  verifier.workDoneInTime[year][month][day][project.id].verified.push(image);
+  annotator.workDoneInTime[year][month][day][project._id].annotated.push(image);
+  verifier.workDoneInTime[year][month][day][project._id].verified.push(image);
   project.workDoneInTime[year][month][day].push({ annotator: annotator.id, verifier: verifier.id, imageId: image });
 }
