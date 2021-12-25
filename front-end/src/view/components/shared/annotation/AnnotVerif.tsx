@@ -1,6 +1,7 @@
 import {
   Annotation,
   Image,
+  Point,
 } from '../../../../data';
 import TemplateAnnotation from './TemplateAnnotation';
 
@@ -40,6 +41,11 @@ export const lastLandmark = (imageAnnotation: Annotation|undefined) => {
   return strId === undefined ? undefined : +strId;
 };
 
+export const mousePosition = (canvas: any, transform: any, event: MouseEvent) => ({
+  x: ((event.clientX - canvas.offsetLeft) / canvas.clientWidth - transform.translatePos.x) / transform.scale,
+  y: ((event.clientY - canvas.offsetTop) / canvas.clientHeight - transform.translatePos.y) / transform.scale,
+});
+
 export default (
   image: Image,
   setImage: Function,
@@ -47,6 +53,8 @@ export default (
     scale: number, translatePos: { x: number, y: number }, contrast: number, brightness: number,
   },
   setTransform: Function,
+  movedLandmark: number|null,
+  setMovedLandmark: Function,
 ) => {
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
@@ -94,22 +102,57 @@ export default (
     return { fill: '#525252' };
   };
 
+  const getHoveredLandmark = (x: number, y: number): number|null => {
+    // Taking the closest point to the mouse, then checking if it's close enough to really touch the landmark
+    const dist = (point: Point) => Math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y));
+    if (image.annotation === undefined || Object.keys(image.annotation).length === 0) return null;
+    const [closestId, closestPoint] = Object.entries(image.annotation).reduce((previousValue, currentValue) => {
+      const [previousId, previousPoint] = previousValue;
+      const [currentId, currentPoint] = currentValue;
+      const previousDist = dist(previousPoint);
+      const currentDist = dist(currentPoint);
+      if (currentDist < previousDist) {
+        return [currentId, currentPoint];
+      }
+      return [previousId, previousPoint];
+    });
+    const maxDist = 0.2; // TODO: depend on the zoom, size of image...
+    if (dist(closestPoint) < maxDist) {
+      return Number(closestId);
+    }
+    return null;
+  };
+
+  // landmark moving functions
+  const onMouseDownMove = (ctx: any, event: MouseEvent) => {
+    const { x, y } = mousePosition(ctx.canvas, transform, event);
+    if (movedLandmark === null) {
+      setMovedLandmark(getHoveredLandmark(x, y));
+    }
+  };
+  const onMouseMoveMove = (ctx: any, event: MouseEvent) => {
+    if (movedLandmark !== null && image.annotation) {
+      const { x, y } = mousePosition(ctx.canvas, transform, event);
+      const newAnnotation = { ...image.annotation };
+      newAnnotation[movedLandmark].x = x;
+      newAnnotation[movedLandmark].y = y;
+      setImage({ ...image, annotation: newAnnotation });
+    }
+  };
+  const onMouseUpMove = () => {
+    setMovedLandmark(null);
+  };
+
   return {
-    templateImage,
-    zoomIn,
-    zoomOut,
-    defaultTransform,
-    image,
-    setImage,
-    transform,
-    setTransform,
     onImageWheel,
     zoom,
     changeContrast,
     changeBrightness,
     imageLandmarkColor,
     templateLandmarkColor,
-    nextLandmark,
-    lastLandmark,
+    getHoveredLandmark,
+    onMouseDownMove,
+    onMouseMoveMove,
+    onMouseUpMove,
   };
 };

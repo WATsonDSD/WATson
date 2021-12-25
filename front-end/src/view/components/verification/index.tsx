@@ -28,6 +28,8 @@ export default function VerificationView() {
   const [image, setImage] = useState({ ...emptyImage });
   const [transform, setTransform] = useState({ ...defaultTransform });
   const [showReject, setShowReject] = useState(false);
+  const [movedLandmark, setMovedLandmark] = useState(null as number|null);
+  const [edit, setEdit] = useState(false);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -40,7 +42,10 @@ export default function VerificationView() {
     changeBrightness,
     imageLandmarkColor,
     templateLandmarkColor,
-  } = AnnotVerif(image, setImage, transform, setTransform);
+    onMouseDownMove,
+    onMouseMoveMove,
+    onMouseUpMove,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
     nextImage();
@@ -59,7 +64,7 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectId ?? '', image.id);
+    await verifyImage(projectId ?? '', image.id, image.annotation);
     nextImage();
   };
 
@@ -68,6 +73,16 @@ export default function VerificationView() {
     console.log(comment);
     rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
+  };
+
+  const onClick = () => {
+    if (edit) onMouseUpMove();
+  };
+  const onMouseDown = (ctx: any, event: MouseEvent) => {
+    if (edit) onMouseDownMove(ctx, event);
+  };
+  const onMouseMove = (ctx: any, event: MouseEvent) => {
+    if (edit) onMouseMoveMove(ctx, event);
   };
 
   // Here goes the image count condition if images to annotate is empty, allDone = true
@@ -119,6 +134,13 @@ export default function VerificationView() {
         <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
           <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl ml-4 mr-auto">
             <div className="divide-y divide-gray-400">
+              <div>
+                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={() => setEdit(!edit)}>
+                  <span className="mx-auto text-white">
+                    {edit ? 'Confirm modifications' : 'Edit annotation' }
+                  </span>
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-1 h-60v my-4">
                   <Slider
@@ -175,7 +197,10 @@ export default function VerificationView() {
           <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
             <AnnotatedImage
               image={image}
+              onClick={onClick}
               onMouseWheel={onImageWheel}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
               landmarkColor={imageLandmarkColor}
               scale={transform.scale}
               translatePos={transform.translatePos}
