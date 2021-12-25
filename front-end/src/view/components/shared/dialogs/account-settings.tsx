@@ -9,9 +9,9 @@ import React, {
 
 import { UpdateUserError } from '../../../../utils/errors';
 import { useUserNotNull, changePassword } from '../../../../data';
+import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
 import CloseIcon from '../../../../assets/icons/close.svg';
-import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
 type OnSaveAction = {
   onSave: () => Promise<void>;
