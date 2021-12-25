@@ -48,10 +48,6 @@ header {
   background-color: #f9f9f9;
 }
 
-#modal {
-  overflow: auto;
-}
-
 #account-settings {
   width: 800px;
 }

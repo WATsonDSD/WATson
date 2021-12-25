@@ -1,4 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, {
+  useRef,
+  useState,
+  forwardRef,
+  createRef,
+  ElementRef,
+  useImperativeHandle,
+} from 'react';
 
 import { UpdateUserError } from '../../../../utils/errors';
 import { useUserNotNull, changePassword } from '../../../../data';
@@ -6,21 +13,30 @@ import { useUserNotNull, changePassword } from '../../../../data';
 import CloseIcon from '../../../../assets/icons/close.svg';
 import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
-export function AccountSettings(props: {onClose: VoidFunction}) {
-  const { onClose } = props;
+type OnSaveAction = {
+  onSave: () => Promise<void>;
+};
 
+const SecurityTab = forwardRef<OnSaveAction>((_props, ref) => {
   const [user] = useUserNotNull();
-
-  const [selectedTab, setSelectedTab] = useState(0);
 
   const password = useRef<HTMLInputElement>(null);
   const repeatPassword = useRef<HTMLInputElement>(null);
 
-  const snackBar = useSnackBar();
+  useImperativeHandle(ref, () => ({
+    onSave: async () => {
+      if (password?.current?.value !== repeatPassword?.current?.value) throw new UpdateUserError('The passwords you typed do not match.');
 
-  const SecurityTab = () => (
+      changePassword(user.email, password!.current!.value);
+    },
+  }));
+
+  return (
     <section>
-      <h1 className="text-lg font-medium mb-4">Set a new password</h1>
+      <div className="mb-6">
+        <h1 className="text-lg font-medium">Change password</h1>
+        <p className="text-gray-400">Set a new password for your account. This action will require you to signin again.</p>
+      </div>
       <div className="flex gap-x-6">
         <label htmlFor="password" className="flex flex-col items-start w-full text-gray-500">
           Password
@@ -33,15 +49,22 @@ export function AccountSettings(props: {onClose: VoidFunction}) {
       </div>
     </section>
   );
+});
 
-  const tabs : {[name: string] : {content: JSX.Element, onSave: () => Promise<void>}} = {
+export function AccountSettings(props: {onClose: VoidFunction}) {
+  const { onClose } = props;
+
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const snackBar = useSnackBar();
+
+  const refs: {[name: string]: React.RefObject<OnSaveAction>} = {
+    security: createRef<ElementRef<typeof SecurityTab>>(),
+  };
+
+  const tabs : {[name: string] : {content: JSX.Element}} = {
     security: {
-      content: <SecurityTab />,
-      onSave: async () => {
-        if (password?.current?.value !== repeatPassword?.current?.value) throw new UpdateUserError();
-
-        changePassword(user.email, password!.current!.value);
-      },
+      content: <SecurityTab ref={refs.security} />,
     },
   };
 
@@ -67,18 +90,13 @@ export function AccountSettings(props: {onClose: VoidFunction}) {
         <div id="account-settings" className="flex flex-col justify-between h-96 mt-6">
           {Object.values(tabs)[selectedTab].content}
 
-          <div className="flex justify-end gap-x-4">
-            <button
-              type="button"
-              className="text-gray-400 hover:text-gray-600"
-              onClick={() => onClose()}
-            >
-              Cancel
-            </button>
+          <div className="flex justify-end gap-x-4 mt-12">
+            <button type="button" className="text-gray-400 hover:text-gray-600" onClick={() => onClose()}>Cancel</button>
+
             <button
               type="button"
               onClick={() => {
-                Object.values(tabs)[selectedTab].onSave()
+                Object.values(refs)[selectedTab]?.current?.onSave()
                   .then(() => {
                     snackBar({ title: 'Success', message: 'The changes you requested have been made.' }, SnackBarType.Success);
                     onClose();
