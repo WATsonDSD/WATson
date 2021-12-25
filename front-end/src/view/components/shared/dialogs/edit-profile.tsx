@@ -61,4 +61,4 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
   );
 }
 
-export default { SignOutDialog: EditProfileDialog };
+export default { EditProfileDialog };
