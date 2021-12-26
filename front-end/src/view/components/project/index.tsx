@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addImageToProject, findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import { Paths } from '../shared/routes';
 
 export default function ProjectEdit() {
