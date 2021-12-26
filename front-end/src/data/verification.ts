@@ -174,7 +174,7 @@ function putWorkDoneInTime(annotator:User, verifier: User, project: Project, ima
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
-  const day = now.getDay().toString();
+  const day = now.getDate().toString();
 
   // handle edge case where one of the fields may not exist.
   // ! If you know a better way to do this, please tell Cem, he needs help :( ----------------------

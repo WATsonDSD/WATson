@@ -176,3 +176,69 @@ export async function createAnnotatorVerifierLink(projectId: ProjectID, annotato
     await ProjectsDB.put(project);
   }
 }
+/*
+ * Returns the number of images a user has annotated and modified (in a project, if specified) in the specified time.
+ * Do keep in mind that month numbers start from 0 ( January -> 0, May -> 4 ...)
+ */
+export async function getWorkDoneByUser(
+  userId: UserID,
+  time: { year: string, month?: string, day?: string},
+  projectID?: ProjectID,
+): Promise<{annotation: number, verification: number}> {
+  /** 
+   * Helper function that mutates the target.
+   */
+  function addDaysWork(dayEntry: typeof workDoneInTimeSlot, target: typeof workDoneInTimeSlot) {
+    Object.entries(dayEntry).forEach(([projectId, work]) => {
+      // eslint-disable-next-line no-param-reassign
+      if (!target[projectId]) { target[projectId] = { annotated: [], verified: [] }; }
+      // eslint-disable-next-line no-param-reassign
+      target[projectId].annotated = target[projectId].annotated.concat(work.annotated);
+      // eslint-disable-next-line no-param-reassign
+      target[projectId].verified = target[projectId].verified.concat(work.verified);
+    });
+  }
+
+  const user = await findUserById(userId);
+
+  // aggregate all work done in the given period of time.
+  // this part is not very easy on the eyes, I'm up to implement a better suggestion.
+  let workDoneInTimeSlot : {[projectID: string]: {annotated: string[], verified: string[]}};
+  if (time.month) {
+    if (time.day) {
+      workDoneInTimeSlot = user.workDoneInTime[time.year]?.[time.month]?.[time.day];
+    } else {
+      workDoneInTimeSlot = {};
+      const monthlyWork = user.workDoneInTime[time.year]?.[time.month];
+      if (monthlyWork) {
+        Object.values(monthlyWork).forEach((day) => {
+          addDaysWork(day, workDoneInTimeSlot);
+        });
+      }
+    }
+  } else {
+    workDoneInTimeSlot = {};
+    const yearlyWork = user.workDoneInTime[time.year];
+    if (yearlyWork) {
+      Object.values(yearlyWork).forEach((monthlyWork) => {
+        Object.values(monthlyWork).forEach((day) => {
+          addDaysWork(day, workDoneInTimeSlot);
+        });
+      });
+    }
+  }
+
+  if (projectID) {
+    return {
+      annotation: workDoneInTimeSlot[projectID].annotated.length,
+      verification: workDoneInTimeSlot[projectID].verified.length,
+    };
+  }
+  let numAnnotations = 0;
+  let numVerifications = 0;
+  Object.values(workDoneInTimeSlot).forEach((entry) => {
+    numAnnotations += entry.annotated.length;
+    numVerifications += entry.verified.length;
+  });
+  return { annotation: numAnnotations, verification: numVerifications };
+}

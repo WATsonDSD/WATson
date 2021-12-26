@@ -1,24 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AiOutlinePlus } from 'react-icons/ai';
-
-import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
-
 import { getAllUsers } from '../../../data';
-import { useDialog } from '../../../utils/modals';
-import { CreateUserDialog } from '../shared/dialogs';
+import useData from '../../../data/hooks';
+import Header from '../shared/header';
 
 export default function Workers() {
-  const users = useData(async () => getAllUsers());
-
-  const dialog = useDialog();
-
-  const button = (
-    <button type="button" onClick={() => dialog.open(<CreateUserDialog onClose={dialog.close} />)} className="bg-transparent hover:bg-gray-400 px-4 py-2 rounded text-black focus:outline-none">
-      <AiOutlinePlus />
-    </button>
-  );
+  let users = useData(async () => getAllUsers());
+  if (users) users = users.filter((w) => w.role !== 'projectManager' && w.role !== 'finance');
 
   const actions = [
     {
@@ -66,15 +54,14 @@ export default function Workers() {
   });
   console.log(dropDownActions);
 
-  const genHours = () => {
-    const sel = (Math.floor(Math.random() * 6) + 1);
-    if (sel === 1) return '1:24';
-    if (sel === 2) return '1:52';
-    if (sel === 3) return '0:32';
-    if (sel === 4) return '3:54';
-    if (sel === 5) return '6:11';
-    return '2:37';
+  // Here is the mapping to get the workers hours
+  const genHours = () => { // worker: User) => {
+    const sel = (Math.floor(Math.random() * 240) + 1);
+    if (sel % 60 < 10) return `${Math.floor(sel / 60)}:0${sel % 60}`;
+    return `${Math.floor(sel / 60)}:${sel % 60}`;
+    // return useData(async () => hoursWorkPerUser(worker.id));
   };
+
   const genStyledLabel = (role: String) => {
     console.log(role);
     let style;
@@ -97,7 +84,7 @@ export default function Workers() {
 
   return (
     <>
-      <Header title="Workers" buttonPM={button} />
+      <Header title="Workers" />
       <div id="contentPage">
         <div className="flex flex-nowrap mb-2">
           <div className="w-full flex flex-col space-x-4 md:w-1/6 mb-6 md:mb-0 mx-2 max-h-6">
@@ -140,21 +127,15 @@ export default function Workers() {
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
                   <span className="my-0.5 block w-auto font-bold px-2">
-                    {worker.role === 'projectManager'
-                      ? (
-                        <span className="normal-case block h-6 bg-transparent text-gray-50 rounded-full py-1 px-2"> </span>
-                      )
-                      : (
-                        <Link
-                          className="normal-case bg-black text-gray-50 rounded-full py-1 px-2 hover:bg-gray-800 hover:text-gray-200"
-                          id="Bonification-btn"
-                          type="button"
-                          onClick={(event) => event.stopPropagation()}
-                          to="/Bonification/"
-                        >
-                          Asign Bonification
-                        </Link>
-                      )}
+                    <Link
+                      className="normal-case bg-black text-gray-50 rounded-full py-1 px-2 hover:bg-gray-800 hover:text-gray-200"
+                      id="Bonification-btn"
+                      type="button"
+                      onClick={(event) => event.stopPropagation()}
+                      to="/Bonification/"
+                    >
+                      Give Bonus
+                    </Link>
                   </span>
                 </div>
               ))}

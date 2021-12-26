@@ -5,7 +5,7 @@ import {
 } from '../../../data';
 import useData from '../../../data/hooks';
 // import { findImageById } from '../../../data/images';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import { Paths } from '../shared/routes';
 import ImageDnD from './ImageDnD';
 import UserCardDnD from './UserCardDnD';
