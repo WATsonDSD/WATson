@@ -149,7 +149,7 @@ const Card = (props: any) => {
   ));
 
   return (
-    <div className="flex flex-col bg-gray-800 hover:bg-black cursor-pointer aspect-w-4 aspect-h-3 rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
+    <div className="flex flex-col bg-gray-800 hover:bg-black cursor-pointer aspect-w-4 aspect-h-3  transition-all rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
       <div className="w-full flex flex-col justify-between px-8 py-6">
         <div className="flex">
           <div className="flex-grow">
