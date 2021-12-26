@@ -20,7 +20,7 @@ export default function UserSettings() {
     <div className="Dropdown text-black focus:outline-none">
       <Menu as="div" className="flex">
         <Menu.Button>
-          <div className="flex items-center gap-3 p-1 text-black bg-blue-50 hover:bg-blue-100 transition-all rounded-full">
+          <div className="flex items-center gap-3 p-1 text-black hover:bg-blue-50 transition-all rounded-full">
             <span className="block h-9 w-9 bg-blue-200 rounded-full" />
             {user ? user.name : 'loading...'}
             <img className="mr-4" src={DownArrow} alt="Profile Options" />
