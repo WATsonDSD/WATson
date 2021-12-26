@@ -6,6 +6,7 @@ import { useUserNotNull } from '../../../../data';
 import { useDialog } from '../../../../utils/modals';
 import { SignOutDialog, EditProfileDialog, AccountSettings } from '../dialogs';
 
+import SignOutIcon from '../../../../assets/icons/signout.svg';
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
 function classNames(...classes: any) {
@@ -36,7 +37,7 @@ export default function UserSettings() {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="origin-top-right absolute right-16 mt-12 px-6 rounded-sm shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
+          <Menu.Items className="origin-top-right absolute right-16 mt-14 px-6 rounded-sm shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
             <Menu.Item>
               <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<EditProfileDialog onClose={dialog.close} />)}>
                 Edit Profile
@@ -68,8 +69,9 @@ export default function UserSettings() {
             <span className="block border-b" />
 
             <Menu.Item>
-              <button className="block pr-16 py-4 text-red-600 hover:text-black" type="button" onClick={() => dialog.open(<SignOutDialog onClose={dialog.close} />)}>
-                Sign Out
+              <button className="block flex items-center gap-x-2 pr-16 py-4 text-red-600 opacity-60 hover:opacity-100 transition-opacity" type="button" onClick={() => dialog.open(<SignOutDialog onClose={dialog.close} />)}>
+                <img src={SignOutIcon} alt="Sign out" />
+                Signout
               </button>
             </Menu.Item>
           </Menu.Items>
