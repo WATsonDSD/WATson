@@ -16,11 +16,11 @@ interface Props {
   children: JSX.Element;
 }
 
-type HandleClose = {
+type ExposedActions = {
   close: () => void;
 };
 
-const Dialog = forwardRef<HandleClose, Props>(({ children }: { children: JSX.Element}, ref) => {
+const Dialog = forwardRef<ExposedActions, Props>(({ children }: { children: JSX.Element}, ref) => {
   const [visible, setVisibility] = useState(true);
 
   /**
