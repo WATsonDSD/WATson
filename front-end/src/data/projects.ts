@@ -1,26 +1,62 @@
+/* eslint-disable no-underscore-dangle */
 import { v4 as uuid } from 'uuid';
 import {
+  User,
+  UserID,
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User,
+  LandmarkSpecification,
+  Project,
+  ProjectID,
+  ImageData,
+  ImageID,
+  ImagesDB,
+  ProjectsDB,
+  nonWrappedProjectsDB,
 } from '.';
 
-import { ImagesDB, ProjectsDB } from './databases';
+import { FetchingError } from '../utils/errors';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
 }
+
 /**
  * Finds and returns all projects of a user.
  */
 export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
   const user: User = await findUserById(userID);
 
-  const projects = await Promise.all(
-    Object.keys(user.projects).map((id) => findProjectById(id)),
-  );
+  return new Promise((resolve, reject) => {
+    nonWrappedProjectsDB.allDocs({
+      include_docs: true,
+      keys: Object.keys(user.projects),
+    }).then((response) => {
+      if (response) {
+        const projects: Project[] = response.rows.map((row: any) => ({
+          id: row.doc._id,
+          users: row.doc.users,
+          name: row.doc.name,
+          client: row.doc.client,
+          startDate: row.doc.startDate,
+          endDate: row.doc.endDate,
+          status: row.doc.status,
+          landmarks: row.doc.landmarks,
+          pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
+          pricePerImageVerification: row.doc.pricePerImageVerification,
+          hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
+          hourlyRateVerification: row.doc.hourlyRateVerification,
+          workDoneInTime: row.doc.workDoneInTime,
+          images: row.doc.images,
+        }
+        ));
 
-  return projects;
+        resolve(projects);
+      }
+    }).catch(() => {
+      reject(new FetchingError('We could not fetch the projects as requested.'));
+    });
+  });
 }
 
 /**
