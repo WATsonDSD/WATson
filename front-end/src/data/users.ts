@@ -85,11 +85,29 @@ export async function updateUser(user: User): Promise<void> {
 /**
  * Fetches and returns all the users of a given project.
  */
-// TODO: Use ProjectsDB.allDocs with the keys parameter instead
 export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
-  return Promise.all(
-    (await findProjectById(projectId)).users.map((id) => findUserById(id)),
-  );
+  const project = await findProjectById(projectId);
+
+  return new Promise((resolve, reject) => {
+    AuthDB.allDocs({
+      include_docs: true,
+      keys: project.users,
+    }).then((response) => {
+      if (response) {
+        const users: User[] = response.rows.map((row: any) => ({
+          id: row.doc._id,
+          email: row.doc.name,
+          name: row.doc.fullname,
+          role: row.doc.roles[0],
+          projects: row.doc.projects,
+        } as User));
+
+        resolve(users);
+      }
+    }).catch(() => {
+      reject(new FetchingError(`We could not fetch the users of the ${project.name} project.`));
+    });
+  });
 }
 
 /* eslint-disable no-underscore-dangle */
@@ -105,7 +123,6 @@ export async function getAllUsers(): Promise<User[]> {
       startkey: 'a', // excludes the design documents
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
         users = response.rows.map((row: any) => ({
           id: row.doc._id,
@@ -114,10 +131,10 @@ export async function getAllUsers(): Promise<User[]> {
           role: row.doc.roles[0],
           projects: row.doc.projects,
         } as User));
+        resolve(users);
       }
-      resolve(users);
     }).catch(() => {
-      reject(new FetchingError());
+      reject(new FetchingError('We could not fetch the list of users as requested.'));
     });
   });
 }

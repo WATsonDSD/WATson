@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
@@ -8,51 +9,50 @@ export default function Workers() {
   let users = useData(async () => getAllUsers());
   if (users) users = users.filter((w) => w.role !== 'projectManager' && w.role !== 'finance');
 
-  const actions = [
-    {
-      text: 'Update Data',
-      onClick: () => {}, // TODO: implement update user data dialog
-      href: '',
-    },
-    {
-      text: 'Assign Work',
-      href: '/Workers/',
-    },
-    {
-      text: 'Give Bonification',
-      href: '/Workers/',
-    },
-    {
-      text: 'Delete User',
-      onClick: () => {}, // TODO: implement delete user dialog
-      href: '',
-    },
-  ];
+  // const actions = [
+  //   {
+  //     text: 'Update Data',
+  //     onClick: () => {}, // TODO: implement update user data dialog
+  //     href: '',
+  //   },
+  //   {
+  //     text: 'Assign Work',
+  //     href: '/Workers/',
+  //   },
+  //   {
+  //     text: 'Give Bonification',
+  //     href: '/Workers/',
+  //   },
+  //   {
+  //     text: 'Delete User',
+  //     onClick: () => {}, // TODO: implement delete user dialog
+  //     href: '',
+  //   },
+  // ];
 
-  const dropDownActions = actions.map((action: any) => {
-    if (action.href === '') {
-      return (
-        <button
-          id={`${action.text}-btn`}
-          type="button"
-          onClick={action.onClick}
-        >
-          {action.text}
-        </button>
-      );
-    }
-    return (
-      <Link
-        id={`${action.text}-btn`}
-        type="button"
-        onClick={(event) => event.stopPropagation()}
-        to={`${action.href}`}
-      >
-        {action.text}
-      </Link>
-    );
-  });
-  console.log(dropDownActions);
+  // const dropDownActions = actions.map((action: any) => {
+  //   if (action.href === '') {
+  //     return (
+  //       <button
+  //         id={`${action.text}-btn`}
+  //         type="button"
+  //         onClick={action.onClick}
+  //       >
+  //         {action.text}
+  //       </button>
+  //     );
+  //   }
+  //   return (
+  //     <Link
+  //       id={`${action.text}-btn`}
+  //       type="button"
+  //       onClick={(event) => event.stopPropagation()}
+  //       to={`${action.href}`}
+  //     >
+  //       {action.text}
+  //     </Link>
+  //   );
+  // });
 
   // Here is the mapping to get the workers hours
   const genHours = () => { // worker: User) => {
@@ -63,7 +63,6 @@ export default function Workers() {
   };
 
   const genStyledLabel = (role: String) => {
-    console.log(role);
     let style;
     if (role === 'annotator') {
       style = 'bg-lb-annotator text-lb-annotatortext hover:bg-lb-annotatortext hover:text-lb-annotator ';
