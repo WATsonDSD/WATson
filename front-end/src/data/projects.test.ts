@@ -1,7 +1,7 @@
 import {
   addImageToProject,
   addUserToProject,
-  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
+  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
 } from '.';
 
 import { findImageById } from './images';
@@ -59,4 +59,28 @@ describe('addImageToProject', () => {
   it('adds the image to the project to be assigned an annotator', async () => expect(getImagesOfProject(projectId, 'needsAnnotatorAssignment')
     .then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
     */
+});
+
+describe('fghjmk,', () => {
+  let userId: UserID;
+  let projectId: ProjectID;
+  let projectId2: ProjectID;
+  beforeAll(async () => {
+    userId = await createUser('User 1', 'user1@watson.com', 'annotator');
+    projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    projectId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    await addUserToProject(userId, projectId);
+    await addUserToProject(userId, projectId2);
+    await removeUserFromProject(projectId, userId);
+  });
+
+  it('modifies user state', async () => expect(findUserById(userId).then((user) => user.projects[projectId]))
+    .resolves.not.toContain);
+
+  it('doesnt contain user anymore', async () => expect(findProjectById(projectId).then((project) => project.users))
+    .resolves.not.toContain(userId));
 });

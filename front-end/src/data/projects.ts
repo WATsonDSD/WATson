@@ -329,6 +329,9 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
       }
     },
   );
+  const userIdex = project.users.findIndex((user) => user === userId);
+  project.users.splice(userIdex, 1);
+
   delete user.projects[projectId];
   await updateUser(user);
 }
