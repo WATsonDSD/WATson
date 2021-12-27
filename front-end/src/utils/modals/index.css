@@ -6,10 +6,18 @@
   z-index: 9999;
 }
 
+#super-root {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+}
+
 #modal {
   -webkit-animation: fade-in .1s linear;
   animation: fade-in .1s linear;
   animation-fill-mode: forwards;
+  overflow: auto;
   opacity: 0;
 }
 
