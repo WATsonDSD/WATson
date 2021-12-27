@@ -6,12 +6,14 @@ import {
   findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
+import { createReport, insertReportRow } from './report';
 import { ProjectID, Role } from './types';
 
 /**
  * @returns this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
+  const reportId = await createReport();
   // this will be added in the page that generates the reports 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headers = [
@@ -22,7 +24,6 @@ export async function generateReport(): Promise<any> {
     { label: 'images', key: 'images' },
     { label: 'hoursOfWork', key: 'hours' },
   ];
-  const CSVdata: { username: string; project: string; client: { client: string; } | { client: string; }; role: Role; images: { numberOfImagesAnnotated: number; } | { numberOfImagesAnnotated: number; }; hours: { hoursA: number; } | { hoursV: number; }; }[] = [];
   const listOfUsers = await getAllUsers(); // first column. all of user
   listOfUsers.forEach(async (user) => {
     const projectsForUser = await getProjectsOfUser(user.id);
@@ -32,24 +33,26 @@ export async function generateReport(): Promise<any> {
       const { client } = project;
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
+      const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
+      const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
       const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
       if (numberOfImagesAnnotated > 0) {
-        CSVdata.push({
-          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImagesAnnotated }, hours: { hoursA },
-        });
+        insertReportRow(
+          reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+        );
       }
       if (numberOfImagesVerified > 0) {
-        CSVdata.push({
-          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImagesAnnotated }, hours: { hoursV },
-        });
+        insertReportRow(
+          reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+        );
       }
     });
   });
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
-  return CSVdata;
+  return reportId;
 }
 
 /** total amount of money spent on a project, 
@@ -184,7 +187,6 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const project = await findProjectById(key);
       const priceAnnotation = project.pricePerImageAnnotation;
       const priceVerification = project.pricePerImageVerification;
-
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
         async ([key, value]) => {
