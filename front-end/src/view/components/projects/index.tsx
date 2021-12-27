@@ -72,7 +72,7 @@ export default function Dashboard() {
     <>
       <Header title="Projects" />
       <div id="content" className="h-full">
-        {projects && projects.length > 5 ? (
+        {projects && projects.length > 0 ? (
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
