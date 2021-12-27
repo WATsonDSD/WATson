@@ -92,7 +92,6 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
     const image = await ImagesDB.get(imageID);
 
     // Deletes the attachment
-    // eslint-disable-next-line no-underscore-dangle
     await ImagesDB.removeAttachment(imageID, 'image', image._rev);
 
     // Removes the image from ImagesDB

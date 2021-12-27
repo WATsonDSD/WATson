@@ -18,8 +18,6 @@ import {
 
 export const IDPrefix: string = 'org.couchdb.user:';
 
-/* eslint-disable no-underscore-dangle */
-
 /**
  * Fetches the user corresponding to a certain id.
  */
@@ -91,8 +89,6 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
     (await findProjectById(projectId)).users.map((id) => findUserById(id)),
   );
 }
-
-/* eslint-disable no-underscore-dangle */
 
 /**
  * Fetches all the users registered on the application, regardless of role. 

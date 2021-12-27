@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
   findProjectById, Annotation, LandmarkSpecification, ProjectsDB, nonWrappedImagesDB,

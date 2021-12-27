@@ -1,12 +1,6 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { userInfo } from 'os';
 import {
   findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
 } from '.';
-import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { ProjectID, Role } from './types';
 
 /**
@@ -169,7 +163,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const earningMonth: number[] = new Array(12).fill(0);
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
   Object.entries(project.images.done).forEach(
-    async ([key, value]) => {
+    async ([_key, value]) => {
       const month = value.doneDate.getMonth();
       earningMonth[month] += totIm;
     },
@@ -188,14 +182,14 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
 
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
-        async ([key, value]) => {
+        async ([_key, value]) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
-        async ([key, value]) => {
+        async ([_key, value]) => {
           const month = value.date.getMonth();
           earningPerMonth[month] += priceVerification;
         },

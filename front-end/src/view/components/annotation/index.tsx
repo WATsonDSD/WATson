@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import Slider from 'rc-slider';
 import Icon from '@mdi/react';

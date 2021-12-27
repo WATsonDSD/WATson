@@ -129,7 +129,6 @@ export default function CreateProject() {
       }
     ));
 
-    /* eslint-disable no-underscore-dangle */
     project.users = [...project.users, 'org.couchdb.user:pm@watson.com', 'org.couchdb.user:finance@watson.com'];
     project.images.needsAnnotatorAssignment = images.map((image) => image._id);
     project._id = v4();
@@ -603,28 +602,28 @@ export default function CreateProject() {
           <label htmlFor="hourlyRateAnnotation" className="flex flex-col items-start text-gray-500">
             Annotator&apos;s hourly rate
             <span className="flex items-center w-full pr-4 border-b">
-              <input id="hourlyRateAnnotation" name="hourlyRateAnnotation" type="number" placeholder="0" value={project.hourlyRateAnnotation} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
+              <input id="hourlyRateAnnotation" name="hourlyRateAnnotation" type="number" min={0} placeholder="0" value={project.hourlyRateAnnotation || ''} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
               HRK/h
             </span>
           </label>
           <label htmlFor="hourlyRateVerification" className="flex flex-col items-start text-gray-500">
             Verifier&apos;s hourly rate
             <span className="flex items-center w-full pr-4 border-b">
-              <input id="hourlyRateVerification" name="hourlyRateVerification" type="number" placeholder="0" value={project.hourlyRateVerification} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
+              <input id="hourlyRateVerification" name="hourlyRateVerification" type="number" min={0} placeholder="0" value={project.hourlyRateVerification || ''} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
               HRK/h
             </span>
           </label>
           <label htmlFor="pricePerImageAnnotation" className="flex flex-col items-start text-gray-500">
             Annotation price
             <span className="flex items-center w-full pr-4 border-b">
-              <input id="pricePerImageAnnotation" name="pricePerImageAnnotation" type="number" placeholder="0" value={project.pricePerImageAnnotation} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
+              <input id="pricePerImageAnnotation" name="pricePerImageAnnotation" type="number" min={0} placeholder="0" value={project.pricePerImageAnnotation || ''} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
               HRK
             </span>
           </label>
           <label htmlFor="pricePerImageVerification" className="flex flex-col items-start text-gray-500">
             Verification price
             <span className="flex items-center w-full pr-4 border-b">
-              <input id="pricePerImageVerification" name="pricePerImageVerification" type="number" placeholder="0" value={project.pricePerImageVerification} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
+              <input id="pricePerImageVerification" name="pricePerImageVerification" type="number" min={0} placeholder="0" value={project.pricePerImageVerification || ''} onChange={handleInputChange} required className="w-full py-1 text-black text-lg focus:outline-none" />
               HRK
             </span>
           </label>
