@@ -6,7 +6,7 @@ import {
   findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
-import { createReport, insertReportRow } from './report';
+import { createReport, findReportById, insertReportRow } from './report';
 import { ProjectID, Role } from './types';
 
 /**
@@ -25,11 +25,11 @@ export async function generateReport(): Promise<any> {
     { label: 'hoursOfWork', key: 'hours' },
   ];
   const listOfUsers = await getAllUsers(); // first column. all of user
-  listOfUsers.forEach(async (user) => {
+  Object.entries(listOfUsers).forEach(async ([key, user]) => {
     const projectsForUser = await getProjectsOfUser(user.id);
     let numberOfImagesAnnotated = 0;
     let numberOfImagesVerified = 0;
-    projectsForUser.forEach((project) => {
+    Object.entries(projectsForUser).forEach(async ([key, project]) => {
       const { client } = project;
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
@@ -39,12 +39,12 @@ export async function generateReport(): Promise<any> {
       const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
       if (numberOfImagesAnnotated > 0) {
-        insertReportRow(
+        await insertReportRow(
           reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
         );
       }
       if (numberOfImagesVerified > 0) {
-        insertReportRow(
+        await insertReportRow(
           reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
         );
       }
@@ -52,6 +52,8 @@ export async function generateReport(): Promise<any> {
   });
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
+  const report = await findReportById(reportId);
+  console.log(report.reportRow);
   return reportId;
 }
 

@@ -45,6 +45,7 @@ export const UsersDB = MockPouch();
 export const ImagesDB = MockPouch();
 export const ProjectsDB = MockPouch();
 export const RejectionsDB = MockPouch();
+export const ReportsDB = MockPouch();
 
 export const AuthDB = {
   users: {} as {[email: string]: any},
@@ -62,5 +63,8 @@ export const AuthDB = {
     AuthDB.signUp(email, '', metadata, callback);
   },
 
-  allDocs: () => AuthDB.users,
+  allDocs: async () => new Promise((resolve) => resolve({
+    rows: Object.values((AuthDB.users))
+      .map((doc) => ({ doc })),
+  })),
 };

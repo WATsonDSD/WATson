@@ -99,7 +99,6 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
  */
 export async function getAllUsers(): Promise<User[]> {
   let users: User[] = [];
-
   return new Promise((resolve, reject) => {
     AuthDB.allDocs({
       startkey: 'a', // excludes the design documents
