@@ -4,7 +4,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { useUserNotNull } from '../../../../data';
 
 import { useDialog } from '../../../../utils/modals';
-import { SignOutDialog, EditProfileDialog } from '../dialogs';
+import { SignOutDialog, EditProfileDialog, AccountSettings } from '../dialogs';
 
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
@@ -20,7 +20,7 @@ export default function UserSettings() {
     <div className="Dropdown text-black focus:outline-none">
       <Menu as="div" className="flex">
         <Menu.Button>
-          <div className="flex items-center gap-3 p-1 text-black bg-blue-50 hover:bg-blue-100 transition-all rounded-full">
+          <div className="flex items-center gap-3 p-1 text-black hover:bg-blue-50 transition-all rounded-full">
             <span className="block h-9 w-9 bg-blue-200 rounded-full" />
             {user ? user.name : 'loading...'}
             <img className="mr-4" src={DownArrow} alt="Profile Options" />
@@ -46,17 +46,9 @@ export default function UserSettings() {
             <span className="block border-b" />
 
             <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="./"
-                  className={classNames(
-                    active ? 'text-black' : 'text-gray-600',
-                    'block pr-16 pt-4 pb-2',
-                  )}
-                >
-                  Account Settings
-                </a>
-              )}
+              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<AccountSettings onClose={dialog.close} />)}>
+                Account Settings
+              </button>
             </Menu.Item>
 
             <Menu.Item>

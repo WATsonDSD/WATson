@@ -1,3 +1,4 @@
 export * from './signout';
-export * from './editProfile';
-export * from './createUser';
+export * from './edit-profile';
+export * from './create-user';
+export * from './account-settings';

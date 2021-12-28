@@ -6,7 +6,7 @@ import {
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
-import { deleteImage, findImageById } from './images';
+import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
@@ -90,24 +90,24 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
       Object.entries(value.block.toAnnotate).forEach(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
-          await deleteImage(imageID);
+          await deleteImageFromProject(projectID, imageID);
         },
       );
       Object.entries(value.block.toVerify).forEach(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
-          await deleteImage(imageID);
+          await deleteImageFromProject(projectID, imageID);
         },
       );
     },
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Object.entries(project.images.done).forEach(async ([key, image]) => {
-    await deleteImage(image.imageId);
+    await deleteImageFromProject(projectID, image.imageId);
   });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Object.entries(project.images.imagesWithoutAnnotator).forEach(async ([key, imageId]) => {
-    await deleteImage(imageId);
+    await deleteImageFromProject(projectID, imageId);
   });
 
   // Fetches the users of this project
@@ -348,3 +348,13 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
 // delete the user from users
 
 // delete projects[projectId] for the user
+export async function changeProjectName(projectID: ProjectID, name: string) {
+  const project = await findProjectById(projectID);
+  project.name = name;
+  await ProjectsDB.put(project);
+}
+export async function closeProject(projectID: ProjectID) {
+  const project = await findProjectById(projectID);
+  project.status = 'closed';
+  await ProjectsDB.put(project);
+}

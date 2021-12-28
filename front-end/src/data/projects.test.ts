@@ -4,12 +4,10 @@ import {
   addUserToProject,
   Annotation,
   BlockID,
-  createAnnotatorVerifierLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
+  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
 
-import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
-import { acceptAnnotation, rejectAnnotation } from './verification';
+import { findImageById } from './images';
 
 jest.mock('./databases');
 
@@ -128,5 +126,8 @@ describe('remove user correctly,', () => {
   it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId2 && x.verifierId === verifierId).length)).resolves.toBe(0));
 
   it('block returns correctly', async () => expect(findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
+
+  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
+  it('change project name', async () => expect(changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
 });
 */

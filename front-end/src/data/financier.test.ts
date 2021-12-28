@@ -5,7 +5,8 @@ import {
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
-  saveAnnotation, assignImagesToAnnotator,
+  assignImagesToAnnotator,
+  saveAnnotation,
 } from './images';
 import { acceptAnnotation } from './verification';
 
