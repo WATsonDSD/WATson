@@ -3,7 +3,8 @@ import {
   Image,
   Point,
 } from '../../../../data';
-import TemplateAnnotation from './TemplateAnnotation';
+// eslint-disable-next-line import/extensions
+import { TemplateAnnotation } from './TemplateAnnotation.json';
 
 export const emptyImage: Image = {
   id: '',
