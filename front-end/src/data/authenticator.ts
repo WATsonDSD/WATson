@@ -87,7 +87,10 @@ async function updateUserData(): Promise<UserData> {
         // response.userCtx contains the current logged in user
         await findUserById(IDPrefix + response.userCtx.name)
           .then((user) => { userData = [user, SessionState.AUTHENTICATED]; })
-          .catch((err) => reject(err));
+          .catch((err) => {
+            userData = [null, SessionState.NONE];
+            reject(err);
+          });
       }
       notifySubscribers(userData);
       resolve(userData);
