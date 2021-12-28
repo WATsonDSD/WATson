@@ -1,23 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import {
-  UserID, LandmarkSpecification, Project,
+  UserID, LandmarkSpecification,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserNotNull, Image,
+  addUserToProject, createProject, getAllUsers, useUserNotNull,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import AnnotatedImage from '../annotation/AnnotatedImage';
-import TemplateAnnotation from '../annotation/TemplateAnnotation';
+import AnnotatedImage from '../shared/annotation/AnnotatedImage';
+import { templateImage } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
 import { Paths } from '../shared/routes';
-
-const templateImage: Image = {
-  id: 'template',
-  annotation: TemplateAnnotation,
-};
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
@@ -130,14 +126,6 @@ export default function CreateProject() {
     return { stroke: '#000000' };
   };
 
-  const range = (n1: number, n2?: number): number[] => {
-    if (n2 === undefined) {
-      return Array.from({ length: n1 }, (x, i) => i);
-    }
-    if (n2 <= n1) { return []; }
-    return Array.from({ length: n2 - n1 }, (x, i) => i + n1);
-  };
-
   const landmarkButton = (i: number) => (
     <button
       type="button"
@@ -151,17 +139,14 @@ export default function CreateProject() {
     </button>
   );
 
-  const landmarkCheckbox = (landmarks: number[]) => {
-    console.log({ landmarks, currentLandMarks, every: landmarks.every((i) => currentLandMarks.includes(i)) });
-    return (
-      <input
-        type="checkbox"
-        className="mr-2"
-        checked={landmarks.every((i) => currentLandMarks.includes(i))}
-        onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
-      />
-    );
-  };
+  const landmarkCheckbox = (landmarks: number[]) => (
+    <input
+      type="checkbox"
+      className="mr-2"
+      checked={landmarks.every((i) => currentLandMarks.includes(i))}
+      onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
+    />
+  );
 
   return (
     <div className="h-full w-full">
@@ -286,93 +271,29 @@ export default function CreateProject() {
                 </span>
               </div>
               <div className="flex">
-                {landmarkCheckbox(range(1, 69))}
+                {landmarkCheckbox(Object.keys(TemplateAnnotation).map(Number))}
                 <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   All
                 </span>
               </div>
-              <div className="flex">
-                {landmarkCheckbox(range(1, 18))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Face Contour
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(1, 18).map(landmarkButton)}
-              </div>
-              <br />
-              <div className="inline-flex space-x-4">
-                <div className="left-brow">
-                  <div className="flex">
-                    {landmarkCheckbox(range(18, 23))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Left Brow
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(18, 23).map(landmarkButton)}
-                  </div>
+              {categories.map((row) => (
+                <div className="inline-flex space-x-4 mb-1">
+                  {Object.entries(row).map(([name, landmarks]: [string, number[]]) => (
+                    <div>
+                      <div className="flex">
+                        {landmarkCheckbox(landmarks)}
+                        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                          {name}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap">
+                        {landmarks.map(landmarkButton)}
+                      </div>
+                    </div>
+                  ))}
+                  <br />
                 </div>
-                <div>
-                  <div className="flex">
-                    {landmarkCheckbox(range(23, 28))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Right Brow
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(23, 28).map(landmarkButton)}
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              {' '}
-              <div className="flex">
-                {landmarkCheckbox(range(28, 37))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Nose
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(28, 37).map(landmarkButton)}
-              </div>
-              <br />
-              <div className="inline-flex space-x-4">
-                <div className="left-eye">
-                  <div className="flex">
-                    {landmarkCheckbox(range(37, 43))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Left Eye
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(37, 43).map(landmarkButton)}
-                  </div>
-                </div>
-                <div>
-                  <div className="flex">
-                    {landmarkCheckbox(range(43, 49))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Right Eye
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(43, 49).map(landmarkButton)}
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              <div className="flex">
-                {landmarkCheckbox(range(49, 69))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Mouth
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(49, 69).map(landmarkButton)}
-              </div>
+              ))}
             </div>
 
             <div className="flex flex-wrap gap-4 -mx-3 mb-2">

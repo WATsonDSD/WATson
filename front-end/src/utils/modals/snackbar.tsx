@@ -62,6 +62,7 @@ export function useSnackBar() {
      * modal components will be appended.
      */
     let root = document.getElementById('modal-root');
+    let superRoot = null;
 
     // Makes sure the root element exists
     if (!root) {
@@ -71,7 +72,15 @@ export function useSnackBar() {
       document.body.appendChild(root);
     }
 
-    ReactDOM.render(<SnackBar key={v4()} title={content.title} message={content.message} type={type ?? SnackBarType.Error} />, root);
+    // Check if a modal is already displaying
+    if (root.hasChildNodes()) {
+      superRoot = document.createElement('div');
+      superRoot.setAttribute('id', 'super-root');
+
+      document.body.appendChild(superRoot);
+    }
+
+    ReactDOM.render(<SnackBar key={v4()} title={content.title} message={content.message} type={type ?? SnackBarType.Error} />, superRoot ?? root);
   };
 }
 

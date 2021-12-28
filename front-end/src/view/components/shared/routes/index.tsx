@@ -5,10 +5,10 @@ import {
   Routes,
 } from 'react-router-dom';
 
+import Authentication from '../../authentication';
+
 import Protected from '../../protected';
 import Layout from '../layout';
-
-import Authentication from '../../authentication';
 import Projects from '../../projects';
 import Project from '../../project';
 import Workers from '../../workers';
@@ -41,6 +41,7 @@ export default () => (
 
     <Route path={Paths.Projects} element={<Protected><Layout /></Protected>}>
       <Route index element={<Projects />} />
+      <Route path="/:type" element={<Projects />} />
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
         <Route path=":idProject" element={<Workers />} />

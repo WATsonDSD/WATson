@@ -34,6 +34,11 @@ const MockPouch = <T>() => ({
     return this.documents[docId].attach.data;
   },
 
+  allDocs: async () => new Promise((resolve) => resolve({
+    rows: Object.values(RejectionsDB.documents)
+      .map((doc) => ({ doc })),
+  })),
+
 });
 
 export const UsersDB = MockPouch();
