@@ -16,7 +16,7 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
-import { calculateTotalCost, percentageOfImagesDone } from '../../../data/financier';
+import { calculateTotalCost, percentageOfImagesDone, totalWorkers } from '../../../data/financier';
 
 const Card = (props: any) => {
   const { project, options, verifierAction }: { project: Project, options: any, verifierAction: string | undefined} = props;
@@ -24,6 +24,7 @@ const Card = (props: any) => {
   const navigate = useNavigate();
   const totalSpending = useData(async () => calculateTotalCost(project.id));
   const percentage = useData(async () => percentageOfImagesDone(project.id));
+  const numberOfWorkers = useData(async () => totalWorkers(project.id));
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
@@ -65,7 +66,7 @@ const Card = (props: any) => {
         </span>
         <span className="flex items-center gap-x-1 text-white">
           <AiOutlineTeam />
-          {project.users.length}
+          {numberOfWorkers}
         </span>
       </div>
     );
@@ -112,7 +113,7 @@ const Card = (props: any) => {
         </span>
         <span className="flex items-center gap-x-1 text-white">
           <AiOutlineTeam />
-          {project.users.length}
+          {numberOfWorkers}
         </span>
       </div>
     );
