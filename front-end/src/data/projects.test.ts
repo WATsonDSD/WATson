@@ -1,15 +1,30 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   addImageToProject,
   addUserToProject,
-  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
+  Annotation,
+  BlockID,
+  createAnnotatorVerifierLink,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
 } from '.';
 
-import { findImageById } from './images';
+import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
+import { acceptAnnotation, rejectAnnotation } from './verification';
 
 jest.mock('./databases');
 
+const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+const imageData2 = new Blob(['Grandi Laura e Arianna!!!!'], { type: 'text/plain' });
+const imageData3 = new Blob(['we have sprint planning'], { type: 'text/plain' });
 const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
 const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
+let BlockId: BlockID;
+
+const annotation = {
+  0: { x: 1, y: 2, z: 3 },
+  3: { x: 1, y: 2, z: 3 },
+  27: { x: 1, y: 2, z: 3 },
+} as Annotation;
 
 test('Can find created project', async () => {
   const id = await createProject('Test Project', 'The Flintstones', [], startDate, endDate, {
@@ -61,26 +76,57 @@ describe('addImageToProject', () => {
     */
 });
 
-describe('fghjmk,', () => {
+/** 
+describe('remove user correctly,', () => {
   let userId: UserID;
+  let imageId: ImageID;
+  let imageId2: ImageID;
+  let imageId3: ImageID;
+  let verifierId: UserID;
+  let annotatorId2: UserID;
   let projectId: ProjectID;
   let projectId2: ProjectID;
   beforeAll(async () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
+    annotatorId2 = await createUser('User 2', 'user2@watson.com', 'annotator');
+    verifierId = await createUser('User 3', 'user3@watson.com', 'verifier');
     projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     projectId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
+    imageId = await addImageToProject(imageData, projectId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId2 = await addImageToProject(imageData2, projectId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId3 = await addImageToProject(imageData3, projectId);
     await addUserToProject(userId, projectId);
-    await addUserToProject(userId, projectId2);
+    // await addUserToProject(userId, projectId2);
+    await addUserToProject(verifierId, projectId);
+    await addUserToProject(annotatorId2, projectId);
+    await addUserToProject(annotatorId2, projectId2);
+    // se link prima di Save -> no idVerifier
+    // se link dopo save -> no block 
+    await createAnnotatorVerifierLink(projectId, userId, verifierId);
+    await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
+    await assignImagesToAnnotator(1, userId, projectId);
+    await assignImagesToAnnotator(2, annotatorId2, projectId);
+    await saveAnnotation(annotation, imageId, projectId);
+    await saveAnnotation(annotation, imageId2, projectId);
+    await acceptAnnotation(projectId, imageId);
+    await rejectAnnotation(imageId2, projectId, 'nah');
     await removeUserFromProject(projectId, userId);
   });
 
   it('modifies user state', async () => expect(findUserById(userId).then((user) => user.projects[projectId]))
-    .resolves.not.toContain);
+    .resolves.not.toContain(projectId));
 
   it('doesnt contain user anymore', async () => expect(findProjectById(projectId).then((project) => project.users))
     .resolves.not.toContain(userId));
+
+  it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId2 && x.verifierId === verifierId).length)).resolves.toBe(0));
+
+  it('block returns correctly', async () => expect(findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
 });
+*/

@@ -262,11 +262,12 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
       if (!myBlock) throw Error('block not found');
 
       if (block.block.idAnnotator === userId) { // if user is an annotator
-        if (block.block.idVerifier) { // if verifier assigned, remains a block with images in toVerify and the verifierId
-          const verifier = await findUserById(block.block.idVerifier);
+        if (block.block.idVerifier) {
+          // if verifier assigned, remains a block with images in toVerify and the verifierId
+          // const verifier = await findUserById(block.block.idVerifier);
 
           // remove the link annotator-verifier
-          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === userId && anVe.verifierId === verifier.id);
+          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === userId && anVe.verifierId === block.block.idVerifier);
           project.annVer.splice(index, 1);
 
           // put the toAnnotate images in imagesWithoutAnnotator and remove them from the block
@@ -278,9 +279,11 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
 
           // reflect changes in the db
           await updateBlock(myBlock, projectId);
-          await updateUser(verifier);
+          // await updateUser(verifier);
           await ProjectsDB.put(project);
-        } else { // if verifier not assigned, remove the block and put all the images in the block in imagesWithoutAnnotator
+          console.log('ciao');
+        } else {
+          // if verifier not assigned, remove the block and put all the images in the block in imagesWithoutAnnotator
           // put the images in imagesWithoutAnnotator
           project.images.imagesWithoutAnnotator.push(...myBlock.toAnnotate);
           // remove the block from the project 
@@ -321,7 +324,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           project.annVer.splice(index, 1);
           // remove the verifier id from the block
           myBlock.idVerifier = undefined;
-          updateBlock(myBlock, projectId);
+          await updateBlock(myBlock, projectId);
         } else { // if the annotator is not linked
           delete project.images.blocks[myBlock.blockId];
           await ProjectsDB.put(project);
