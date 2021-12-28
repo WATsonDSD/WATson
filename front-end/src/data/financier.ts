@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, Project, User, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, insertReportRow } from './report';
@@ -91,7 +91,7 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
-  return project.users.length;
+  return (project.users.length - 2); // 2 for PM and Finance guy 
 }
 
 /**
@@ -112,16 +112,13 @@ export async function earningsPerUser(userID: UserID): Promise<number> {
   let numberAnnotated = 0;
   let numberVerified = 0;
   let totalEarnings = 0;
-  Object.entries(user.projects).forEach(
-    async ([key, value]) => // id project -> value valye
-    // eslint-disable-next-line brace-style
-    {
-      numberAnnotated = value.annotated.length;
-      numberVerified = value.verified.length;
-      const project = await findProjectById(key);
-      totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
-    },
-  );
+  await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
+    numberAnnotated = proj.annotated.length;
+    numberVerified = proj.verified.length;
+    const project = await findProjectById(id);
+    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+  }));
+
   return totalEarnings;
 }
 
@@ -163,6 +160,7 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
     return 0;
   }
   const percentage = project.images.done.length / totalImages;
+  console.log(percentage);
   return percentage;
 }
 
@@ -172,7 +170,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
   Object.entries(project.images.done).forEach(
     async ([key, value]) => {
-      const month = value.doneDate.getMonth();
+      const month = new Date(value.doneDate).getMonth();
       earningMonth[month] += totIm;
     },
   );
@@ -197,7 +195,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
         async ([key, value]) => {
-          const month = value.date.getMonth();
+          const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
       );

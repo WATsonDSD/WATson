@@ -4,10 +4,12 @@ import {
   addUserToProject,
   Annotation,
   BlockID,
-  createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
+  createAnnotatorVerifierLink,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
 
-import { findImageById } from './images';
+import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
+import { acceptAnnotation, rejectAnnotation } from './verification';
 
 jest.mock('./databases');
 
@@ -117,17 +119,17 @@ describe('remove user correctly,', () => {
     await removeUserFromProject(projectId, userId);
   });
 
-  it('modifies user state', async () => expect(findUserById(userId).then((user) => user.projects[projectId]))
+  it('modifies user state', async () => expect(() => findUserById(userId).then((user) => user.projects[projectId]))
     .resolves.not.toContain(projectId));
 
-  it('doesnt contain user anymore', async () => expect(findProjectById(projectId).then((project) => project.users))
+  it('doesnt contain user anymore', async () => expect(() => findProjectById(projectId).then((project) => project.users))
     .resolves.not.toContain(userId));
 
   it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId2 && x.verifierId === verifierId).length)).resolves.toBe(0));
 
-  it('block returns correctly', async () => expect(findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
+  it('block returns correctly', async () => expect(() => findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
 
-  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
-  it('change project name', async () => expect(changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
+  it('closed project', async () => expect(() => closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
+  it('change project name', async () => expect(() => changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
 });
 */

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  findProjectById, Image, User,
+  findProjectById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
+import { getImagesOfProjectWithoutAnnotator } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/header';
 import { Paths } from '../shared/routes';
@@ -15,19 +16,22 @@ export default function ProjectAssign() {
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
   const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-  const [projectUsers] = useState([] as User[]);
+  const [projectUsers, setProjectUsers] = useState([] as User[]);
 
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
   const navigate = useNavigate();
 
+  console.log(imagesToAnnotate);
   useEffect(() => {
-    // getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result!); });
-    // getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result!); showAssignedImages(result!, 'annotate'); });
-    // getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result!, 'annotate'); showAssignedImages(result!, 'verify'); });
-    // getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
+    getImagesOfProjectWithoutAnnotator(idProject || '').then((result) => {
+      console.log(result);
+      setImagesToAnnotate(result!);
+    });
+    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
   }, []);
-  /*
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
       images.forEach(async (image: Image) => {
@@ -39,7 +43,7 @@ export default function ProjectAssign() {
       });
     }
   };
-*/
+
   const onCancelClick = () => {
     navigate(Paths.Projects);
   };

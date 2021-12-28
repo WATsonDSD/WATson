@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
 } from '.';
 import {
-  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   assignImagesToAnnotator,
@@ -28,13 +28,20 @@ const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 const imageData1 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData2 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData3 = new Blob(['Hello, world!'], { type: 'text/plain' });
+const imageData4 = new Blob(['Heldfsgsfglo, world!'], { type: 'text/plain' });
 let imageId1: ImageID;
 let imageId2: ImageID;
 let imageId3: ImageID;
+let imageId4: ImageID;
 let projectId: ProjectID;
 let annotatorId: UserID;
 let verifierId: UserID;
 let annotatorId2: UserID;
+let userId: UserID;
+let userId2: UserID;
+let userId3: UserID;
+let userIdF: UserID;
+let userIdPM: UserID;
 
 describe('adding annotation', () => {
   beforeAll(async () => {
@@ -49,6 +56,14 @@ describe('adding annotation', () => {
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
     await assignImagesToAnnotator(3, annotatorId, projectId);
+    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    userId2 = await createUser('Cem', 'cem@watson', 'verifier');
+    userIdF = await createUser('financ', 'finance@watson', 'finance');
+    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
+    await addUserToProject(userIdF, projectId);
+    await addUserToProject(userIdPM, projectId);
+    await addUserToProject(userId, projectId);
+    await addUserToProject(userId2, projectId);
     await saveAnnotation(validAnnotation, imageId1, projectId);
     await saveAnnotation(validAnnotation, imageId2, projectId);
     await saveAnnotation(validAnnotation, imageId3, projectId);
@@ -66,7 +81,7 @@ describe('adding annotation', () => {
   }));
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
-    expect(data).toBe(2);
+    expect(data).toBe(4);
   }));
 });
 
@@ -86,6 +101,18 @@ describe('adding verification', () => {
     await addUserToProject(annotatorId2, projectId);
     await assignImagesToAnnotator(3, annotatorId, projectId);
     // await assignImagesToAnnotator(2, annotatorId2, projectId);
+    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    userId2 = await createUser('Cem', 'cem@watson', 'verifier');
+    userId3 = await createUser('Ari', 'ari@watson', 'annotator');
+    userIdF = await createUser('financ', 'finance@watson', 'finance');
+    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId4 = await addImageToProject(imageData4, projectId);
+    await addUserToProject(userId, projectId);
+    await addUserToProject(userId2, projectId);
+    await addUserToProject(userId3, projectId);
+    await addUserToProject(userIdF, projectId);
+    await addUserToProject(userIdPM, projectId);
     await saveAnnotation(validAnnotation, imageId1, projectId);
     await saveAnnotation(validAnnotation, imageId2, projectId);
     await saveAnnotation(validAnnotation, imageId3, projectId);
@@ -113,7 +140,7 @@ describe('adding verification', () => {
   }));
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
-    expect(data).toBe(3);
+    expect(data).toBe(6);
   }));
   // 30/4 + 23*3/8-> 7,5 + 8,625
   test('total hours of work in total ', () => totalHoursOfWork(projectId).then((data) => {
@@ -140,7 +167,10 @@ describe('adding verification', () => {
   test('chart project', () => dataChartProjects(projectId).then((data) => {
     expect(data[11]).toBe(99);
   }));
-  test('total hours of work of an user', () => hoursWorkPerUser(annotatorId).then((data) => {
+  test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
+    expect(data).toBe(0.75);
+  }));
+  test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
     expect(data).toBe(7.5);
   }));
 });

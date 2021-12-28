@@ -251,6 +251,7 @@ export async function deleteImageFromProject(projectId: ProjectID, imageId: Imag
   }
 }
 
+/** 
 export async function removeUserFromProject(projectId: ProjectID, userId: UserID): Promise<void> {
   const project = await findProjectById(projectId);
   const user = await findUserById(userId);
@@ -358,3 +359,4 @@ export async function closeProject(projectID: ProjectID) {
   project.status = 'closed';
   await ProjectsDB.put(project);
 }
+*/
