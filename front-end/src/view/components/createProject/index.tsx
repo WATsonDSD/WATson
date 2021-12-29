@@ -9,11 +9,23 @@ import {
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
-import { templateImage } from '../shared/annotation/AnnotVerif';
+import template from './WatsonDefault.png';
 // eslint-disable-next-line import/extensions
-import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
+import { categories } from '../shared/annotation/TemplateAnnotation.json';
+// eslint-disable-next-line import/extensions
+import TemplateAnnotation from './DefaultAnnotation.json';
 
 import { Paths } from '../shared/routes';
+
+const templateImage = {
+  id: 'template',
+  data: new Blob(),
+  annotation: TemplateAnnotation,
+};
+
+(async () => {
+  templateImage.data = await (await fetch(template)).blob();
+})();
 
 export default function CreateProject() {
   const [user] = useUserNotNull();

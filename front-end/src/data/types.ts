@@ -61,7 +61,7 @@ export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
-    data?: ImageData,
+    data: ImageData,
     annotation?: Annotation,
     idAnnotator?: UserID,
     idVerifier?: UserID
