@@ -6,30 +6,24 @@ import {
   findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
-import { createReport, findReportById, insertReportRow } from './report';
-import { ProjectID, Role } from './types';
+import { createReport, findReportById, insertReportRows } from './report';
+import { ProjectID, Report, Role } from './types';
 
 /**
  * @returns this function return a Csv data array with all the fields needed to show up the report * 
  */
-export async function generateReport(): Promise<any> {
+export async function generateReport(): Promise<Report> {
   const rep = await createReport();
+  const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const headers = [
-    { label: 'Name', key: 'username' },
-    { label: 'Project', key: 'project' },
-    { label: 'Client', key: 'client' },
-    { label: 'Role', key: 'role' },
-    { label: 'images', key: 'images' },
-    { label: 'hoursOfWork', key: 'hours' },
-  ];
   const listOfUsers = await getAllUsers(); // first column. all of user
-  Object.entries(listOfUsers).forEach(async ([key, user]) => {
+  Object.entries(listOfUsers).map(async ([key, user]) => {
+    console.log('BEFORE GET PROJECT');
     const projectsForUser = await getProjectsOfUser(user.id);
+    console.log('AFTERGE T PROJECT');
     let numberOfImagesAnnotated = 0;
     let numberOfImagesVerified = 0;
-    Object.entries(projectsForUser).forEach(async ([key, project]) => {
+    Object.entries(projectsForUser).map(async ([key, project]) => {
       const { client } = project;
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
@@ -38,18 +32,28 @@ export async function generateReport(): Promise<any> {
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
       const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
-      if (numberOfImagesAnnotated > 0) {
-        await insertReportRow(
-          rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
-        );
+      if (numberOfImagesAnnotated >= 0) {
+        rep.reportRow.push({
+          user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursA, payment: numberOfImagesAnnotated, client: project.client,
+        });
+        // await insertReportRow(
+        //   rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+        // );
       }
-      if (numberOfImagesVerified > 0) {
-        await insertReportRow(
-          rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
-        );
+      if (numberOfImagesVerified >= 0) {
+        // await insertReportRow(
+        //   rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+        // );
+        rep.reportRow.push({
+          user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursV, payment: numberOfImagesVerified, client: project.client,
+        });
       }
     });
   });
+  await insertReportRows(rep.reportID, rep.reportRow);
+  // const report = await findReportById(rep.reportID);
+  // console.log('REPORTROWS: ', report.reportRow);
+  // console.log(rep);
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
   return rep;

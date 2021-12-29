@@ -1,8 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import {
-  Report, ReportID, Role, UserID,
+  Report, ReportID, ReportsDB,
 } from '.';
-import { ReportsDB } from './databases';
 //  user: UserID, name: string, mail: string, role: Role, project: ProjectID, hours: number, payment: number, client: string
 export async function createReport() : Promise<Report> {
   const id = uuid(); // unique id's.
@@ -22,13 +21,8 @@ export async function findReportById(id: ReportID): Promise<Report & {_id: strin
   return ReportsDB.get(id);
 }
 
-export async function insertReportRow(reportId: ReportID, user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string) {
+export async function insertReportRows(reportId: ReportID, rows: any[]): Promise<any> {
   const report = await findReportById(reportId);
-  const row = {
-    user, name, email, role, projectName, hours, payment, client,
-  };
-  console.log(report.reportRow);
-  report.reportRow.push(row);
-  console.log(report.reportRow);
-  await ReportsDB.put(report);
+  report.reportRow = rows;
+  await ReportsDB.put(report).catch();
 }

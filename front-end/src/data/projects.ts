@@ -19,6 +19,7 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
   const projects = await Promise.all(
     Object.keys(user.projects).map((id) => findProjectById(id)),
   );
+  console.log('projects in getProj', projects);
 
   return projects;
 }

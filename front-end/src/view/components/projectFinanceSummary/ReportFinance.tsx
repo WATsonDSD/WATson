@@ -1,10 +1,8 @@
-import React from 'react';
-import { CSVLink } from 'react-csv';
+import React, { useState } from 'react';
+import { CSVDownload } from 'react-csv';
 // eslint-disable-next-line import/no-unresolved
-import { Data } from 'react-csv/components/CommonPropTypes';
 import { BiDotsVertical } from 'react-icons/bi';
-import { Report } from '../../../data';
-import { createReport } from '../../../data/report';
+import generateReport from '../../../data/financier';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/header';
 
@@ -20,8 +18,17 @@ const dropDownActions: any = [(
 ];
 
 export default function ReportFinance() {
-  let data: Report;
-  let rows: string | Data = [];
+  const headers = [
+    { label: 'Name', key: 'username' },
+    { label: 'Project', key: 'project' },
+    { label: 'Client', key: 'client' },
+    { label: 'Role', key: 'role' },
+    { label: 'images', key: 'images' },
+    { label: 'hoursOfWork', key: 'hours' },
+  ];
+  // let data: Report;
+  const [rows, setRows] = useState<any[]>([]);
+  // const getRows = () => rows;
   return (
     <div className="h-full w-full">
       <Header title="Reports" />
@@ -90,28 +97,61 @@ export default function ReportFinance() {
               <td className="">
                 <div className="flex pr-8">
                   <div className="py-1">
-                    <button type="button" className="bg-gray-900 text-white rounded-full px-6 ">Download</button>
+                    {/* <button
+                      className="col-start-1 col-span-1 h-6v"
+                      type="button"
+                      onClick={() => generateReport()}
+                    >
+                      generate
+                    </button> */}
+                    {/* <CSVLink
+                      data={getRows}
+                      asyncOnClick
+                      headers={headers}
+                      onClick={(event, done) => {
+                        generateReport().then((data: Report) => {
+                          rows = data.reportRow;
+                          console.log(data);
+                          done(); // REQUIRED to invoke the logic of component
+                        });
+                      }}
+                    >
+                      WORK PLS
+                    </CSVLink> */}
+
+                    <button
+                      type="button"
+                      onClick={() => generateReport().then((data) => {
+                        setRows(data.reportRow);
+                        console.log(data.reportRow);
+                      })}
+                    >
+                      Generate Report
+
+                    </button>
+                    {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} target="_blank" /> : null }
+                    {/* <CSVLink
+                      // asyncOnClick
+                      onClick={async () => {
+                        // events.preventDefault();
+                        console.log('LaURA');
+                        data = await generateReport();
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        rows = data.reportRow;
+                        // done(true);
+                        console.log(data.reportRow);
+                        console.log('EFFLAM');
+                        // events.initMouseEvent();
+                      }}
+                      data={rows}
+                      filename="my-file.csv"
+                      className="bg-gray-900 text-white rounded-full px-6 "
+                      target="_blank"
+                      headers={headers}
+                    >
+                      Download
+                    </CSVLink> */}
                   </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      data = await createReport();
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      rows = data.reportRow;
-                      console.log(data.reportRow);
-                    }}
-                    className="self-end mt-5 uppercase text-sm font-bold opacity-60 hover:opacity-100"
-                  >
-                    Create Report
-                  </button>
-                  <CSVLink
-                    data={rows}
-                    filename="my-file.csv"
-                    className="btn btn-primary"
-                    target="_blank"
-                  >
-                    Download me
-                  </CSVLink>
                   <Dropdown elements={dropDownActions} icon={<BiDotsVertical className="ml-8 mt-1" />} />
                 </div>
               </td>
