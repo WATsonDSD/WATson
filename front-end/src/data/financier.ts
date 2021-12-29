@@ -18,37 +18,34 @@ export async function generateReport(): Promise<Report> {
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   Object.entries(listOfUsers).map(async ([key, user]) => {
-    console.log('BEFORE GET PROJECT');
-    const projectsForUser = await getProjectsOfUser(user.id);
-    console.log('AFTERGE T PROJECT');
-    let numberOfImagesAnnotated = 0;
-    let numberOfImagesVerified = 0;
-    Object.entries(projectsForUser).map(async ([key, project]) => {
-      const { client } = project;
-      numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-      numberOfImagesVerified = user.projects[project.id].verified.length;
-      const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
-      const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
-      const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-      const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+    if (user.role === 'annotator' || user.role === 'verifier') {
+      const projectsForUser = await getProjectsOfUser(user.id);
+      let numberOfImagesAnnotated = 0;
+      let numberOfImagesVerified = 0;
+      Object.entries(projectsForUser).map(async ([key, project]) => {
+        const { client } = project;
+        numberOfImagesAnnotated = user.projects[project.id].annotated.length;
+        numberOfImagesVerified = user.projects[project.id].verified.length;
+        const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
+        const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
+        const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+        const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
-      if (numberOfImagesAnnotated >= 0) {
-        rep.reportRow.push({
-          user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursA, payment: numberOfImagesAnnotated, client: project.client,
-        });
-        // await insertReportRow(
-        //   rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
-        // );
-      }
-      if (numberOfImagesVerified >= 0) {
-        // await insertReportRow(
-        //   rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
-        // );
-        rep.reportRow.push({
-          user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursV, payment: numberOfImagesVerified, client: project.client,
-        });
-      }
-    });
+        if (numberOfImagesAnnotated >= 0) {
+          console.log('RAMY');
+          rep.reportRow.push({
+            user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursA, payment: numberOfImagesAnnotated, client: project.client,
+          });
+        }
+        if (user.role === 'verifier') {
+          if (numberOfImagesVerified >= 0) {
+            rep.reportRow.push({
+              user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursV, payment: numberOfImagesVerified, client: project.client,
+            });
+          }
+        }
+      });
+    }
   });
   await insertReportRows(rep.reportID, rep.reportRow);
   // const report = await findReportById(rep.reportID);
