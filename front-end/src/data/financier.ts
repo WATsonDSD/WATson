@@ -13,7 +13,7 @@ import { ProjectID, Role } from './types';
  * @returns this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
-  const reportId = await createReport();
+  const rep = await createReport();
   // this will be added in the page that generates the reports 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headers = [
@@ -40,21 +40,19 @@ export async function generateReport(): Promise<any> {
 
       if (numberOfImagesAnnotated > 0) {
         await insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+          rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
         );
       }
       if (numberOfImagesVerified > 0) {
         await insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+          rep.reportID, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
         );
       }
     });
   });
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
-  const report = await findReportById(reportId);
-  console.log(report.reportRow);
-  return reportId;
+  return rep;
 }
 
 /** total amount of money spent on a project, 

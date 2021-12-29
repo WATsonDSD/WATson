@@ -4,7 +4,7 @@ import {
 } from '.';
 import { ReportsDB } from './databases';
 //  user: UserID, name: string, mail: string, role: Role, project: ProjectID, hours: number, payment: number, client: string
-export async function createReport() : Promise<ReportID> {
+export async function createReport() : Promise<Report> {
   const id = uuid(); // unique id's.
 
   const report = {
@@ -15,7 +15,7 @@ export async function createReport() : Promise<ReportID> {
   } as Report & {_id: string};
 
   await ReportsDB.put(report);
-  return id;
+  return report;
 }
 
 export async function findReportById(id: ReportID): Promise<Report & {_id: string, _rev: string}> {
