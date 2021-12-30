@@ -25,7 +25,7 @@ export default function Dashboard() {
     projectManager: [
       {
         name: 'Edit',
-        to: Paths.Project,
+        to: Paths.EditProject,
       },
       {
         name: 'Assign Images',
