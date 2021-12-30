@@ -45,7 +45,9 @@ export default function ProjectAssign() {
     }
   };
 
-  const handleAssign = (event: any) => {
+  const handleAssign = async (event: any) => {
+    event.preventDefault();
+
     const annotator = event.target.annotator.value;
     const verifier = event.target.verifier.value;
     const nbImages = event.target.numberImages.value;
@@ -54,11 +56,10 @@ export default function ProjectAssign() {
     console.log(verifier);
     console.log(nbImages);
 
-    assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
+    await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
     if (verifier !== 0) {
-      createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
+      await createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
     }
-    event.preventDefault();
   };
 
   const onCancelClick = () => {
