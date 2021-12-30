@@ -12,7 +12,6 @@ import {
   ImageID,
   ImagesDB,
   ProjectsDB,
-  nonWrappedProjectsDB,
 } from '.';
 
 import { FetchingError } from '../utils/errors';
@@ -28,7 +27,7 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
   const user: User = await findUserById(userID);
 
   return new Promise((resolve, reject) => {
-    nonWrappedProjectsDB.allDocs({
+    ProjectsDB.allDocs({
       include_docs: true,
       keys: Object.keys(user.projects),
     }).then((response) => {

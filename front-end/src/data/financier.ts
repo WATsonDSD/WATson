@@ -1,13 +1,13 @@
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, Project, User, UserID,
+  findProjectById,
+  findUserById,
+  getAllUsers,
+  getProjectsOfUser,
+  UserID,
+  ProjectID,
 } from '.';
-import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
+
 import { createReport, insertReportRow } from './report';
-import { ProjectID, Role } from './types';
 
 /**
  * @returns this function return a Csv data array with all the fields needed to show up the report * 
@@ -15,22 +15,12 @@ import { ProjectID, Role } from './types';
 export async function generateReport(): Promise<any> {
   const reportId = await createReport();
   // this will be added in the page that generates the reports 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const headers = [
-    { label: 'Name', key: 'username' },
-    { label: 'Project', key: 'project' },
-    { label: 'Client', key: 'client' },
-    { label: 'Role', key: 'role' },
-    { label: 'images', key: 'images' },
-    { label: 'hoursOfWork', key: 'hours' },
-  ];
   const listOfUsers = await getAllUsers(); // first column. all of user
   listOfUsers.forEach(async (user) => {
     const projectsForUser = await getProjectsOfUser(user.id);
     let numberOfImagesAnnotated = 0;
     let numberOfImagesVerified = 0;
     projectsForUser.forEach((project) => {
-      const { client } = project;
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
       const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
@@ -169,7 +159,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const earningMonth: number[] = new Array(12).fill(0);
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
   Object.entries(project.images.done).forEach(
-    async ([key, value]) => {
+    async ([_key, value]) => {
       const month = new Date(value.doneDate).getMonth();
       earningMonth[month] += totIm;
     },
@@ -187,14 +177,14 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const priceVerification = project.pricePerImageVerification;
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
-        async ([key, value]) => {
+        async ([_key, value]) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
-        async ([key, value]) => {
+        async ([_key, value]) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
