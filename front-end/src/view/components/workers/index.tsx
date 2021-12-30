@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getAllUsers } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
+import Hours from './Hours';
 
 export default function Workers() {
   let users = useData(async () => getAllUsers());
@@ -54,6 +55,7 @@ export default function Workers() {
   });
   console.log(dropDownActions);
 
+  /*
   // Here is the mapping to get the workers hours
   const genHours = () => { // worker: User) => {
     const sel = (Math.floor(Math.random() * 240) + 1);
@@ -61,6 +63,7 @@ export default function Workers() {
     return `${Math.floor(sel / 60)}:${sel % 60}`;
     // return useData(async () => hoursWorkPerUser(worker.id));
   };
+  */
 
   const genStyledLabel = (role: String) => {
     console.log(role);
@@ -105,7 +108,7 @@ export default function Workers() {
               {users?.map((worker) => (
                 <div className="relative" key={`${worker}`}>
                   <span className="my-0.5 block w-auto text-black font-bold py-1 px-2">
-                    { genHours() }
+                    <Hours user={worker} />
                   </span>
                 </div>
               ))}
