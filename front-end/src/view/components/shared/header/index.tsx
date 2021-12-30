@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { Paths } from '../routes';
+import { Paths } from '../routes/paths';
 import { useDialog } from '../../../../utils/modals';
 import { useUserNotNull } from '../../../../data';
 import { CreateUserDialog } from '../dialogs';

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { addImageToProject, findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 
 export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {

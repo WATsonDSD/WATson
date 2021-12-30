@@ -14,7 +14,7 @@ import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 
 import AnnotVerif, {
   emptyImage,

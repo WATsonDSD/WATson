@@ -21,21 +21,7 @@ import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 import VerificationView from '../../verification';
 import WorkerFinance from '../../projectFinanceSummary/WorkerStatistics';
 
-export const Paths = {
-  Authentication: '/authentication',
-  Projects: '/',
-  Project: '/project',
-  CreateProject: '/createProject',
-  EditProject: '/editProject',
-  Workers: '/workers',
-  Annotation: '/annotation',
-  Verification: '/verification',
-  Finances: '/finances',
-  ProjectAssign: '/projectAssign',
-  ProjectFinance: '/projectFinance',
-  Reports: '/reports',
-  Statistics: '/statistics',
-};
+import { Paths } from './paths';
 
 export default () => (
   <Routes>

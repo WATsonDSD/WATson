@@ -5,7 +5,6 @@ import { userInfo } from 'os';
 import {
   findProjectById, findUserById, getAllUsers, getProjectsOfUser, Project, User, UserID,
 } from '.';
-import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, insertReportRow } from './report';
 import { ProjectID, Role } from './types';
 

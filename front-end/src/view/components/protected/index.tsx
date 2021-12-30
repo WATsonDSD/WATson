@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 
 import { useUserNotNull } from '../../../data';
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 
 import Loading from '../loading';
 

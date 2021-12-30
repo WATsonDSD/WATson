@@ -10,7 +10,7 @@ import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import Card from './Card';
 
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 import Loading from '../loading';
 
 export default function Dashboard() {

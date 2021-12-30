@@ -13,7 +13,7 @@ import { templateImage } from '../shared/annotation/AnnotVerif';
 // eslint-disable-next-line import/extensions
 import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 
 export default function CreateProject() {
   const [user] = useUserNotNull();

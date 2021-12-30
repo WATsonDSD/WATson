@@ -9,7 +9,7 @@ import {
 } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/header';
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 import ImageDnD from './ImageDnD';
 import UserCardDnD from './UserCardDnD';
 

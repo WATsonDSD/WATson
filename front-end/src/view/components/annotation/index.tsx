@@ -30,7 +30,7 @@ import AnnotVerif, {
   mousePosition,
 } from '../shared/annotation/AnnotVerif';
 
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 
 /* TODO: Keyboard shortcuts
 a - Go to previous image
