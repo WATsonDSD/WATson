@@ -62,7 +62,6 @@ export const AuthDB = {
   putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {
     AuthDB.signUp(email, '', metadata, callback);
   },
-
   allDocs: async () => new Promise((resolve) => resolve({
     rows: Object.values((AuthDB.users))
       .map((doc) => ({ doc })),

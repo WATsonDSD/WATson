@@ -31,6 +31,7 @@ export default function ReportFinance() {
     { label: 'Client', key: 'client' },
   ];
   // let data: Report;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rows, setRows] = useState< {user: string;
   name: string;
   email: string;
@@ -111,10 +112,11 @@ export default function ReportFinance() {
                   <div className="py-1">
                     <button
                       type="button"
-                      onClick={() => generateReport().then((data) => {
+                      onClick={async () => {
+                        const data = await generateReport();
                         setRows(data.reportRow);
                         console.log('REPORTFINANCE', data.reportRow);
-                      })}
+                      }}
                     >
                       Generate Report
                     </button>

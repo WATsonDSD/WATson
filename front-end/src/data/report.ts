@@ -24,5 +24,5 @@ export async function findReportById(id: ReportID): Promise<Report & {_id: strin
 export async function insertReportRows(reportId: ReportID, rows: any[]): Promise<any> {
   const report = await findReportById(reportId);
   report.reportRow = rows;
-  await ReportsDB.put(report).catch();
+  await ReportsDB.put(report);
 }
