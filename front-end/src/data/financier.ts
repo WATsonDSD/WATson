@@ -3,15 +3,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, Project, User, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
+import { createReport, insertReportRow } from './report';
 import { ProjectID, Role } from './types';
 
 /**
  * @returns this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
+  const reportId = await createReport();
   // this will be added in the page that generates the reports 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headers = [
@@ -22,7 +24,6 @@ export async function generateReport(): Promise<any> {
     { label: 'images', key: 'images' },
     { label: 'hoursOfWork', key: 'hours' },
   ];
-  const CSVdata: { username: string; project: string; client: { client: string; } | { client: string; }; role: Role; images: { numberOfImagesAnnotated: number; } | { numberOfImagesAnnotated: number; }; hours: { hoursA: number; } | { hoursV: number; }; }[] = [];
   const listOfUsers = await getAllUsers(); // first column. all of user
   listOfUsers.forEach(async (user) => {
     const projectsForUser = await getProjectsOfUser(user.id);
@@ -32,24 +33,26 @@ export async function generateReport(): Promise<any> {
       const { client } = project;
       numberOfImagesAnnotated = user.projects[project.id].annotated.length;
       numberOfImagesVerified = user.projects[project.id].verified.length;
+      const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
+      const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
       const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
       if (numberOfImagesAnnotated > 0) {
-        CSVdata.push({
-          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImagesAnnotated }, hours: { hoursA },
-        });
+        insertReportRow(
+          reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+        );
       }
       if (numberOfImagesVerified > 0) {
-        CSVdata.push({
-          username: user.name, project: project.name, client: { client }, role: user.role, images: { numberOfImagesAnnotated }, hours: { hoursV },
-        });
+        insertReportRow(
+          reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+        );
       }
     });
   });
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
-  return CSVdata;
+  return reportId;
 }
 
 /** total amount of money spent on a project, 
@@ -88,7 +91,7 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
-  return project.users.length;
+  return (project.users.length - 2); // 2 for PM and Finance guy 
 }
 
 /**
@@ -109,16 +112,13 @@ export async function earningsPerUser(userID: UserID): Promise<number> {
   let numberAnnotated = 0;
   let numberVerified = 0;
   let totalEarnings = 0;
-  Object.entries(user.projects).forEach(
-    async ([key, value]) => // id project -> value valye
-    // eslint-disable-next-line brace-style
-    {
-      numberAnnotated = value.annotated.length;
-      numberVerified = value.verified.length;
-      const project = await findProjectById(key);
-      totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
-    },
-  );
+  await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
+    numberAnnotated = proj.annotated.length;
+    numberVerified = proj.verified.length;
+    const project = await findProjectById(id);
+    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+  }));
+
   return totalEarnings;
 }
 
@@ -160,6 +160,7 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
     return 0;
   }
   const percentage = project.images.done.length / totalImages;
+  console.log(percentage);
   return percentage;
 }
 
@@ -169,7 +170,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
   Object.entries(project.images.done).forEach(
     async ([key, value]) => {
-      const month = value.doneDate.getMonth();
+      const month = new Date(value.doneDate).getMonth();
       earningMonth[month] += totIm;
     },
   );
@@ -184,7 +185,6 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const project = await findProjectById(key);
       const priceAnnotation = project.pricePerImageAnnotation;
       const priceVerification = project.pricePerImageVerification;
-
       // adding earning per month of annotated images
       Object.entries(value.annotated).forEach(
         async ([key, value]) => {
@@ -195,7 +195,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
         async ([key, value]) => {
-          const month = value.date.getMonth();
+          const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
       );

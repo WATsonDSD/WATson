@@ -72,7 +72,7 @@ export default function Authentication() {
             <input id="password" name="password" type="password" autoComplete="current-password" required value={formData.password} onChange={handleInputChange} className="w-full py-2 text-black text-xs tracking-widest border-b focus:outline-none focus:border-black" />
           </label>
           <div className="flex items-center justify-end mt-4">
-            <button type="submit" className="flex justify-center items-center gap-x-4 px-6 py-3 bg-gray-600 hover:bg-black text-white rounded-full">
+            <button type="submit" className="flex justify-center items-center gap-x-4 px-6 py-3 bg-gray-800 hover:bg-black text-white transition-all rounded-full">
               Sign in
               <img src={rightArrow} alt="Submit" />
             </button>
