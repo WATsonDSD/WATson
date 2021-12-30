@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  createAnnotatorVerifierLink,
   findProjectById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import { getImagesOfProjectWithoutAnnotator } from '../../../data/images';
+import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/header';
 import { Paths } from '../shared/routes';
@@ -53,6 +54,10 @@ export default function ProjectAssign() {
     console.log(verifier);
     console.log(nbImages);
 
+    assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
+    if (verifier !== 0) {
+      createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
+    }
     event.preventDefault();
   };
 
