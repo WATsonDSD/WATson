@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { v4 as uuid } from 'uuid';
+
 import {
   User,
   UserID,
@@ -47,8 +48,7 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
           hourlyRateVerification: row.doc.hourlyRateVerification,
           workDoneInTime: row.doc.workDoneInTime,
           images: row.doc.images,
-        }
-        ));
+        }));
 
         resolve(projects);
       }
@@ -194,11 +194,13 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
 
   return imageId;
 }
+
 export async function changeProjectName(projectID: ProjectID, name: string) {
   const project = await findProjectById(projectID);
   project.name = name;
   await ProjectsDB.put(project);
 }
+
 export async function closeProject(projectID: ProjectID) {
   const project = await findProjectById(projectID);
   project.status = 'closed';
