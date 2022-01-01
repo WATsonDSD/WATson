@@ -127,6 +127,7 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
     async ([key, value]) => {
       const image = await findImageById(value);
       image.idAnnotator = annotator.id;
+      console.log('hsdgjahdg', image.idAnnotator);
       if (verifier) {
         image.idVerifier = verifier.id;
       }
