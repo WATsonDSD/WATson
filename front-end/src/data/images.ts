@@ -51,13 +51,13 @@ export async function getImagesOfUser(
 export async function getImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <Image[]> {
   const project = await findProjectById(projectId);
   const images : Image[] = [];
-  Object.entries(project.images.imagesWithoutAnnotator).forEach(
+  await Promise.all(Object.entries(project.images.imagesWithoutAnnotator).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, imageId]) => {
       const image = await findImageById(imageId);
       images.push(image);
     },
-  );
+  ));
   return images;
 }
 
@@ -85,13 +85,13 @@ export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise
     },
   );
   const users: User[] = [];
-  Object.entries(usersId).forEach(
+  await Promise.all(Object.entries(usersId).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, userId]) => {
       const user = await findUserById(userId);
       users.push(user);
     },
-  );
+  ));
   return users;
 }
 

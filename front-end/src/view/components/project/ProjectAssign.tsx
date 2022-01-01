@@ -35,11 +35,11 @@ export default function ProjectAssign() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
-      images.forEach(async (image: Image) => {
+      images.forEach((image: Image) => {
         updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
       });
     } else {
-      images.forEach(async (image: Image) => {
+      images.forEach((image: Image) => {
         updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
       });
     }

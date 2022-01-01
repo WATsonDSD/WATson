@@ -37,7 +37,7 @@ export async function addBlock(
    */
   Object.entries(project.annVer).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
+    ([key, value]) => {
       if (value.annotatorId === idAnnotator) {
         idVerifier = value.verifierId;
       }
@@ -72,7 +72,7 @@ export async function addBlock(
   }
 
   // update the annotator and verifier field for each assigned image
-  Object.entries(block.toAnnotate).forEach(
+  await Promise.all(Object.entries(block.toAnnotate).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
@@ -81,7 +81,7 @@ export async function addBlock(
       image.blockId = block.blockId;
       await ImagesDB.put(image);
     },
-  );
+  ));
   return id;
 }
 
@@ -112,18 +112,18 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   project.images.imagesWithoutAnnotator = remainedToBeAssigned;
 
   // add the images to the block
-  block.toAnnotate.concat(imagesToAdd);
+  block.toAnnotate = block.toAnnotate.concat(imagesToAdd);
   // assign the images to the annotator (put it in toAnnotate field)
-  annotator.projects[projectId].toAnnotate.concat(imagesToAdd);
+  annotator.projects[projectId].toAnnotate = annotator.projects[projectId].toAnnotate.concat(imagesToAdd);
   updateUser(annotator);
   // if the verifier exists, assign the image to the verifier (put it in waitingForAnnotation field)
   if (verifier) {
-    verifier.projects[projectId].waitingForAnnotation.concat(imagesToAdd);
+    verifier.projects[projectId].waitingForAnnotation = verifier.projects[projectId].waitingForAnnotation.concat(imagesToAdd);
     updateUser(verifier);
   }
 
   // update the annotator and verifier field for each assigned image
-  Object.entries(imagesToAdd).forEach(
+  await Promise.all(Object.entries(imagesToAdd).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
@@ -134,7 +134,7 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
       }
       ImagesDB.put(image);
     },
-  );
+  ));
   await ProjectsDB.put(project);
   await updateBlock(block, projectId);
 }
@@ -167,22 +167,22 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
   const blockImagesToVerify = block.toVerify;
   verifier.projects[projectId].toVerify.push(...blockImagesToVerify);
 
-  Object.entries(blockImagestoAnnotate).forEach(
+  await Promise.all(Object.entries(blockImagestoAnnotate).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
       image.idVerifier = verifierId;
       await ImagesDB.put(image);
     },
-  );
-  Object.entries(blockImagesToVerify).forEach(
+  ));
+  await Promise.all(Object.entries(blockImagesToVerify).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
       image.idVerifier = verifierId;
       await ImagesDB.put(image);
     },
-  );
+  ));
 
   await ProjectsDB.put(project);
   await updateBlock(block, projectId);
@@ -197,7 +197,7 @@ export async function findBlockOfProject(blockId: BlockID, projectId: ProjectID)
   let myBlock: Block | undefined;
   Object.entries(project.images.blocks).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
+    ([key, value]) => {
       if (value.block.blockId === blockId) {
         myBlock = value.block;
       }
@@ -215,7 +215,7 @@ export async function findAnnotatorBlockOfProject(projectId: ProjectID, annotato
   let myBlock: Block | undefined;
   Object.entries(project.images.blocks).forEach(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
+    ([key, value]) => {
       if (value.block.idAnnotator === annotatorId) {
         myBlock = value.block;
       }
