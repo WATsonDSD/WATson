@@ -84,31 +84,31 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
   const project: Project = await findProjectById(projectID);
 
   // delete all the images from the images' database
-  Object.entries(project.images.blocks).forEach(
+  await Promise.all(Object.entries(project.images.blocks).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
-      Object.entries(value.block.toAnnotate).forEach(
+      await Promise.all(Object.entries(value.block.toAnnotate).map(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
           await deleteImageFromProject(projectID, imageID);
         },
-      );
-      Object.entries(value.block.toVerify).forEach(
+      ));
+      await Promise.all(Object.entries(value.block.toVerify).map(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
           await deleteImageFromProject(projectID, imageID);
         },
-      );
+      ));
     },
-  );
+  ));
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Object.entries(project.images.done).forEach(async ([key, image]) => {
+  await Promise.all(Object.entries(project.images.done).map(async ([key, image]) => {
     await deleteImageFromProject(projectID, image.imageId);
-  });
+  }));
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Object.entries(project.images.imagesWithoutAnnotator).forEach(async ([key, imageId]) => {
+  await Promise.all(Object.entries(project.images.imagesWithoutAnnotator).map(async ([key, imageId]) => {
     await deleteImageFromProject(projectID, imageId);
-  });
+  }));
 
   // Fetches the users of this project
   const users: User[] = await Promise.all(project.users.map((userID) => findUserById(userID)));

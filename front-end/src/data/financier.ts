@@ -25,7 +25,7 @@ export async function generateReport(): Promise<any> {
     { label: 'hoursOfWork', key: 'hours' },
   ];
   const listOfUsers = await getAllUsers(); // first column. all of user
-  listOfUsers.forEach(async (user) => {
+  await Promise.all(listOfUsers.map(async (user) => {
     const projectsForUser = await getProjectsOfUser(user.id);
     let numberOfImagesAnnotated = 0;
     let numberOfImagesVerified = 0;
@@ -49,7 +49,7 @@ export async function generateReport(): Promise<any> {
         );
       }
     });
-  });
+  }));
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
   return reportId;
@@ -182,7 +182,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
-  Object.entries(user.projects).forEach(
+  await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {
       const project = await findProjectById(key);
       const priceAnnotation = project.pricePerImageAnnotation;
@@ -202,7 +202,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
         },
       );
     },
-  );
+  ));
   return earningPerMonth;
 }
 
