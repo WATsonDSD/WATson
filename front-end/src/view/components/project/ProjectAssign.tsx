@@ -60,9 +60,12 @@ export default function ProjectAssign() {
     console.log('numberFoImages', nbImages);
     console.log('lenght', (project!.annVer.filter((e) => e.annotatorId === annotator && e.verifierId === verifier).length));
     console.log(project?.annVer);
+    console.log('project id:', idProject);
+
+    if (!idProject) { throw Error('no project id!'); }
 
     await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
-    if (verifier !== 0) {
+    if (verifier !== '0') {
       await createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
     }
   };
