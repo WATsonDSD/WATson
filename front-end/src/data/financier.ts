@@ -136,9 +136,11 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let hoursV = 0;
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
+  // console.log(user);
   projectsForUser.forEach((project) => {
-    numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-    numberOfImagesVerified = user.projects[project.id].verified.length;
+    // console.log('user', user.id, user.projects[project.id]);
+    if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
+    if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
     hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   });
