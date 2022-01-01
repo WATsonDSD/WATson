@@ -91,7 +91,7 @@ export async function addBlock(
  * if the association verifier-annotator already exists, assigns those images to the verifier
  */
 export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectId: ProjectID): Promise <void> {
-  const block = await findBlockOfProject(projectId, blockId);
+  const block = await findBlockOfProject(blockId, projectId);
   if (!block) throw Error('the block does not exist');
   const project = await findProjectById(projectId);
 
@@ -101,13 +101,14 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   if (!annotatorId) throw Error('the block does not have an annotator');
 
   const annotator = await findUserById(annotatorId);
-  let verifier: User|undefined;
+  let verifier: User | undefined;
   if (block.idVerifier) {
     verifier = await findUserById(block.idVerifier);
   }
 
   // remove the image from allImagesWithoutAnnotator in project
-  const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(toAdd + 1, toBeAssigned.length);
+  const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(toAdd);
+  console.log('remainedToBeAssigned', remainedToBeAssigned);
   project.images.imagesWithoutAnnotator = remainedToBeAssigned;
 
   // add the images to the block
@@ -134,8 +135,8 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
       ImagesDB.put(image);
     },
   );
-  await updateBlock(block, projectId);
   await ProjectsDB.put(project);
+  await updateBlock(block, projectId);
 }
 
 /**
