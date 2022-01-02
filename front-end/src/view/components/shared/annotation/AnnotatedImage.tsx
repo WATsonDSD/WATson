@@ -14,6 +14,7 @@ AnnotatedImage.defaultProps = {
   contrast: 100,
   brightness: 100,
   size: '300',
+  splines: [],
 };
 export default function AnnotatedImage(props: {
   image: Image,
@@ -27,6 +28,7 @@ export default function AnnotatedImage(props: {
   contrast?: number,
   brightness?: number,
   size?: string,
+  splines?: number[][],
 }) {
   const {
     image, onClick, onMouseWheel, onMouseDown, onMouseMove, landmarkColor, scale, translatePos, size,
@@ -36,7 +38,7 @@ export default function AnnotatedImage(props: {
   const { w, h } = imageSize;
   const canvasRef = useRef(null);
 
-  const draw = (ctx: any) => {
+  const draw = (ctx: CanvasRenderingContext2D) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
     backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
@@ -74,6 +76,16 @@ export default function AnnotatedImage(props: {
           ctx.arc(point.x * canvas.width, point.y * canvas.height, 4 / (scale ?? 1), 0, 2 * Math.PI);
           if (fill) ctx.fill();
           if (stroke) ctx.stroke();
+        });
+        ctx.strokeStyle = '#000000';
+        props.splines!.forEach((spline) => {
+          ctx.beginPath();
+          spline.forEach((id) => {
+            if (image.annotation![id]) {
+              ctx.lineTo(image.annotation![id].x, image.annotation![id].y);
+            }
+          });
+          ctx.stroke();
         });
       }
       ctx.restore();
