@@ -136,13 +136,13 @@ export async function saveAnnotation(
   const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);
 
   annotator.projects[projectId].waitingForVerification.push(imageId);
-  annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
+  annotator.projects[projectId].toAnnotate = annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
 
   // if there is a verifier, move the image to the toVerify field.
   if (image.idVerifier) {
     const verifier = await findUserById(image.idVerifier);
     const imageIndexVerifier = verifier.projects[projectId].waitingForAnnotation.findIndex((ent) => ent === imageId);
-    verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
+    verifier.projects[projectId].waitingForAnnotation = verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
     verifier.projects[projectId].toVerify.push(imageId);
     await updateUser(verifier);
   }
