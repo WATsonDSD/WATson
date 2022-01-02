@@ -32,15 +32,14 @@ export async function generateReport(): Promise<Report> {
         const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
         if (numberOfImagesAnnotated >= 0) {
-          console.log('RAMY');
           rep.reportRow.push({
-            user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursA, payment: numberOfImagesAnnotated, client: project.client,
+            user: user.id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: numberOfImagesAnnotated, client: project.client,
           });
         }
         if (user.role === 'verifier') {
           if (numberOfImagesVerified >= 0) {
             rep.reportRow.push({
-              user: user.id, name: user.name, email: user.email, role: user.role, projectName: project.name, hours: hoursV, payment: numberOfImagesVerified, client: project.client,
+              user: user.id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: numberOfImagesVerified, client: project.client,
             });
           }
         }
