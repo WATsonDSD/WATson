@@ -9,6 +9,8 @@ export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
     [id: string]: Blob,
   });
+  const folderInput = React.useRef(null);
+
   const { idProject } = useParams();
   const navigate = useNavigate();
 
@@ -92,8 +94,12 @@ export default function ProjectEdit() {
                 id="hidden-input"
                 type="file"
                 multiple
+                directory=""
+                webkitdirectory=""
+                accept=".png"
                 className="hidden"
                 onChange={hiddenOnChange}
+                ref={folderInput}
               />
               <button type="button" id="button" onClick={() => document.getElementById('hidden-input')?.click()} className="mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
                 Upload a file
@@ -171,4 +177,12 @@ export default function ProjectEdit() {
       </div>
     </>
   );
+}
+
+declare module 'react' {
+  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    // extends React's HTMLAttributes
+    directory?: string; // remember to make these attributes optional....
+    webkitdirectory?: string;
+  }
 }

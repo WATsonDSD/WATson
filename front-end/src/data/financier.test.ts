@@ -149,10 +149,10 @@ describe('adding verification', () => {
   test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
     expect(data[1]).toBe(7.5);
   }));
-  test('chart december', () => dataChartWorker(annotatorId).then((data) => {
+  test('chart december', () => dataChartWorker(userId).then((data) => {
     expect(data[11]).toBe(0);
   }));
-  test('chart january', () => dataChartWorker(annotatorId).then((data) => {
+  test('chart january', () => dataChartWorker(userId).then((data) => {
     expect(data[0]).toBe(30);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(annotatorId, projectId).then((data) => {
