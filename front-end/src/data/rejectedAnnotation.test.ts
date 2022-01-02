@@ -1,8 +1,8 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, RejectedAnnotation,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, RejectedAnnotation, createAnnotatorVerifierLink,
 } from '.';
 import {
-  saveAnnotation, assignVerifierToImage, assignAnnotatorToImage,
+  saveAnnotation, assignImagesToAnnotator,
 } from './images';
 import { getAllRejections, getRejectedImagesByAnnotatorID } from './rejectedAnnotation';
 
@@ -12,7 +12,7 @@ jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData2 = new Blob(['Hello!'], { type: 'text/plain' });
-const imageData3 = new Blob(['Hello!'], { type: 'text/plain' });
+const imageData3 = new Blob(['Hellorsdfg!'], { type: 'text/plain' });
 const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
 const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 
@@ -63,21 +63,19 @@ describe('get rejected images', () => {
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(annotator2Id, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
-    await assignAnnotatorToImage(image2Id, annotator2Id, projectId);
-    await assignAnnotatorToImage(image3Id, annotatorId, projectId);
+    await assignImagesToAnnotator(1, annotatorId, projectId);
+    await assignImagesToAnnotator(2, annotator2Id, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
     await saveAnnotation(annotation, imageId, projectId);
     await saveAnnotation(annotation2, image2Id, projectId);
     await saveAnnotation(annotation3, image3Id, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
-    await assignVerifierToImage(image2Id, verifierId, projectId);
-    await assignVerifierToImage(image3Id, verifierId, projectId);
+    await createAnnotatorVerifierLink(projectId, annotator2Id, verifierId);
     await rejectAnnotation(imageId, projectId, 'redo!!');
     await rejectAnnotation(image2Id, projectId, 'redoooooo!!');
     await rejectAnnotation(image3Id, projectId, 'redooooo!');
     expectedRejectionsId.push(imageId);
-    expectedRejectionsId.push(image3Id);
     expectedRejections2Id.push(image2Id);
+    expectedRejections2Id.push(image3Id);
     allExpectedRejectionsId.push(imageId);
     allExpectedRejectionsId.push(image2Id);
     allExpectedRejectionsId.push(image3Id);

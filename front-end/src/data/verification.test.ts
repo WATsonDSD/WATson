@@ -1,16 +1,16 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, getWorkDoneByUser,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, createAnnotatorVerifierLink, getWorkDoneByUser,
 } from '.';
-import generateReport from './financier';
 import {
-  saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser, findImageById,
+  saveAnnotation, getImagesOfUser, findImageById, assignImagesToAnnotator,
 } from './images';
 
-import { rejectAnnotation, verifyImage } from './verification';
+import { acceptAnnotation, rejectAnnotation } from './verification';
 
 jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+// const imageData2 = new Blob(['Grandi Laura e Arianna!!!!'], { type: 'text/plain' });
 const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
 const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 
@@ -34,9 +34,9 @@ describe('reject annotation', () => {
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
+    await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
     return rejectAnnotation(imageId, projectId, 'redo!!');
   });
 
@@ -59,15 +59,17 @@ describe('Accept annotated image', () => {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(imageData, projectId);
+    // await addImageToProject(imageData2, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
+    // se link prima di Save -> no idVerifier
+    // se link dopo save -> no block 
+    await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
-    // const listOfUsers = await getAllUsers();
-    return verifyImage(projectId, imageId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    return acceptAnnotation(projectId, imageId);
   });
 
   it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageId === imageId))).resolves.toBeGreaterThanOrEqual(0));
@@ -99,36 +101,4 @@ describe('Accept annotated image', () => {
     expect(getWorkDoneByUser(verifierId, { year, month }, projectId)).resolves.toEqual({ annotation: 0, verification: 1 });
     expect(getWorkDoneByUser(verifierId, { year, month, day }, projectId)).resolves.toEqual({ annotation: 0, verification: 1 });
   });
-});
-
-describe('Accept annotated image', () => {
-  let imageId: ImageID;
-  let imageId2: ImageID;
-  let projectId: ProjectID;
-  let annotatorId: UserID;
-  let verifierId: UserID;
-  beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
-      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
-    });
-    imageId = await addImageToProject(imageData, projectId);
-    imageId2 = await addImageToProject(imageData, projectId);
-    annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
-    verifierId = await createUser('Cem', 'cem@watson', 'verifier');
-    await addUserToProject(annotatorId, projectId);
-    await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
-    await assignAnnotatorToImage(imageId2, annotatorId, projectId);
-    await saveAnnotation(annotation, imageId, projectId);
-    await saveAnnotation(annotation, imageId, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
-    await assignVerifierToImage(imageId2, verifierId, projectId);
-    // await verifyImage(projectId, imageId2);
-    // const listOfUsers = await getAllUsers();
-    await generateReport();
-    await createUser('ramy', 'ramy@watson', 'annotator');
-    return verifyImage(projectId, imageId);
-  });
-
-  it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageId === imageId))).resolves.toBeGreaterThanOrEqual(0));
 });

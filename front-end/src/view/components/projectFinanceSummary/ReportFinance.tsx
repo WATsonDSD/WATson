@@ -40,7 +40,6 @@ export default function ReportFinance() {
   hours: number;
   payment: number;
   client: string;}[]>([]);
-  console.log('ROWS:', Object.entries(rows));
   // const getRows = () => rows;
   return (
     <div className="h-full w-full">
@@ -115,12 +114,10 @@ export default function ReportFinance() {
                       onClick={async () => {
                         const data = await generateReport();
                         setRows(data.reportRow);
-                        console.log('REPORTFINANCE', data.reportRow);
                       }}
                     >
                       Generate Report
                     </button>
-                    {console.log('lauraaa', Object.entries(rows).length)}
                     {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
                   </div>
                   <Dropdown elements={dropDownActions} icon={<BiDotsVertical className="ml-8 mt-1" />} />

@@ -1,8 +1,8 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
 } from '.';
 import {
-  findImageById, saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser,
+  findImageById, saveAnnotation, getImagesOfUser, assignImagesToAnnotator,
 } from './images';
 
 jest.mock('./databases');
@@ -29,10 +29,13 @@ describe('addAnnotation', () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
+    await addImageToProject(imageData, projectId);
+    await addImageToProject(imageData, projectId);
     imageId = await addImageToProject(imageData, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     await addUserToProject(userId, projectId);
-    await assignAnnotatorToImage(imageId, userId, projectId);
+    await assignImagesToAnnotator(3, userId, projectId);
+    // add test on block 
     return saveAnnotation(validAnnotation, imageId, projectId);
   });
 
@@ -55,6 +58,33 @@ describe('assignVerifierToImage', () => {
   let projectId: ProjectID;
   let verifierId: UserID;
   let annotatorId: UserID;
+  // let annotatedImageId: ImageID;
+  beforeAll(async () => {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    imageId = await addImageToProject(imageData, projectId);
+    await addImageToProject(imageData, projectId);
+    verifierId = await createUser('Bob', 'bob@verifier.com', 'verifier');
+    annotatorId = await createUser('Bobby', 'bobby@annotator.com', 'annotator');
+    await addUserToProject(annotatorId, projectId);
+    await addUserToProject(verifierId, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    // check lenght of images 
+    await assignImagesToAnnotator(2, annotatorId, projectId);
+    // await saveAnnotation(validAnnotation, annotatedImageId, projectId);
+  });
+
+  it('add the image to the waitingForAnnotation field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].waitingForAnnotation.includes(imageId))).resolves.toBe(true));
+
+  it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.idVerifier === verifierId)).resolves.toBe(true));
+});
+
+describe('save Annotation ', () => {
+  let imageId: ImageID;
+  let projectId: ProjectID;
+  let verifierId: UserID;
+  let annotatorId: UserID;
   let annotatedImageId: ImageID;
   beforeAll(async () => {
     projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
@@ -63,21 +93,18 @@ describe('assignVerifierToImage', () => {
     imageId = await addImageToProject(imageData, projectId);
     annotatedImageId = await addImageToProject(imageData, projectId);
     verifierId = await createUser('Bob', 'bob@verifier.com', 'verifier');
-    annotatorId = await createUser('Bob', 'bobby@verifier.com', 'annotator');
+    annotatorId = await createUser('Bobby', 'bobby@annotator.com', 'annotator');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
-    await assignAnnotatorToImage(annotatedImageId, annotatorId, projectId);
-    await saveAnnotation(validAnnotation, annotatedImageId, projectId);
-    await assignVerifierToImage(annotatedImageId, verifierId, projectId);
-    return assignVerifierToImage(imageId, verifierId, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    // check lenght of images 
+    await assignImagesToAnnotator(2, annotatorId, projectId);
+    await saveAnnotation(validAnnotation, imageId, projectId);
   });
 
-  it('add the image to the waitingForAnnotation field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].waitingForAnnotation.includes(imageId))).resolves.toBe(true));
+  it('add the image to the toVerify field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].toVerify.includes(imageId))).resolves.toBe(true));
 
   it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.idVerifier === verifierId)).resolves.toBe(true));
 
-  it('if the image is already annotated, moves the image to the toVerify filed', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].toVerify.includes(annotatedImageId))).resolves.toBe(true));
-  it('if the image is already annotated, does not put the image to the waitingForAnnotation filed', () => expect(findUserById(verifierId)
-    .then((verif) => verif.projects[projectId].waitingForAnnotation.includes(annotatedImageId))).resolves.toBe(false));
+  it('if the image is already annotated, does not put the image to the waitingForAnnotation filed', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].waitingForAnnotation.includes(annotatedImageId))).resolves.toBe(false));
 });

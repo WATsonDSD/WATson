@@ -3,20 +3,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, Project, User, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, Project, User, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, findReportById, insertReportRows } from './report';
 import { ProjectID, Report, Role } from './types';
 
 /**
- * @returns this function return a Csv data array with all the fields needed to show up the report * 
+ * this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<Report> {
   const rep = await createReport();
   const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
+  console.log(listOfUsers);
   Object.entries(listOfUsers).map(async ([key, user]) => {
     if (user.role === 'annotator' || user.role === 'verifier') {
       const projectsForUser = await getProjectsOfUser(user.id);
@@ -136,9 +137,11 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let hoursV = 0;
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
+  // console.log(user);
   projectsForUser.forEach((project) => {
-    numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-    numberOfImagesVerified = user.projects[project.id].verified.length;
+    // console.log('user', user.id, user.projects[project.id]);
+    if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
+    if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
     hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   });
@@ -155,7 +158,7 @@ export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
   const project = await findProjectById(projectID);
-  const totalImages = project.images.done.length + project.images.needsAnnotatorAssignment.length + project.images.needsVerifierAssignment.length + project.images.pending.length;
+  const totalImages = await numberOfImagesInProject(projectID);
   if (totalImages === 0) {
     return 0;
   }
@@ -180,7 +183,7 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
-  Object.entries(user.projects).forEach(
+  await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {
       const project = await findProjectById(key);
       const priceAnnotation = project.pricePerImageAnnotation;
@@ -200,7 +203,7 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
         },
       );
     },
-  );
+  ));
   return earningPerMonth;
 }
 
