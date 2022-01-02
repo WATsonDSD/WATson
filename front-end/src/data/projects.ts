@@ -61,6 +61,7 @@ export async function createProject(
     pricePerImageVerification: financialModel.pricePerImageVerification,
     hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
     hourlyRateVerification: financialModel.hourlyRateVerification,
+    workDoneInTime: {},
     images: { // A newly created project has no images.
       needsAnnotatorAssignment: [],
       needsVerifierAssignment: [],
@@ -157,4 +158,14 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
   await ProjectsDB.put(project);
 
   return imageId;
+}
+export async function changeProjectName(projectID: ProjectID, name: string) {
+  const project = await findProjectById(projectID);
+  project.name = name;
+  await ProjectsDB.put(project);
+}
+export async function closeProject(projectID: ProjectID) {
+  const project = await findProjectById(projectID);
+  project.status = 'closed';
+  await ProjectsDB.put(project);
 }

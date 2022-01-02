@@ -1,6 +1,8 @@
 import {
   addImageToProject,
   addUserToProject,
+  changeProjectName,
+  closeProject,
   createProject, createUser, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
 
@@ -57,4 +59,7 @@ describe('addImageToProject', () => {
 
   it('adds the image to the project to be assigned an annotator', async () => expect(getImagesOfProject(projectId, 'needsAnnotatorAssignment')
     .then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+
+  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
+  it('change project name', async () => expect(changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
 });

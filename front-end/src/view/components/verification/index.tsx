@@ -9,143 +9,80 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { Image } from '../../../data';
-import AnnotatedImage from '../annotation/AnnotatedImage';
+import { useUserNotNull } from '../../../data';
+import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
-import { getImagesOfProject } from '../../../data/images';
-import TemplateAnnotation from '../annotation/TemplateAnnotation';
+import { getImagesOfUser } from '../../../data/images';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
 import { Paths } from '../shared/routes';
-// import { Paths } from '../shared/routes';
 
-const templateImage: Image = {
-  id: 'template',
-  annotation: TemplateAnnotation,
-};
-
-const zoomIn = 1.6;
-const zoomOut = 0.625;
-
-/* TODO: Keyboard shortcuts
-a - Go to previous image
-d -  Go to next image
-s - Save image landmarks
-g - Optical Flow prediction
-backspace - undo last landmark
-*/
+import AnnotVerif, {
+  emptyImage,
+  templateImage,
+  zoomIn,
+  zoomOut,
+  defaultTransform,
+} from '../shared/annotation/AnnotVerif';
 
 export default function VerificationView() {
-  const initialState: {
-    imageToVerify: Image,
-    imageTransform: {
-      scale: number, translatePos: { x: number, y: number }, contrast: number, brighness: number,
-    },
-    showReject: boolean;
-  } = {
-    imageToVerify: { ...templateImage },
-    imageTransform: {
-      scale: 1, translatePos: { x: 0, y: 0 }, contrast: 100, brighness: 100,
-    },
-    showReject: false,
-  };
-  const [state, setState] = useState(initialState);
+  const [image, setImage] = useState({ ...emptyImage });
+  const [transform, setTransform] = useState({ ...defaultTransform });
+  const [showReject, setShowReject] = useState(false);
+  const [movedLandmark, setMovedLandmark] = useState(null as number|null);
+  const [edit, setEdit] = useState(false);
+
   const { projectId } = useParams();
   const navigate = useNavigate();
-  console.log(projectId, navigate);
+  const [user] = useUserNotNull();
+
+  const {
+    onImageWheel,
+    zoom,
+    changeContrast,
+    changeBrightness,
+    imageLandmarkColor,
+    templateLandmarkColor,
+    onMouseDownMove,
+    onMouseMoveMove,
+    onMouseUpMove,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
+
   useEffect(() => {
     nextImage();
   }, []);
 
   const nextImage = () => {
-    getImagesOfProject(projectId ?? '', 'pending').then((result) => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
         return;
       }
-      setState({
-        ...state,
-        imageToVerify: result[0],
-      });
+      setImage(result[0]);
+      setTransform(defaultTransform);
     });
   };
 
-  const onImageWheel = (ctx: any, event: WheelEvent) => {
-    const { canvas } = ctx;
-    const x = (event.clientX - canvas.offsetLeft) / canvas.width;
-    const y = (event.clientY - canvas.offsetTop) / canvas.height;
-    zoom(event.deltaY > 0 ? zoomOut : zoomIn, { x, y });
-  };
-
-  const zoom = (scale: number, position: { x: number, y: number }) => {
-    const { imageTransform } = state;
-    const x = position.x - (position.x - imageTransform.translatePos.x) * scale;
-    const y = position.y - (position.y - imageTransform.translatePos.y) * scale;
-    setState({
-      ...state,
-      imageTransform: {
-        ...imageTransform,
-        scale: imageTransform.scale * scale,
-        translatePos: { x, y },
-      },
-    });
-  };
-
-  const saveAsValid = () => {
-    verifyImage(projectId ?? '', state.imageToVerify.id);
+  const saveAsValid = async () => {
+    await verifyImage(projectId ?? '', image.id, image.annotation);
     nextImage();
   };
 
-  const changeContrast = (contrast: number) => {
-    setState({ ...state, imageTransform: { ...state.imageTransform, contrast } });
-  };
-
-  const changeBrighness = (brighness: number) => {
-    setState({ ...state, imageTransform: { ...state.imageTransform, brighness } });
-  };
-
-  const templateLandmarkColor = (id: number) => {
-    if (!state.imageToVerify.annotation || !state.imageToVerify.annotation[id]) {
-      return { stroke: '#525252' };
-    }
-    if (state.imageToVerify.annotation[id].z === 0) {
-      return { fill: '#FF0000' };
-    }
-    if (state.imageToVerify.annotation[id].z === 2) {
-      return { fill: '#40C000' };
-    }
-    return { fill: '#525252' };
-  };
-
-  const imageLandmarkColor = (id: number) => {
-    if (!state.imageToVerify.annotation
-      || !state.imageToVerify.annotation[id]
-      || state.imageToVerify.annotation[id].z === 0) {
-      return { };
-    }
-    if (state.imageToVerify.annotation[id].z === 2) {
-      return { fill: '#40C000' };
-    }
-    return { fill: '#525252' };
-  };
-
-  const showRejectMenu = () => {
-    setState({
-      ...state,
-      showReject: true,
-    });
-  };
-  const hideRejectMenu = () => {
-    setState({
-      ...state,
-      showReject: false,
-    });
-  };
   const sendReject = () => {
-    const comment = document.getElementById('rejectionComment')?.innerText;
+    const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    rejectAnnotation(state.imageToVerify.id, projectId ?? '', comment ?? '');
-    hideRejectMenu();
+    rejectAnnotation(image.id, projectId ?? '', comment ?? '');
+    setShowReject(false);
+  };
+
+  const onClick = () => {
+    if (edit) onMouseUpMove();
+  };
+  const onMouseDown = (ctx: any, event: MouseEvent) => {
+    if (edit) onMouseDownMove(ctx, event);
+  };
+  const onMouseMove = (ctx: any, event: MouseEvent) => {
+    if (edit) onMouseMoveMove(ctx, event);
   };
 
   // Here goes the image count condition if images to annotate is empty, allDone = true
@@ -159,7 +96,7 @@ export default function VerificationView() {
   }
   return (
     <div>
-      { state.showReject
+      { showReject
         && (
         <div
           className="fixed h-100v w-100v bg-ui-graygloss z-10"
@@ -174,7 +111,7 @@ export default function VerificationView() {
               <button
                 className="col-start-1 col-span-1 h-6v"
                 type="button"
-                onClick={() => hideRejectMenu()}
+                onClick={() => setShowReject(false)}
               >
                 <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
                   <span className="mx-auto text-white"> Back </span>
@@ -197,21 +134,30 @@ export default function VerificationView() {
         <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
           <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl ml-4 mr-auto">
             <div className="divide-y divide-gray-400">
+              <div>
+                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={() => setEdit(!edit)}>
+                  <span className="mx-auto text-white">
+                    {edit ? 'Confirm modifications' : 'Edit annotation' }
+                  </span>
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="col-span-1 h-60v my-4">
                   <Slider
                     onChange={changeContrast}
-                    value={state.imageTransform.contrast}
+                    value={transform.contrast}
                     className="col-span-1 p-auto mx-auto"
                     vertical
+                    max={200}
                   />
                 </div>
                 <div className="col-span-1 h-60v my-4">
                   <Slider
-                    onChange={changeBrighness}
-                    value={state.imageTransform.brighness}
+                    onChange={changeBrightness}
+                    value={transform.brightness}
                     className="col-span-1 p-auto mx-auto"
                     vertical
+                    max={200}
                   />
                 </div>
               </div>
@@ -232,8 +178,8 @@ export default function VerificationView() {
             <br />
             <span className="text-5xl pl-4 text font-bold">
               {/* Get Here the data of the verification of images in the current session */}
-              { state.imageToVerify.annotation
-                ? Object.keys(state.imageToVerify.annotation).length
+              { image.annotation
+                ? Object.keys(image.annotation).length
                 : 1 }
               {' / '}
               {templateImage.annotation ? Object.keys(templateImage.annotation).length : 1}
@@ -250,11 +196,16 @@ export default function VerificationView() {
         <div className="h-full p-4 col-span-5 row-span-full w-full">
           <div className="h-95v px-4 py-4 w-full bg-ui rounded-3xl px-auto">
             <AnnotatedImage
-              image={state.imageToVerify}
+              image={image}
+              onClick={onClick}
               onMouseWheel={onImageWheel}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
               landmarkColor={imageLandmarkColor}
-              scale={state.imageTransform.scale}
-              translatePos={state.imageTransform.translatePos}
+              scale={transform.scale}
+              translatePos={transform.translatePos}
+              contrast={transform.contrast}
+              brightness={transform.brightness}
             />
           </div>
         </div>
@@ -281,7 +232,7 @@ export default function VerificationView() {
               className="col-start-1 col-span-1 row-start-1 row-span-1 h-6v"
               type="button"
               // eslint-disable-next-line no-return-assign
-              onClick={() => showRejectMenu()}
+              onClick={() => setShowReject(true)}
             >
               <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
                 <span className="text-ui-darkred mx-auto"> Reject Annotation </span>
