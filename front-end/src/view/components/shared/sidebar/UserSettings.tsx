@@ -3,25 +3,25 @@ import React, { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { useUserNotNull } from '../../../../data';
 
-import openModal from '../layout/OpenModal';
+import { useDialog } from '../../../../utils/modals';
+import { SignOutDialog, EditProfileDialog, AccountSettings } from '../dialogs';
 
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
-// function classNames(...classes:any) {
-//   return classes.filter(Boolean).join(' ');
-// }
+function classNames(...classes: any) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function UserSettings() {
   const [user] = useUserNotNull();
+  const dialog = useDialog();
 
   return (
     <div className="Dropdown text-black focus:outline-none">
       <Menu as="div" className="flex">
         <Menu.Button>
-          <div className="flex items-center gap-3 font-medium text-black bg-blue-50 hover:bg-blue-100 rounded-full">
-            {/* //TODO: Eventually the profile picture will be loaded from the database */}
-            {/* <img src="" alt="Profile" className="h-10 w-10 object-center object-cover rounded-full" /> */}
-            <span className="block h-10 w-10 bg-blue-300 rounded-full" />
+          <div className="flex items-center gap-3 p-1 text-black hover:bg-blue-50 transition-all rounded-full">
+            <span className="block h-9 w-9 bg-blue-200 rounded-full" />
             {user ? user.name : 'loading...'}
             <img className="mr-4" src={DownArrow} alt="Profile Options" />
           </div>
@@ -37,8 +37,8 @@ export default function UserSettings() {
           leaveTo="transform opacity-0 scale-95"
         >
           <Menu.Items className="origin-top-right absolute right-16 mt-12 px-6 rounded-sm shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
-            {/* <Menu.Item>
-              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => openModal(true, '#edit')}>
+            <Menu.Item>
+              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<EditProfileDialog onClose={dialog.close} />)}>
                 Edit Profile
               </button>
             </Menu.Item>
@@ -46,17 +46,9 @@ export default function UserSettings() {
             <span className="block border-b" />
 
             <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="./"
-                  className={classNames(
-                    active ? 'text-black' : 'text-gray-600',
-                    'block pr-16 pt-4 pb-2',
-                  )}
-                >
-                  Account Settings
-                </a>
-              )}
+              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<AccountSettings onClose={dialog.close} />)}>
+                Account Settings
+              </button>
             </Menu.Item>
 
             <Menu.Item>
@@ -73,10 +65,10 @@ export default function UserSettings() {
               )}
             </Menu.Item>
 
-            <span className="block border-b" /> */}
+            <span className="block border-b" />
 
             <Menu.Item>
-              <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => openModal(true, '#signout')}>
+              <button className="block pr-16 py-4 text-red-600 hover:text-black" type="button" onClick={() => dialog.open(<SignOutDialog onClose={dialog.close} />)}>
                 Sign Out
               </button>
             </Menu.Item>

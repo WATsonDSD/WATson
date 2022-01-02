@@ -1,23 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../shared/layout/Header';
+import Icon from '@mdi/react';
+import { mdiDelete } from '@mdi/js';
+import Header from '../shared/header';
 import {
-  UserID, LandmarkSpecification, Project,
+  UserID, LandmarkSpecification,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserNotNull, Image,
+  addUserToProject, createProject, getAllUsers, useUserNotNull,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import AnnotatedImage from '../annotation/AnnotatedImage';
-import TemplateAnnotation from '../annotation/TemplateAnnotation';
+import AnnotatedImage from '../shared/annotation/AnnotatedImage';
+import { templateImage } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
 import { Paths } from '../shared/routes';
-
-const templateImage: Image = {
-  id: 'template',
-  annotation: TemplateAnnotation,
-};
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
@@ -97,7 +95,6 @@ export default function CreateProject() {
           await addUserToProject(user.id, id);
           await addUserToProject('org.couchdb.user:finance@watson.com', id);
           for (let i = 0; i < project.users.length; i += 1) {
-            // eslint-disable-next-line no-await-in-loop
             if (project.users[i] !== '') {
               // eslint-disable-next-line no-await-in-loop
               await addUserToProject(project.users[i], id);
@@ -133,14 +130,6 @@ export default function CreateProject() {
     return { stroke: '#000000' };
   };
 
-  const range = (n1: number, n2?: number): number[] => {
-    if (n2 === undefined) {
-      return Array.from({ length: n1 }, (x, i) => i);
-    }
-    if (n2 <= n1) { return []; }
-    return Array.from({ length: n2 - n1 }, (x, i) => i + n1);
-  };
-
   const landmarkButton = (i: number) => (
     <button
       type="button"
@@ -154,17 +143,14 @@ export default function CreateProject() {
     </button>
   );
 
-  const landmarkCheckbox = (landmarks: number[]) => {
-    console.log({ landmarks, currentLandMarks, every: landmarks.every((i) => currentLandMarks.includes(i)) });
-    return (
-      <input
-        type="checkbox"
-        className="mr-2"
-        checked={landmarks.every((i) => currentLandMarks.includes(i))}
-        onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
-      />
-    );
-  };
+  const landmarkCheckbox = (landmarks: number[]) => (
+    <input
+      type="checkbox"
+      className="mr-2"
+      checked={landmarks.every((i) => currentLandMarks.includes(i))}
+      onChange={(event) => handleLandmarksCheckbox(event, landmarks)}
+    />
+  );
 
   return (
     <div className="h-full w-full">
@@ -260,25 +246,25 @@ export default function CreateProject() {
               <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" required />
                 </label>
               </div>
               <div className="w-full md:w-1/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" required />
                 </label>
               </div>
               <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" required />
                 </label>
               </div>
               <div className="w-full md:w-2/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" required />
                 </label>
               </div>
             </div>
@@ -289,93 +275,29 @@ export default function CreateProject() {
                 </span>
               </div>
               <div className="flex">
-                {landmarkCheckbox(range(1, 69))}
+                {landmarkCheckbox(Object.keys(TemplateAnnotation).map(Number))}
                 <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   All
                 </span>
               </div>
-              <div className="flex">
-                {landmarkCheckbox(range(1, 18))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Face Contour
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(1, 18).map(landmarkButton)}
-              </div>
-              <br />
-              <div className="inline-flex space-x-4">
-                <div className="left-brow">
-                  <div className="flex">
-                    {landmarkCheckbox(range(18, 23))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Left Brow
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(18, 23).map(landmarkButton)}
-                  </div>
+              {categories.map((row) => (
+                <div className="inline-flex space-x-4 mb-1">
+                  {Object.entries(row).map(([name, landmarks]: [string, number[]]) => (
+                    <div>
+                      <div className="flex">
+                        {landmarkCheckbox(landmarks)}
+                        <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                          {name}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap">
+                        {landmarks.map(landmarkButton)}
+                      </div>
+                    </div>
+                  ))}
+                  <br />
                 </div>
-                <div>
-                  <div className="flex">
-                    {landmarkCheckbox(range(23, 28))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Right Brow
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(23, 28).map(landmarkButton)}
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              {' '}
-              <div className="flex">
-                {landmarkCheckbox(range(28, 37))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Nose
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(28, 37).map(landmarkButton)}
-              </div>
-              <br />
-              <div className="inline-flex space-x-4">
-                <div className="left-eye">
-                  <div className="flex">
-                    {landmarkCheckbox(range(37, 43))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Left Eye
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(37, 43).map(landmarkButton)}
-                  </div>
-                </div>
-                <div>
-                  <div className="flex">
-                    {landmarkCheckbox(range(43, 49))}
-                    <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                      Right Eye
-                    </span>
-                  </div>
-                  <div className="inline-flex">
-                    {range(43, 49).map(landmarkButton)}
-                  </div>
-                </div>
-              </div>
-              <br />
-              <br />
-              <div className="flex">
-                {landmarkCheckbox(range(49, 69))}
-                <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                  Mouth
-                </span>
-              </div>
-              <div className="flex flex-wrap">
-                {range(49, 69).map(landmarkButton)}
-              </div>
+              ))}
             </div>
 
             <div className="flex flex-wrap gap-4 -mx-3 mb-2">
@@ -411,7 +333,7 @@ export default function CreateProject() {
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
@@ -420,6 +342,9 @@ export default function CreateProject() {
                         value={allUsers?.find((u) => u.id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...annotators]; newState.splice(index, 1); setAnnotators(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -455,7 +380,7 @@ export default function CreateProject() {
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
@@ -464,6 +389,9 @@ export default function CreateProject() {
                         value={allUsers?.find((u) => u.id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...verifiers]; newState.splice(index, 1); setVerifiers(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -531,10 +459,10 @@ export default function CreateProject() {
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   HRK
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" min="0" placeholder="Payment per hour per Annotator" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" min="0" placeholder="Payment per hour per Verifier" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" min="0" type="number" placeholder="Payment per Annotation" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" min="0" placeholder="Payment per Verification" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" min="0" placeholder="Payment per hour per Annotator" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" min="0" placeholder="Payment per hour per Verifier" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" min="0" type="number" placeholder="Payment per Annotation" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" min="0" placeholder="Payment per Verification" required />
 
               </div>
             </div>
@@ -557,8 +485,4 @@ export default function CreateProject() {
       </div>
     </div>
   );
-}
-
-function deleteUser() {
-  alert('fdsfs');
 }

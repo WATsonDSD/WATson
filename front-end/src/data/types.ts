@@ -1,3 +1,4 @@
+export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: string]: T } } };
 export type UserID = string;
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
@@ -11,8 +12,14 @@ export type User = {
             waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again and 
                                             // when the annotation is annotated for the first time and is not verified yet.
             verified: { imageID: ImageID, date: Date}[]
-        }
+        },
     },
+    workDoneInTime: YearMonthDay <{
+        [projectId: ProjectID]: {
+            annotated: ImageID[],
+            verified: ImageID[],
+        }
+    }>
     name: string,
     email: string,
     role: Role,
@@ -34,6 +41,12 @@ export type Project = {
     pricePerImageVerification: number,
     hourlyRateAnnotation: number,
     hourlyRateVerification: number
+
+    workDoneInTime: YearMonthDay <{
+        imageId: ImageID,
+        annotator: UserID,
+        verifier: UserID,
+    }[]>
 
     images: {
         needsAnnotatorAssignment: ImageID[],
@@ -64,4 +77,10 @@ export type RejectedAnnotation = {
     comment: String,
     annotatorID: UserID,
     wrongAnnonation: Annotation,
+}
+export type ReportID = string;
+export type Report = {
+    reportID: ReportID,
+    date: Date,
+    reportRow: {user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string }[]
 }

@@ -1,0 +1,82 @@
+#modal-root,
+#modal {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+
+#super-root {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+}
+
+#modal {
+  -webkit-animation: fade-in .1s linear;
+  animation: fade-in .1s linear;
+  animation-fill-mode: forwards;
+  overflow: auto;
+  opacity: 0;
+}
+
+#snackbar {
+  -webkit-animation: fade-in .1s linear, fade-out 0.2s 5s;
+  animation: fade-in .1s linear, fade-out 0.2s 5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+}
+
+#modal-content {
+  max-width: 500px;
+}
+
+@keyframes fade-in {
+  0% { 
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.2242, 0.7499, 0.3142, 0.8148);
+  }
+  100% { opacity: 1; }
+}
+
+@-webkit-keyframes fade-in {
+  0% { 
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.2242, 0.7499, 0.3142, 0.8148);
+  }
+  100% { opacity: 1; }
+}
+
+@-webkit-keyframes fade-out {
+  0% { opacity: 1; } 
+  100% { opacity: 0; }
+}
+
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.warning {
+  background-color: #f8ae1b;
+  color: #272727;
+}
+
+.error {
+  background-color: #d13434;
+}
+
+.information {
+  background-color: #0288D1;
+}
+
+.success {
+  background-color: #318d38;
+}
+
+.error,
+.information,
+.success {
+  color: #ffffff;
+}

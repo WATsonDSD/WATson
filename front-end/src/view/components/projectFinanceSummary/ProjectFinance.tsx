@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
-import { findProjectById } from '../../../data';
+import { findProjectById, getUsersOfProject, User } from '../../../data';
 import useData from '../../../data/hooks';
-import Header from '../shared/layout/Header';
+import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
   calculateTotalCost, dataChartProjects, totalAnnotationMade, totalHoursOfWork, totalWorkers,
@@ -20,6 +20,11 @@ export default function ProjectFinance() {
   const totalWork = useData(async () => totalWorkers(idProject!));
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
   const data = useData(async () => dataChartProjects(idProject!));
+  const [users, setProjectUsers] = useState([] as User[]);
+
+  useEffect(() => {
+    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
+  }, []);
 
   if (!idProject || !data) return null;
 
@@ -126,8 +131,45 @@ export default function ProjectFinance() {
           </div>
         </div>
       </div>
-      <div className="w-full mx-10">
+      <div className="mx-10">
         <GraphChart chart={exampleChart} title="Spendings" />
+      </div>
+      <br />
+      <br />
+      <div className="mx-10">
+        <section className="bg-white rounded-lg">
+          <div className="grid grid-cols-9 gap-x-4 pb-3 text-sm text-gray-500 font-medium">
+            <span className="col-span-2">Name</span>
+            <span>Role</span>
+            <span>Annotated images</span>
+            <span>Verified images</span>
+            <span>Hours of work</span>
+            <span>Efficiency</span>
+            <span>Earnings</span>
+          </div>
+
+          {users && users.length > 0
+            ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => (
+              <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
+                <div className="flex items-center gap-x-4 col-span-2">
+                  <span className="block w-10 h-10 bg-gray-100 rounded-full" />
+                  <span>{user.name}</span>
+                </div>
+                <div>
+                  <span className={`uppercase tracking-wide ${user.role === 'annotator' ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'} px-4 py-2 -ml-4 text-xs font-bold rounded-full`}>{user.role}</span>
+                </div>
+                {/* todo change to real values  */}
+                <span>{Object.entries(user.projects).length}</span>
+                <span>{Object.entries(user.projects).length}</span>
+                <span>{Object.entries(user.projects).length}</span>
+                <span>{Object.entries(user.projects).length}</span>
+                <span>{Object.entries(user.projects).length}</span>
+              </div>
+            ))
+            : (
+              <div className="flex items-center justify-center py-4 text-gray-400">There are no workers registered to the application.</div>
+            )}
+        </section>
       </div>
     </div>
   );
