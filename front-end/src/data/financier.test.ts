@@ -140,10 +140,10 @@ describe('adding verification', () => {
     expect(data[1]).toBe(7.5);
   }));
   test('chart december', () => dataChartWorker(userId).then((data) => {
-    expect(data[11]).toBe(30);
+    expect(data[11]).toBe(0);
   }));
   test('chart january', () => dataChartWorker(userId).then((data) => {
-    expect(data[0]).toBe(0);
+    expect(data[0]).toBe(30);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(userId, projectId).then((data) => {
     expect(data).toBe(7.5);
@@ -155,7 +155,7 @@ describe('adding verification', () => {
     expect(data).toBe(69);
   }));
   test('chart project', () => dataChartProjects(projectId).then((data) => {
-    expect(data[11]).toBe(99);
+    expect(data[0]).toBe(99);
   }));
   test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
     expect(data).toBe(0.75);
