@@ -13,6 +13,7 @@ import Projects from '../../projects';
 import Project from '../../project';
 import Workers from '../../workers';
 import CreateProject from '../../createProject';
+import EditProject from '../../editProject';
 import Annotation from '../../annotation';
 import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
@@ -25,6 +26,7 @@ export const Paths = {
   Projects: '/',
   Project: '/project',
   CreateProject: '/createProject',
+  EditProject: '/editProject',
   Workers: '/workers',
   Annotation: '/annotation',
   Verification: '/verification',
@@ -45,6 +47,9 @@ export default () => (
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
         <Route path=":idProject" element={<Workers />} />
+      </Route>
+      <Route path={Paths.EditProject} element={<EditProject />}>
+        <Route path=":idProject" element={<EditProject />} />
       </Route>
       <Route path={Paths.CreateProject} element={<CreateProject />} />
       <Route path={Paths.Annotation} element={<Annotation />}>
