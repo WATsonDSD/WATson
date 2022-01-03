@@ -69,11 +69,12 @@ export default function VerificationView() {
     nextImage();
   };
 
-  const sendReject = () => {
+  const sendReject = async () => {
     const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    rejectAnnotation(image.id, projectId ?? '', comment ?? '');
+    await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
+    nextImage();
   };
 
   const onClick = () => {
