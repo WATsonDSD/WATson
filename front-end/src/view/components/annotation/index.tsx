@@ -85,7 +85,7 @@ export default function AnnotationView() {
         return;
       }
       setImage(result[0]);
-      const next = nextLandmark(image.annotation, templateImage.annotation);
+      const next = nextLandmark(result[0].annotation, templateImage.annotation);
       setLandmarkId(next);
       setTransform(defaultTransform);
     });
