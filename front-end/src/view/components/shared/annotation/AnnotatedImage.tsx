@@ -38,7 +38,7 @@ export default function AnnotatedImage(props: {
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = URL.createObjectURL(image.data ?? new Blob());
+    backgroundImage.src = URL.createObjectURL(image.data);
     // draw canvas after image loading
     backgroundImage.onload = () => {
       // clear canvas
