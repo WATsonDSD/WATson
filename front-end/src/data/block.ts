@@ -18,16 +18,16 @@ export async function addBlock(
   const id = uuid();
   let toAnnotate: ImageID[] = [];
   const project = await findProjectById(projectId);
-  const toBeAssigned = project.images.imagesWithoutAnnotator;
+  const toBeAssigned = project.images.pendingAssignment;
 
   // retrieve images for the block
   if (size >= toBeAssigned.length) {
     toAnnotate = toBeAssigned;
-    project.images.imagesWithoutAnnotator = [];
+    project.images.pendingAssignment = [];
   } else {
     toAnnotate = toBeAssigned.slice(0, size);
-    const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(size, toBeAssigned.length);
-    project.images.imagesWithoutAnnotator = remainedToBeAssigned;
+    const remainedToBeAssigned = project.images.pendingAssignment.slice(size, toBeAssigned.length);
+    project.images.pendingAssignment = remainedToBeAssigned;
   }
 
   let idVerifier: UserID | undefined;
@@ -35,24 +35,22 @@ export async function addBlock(
   /**
    * search the verifier->if link exixts-> add verifier to block (is the one in annVer)
    */
-  Object.entries(project.annVer).forEach(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ([key, value]) => {
-      if (value.annotatorId === idAnnotator) {
-        idVerifier = value.verifierId;
+  Object.entries(project.linkedWorkers).forEach(
+    ([_key, value]) => {
+      if (value.annotatorID === idAnnotator) {
+        idVerifier = value.verifierID;
       }
     },
   );
-  const block = {
-    _id: id,
-    blockId: id,
+  const block: Block = {
+    id,
     size,
-    toAnnotate,
-    toVerify: [],
-    idAnnotator,
-    idVerifier,
-    projectId,
-  } as Block;
+    assignedAnnotation: toAnnotate,
+    assignedVerification: [],
+    annotatorID: idAnnotator,
+    verifierID: idVerifier,
+    projectID: projectId,
+  };
 
   // add block to the project
   project.images.blocks[id] = { block };
@@ -60,25 +58,25 @@ export async function addBlock(
 
   // assign images to the annotator
   const annotator = await findUserById(idAnnotator);
-  annotator.projects[projectId].toAnnotate.push(...toAnnotate);
+  annotator.projects[projectId].assignedAnnotations.push(...toAnnotate);
   await updateUser(annotator);
 
   // if verifier-ass exixted assign images to the verifier 
 
   if (idVerifier) {
     const verifier = await findUserById(idVerifier);
-    verifier.projects[projectId].waitingForAnnotation = (toAnnotate);
+    verifier.projects[projectId].rejectedAnnotations = (toAnnotate);
     await updateUser(verifier);
   }
 
   // update the annotator and verifier field for each assigned image
-  await Promise.all(Object.entries(block.toAnnotate).map(
+  await Promise.all(Object.entries(block.assignedAnnotation).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
-      image.idAnnotator = idAnnotator;
-      image.idVerifier = idVerifier;
-      image.blockId = block.blockId;
+      image.annotatorID = idAnnotator;
+      image.verifierID = idVerifier;
+      image.blockID = block.id;
       await ImagesDB.put(image);
     },
   ));
@@ -95,30 +93,30 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   if (!block) throw Error('the block does not exist');
   const project = await findProjectById(projectId);
 
-  const toBeAssigned = project.images.imagesWithoutAnnotator;
+  const toBeAssigned = project.images.pendingAssignment;
   const imagesToAdd = toBeAssigned.slice(0, toAdd);
-  const annotatorId = block.idAnnotator;
+  const annotatorId = block.annotatorID;
   if (!annotatorId) throw Error('the block does not have an annotator');
 
   const annotator = await findUserById(annotatorId);
   let verifier: User | undefined;
-  if (block.idVerifier) {
-    verifier = await findUserById(block.idVerifier);
+  if (block.verifierID) {
+    verifier = await findUserById(block.verifierID);
   }
 
   // remove the image from allImagesWithoutAnnotator in project
-  const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(toAdd);
+  const remainedToBeAssigned = project.images.pendingAssignment.slice(toAdd);
   console.log('remainedToBeAssigned', remainedToBeAssigned);
-  project.images.imagesWithoutAnnotator = remainedToBeAssigned;
+  project.images.pendingAssignment = remainedToBeAssigned;
 
   // add the images to the block
-  block.toAnnotate = block.toAnnotate.concat(imagesToAdd);
+  block.assignedAnnotation = block.assignedAnnotation.concat(imagesToAdd);
   // assign the images to the annotator (put it in toAnnotate field)
-  annotator.projects[projectId].toAnnotate = annotator.projects[projectId].toAnnotate.concat(imagesToAdd);
+  annotator.projects[projectId].assignedAnnotations = annotator.projects[projectId].assignedAnnotations.concat(imagesToAdd);
   updateUser(annotator);
   // if the verifier exists, assign the image to the verifier (put it in waitingForAnnotation field)
   if (verifier) {
-    verifier.projects[projectId].waitingForAnnotation = verifier.projects[projectId].waitingForAnnotation.concat(imagesToAdd);
+    verifier.projects[projectId].rejectedAnnotations = verifier.projects[projectId].rejectedAnnotations.concat(imagesToAdd);
     updateUser(verifier);
   }
 
@@ -127,10 +125,10 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
-      image.idAnnotator = annotator.id;
-      console.log('hsdgjahdg', image.idAnnotator);
+      image.annotatorID = annotator.uuid;
+      console.log('hsdgjahdg', image.annotatorID);
       if (verifier) {
-        image.idVerifier = verifier.id;
+        image.verifierID = verifier.uuid;
       }
       ImagesDB.put(image);
     },
@@ -148,30 +146,30 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
   const block = await findBlockOfProject(blockId, projectId);
 
   if (!block) throw Error('the block does not exist');
-  const annotatorId = block.idAnnotator;
+  const annotatorId = block.annotatorID;
   if (!annotatorId) throw Error('the block does not have an annotator');
 
   // add the annotator-verifier link to the project
-  project.annVer.push({ annotatorId, verifierId });
+  project.linkedWorkers.push({ annotatorID: annotatorId, verifierID: verifierId });
 
-  if (block.idVerifier) throw Error('the verifies has been already assigned!');
+  if (block.verifierID) throw Error('the verifies has been already assigned!');
 
   // add idVerifier to the block
   // eslint-disable-next-line no-param-reassign
-  block.idVerifier = verifierId;
+  block.verifierID = verifierId;
 
   // add the images to the waitingForAnnotation and/or toVerify field of the verifier
-  const blockImagestoAnnotate = block.toAnnotate;
-  verifier.projects[projectId].waitingForAnnotation.push(...blockImagestoAnnotate);
+  const blockImagestoAnnotate = block.assignedAnnotation;
+  verifier.projects[projectId].rejectedAnnotations.push(...blockImagestoAnnotate);
 
-  const blockImagesToVerify = block.toVerify;
-  verifier.projects[projectId].toVerify.push(...blockImagesToVerify);
+  const blockImagesToVerify = block.assignedVerification;
+  verifier.projects[projectId].assignedVerifications.push(...blockImagesToVerify);
 
   await Promise.all(Object.entries(blockImagestoAnnotate).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
-      image.idVerifier = verifierId;
+      image.verifierID = verifierId;
       await ImagesDB.put(image);
     },
   ));
@@ -179,7 +177,7 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
-      image.idVerifier = verifierId;
+      image.verifierID = verifierId;
       await ImagesDB.put(image);
     },
   ));
@@ -198,7 +196,7 @@ export async function findBlockOfProject(blockId: BlockID, projectId: ProjectID)
   Object.entries(project.images.blocks).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([key, value]) => {
-      if (value.block.blockId === blockId) {
+      if (value.block.id === blockId) {
         myBlock = value.block;
       }
     },
@@ -216,7 +214,7 @@ export async function findAnnotatorBlockOfProject(projectId: ProjectID, annotato
   Object.entries(project.images.blocks).forEach(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([key, value]) => {
-      if (value.block.idAnnotator === annotatorId) {
+      if (value.block.annotatorID === annotatorId) {
         myBlock = value.block;
       }
     },

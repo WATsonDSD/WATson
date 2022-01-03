@@ -33,7 +33,7 @@ test('Can find created project', async () => {
   const name = findProjectById(id).then((project) => project.name);
   return expect(name).resolves.toBe('Test Project');
 });
-
+workers;
 describe('addUserToProject', () => {
   let userId: UserID;
   let projectId: ProjectID;

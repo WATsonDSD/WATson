@@ -36,11 +36,11 @@ export default function ProjectAssign() {
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
       images.forEach((image: Image) => {
-        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
+        updateToAnnotate({ user: image.annotatorID, image: image.id, data: image.data });
       });
     } else {
       images.forEach((image: Image) => {
-        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
+        updateToVerify({ user: image.verifierID, image: image.id, data: image.data });
       });
     }
   };
@@ -55,11 +55,11 @@ export default function ProjectAssign() {
     console.log(annotator);
     console.log(verifier);
     console.log(nbImages);
-    console.log('LENGHT OF IMAGES TO ANNOTATE', ann.projects[idProject!].toAnnotate.length);
+    console.log('LENGHT OF IMAGES TO ANNOTATE', ann.projects[idProject!].assignedAnnotations.length);
     console.log('PROJECT BLOCKS', project!.images.blocks);
     console.log('numberFoImages', nbImages);
-    console.log('lenght', (project!.annVer.filter((e) => e.annotatorId === annotator && e.verifierId === verifier).length));
-    console.log(project?.annVer);
+    console.log('lenght', (project!.linkedWorkers.filter((e) => e.annotatorID === annotator && e.verifierID === verifier).length));
+    console.log(project?.linkedWorkers);
     console.log('project id:', idProject);
 
     if (!idProject) { throw Error('no project id!'); }
@@ -120,7 +120,6 @@ export default function ProjectAssign() {
       // eslint-disable-next-line no-await-in-loop
       // await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
     }
-
     for (let i = 0; i < toVerify.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       // await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
@@ -139,10 +138,10 @@ export default function ProjectAssign() {
             Number Of Images
             {' '}
             <div className="relative">
-              <input required className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight" id="numberImages" name="numberImages" type="number" min="0" max={project?.images.imagesWithoutAnnotator.length} />
+              <input required className="uuidppearance-none block w-fuluuidbg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 uuidading-tight" id="numberImages" name="numberImages" type="uuidmber" min="0" max={project?.images.pendingAssignment.length} />
               LEFT:
               {' '}
-              {project?.images.imagesWithoutAnnotator.length}
+              {project?.images.pendingAssignment.length}
             </div>
           </label>
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
@@ -154,7 +153,7 @@ export default function ProjectAssign() {
                 name="annotator"
               >
                 <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -171,7 +170,7 @@ export default function ProjectAssign() {
                 name="verifier"
               >
                 <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -199,7 +198,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex flex-row grow shrink gap-4">
             { projectUsers.filter((user) => user.role === 'annotator' || user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-annotator`} userId={user.id} accept="annotate" images={toAnnotate.filter((e) => e.user === user.id)} onDrop={(item: any) => handleDrop(index, item, user.id, 'annotate')} />
+              <UserCardDnD key={`${user._id}-annotator`} userId={user._id} accept="annotate" images={toAnnotate.filter((e) => e.user === user._id)} onDrop={(item: any) => handleDrop(index, item, user._id, 'annotate')} />
             ))}
           </div>
         </div>
@@ -218,7 +217,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex grow shrink flex-row gap-4">
             { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-verifier`} userId={user.id} accept="verify" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { handleDrop(index, item, user.id, 'verify'); }} />
+              <UserCardDnD key={`${user._id}-verifier`} userId={user._id} accept="verify" images={toVerify.filter((e) => e.user === user._id)} onDrop={(item: any) => { handleDrop(index, item, user._id, 'verify'); }} />
             ))}
           </div>
         </div>

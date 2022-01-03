@@ -1,6 +1,6 @@
 import {
   Annotation,
-  ImageID, RejectedAnnotation, UserID,
+  ImageID, Rejection, UserID,
 } from '.';
 import { RejectionsDB } from './databases';
 /**
@@ -18,13 +18,13 @@ export async function createRejectedImage(
     imageID,
     comment,
     annotatorID,
-    wrongAnnonation,
-  } as RejectedAnnotation;
+    rejectedAnnonation: wrongAnnonation,
+  } as Rejection;
   await RejectionsDB.put(rejection);
 }
 
-export async function getAllRejections(): Promise<RejectedAnnotation[]> {
-  let rejections: RejectedAnnotation[] = [];
+export async function getAllRejections(): Promise<Rejection[]> {
+  let rejections: Rejection[] = [];
   return new Promise((resolve, reject) => {
     RejectionsDB.allDocs({
       startkey: 'a',
@@ -35,8 +35,8 @@ export async function getAllRejections(): Promise<RejectedAnnotation[]> {
           imageID: row.doc.imageID,
           comment: row.doc.comment,
           annotatorID: row.doc.annotatorID,
-          wrongAnnonation: row.doc.wrongAnnontation,
-        } as RejectedAnnotation));
+          rejectedAnnonation: row.doc.wrongAnnontation,
+        } as Rejection));
       }
       resolve(rejections);
     }).catch((error) => {
@@ -44,7 +44,7 @@ export async function getAllRejections(): Promise<RejectedAnnotation[]> {
     });
   });
 }
-export async function getRejectedAnnotationByID(imageID: ImageID): Promise <RejectedAnnotation> {
+export async function getRejectedAnnotationByID(imageID: ImageID): Promise <Rejection> {
   return RejectionsDB.get(imageID);
 }
 

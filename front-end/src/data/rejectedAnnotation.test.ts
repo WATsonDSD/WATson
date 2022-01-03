@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, RejectedAnnotation, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, Rejection, createAnnotatorVerifierLink,
 } from '.';
 import {
   saveAnnotation, assignImagesToAnnotator,
@@ -44,7 +44,7 @@ describe('get rejected images', () => {
   let verifierId: UserID;
   let rejections: string[];
   let rejections2: string[];
-  let allRejections: RejectedAnnotation[];
+  let allRejections: Rejection[];
   const expectedRejectionsId: ImageID[] = [];
   const expectedRejections2Id: ImageID[] = [];
   const allExpectedRejectionsId: ImageID[] = [];

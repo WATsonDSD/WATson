@@ -1,60 +1,36 @@
-/* eslint-disable no-underscore-dangle */
-import { v4 as uuid } from 'uuid';
-
 import {
+  DBDocument,
   User,
-  UserID,
   updateUser,
   findUserById,
-  LandmarkSpecification,
   Project,
   ProjectID,
-  ImageData,
+  ProjectsDB,
+  Image,
   ImageID,
   ImagesDB,
-  ProjectsDB,
   Block,
+  findBlockOfProject,
+  getUsersOfProject,
+  UserID,
 } from '.';
 
-import { FetchingError } from '../utils/errors';
-import { findBlockOfProject } from './block';
-import { findImageById } from './images';
+import { FetchingError, UpdateError } from '../utils/errors';
 
-export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
+export async function findProjectById(id: ProjectID): Promise<DBDocument<Project>> {
   return ProjectsDB.get(id);
 }
 
 /**
  * Finds and returns all projects of a user.
  */
-export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
-  const user: User = await findUserById(userID);
-
+export async function getProjectsOfUser(user: DBDocument<User>): Promise<DBDocument<Project>[]> {
   return new Promise((resolve, reject) => {
     ProjectsDB.allDocs({
       include_docs: true,
       keys: Object.keys(user.projects),
     }).then((response) => {
-      if (response) {
-        const projects: Project[] = response.rows.map((row: any) => ({
-          id: row.doc._id,
-          users: row.doc.users,
-          name: row.doc.name,
-          client: row.doc.client,
-          startDate: row.doc.startDate,
-          endDate: row.doc.endDate,
-          status: row.doc.status,
-          landmarks: row.doc.landmarks,
-          pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
-          pricePerImageVerification: row.doc.pricePerImageVerification,
-          hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
-          hourlyRateVerification: row.doc.hourlyRateVerification,
-          workDoneInTime: row.doc.workDoneInTime,
-          images: row.doc.images,
-        }));
-
-        resolve(projects);
-      }
+      resolve(response.rows.filter((row) => row.doc !== undefined).map((row) => row.doc!));
     }).catch(() => {
       reject(new FetchingError('We could not fetch the projects as requested.'));
     });
@@ -62,50 +38,46 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
 }
 
 /**
- * Creates a new `Project`.
- * @returns The newly created project's `id`, determined by the backend.
+ * Creates a new project.
  */
-export async function createProject(
-  name: string,
-  client: string,
-  landmarks: LandmarkSpecification,
-  startDate: Date,
-  endDate: Date,
-  financialModel: {
-  pricePerImageAnnotation: number
-  pricePerImageVerification: number,
-  hourlyRateAnnotation: number,
-  hourlyRateVerification: number,
-  },
-) : Promise<ProjectID> {
-  const id = uuid(); // unique id's.
+export async function createProject(project: Project): Promise<void> {
+  // const project = {
+  //   _id: id,
+  //   id,
+  //   workers: [], // A newly created project has no users.
+  //   name,
+  //   client,
+  //   startDate: new Date().toJSON(),
+  //   endDate: '',
+  //   status: 'pending', // A newly created project starts as pending if startDate is > of date at moment of creation.
+  //   landmarks,
+  //   pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
+  //   pricePerImageVerification: financialModel.pricePerImageVerification,
+  //   hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
+  //   hourlyRateVerification: financialModel.hourlyRateVerification,
+  //   linkedWorkers: [],
+  //   timedWork: {},
+  //   images: {
+  //     blocks: {},
+  //     pendingAssignment: [],
+  //     done: [],
+  //   }, // A newly created project has no images.
 
-  const project = {
-    _id: id,
-    id,
-    users: [], // A newly created project has no users.
-    name,
-    client,
-    startDate: new Date().toJSON(),
-    endDate: '',
-    status: 'active', // A newly created project start in progress.
-    landmarks,
-    pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
-    pricePerImageVerification: financialModel.pricePerImageVerification,
-    hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
-    hourlyRateVerification: financialModel.hourlyRateVerification,
-    annVer: [],
-    workDoneInTime: {},
-    images: {
-      blocks: {},
-      imagesWithoutAnnotator: [],
-      done: [],
-    }, // A newly created project has no images.
+  // } as Project & {_id: string};
 
-  } as Project & {_id: string};
+  return new Promise((resolve) => {
+    ProjectsDB.put(project)
+      .then(() => resolve())
+      .catch(() => new UpdateError('The project could not be created as requested.'));
+  });
+}
 
-  await ProjectsDB.put(project);
-  return id;
+export async function updateProject(project: DBDocument<Project>): Promise<void> {
+  return new Promise((resolve) => {
+    ProjectsDB.put(project)
+      .then(() => resolve())
+      .catch(() => new UpdateError('The project could not be updated as requested.'));
+  });
 }
 
 /**
@@ -116,173 +88,186 @@ export async function createProject(
  * notice that it does not remove the project from the workDoneInTime since 
  * the user will be paid for images already done
  */
-export async function deleteProject(projectID: ProjectID): Promise<void> {
-  // Fetches the project
-  const project: Project = await findProjectById(projectID);
+export async function deleteProject(project: DBDocument<Project>): Promise<void> {
+  const images : ImageID[] = [
+    ...Object.values(project.images.blocks).map((value) => [
+      ...value.block.assignedAnnotation,
+      ...value.block.assignedVerification,
+    ]).flat(),
+    ...project.images.done.map((image) => image.imageID),
+    ...project.images.pendingAssignment,
+  ];
 
-  // delete all the images from the images' database
-  await Promise.all(Object.entries(project.images.blocks).map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
-      await Promise.all(Object.entries(value.block.toAnnotate).map(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async ([key, imageID]) => {
-          await deleteImageFromProject(projectID, imageID);
-        },
-      ));
-      await Promise.all(Object.entries(value.block.toVerify).map(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async ([key, imageID]) => {
-          await deleteImageFromProject(projectID, imageID);
-        },
-      ));
-    },
-  ));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  await Promise.all(Object.entries(project.images.done).map(async ([key, image]) => {
-    await deleteImageFromProject(projectID, image.imageId);
-  }));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  await Promise.all(Object.entries(project.images.imagesWithoutAnnotator).map(async ([key, imageId]) => {
-    await deleteImageFromProject(projectID, imageId);
+  const imagesToDelete = await ImagesDB.allDocs({
+    include_docs: true,
+    keys: images,
+  });
+
+  // Deletes all the images from the images database
+  await ImagesDB.bulkDocs(
+    imagesToDelete.rows
+      .filter((row) => row.doc !== undefined)
+      .map((row) => ({ ...row.doc!, _deleted: true })),
+  );
+
+  await Promise.all(imagesToDelete.rows.filter((row) => row.doc !== undefined).map(async (row) => {
+    await removeImageFromProject(project, row.doc!);
   }));
 
   // Fetches the users of this project
-  const users: User[] = await Promise.all(project.users.map((userID) => findUserById(userID)));
+  const users: DBDocument<User>[] = await getUsersOfProject(project);
 
   // Removes the project from the list of projects of each user
   await Promise.all(users.map(async (user) => {
     const updatedUser = user;
-    delete updatedUser.projects[projectID];
+    delete updatedUser.projects[project._id];
 
     return updateUser(updatedUser);
   }));
 
   // Removes the project from ProjectsDB
-  await ProjectsDB.get(projectID).then((project) => ProjectsDB.remove(project));
+  // await ProjectsDB.get(project._id).then((project) => ProjectsDB.remove(project));
+  await ProjectsDB.remove(project);
 }
 
 /**
  * Adds the user (whatever the role) to the project.  
- * If they are an annotator or a verifier, this function will not assign them any image.
+ * If they are an annotator or a verifier, this
+ * function will not assign them any image.
  */
-export async function addUserToProject(userId: UserID, projectId: ProjectID): Promise<void> {
-  const user = await findUserById(userId);
-  const project = await findProjectById(projectId);
+export async function addUserToProject(user: DBDocument<User>, project: DBDocument<Project>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (user.projects[project._id]) resolve();
 
-  if (user.projects[projectId]) {
-    throw Error(`User ${user.name} is already in project ${project.name}`);
-  }
+    const updatedUser: DBDocument<User> = user;
+    const updatedProject: DBDocument<Project> = project;
 
-  project.users.push(userId);
+    updatedProject.workers = [...project.workers, user._id];
 
-  user.projects[projectId] = { // initally, the user is assigned no images.
-    toAnnotate: [],
-    waitingForAnnotation: [],
-    annotated: [],
-    toVerify: [],
-    waitingForVerification: [],
-    verified: [],
-  };
+    updatedUser.projects[project._id] = {
+      assignedAnnotations: [],
+      rejectedAnnotations: [],
+      assignedVerifications: [],
+      pendingVerifications: [],
 
-  await ProjectsDB.put(project);
-  await updateUser(user);
+      annotated: [],
+      verified: [],
+    };
+
+    ProjectsDB.put(updatedProject)
+      .then(() => {
+        updateUser(updatedUser)
+          .then(() => resolve())
+          .catch(() => reject(new UpdateError('The project could not be added to the user\'s project list.')));
+      })
+      .catch(() => reject(new UpdateError('The project could not be updated as requested.')));
+  });
+}
+
+export async function addUsersToProject(users: DBDocument<User>[], project: DBDocument<Project>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const updatedProject: DBDocument<Project> = project;
+
+    updatedProject.workers = [
+      ...project.workers,
+      ...users
+        .map((user) => user._id)
+        .filter((userID) => !project.workers.includes(userID)),
+    ];
+
+    const updatedUsers: DBDocument<User>[] = users.map((user) => ({
+      ...user,
+      projects: {
+        ...user.projects,
+        [project._id]: {
+          assignedAnnotations: [],
+          rejectedAnnotations: [],
+          assignedVerifications: [],
+          pendingVerifications: [],
+
+          annotated: [],
+          verified: [],
+        },
+      },
+    }));
+
+    ProjectsDB.put(updatedProject)
+      .then(() => {
+        Promise.all(updatedUsers.map((user) => updateUser(user)))
+          .then(() => resolve())
+          .catch(() => reject(new UpdateError('The project could not be added to the user\'s project list.')));
+      })
+      .catch(() => reject(new UpdateError('The project could not be updated as requested.')));
+  });
+}
+
+export async function updateBlock(block: Block, project: DBDocument<Project>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const updatedProject: DBDocument<Project> = project;
+    updatedProject.images.blocks[block.id] = { block };
+
+    ProjectsDB.put(project)
+      .then(() => resolve())
+      .catch(() => reject(new UpdateError('The block could not be updated as requested.')));
+  });
+}
+
+export async function removeImageFromWorker(userID: UserID, imageID: ImageID, projectID: ProjectID): Promise<void> {
+  const worker: DBDocument<User> = await findUserById(userID);
+  const updatedAssignments = worker.projects[projectID].assignedAnnotations.filter((id) => id !== imageID);
+
+  worker.projects[projectID].assignedAnnotations = updatedAssignments;
+
+  await updateUser(worker);
 }
 
 /**
- * Assigns an id to the image with the given `ImageData` and adds it to the project.
- * ! This function does not assign an annotator (for now).
+ * Delete an image that has been annotated and verified.
  */
-export async function addImageToProject(data: ImageData, projectId: ProjectID): Promise<ImageID> {
-  const imageId = uuid(); // unique id's.
-  const project = await findProjectById(projectId);
-  // store the image id to the project it is associated to
-  project.images.imagesWithoutAnnotator.push(imageId);
+async function removeDoneImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = false): Promise <void> {
+  const updatedProject: DBDocument<Project> = project;
+  const updatedAssignments = project.images.pendingAssignment.filter((id) => id !== image._id);
 
-  // store the image in the database (_attachment)
-  await ImagesDB.putAttachment(imageId, 'image', data, 'image/jpeg');
+  updatedProject.images.pendingAssignment = updatedAssignments;
 
-  await ProjectsDB.put(project);
-
-  return imageId;
-}
-
-export async function numberOfImagesInProject(projectId: ProjectID): Promise <number> {
-  const project = await findProjectById(projectId);
-  let totImages = project.images.imagesWithoutAnnotator.length + project.images.done.length;
-  Object.entries(project.images.blocks).forEach(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
-      totImages += value.block.toAnnotate.length + value.block.toVerify.length;
-    },
-  );
-  return totImages;
-}
-
-export async function updateBlock(block: Block, projectId: ProjectID): Promise<void> {
-  const project = await findProjectById(projectId);
-  project.images.blocks[block.blockId] = { block };
-  await ProjectsDB.put(project);
+  if (updateProject) await ProjectsDB.put(project);
 }
 
 /**
- * deletes an image that has never been annotated and/or verified
+ * Deletes an image that has never been annotated and/or verified.
  */
+async function deleteNewImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = false): Promise<void> {
+  if (image.annotatorID) await removeImageFromWorker(image.annotatorID, image._id, project._id);
+  if (image.verifierID) await removeImageFromWorker(image.verifierID, image._id, project._id);
 
-async function deleteNewImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
-  const project = await findProjectById(projectId);
-  const image = await findImageById(imageId);
-
-  if (image.idAnnotator) {
-    // delete from the annotator
-    const annotator = await findUserById(image.idAnnotator);
-    const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((id) => id === imageId);
-    annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
-    await updateUser(annotator);
-  }
-  if (image.idVerifier) {
-    // delete from the verifier
-    const verifier = await findUserById(image.idVerifier);
-    const imageIndexVerifier = verifier.projects[projectId].waitingForAnnotation.findIndex((id) => id === imageId);
-    verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
-    await updateUser(verifier);
-  }
-  if (image.blockId) {
-    // image is in a block, so we remove the image from the block 
-    const block = await findBlockOfProject(image.blockId, projectId);
+  // image is in a block, so we remove the image from the block
+  if (image.blockID) {
+    const block = await findBlockOfProject(image.blockID, project);
     if (!block) throw Error('the block does not exist');
-    const imageIndexBlock = block.toAnnotate.findIndex((id) => id === imageId);
-    block.toAnnotate.splice(imageIndexBlock, 1);
-    await updateBlock(block, projectId);
+    const imageIndexBlock = block.assignedAnnotation.findIndex((id) => id === image._id);
+    block.assignedAnnotation.splice(imageIndexBlock, 1);
+    await updateBlock(block, project);
   } else {
     // image is not assigned yet, we remove the image from imagesWithoutAnnotator
-    const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
-    project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
-    await ProjectsDB.put(project);
+    if (updateProject) {
+      const imageIndexProject = project.images.pendingAssignment.findIndex((id) => id === image._id);
+      project.images.pendingAssignment.splice(imageIndexProject, 1);
+
+      await ProjectsDB.put(project);
+    }
   }
-}
-/**
- * delete an image that has been annotated and verified
- */
-async function deleteDoneImageFromProject(projectId: ProjectID, imageId: ImageID): Promise <void> {
-  const project = await findProjectById(projectId);
-  const imageIndexProject = project.images.imagesWithoutAnnotator.findIndex((id) => id === imageId);
-  project.images.imagesWithoutAnnotator.splice(imageIndexProject, 1);
-  await ProjectsDB.put(project);
 }
 
 /**
- * deletes an image from a project.
- * notice that this function throws an error if the image is in progress,
- * since it is possible to remove only new and done images
+ * Deletes an image from a project.
+ * Notice that this function throws an error if the image is in
+ * progress, since it is possible to remove only new and done images.
  */
-export async function deleteImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
-  const image = await findImageById(imageId);
-  const project = await findProjectById(imageId);
+export async function removeImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>): Promise<void> {
   if (!image.annotation) {
-    await deleteNewImageFromProject(projectId, imageId);
-  } else if (project.images.done.find((im) => im.imageId === imageId)) {
-    await deleteDoneImageFromProject(projectId, imageId);
+    await deleteNewImageFromProject(project, image);
+  } else if (project.images.done.find((im) => im.imageID === image._id)) {
+    await removeDoneImageFromProject(project, image);
   } else {
     throw Error('This image cannot be removed!');
   }

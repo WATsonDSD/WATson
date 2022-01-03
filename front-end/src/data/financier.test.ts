@@ -56,7 +56,7 @@ describe('adding annotation', () => {
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
     await assignImagesToAnnotator(3, annotatorId, projectId);
-    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    userId = await createUser('Laura', 'laura@watson', 'annotator'); pendingVerification;
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
     userIdF = await createUser('financ', 'finance@watson', 'finance');
     userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
@@ -100,7 +100,7 @@ describe('adding verification', () => {
     await addUserToProject(verifierId, projectId);
     await addUserToProject(annotatorId2, projectId);
     await assignImagesToAnnotator(3, annotatorId, projectId);
-    // await assignImagesToAnnotator(2, annotatorId2, projectId);
+    // await assignImagesToAnnotator(2, annotatorId2, projectId);pendingVerification
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
     userId3 = await createUser('Ari', 'ari@watson', 'annotator');

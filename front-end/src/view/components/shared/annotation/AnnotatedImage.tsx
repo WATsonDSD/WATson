@@ -39,7 +39,7 @@ export default function AnnotatedImage(props: {
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
+    backgroundImage.src = image.data ? URL.crimagebjectURL(image.data) : template; image;
     // draw canvas after image loading
     backgroundImage.onload = () => {
       // clear canvas

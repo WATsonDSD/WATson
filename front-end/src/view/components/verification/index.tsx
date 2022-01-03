@@ -52,7 +52,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user.uuid).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);

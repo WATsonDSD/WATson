@@ -8,7 +8,6 @@ import {
   UserID,
 } from '.';
 
-//  user: UserID, name: string, mail: string, role: Role, project: ProjectID, hours: number, payment: number, client: string
 export async function createReport() : Promise<ReportID> {
   const id = uuid(); // unique id's.
 
@@ -16,7 +15,7 @@ export async function createReport() : Promise<ReportID> {
     _id: id,
     reportID: id,
     date: new Date(),
-    reportRow: [],
+    rows: [],
   } as Report & {_id: string};
 
   await ReportsDB.put(report);
@@ -27,11 +26,11 @@ export async function findReportById(id: ReportID): Promise<Report & {_id: strin
   return ReportsDB.get(id);
 }
 
-export async function insertReportRow(reportId: ReportID, user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string) {
+export async function insertReportRow(reportId: ReportID, userID: UserID, name: string, email: string, role: Role, projectName: string, hours: number, earnings: number, client: string) {
   const report = await findReportById(reportId);
   const row = {
-    user, name, email, role, projectName, hours, payment, client,
+    userID, name, email, role, projectName, hours, earnings, client,
   };
-  report.reportRow.push(row);
+  report.rows.push(row);
   await ReportsDB.put(report);
 }

@@ -54,11 +54,11 @@ describe('Accept annotated image', () => {
     await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
     await createAnnotatorVerifierLink(projectId, annotatorId3, verifierId1);
   });
-  it('annotator1 has ONE image in toAnnotate', () => expect(findUserById(annotatorId).then((annotator) => annotator.projects[projectId].toAnnotate.length)).resolves.toBe(1));
-  it('annotator2 has TWO image in toAnnotate', () => expect(findUserById(annotatorId2).then((annotator) => annotator.projects[projectId].toAnnotate.length)).resolves.toBe(2));
-  it('couple annVer exists in project', () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId && x.verifierId === verifierId).length)).resolves.toBe(1));
+  it('annotator1 has ONE image in toAnnotate', () => expect(findUserById(annotatorId).then((annotator) => annotator.projects[projectId].assignedAnnotations.length)).resolves.toBe(1));
+  it('annotator2 has TWO image in toAnnotate', () => expect(findUserById(annotatorId2).then((annotator) => annotator.projects[projectId].assignedAnnotations.length)).resolves.toBe(2));
+  it('couple annVer exists in project', () => expect(findProjectById(projectId).then((proj) => proj.linkedWorkers.filter((x) => x.annotatorID === annotatorId && x.verifierID === verifierId).length)).resolves.toBe(1));
   it('verifier has the images in waitinfForAnnotation', () => expect(getImagesOfUser(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
-  it('couple annVer exists in project', () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId2 && x.verifierId === verifierId).length)).resolves.toBe(1));
+  it('couple annVer exists in project', () => expect(findProjectById(projectId).then((proj) => proj.linkedWorkers.filter((x) => x.annotatorID === annotatorId2 && x.verifierID === verifierId).length)).resolves.toBe(1));
   it('verifier has the images in waitinfForAnnotation', () => expect(getImagesOfUser(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId2))).resolves.toBeGreaterThanOrEqual(0));
   it('verifier has the images in waitinfForAnnotation', () => expect(getImagesOfUser(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId3))).resolves.toBeGreaterThanOrEqual(0));
   it('invalid link', () => {
@@ -105,14 +105,14 @@ describe('Accept annotated image', () => {
   });
 
   it('annotator has image in waitingForVerification', () => expect(getImagesOfUser(projectId, 'waitingForVerification', annotatorId2).then((images) => images.findIndex((image) => image.id === imageId2))).resolves.toBeGreaterThanOrEqual(0));
-  it('annotator has One in waitingForVerification', () => expect(findUserById(annotatorId2).then((annotator) => annotator.projects[projectId].waitingForVerification.length)).resolves.toBe(1));
+  it('annotator has One in waitingForVerification', () => expect(findUserById(annotatorId2).then((annotator) => annotator.projects[projectId].pendingVerifications.length)).resolves.toBe(1));
   it('verifier has image in toVerify', () => expect(getImagesOfUser(projectId, 'toVerify', verifierId1).then((images) => images.findIndex((image) => image.id === imageId2))).resolves.toBeGreaterThanOrEqual(0));
-  it('block has image2 in toVerify', () => expect(findBlockOfProject(blockId, projectId).then((block) => block?.toVerify.includes(imageId2))).resolves.toBe(true));
-  it('block has image3 in toAnnotate', () => expect(findBlockOfProject(blockId, projectId).then((block) => block?.toAnnotate.includes(imageId3))).resolves.toBe(true));
-  it('add the verifierd in the verifierId field of the image', () => expect(findImageById(imageId2).then((image) => image.idVerifier === verifierId1)).resolves.toBe(true));
-  it('add the verifierd in the verifierId field of the image', () => expect(findImageById(imageId3).then((image) => image.idVerifier === verifierId1)).resolves.toBe(true));
-  it('add the annotator in the annotatorId field of the image', () => expect(findImageById(imageId2).then((image) => image.idAnnotator === annotatorId2)).resolves.toBe(true));
-  it('add the annotator in the annotatorId field of the image', () => expect(findImageById(imageId3).then((image) => image.idAnnotator === annotatorId2)).resolves.toBe(true));
+  it('block has image2 in toVerify', () => expect(findBlockOfProject(blockId, projectId).then((block) => block?.assignedVerification.includes(imageId2))).resolves.toBe(true));
+  it('block has image3 in toAnnotate', () => expect(findBlockOfProject(blockId, projectId).then((block) => block?.assignedAnnotation.includes(imageId3))).resolves.toBe(true));
+  it('add the verifierd in the verifierId field of the image', () => expect(findImageById(imageId2).then((image) => image.verifierID === verifierId1)).resolves.toBe(true));
+  it('add the verifierd in the verifierId field of the image', () => expect(findImageById(imageId3).then((image) => image.verifierID === verifierId1)).resolves.toBe(true));
+  it('add the annotator in the annotatorId field of the image', () => expect(findImageById(imageId2).then((image) => image.annotatorID === annotatorId2)).resolves.toBe(true));
+  it('add the annotator in the annotatorId field of the image', () => expect(findImageById(imageId3).then((image) => image.annotatorID === annotatorId2)).resolves.toBe(true));
   it('project has two blocks', () => expect(findProjectById(projectId).then((project) => (project.images.blocks[blockId]))).toBeDefined());
   it('project has two blocks', () => expect(findProjectById(projectId).then((project) => (project.images.blocks[blockId2]))).toBeDefined());
 });

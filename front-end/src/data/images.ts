@@ -1,32 +1,73 @@
-import {
-  updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, User, BlockID,
-} from '.';
-import { ImagesDB } from './databases';
-import { DBDocument } from './PouchWrapper/PouchCache';
+import { v4 as uuid } from 'uuid';
 
-/*
-  Note: Notice that there is no method `createImage`.
-  This is because images exist only in the context of a project.
-    They are "weak entities", so to speak.
-  To create an Image, use addImageToProject.
- */
+import {
+  DBDocument,
+  User,
+  UserID,
+  updateUser,
+  findUserById,
+  Image,
+  ImageID,
+  ImagesDB,
+  ImageData,
+  BlockID,
+  addBlock,
+  addImagesToBlock,
+  Landmark,
+  Annotation,
+  Project,
+  ProjectID,
+  ProjectsDB,
+  findProjectById,
+  findAnnotatorBlockOfProject,
+} from '.';
+
+import { UpdateError } from '../utils/errors';
+
+export async function findImageById(imageID: ImageID): Promise<DBDocument<Image>> {
+  return ImagesDB.get(imageID, { attachments: true, binary: true });
+}
 
 /**
- * Creates an object of type ImageView with the id and the Blob image
- * of af the Image corresponding to the given ImageID. 
- * This function is used to display the image to the user. 
- * @param id The identificator of the requested image 
+ * Assigns an id to the image with the given
+ * `ImageData` and adds it to the project.
  */
-export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
-  const attach = await ImagesDB.getAttachment(id, 'image') as Blob;
-  const im = await ImagesDB.get(id);
-  return {
-    ...im,
-    data: attach,
-    // eslint-disable-next-line no-underscore-dangle
-    id: im._id,
+export async function addImageToProject(data: ImageData, project: DBDocument<Project>): Promise<ImageID> {
+  const updatedProject: DBDocument<Project> = project;
+
+  const image: Image & { _id: string } = {
+    _id: uuid(),
+    _attachments: {
+      image: {
+        content_type: 'image/jpeg',
+        data,
+      },
+    },
   };
+
+  updatedProject.images.pendingAssignment.push(image._id);
+
+  await ImagesDB.put(image)
+    .catch(() => {
+      throw new UpdateError('The image could not be created.');
+    });
+
+  await ProjectsDB.put(updatedProject)
+    .catch(() => {
+      throw new UpdateError('The image could not be added to the project.');
+    });
+
+  return image._id;
+}
+
+export function numberOfImagesInProject(project: DBDocument<Project>): number {
+  let numberOfImages = project.images.pendingAssignment.length + project.images.done.length;
+
+  Object.values(project.images.blocks).forEach((value) => {
+    numberOfImages += value.block.assignedAnnotation.length + value.block.assignedVerification.length;
+  });
+
+  return numberOfImages;
 }
 
 /**
@@ -35,7 +76,7 @@ export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
  */
 export async function getImagesOfUser(
   projectID: ProjectID,
-  status: 'toAnnotate' | 'waitingForAnnotation' | 'annotated' | 'toVerify' | 'waitingForVerification' | 'verified',
+  status: 'assignedAnnotations' | 'rejectedAnnotations' | 'annotated' | 'assignedVerifications' | 'pendingVerifications' | 'verified',
   userID: UserID,
 ): Promise<Image[]> {
   const user = await findUserById(userID);
@@ -51,7 +92,7 @@ export async function getImagesOfUser(
 export async function getImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <Image[]> {
   const project = await findProjectById(projectId);
   const images : Image[] = [];
-  await Promise.all(Object.entries(project.images.imagesWithoutAnnotator).map(
+  await Promise.all(Object.entries(project.images.pendingAssignment).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, imageId]) => {
       const image = await findImageById(imageId);
@@ -66,7 +107,7 @@ export async function getImagesOfProjectWithoutAnnotator(projectId: ProjectID): 
  */
 export async function getNumberOfImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <number> {
   const project = await findProjectById(projectId);
-  return project.images.imagesWithoutAnnotator.length;
+  return project.images.pendingAssignment.length;
 }
 
 /**
@@ -74,13 +115,13 @@ export async function getNumberOfImagesOfProjectWithoutAnnotator(projectId: Proj
  */
 export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise <User[]> {
   const project = await findProjectById(projectId);
-  const usersId = project.users; // list di tutti gli id
+  const usersId = project.workers; // list di tutti gli id
 
   // from users remove the annotator that has an association in annVer
-  Object.entries(project.annVer).forEach(
+  Object.entries(project.linkedWorkers).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, annVer]) => {
-      const index = usersId.findIndex((userId) => annVer.annotatorId === userId);
+      const index = usersId.findIndex((userId) => annVer.annotatorID === userId);
       usersId.splice(index, 1);
     },
   );
@@ -98,7 +139,7 @@ export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise
 /**
  * Determines whether `annotation` is valid for the `specification`. 
  */
-export function fitsSpecification(annotation: Annotation, specification: LandmarkSpecification): boolean {
+export function fitsSpecification(annotation: Annotation, specification: Landmark[]): boolean {
   let valid = true;
   specification.forEach((landmark) => { if (!annotation[landmark]) valid = false; });
   return valid;
@@ -129,30 +170,30 @@ export async function saveAnnotation(
   image.annotation = annotation;
 
   // move from toAnnotate to waitingForVerification in the user annotator
-  const annotatorId = image.idAnnotator;
-  console.log('savve Annotation', image.idAnnotator);
+  const annotatorId = image.annotatorID;
+  console.log('savve Annotation', image.annotatorID);
   if (!annotatorId) throw Error('The image to be annotated has no annotator');
   const annotator = await findUserById(annotatorId);
-  const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);
+  const imageIndexAnnotator = annotator.projects[projectId].assignedAnnotations.findIndex((ent) => ent === imageId);
 
-  annotator.projects[projectId].waitingForVerification.push(imageId);
-  annotator.projects[projectId].toAnnotate.splice(imageIndexAnnotator, 1);
+  annotator.projects[projectId].pendingVerifications.push(imageId);
+  annotator.projects[projectId].assignedAnnotations.splice(imageIndexAnnotator, 1);
 
   // if there is a verifier, move the image to the toVerify field.
-  if (image.idVerifier) {
-    const verifier = await findUserById(image.idVerifier);
-    const imageIndexVerifier = verifier.projects[projectId].waitingForAnnotation.findIndex((ent) => ent === imageId);
-    verifier.projects[projectId].waitingForAnnotation.splice(imageIndexVerifier, 1);
-    verifier.projects[projectId].toVerify.push(imageId);
+  if (image.verifierID) {
+    const verifier = await findUserById(image.verifierID);
+    const imageIndexVerifier = verifier.projects[projectId].rejectedAnnotations.findIndex((ent) => ent === imageId);
+    verifier.projects[projectId].rejectedAnnotations.splice(imageIndexVerifier, 1);
+    verifier.projects[projectId].assignedVerifications.push(imageId);
     await updateUser(verifier);
   }
 
   // move the image from toAnnotate to toVerify in the block
   const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
   if (!block) throw Error('the block does not exist');
-  const imageIndexBlock = block.toAnnotate.findIndex((im) => im === imageId);
-  block.toAnnotate.splice(imageIndexBlock, 1);
-  block.toVerify.push(imageId);
+  const imageIndexBlock = block.assignedAnnotation.findIndex((im) => im === imageId);
+  block.assignedAnnotation.splice(imageIndexBlock, 1);
+  block.assignedVerification.push(imageId);
 
   // reflect the changes to the DB.
   await ProjectsDB.put(project);
@@ -177,7 +218,7 @@ export async function assignImagesToAnnotator(
   if (!block) {
     blockId = await addBlock(size, annotatorId, projectId);
   } else {
-    blockId = block.blockId;
+    blockId = block.id;
     await addImagesToBlock(size, blockId, projectId);
   }
   return blockId;

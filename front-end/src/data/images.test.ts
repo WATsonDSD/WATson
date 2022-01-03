@@ -73,13 +73,13 @@ describe('assignVerifierToImage', () => {
     // check lenght of images 
     await assignImagesToAnnotator(2, annotatorId, projectId);
     // await saveAnnotation(validAnnotation, annotatedImageId, projectId);
-  });
+  }); rejectedAnnotation;
 
   it('add the image to the waitingForAnnotation field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].waitingForAnnotation.includes(imageId))).resolves.toBe(true));
 
-  it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.idVerifier === verifierId)).resolves.toBe(true));
+  it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.verifierID === verifierId)).resolves.toBe(true));
 });
-
+rejectedAnnotation;
 describe('save Annotation ', () => {
   let imageId: ImageID;
   let projectId: ProjectID;
@@ -102,9 +102,9 @@ describe('save Annotation ', () => {
     await saveAnnotation(validAnnotation, imageId, projectId);
   });
 
-  it('add the image to the toVerify field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].toVerify.includes(imageId))).resolves.toBe(true));
+  it('add the image to the toVerify field of the user', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].assignedVerifications.includes(imageId))).resolves.toBe(true));
 
-  it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.idVerifier === verifierId)).resolves.toBe(true));
+  it('add the user id in the verifierId field of the image', () => expect(findImageById(imageId).then((image) => image.verifierID === verifierId)).resolves.toBe(true));
 
   it('if the image is already annotated, does not put the image to the waitingForAnnotation filed', () => expect(findUserById(verifierId).then((verif) => verif.projects[projectId].waitingForAnnotation.includes(annotatedImageId))).resolves.toBe(false));
 });

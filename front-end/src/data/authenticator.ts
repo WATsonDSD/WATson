@@ -136,9 +136,10 @@ export async function signUp(name: string, email: string, password: string, role
     AuthDB.signUp(email, password, {
       roles: [role],
       metadata: {
+        uuid: uuid(),
         fullname: name,
         projects: {},
-        workDoneInTime: {},
+        timedWork: {},
       },
     }, (error, response) => {
       if (error) {

@@ -5,6 +5,7 @@ import {
   getProjectsOfUser,
   UserID,
   ProjectID,
+  numberOfImagesInProject,
 } from '.';
 
 import { createReport, insertReportRow } from './report';
@@ -17,12 +18,12 @@ export async function generateReport(): Promise<any> {
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   await Promise.all(listOfUsers.map(async (user) => {
-    const projectsForUser = await getProjectsOfUser(user.id);
+    const projectsForUser = await getProjectsOfUser(user.uuid);
     let numberOfImagesAnnotated = 0;
     let numberOfImagesVerified = 0;
     projectsForUser.forEach((project) => {
-      numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-      numberOfImagesVerified = user.projects[project.id].verified.length;
+      numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+      numberOfImagesVerified = user.projects[project._id].verified.length;
       const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
       const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
       const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
@@ -30,12 +31,12 @@ export async function generateReport(): Promise<any> {
 
       if (numberOfImagesAnnotated > 0) {
         insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+          reportId, user.uuid, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
         );
       }
       if (numberOfImagesVerified > 0) {
         insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+          reportId, user.uuid, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
         );
       }
     });
@@ -81,7 +82,7 @@ export async function totalAnnotationMade(projectId: string): Promise<number> {
  */
 export async function totalWorkers(projectId: string): Promise<number> {
   const project = await findProjectById(projectId);
-  return (project.users.length - 2); // 2 for PM and Finance guy 
+  return (project.workers.length - 2); // 2 for PM and Finance guy 
 }
 
 /**
@@ -128,9 +129,9 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let numberOfImagesVerified = 0;
   // console.log(user);
   projectsForUser.forEach((project) => {
-    // console.log('user', user.id, user.projects[project.id]);
-    if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-    if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
+    // console.log('user', user.id, user.projects[project._id]);
+    if (user.projects[project._id]) numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+    if (user.projects[project._id]) numberOfImagesVerified = user.projects[project._id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
     hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   });

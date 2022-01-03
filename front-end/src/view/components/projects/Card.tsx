@@ -75,7 +75,7 @@ const Card = (props: any) => {
       <div className="flex justify-between text-lg w-full mt-2">
         <span className="flex items-center gap-x-1 text-white text-left">
           <MdOutlineSwitchAccount />
-          {user.projects[project.id].toAnnotate.length}
+          {user.projects[project.id].assignedAnnotations.length}
         </span>
       </div>
     );
@@ -85,7 +85,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].toAnnotate.length}
+            {user.projects[project.id].assignedAnnotations.length}
           </span>
         </div>
       );
@@ -94,7 +94,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].toVerify.length}
+            {user.projects[project.id].assignedVerifications.length}
           </span>
         </div>
       );

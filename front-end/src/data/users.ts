@@ -9,6 +9,8 @@ import {
   ProjectsDB,
   assignVerifier,
   findAnnotatorBlockOfProject,
+  DBDocument,
+  Project,
 } from '.';
 
 import {
@@ -26,7 +28,7 @@ export const IDPrefix: string = 'org.couchdb.user:';
 /**
  * Fetches the user corresponding to a certain id.
  */
-export async function findUserById(id: UserID): Promise<User> {
+export async function findUserById(id: UserID): Promise<DBDocument<User>> {
   return new Promise((resolve, reject) => {
     /**
      * Under the hood, the getUser function calls a PouchDB function that
@@ -47,13 +49,16 @@ export async function findUserById(id: UserID): Promise<User> {
           reject(new FetchingError(error.message));
         }
       } else if (response) {
-        const user: User = {
-          id: response._id,
+        const user: DBDocument<User> = {
+          _id: response._id,
+          _rev: response._rev,
+
+          uuid: response.uuid,
           email: response.name,
           name: response.fullname,
           role: response.roles[0],
           projects: response.projects,
-          workDoneInTime: response.workDoneInTime,
+          timedWork: response.timedWork,
         };
 
         resolve(user);
@@ -69,9 +74,10 @@ export async function updateUser(user: User): Promise<void> {
     AuthDB.putUser(user.email, {
       roles: [user.role],
       metadata: {
+        uuid: user.uuid,
         fullname: user.name,
         projects: user.projects,
-        workDoneInTime: user.workDoneInTime,
+        timedWork: user.timedWork,
       },
     }, (error, response) => {
       if (error) {
@@ -88,22 +94,24 @@ export async function updateUser(user: User): Promise<void> {
 /**
  * Fetches and returns all the users of a given project.
  */
-export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
-  const project = await findProjectById(projectId);
-
+export async function getUsersOfProject(project: DBDocument<Project>): Promise<DBDocument<User>[]> {
   return new Promise((resolve, reject) => {
     AuthDB.allDocs({
       include_docs: true,
-      keys: project.users,
+      keys: project.workers,
     }).then((response) => {
       if (response) {
-        const users: User[] = response.rows.map((row: any) => ({
-          id: row.doc._id,
+        const users: DBDocument<User>[] = response.rows.filter((row) => row.doc).map((row: any) => ({
+          _id: row.doc._id,
+          _rev: row.doc._rev,
+
+          uuid: row.doc.uuid,
           email: row.doc.name,
           name: row.doc.fullname,
           role: row.doc.roles[0],
           projects: row.doc.projects,
-        } as User));
+          timedWork: row.doc.timedWork,
+        }));
 
         resolve(users);
       }
@@ -119,21 +127,25 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
  * Fetches all the users registered on the application, regardless of role. 
  */
 export async function getAllUsers(): Promise<User[]> {
-  let users: User[] = [];
-
   return new Promise((resolve, reject) => {
     AuthDB.allDocs({
       startkey: 'a', // excludes the design documents
       include_docs: true,
     }).then((response) => {
       if (response) {
-        users = response.rows.map((row: any) => ({
-          id: row.doc._id,
+        const users: DBDocument<User>[] = response.rows.filter((row) => row.doc).map((row: any) => ({
+          _id: row.doc._id,
+          _rev: row.doc._rev,
+
+          uuid: row.doc.uuid,
           email: row.doc.name,
           name: row.doc.fullname,
           role: row.doc.roles[0],
           projects: row.doc.projects,
-        } as User));
+          timedWork: row.doc.timedWork,
+        }));
+
+        resolve(users);
         resolve(users);
       }
     }).catch(() => {
@@ -180,36 +192,19 @@ export async function createUser(name: string, email: string, role: Role): Promi
  */
 export async function createAnnotatorVerifierLink(projectId: ProjectID, annotatorId: UserID, verifierId: UserID): Promise<void> {
   const project = await findProjectById(projectId);
-  const annVerLinks = project.annVer;
+  const annVerLinks = project.linkedWorkers;
   annVerLinks.forEach((anVer) => {
-    if (anVer.annotatorId === annotatorId) throw Error('annotator has already been assigned to a verifier');
+    if (anVer.annotatorID === annotatorId) throw Error('annotator has already been assigned to a verifier');
   });
   const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
   // se già esiste un blocco 
   if (block) {
-    await assignVerifier(block.blockId, verifierId, projectId);
+    await assignVerifier(block.id, verifierId, projectId);
   } else {
-    project.annVer.push({ annotatorId, verifierId });
+    project.linkedWorkers.push({ annotatorID: annotatorId, verifierID: verifierId });
     await ProjectsDB.put(project);
   }
 }
-/*
- * export async function changeEmail(email: string) {}
- * 
- * 1 - change user.id
- * 2 - change user.email
- * 3 - change user.id in every project.users
- * 4 - change user.id in every project.workDoneInTime
- * 5 - change user.id in every image
- * 6 - change user.id in every rejection
- * 
- * Better approach: each user has a uid, different from his couchdb id.
- * Every other type will reference the user.uid instead of the user.id.
- * This way, a change in email won't change the reference of the other
- * types.
- * 
- * TODO: wait for model changes to implement this
- */
 
 export async function changePassword(email: string, password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
@@ -257,10 +252,10 @@ export async function getWorkDoneByUser(
   let workDoneInTimeSlot : {[projectID: string]: {annotated: string[], verified: string[]}};
   if (time.month) {
     if (time.day) {
-      workDoneInTimeSlot = user.workDoneInTime[time.year]?.[time.month]?.[time.day];
+      workDoneInTimeSlot = user.timedWork[time.year]?.[time.month]?.[time.day];
     } else {
       workDoneInTimeSlot = {};
-      const monthlyWork = user.workDoneInTime[time.year]?.[time.month];
+      const monthlyWork = user.timedWork[time.year]?.[time.month];
       if (monthlyWork) {
         Object.values(monthlyWork).forEach((day) => {
           addDaysWork(day, workDoneInTimeSlot);
@@ -269,7 +264,7 @@ export async function getWorkDoneByUser(
     }
   } else {
     workDoneInTimeSlot = {};
-    const yearlyWork = user.workDoneInTime[time.year];
+    const yearlyWork = user.timedWork[time.year];
     if (yearlyWork) {
       Object.values(yearlyWork).forEach((monthlyWork) => {
         Object.values(monthlyWork).forEach((day) => {

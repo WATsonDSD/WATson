@@ -77,7 +77,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.id).then((result) => {
+    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.uuid).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');

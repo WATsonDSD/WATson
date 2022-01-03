@@ -1,100 +1,162 @@
-export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: string]: T } } };
+/**
+ * This type assumes that each document
+ * in the database  will have at most
+ * one attachment called 'asset'.
+ */
+type DBAttachment = {
+    image?: {
+        // eslint-disable-next-line camelcase
+        content_type: string,
+        data: Blob,
+    }
+};
+
+/**
+ * This type is meant to extend most of the other
+ * types declared in this file. This will make the
+ * code for document reads and writes much simpler.
+ */
+export type DBDocument<DocumentType> = {
+    _id: string,
+    _rev: string,
+    _attachments?: DBAttachment,
+} & DocumentType;
+
 export type UserID = string;
+export type BlockID = string;
+export type ImageID = string;
+export type ReportID = string;
+export type ProjectID = string;
+
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
-export type User = {
-    id: UserID,
-    projects: {
-        [projectID: ProjectID]: {
-            toAnnotate: ImageID[],
-            waitingForAnnotation: ImageID[], // used when the annotation is rejected
-            annotated:{ imageID: ImageID, date: Date}[]
-            toVerify: ImageID[],
-            waitingForVerification: ImageID[], // used when the annotation is rejected and annotated again and 
-                                            // when the annotation is annotated for the first time and is not verified yet.
-            verified: { imageID: ImageID, date: Date}[]
+
+export type TimedWork<Work> = {
+    [year: string]: {
+        [month: string]: {
+            [day: string]: Work,
         },
     },
-    workDoneInTime: YearMonthDay <{
+};
+
+export type User = {
+    role: Role,
+    name: string,
+    uuid: string,
+    email: string,
+
+    projects: {
+        [projectID: ProjectID]: {
+            assignedAnnotations: ImageID[],
+            rejectedAnnotations: ImageID[],
+            assignedVerifications: ImageID[],
+            pendingVerifications: ImageID[],
+
+            annotated: { imageID: ImageID, date: Date}[],
+            verified: { imageID: ImageID, date: Date}[],
+        },
+    },
+
+    timedWork: TimedWork<{
         [projectId: ProjectID]: {
             annotated: ImageID[],
             verified: ImageID[],
         }
-    }>
-    name: string,
-    email: string,
-    role: Role,
+    }>,
 };
 
-export type BlockID = string;
 export type Block = {
-    blockId: BlockID,
-    toAnnotate: ImageID[],
-    toVerify: ImageID[],
-    idAnnotator: UserID | undefined,
-    idVerifier: UserID | undefined,
-    projectId: ProjectID,
-}
+    id: BlockID,
 
-export type ProjectID = string;
-export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
-export type LandmarkSpecification = number[];
+    projectID: ProjectID,
+    verifierID?: UserID,
+    annotatorID?: UserID,
+
+    size: number,
+    assignedAnnotation: ImageID[],
+    assignedVerification: ImageID[],
+};
+
+export type Landmark = number;
+
+export type ProjectStatus = 'pending' | 'active' | 'closed';
+
 export type Project = {
-    id: ProjectID,
-    users: UserID[],
     name: string,
     client: string,
     startDate: string,
     endDate: string,
     status: ProjectStatus,
-    landmarks: LandmarkSpecification,
+
+    landmarks: Landmark[],
+
     pricePerImageAnnotation: number,
     pricePerImageVerification: number,
     hourlyRateAnnotation: number,
     hourlyRateVerification: number,
-    annVer: { annotatorId: UserID, verifierId: UserID}[],
 
-    workDoneInTime: YearMonthDay <{
-        imageId: ImageID,
+    workers: UserID[],
+
+    linkedWorkers: {
+        annotatorID: UserID,
+        verifierID: UserID,
+    }[],
+
+    timedWork: TimedWork<{
+        imageID: ImageID,
         annotator: UserID,
         verifier: UserID,
     }[]>
 
     images: {
-        blocks: { // block of images instanziated by the annotator
+        blocks: {
             [blockID: BlockID]: {
-                block: Block
-            }}
-        imagesWithoutAnnotator: ImageID[], // images that doesn't have annotator : ALL THE IMAGES
-        done: {imageId: ImageID, doneDate: Date}[],
-    }};
-
-export type ImageID = string;
+                block: Block,
+            }
+        },
+        pendingAssignment: ImageID[],
+        done: { imageID: ImageID, doneDate: Date }[],
+    }
+};
 
 export type ImageData = Blob;
 
-export type Image = {
-    id: ImageID,
-    blockId?: BlockID
-    data?: ImageData,
-    annotation?: Annotation,
-    idAnnotator?: UserID,
-    idVerifier?: UserID
-}
+export type Point = {
+    x: number,
+    y: number,
+    z: number,
+};
 
-export type Point = { x: number, y: number, z: number }
 export type Annotation = {
-    [landmark: number]: Point
-}
+    [landmark: Landmark]: Point,
+};
 
-export type RejectedAnnotation = {
+export type Image = {
+    blockID?: BlockID,
+    verifierID?: UserID,
+    annotatorID?: UserID,
+    annotation?: Annotation,
+
+    _attachments: DBAttachment,
+};
+
+export type Rejection = {
     imageID: ImageID,
-    comment: String,
     annotatorID: UserID,
-    wrongAnnonation: Annotation,
-}
-export type ReportID = string;
+
+    comment: String,
+    rejectedAnnonation: Annotation,
+};
+
 export type Report = {
-    reportID: ReportID,
     date: Date,
-    reportRow: {user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string }[]
-}
+    rows: {
+        role: Role,
+        name: string,
+        email: string,
+        userID: UserID,
+        projectName: string,
+        client: string,
+        hours: number,
+        earnings: number,
+    }[]
+};

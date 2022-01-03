@@ -7,7 +7,7 @@ import {
 import { TemplateAnnotation } from './TemplateAnnotation.json';
 
 export const emptyImage: Image = {
-  id: '',
+  idimage
   data: new Blob(),
   annotation: {},
 };
@@ -17,7 +17,7 @@ export const templateImage: Image = {
 };
 
 export const zoomIn = 1.6;
-export const zoomOut = 0.625;
+expoimagenst zoomOut = 0.625;
 
 export const defaultTransform: {
   scale: number, translatePos: { x: number, y: number }, contrast: number, brightness: number,
