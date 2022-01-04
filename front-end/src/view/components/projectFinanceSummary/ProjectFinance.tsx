@@ -9,7 +9,7 @@ import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
-  calculateTotalCost, dataChartProjects, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateTotalCost, dataChartProjects, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from '../../../data/financier';
 
 export default function ProjectFinance() {
@@ -21,9 +21,23 @@ export default function ProjectFinance() {
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
   const data = useData(async () => dataChartProjects(idProject!));
   const [users, setProjectUsers] = useState([] as User[]);
+  const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number }[]);
 
   useEffect(() => {
-    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
+    getUsersOfProject(idProject || '').then((result) => {
+      setProjectUsers(result);
+      result.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').forEach((user) => {
+        let hoursWork: number;
+        let earnings: number;
+        hoursWorkPerProjectPerUser(user.id, idProject ?? '').then(((result) => {
+          hoursWork = result;
+          earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
+            earnings = result;
+            setUsersData((state) => [...state, { id: user.id, hours: hoursWork, earnings }]);
+          });
+        }));
+      });
+    });
   }, []);
 
   if (!idProject || !data) return null;
@@ -149,23 +163,27 @@ export default function ProjectFinance() {
           </div>
 
           {users && users.length > 0
-            ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => (
-              <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
-                <div className="flex items-center gap-x-4 col-span-2">
-                  <span className="block w-10 h-10 bg-gray-100 rounded-full" />
-                  <span>{user.name}</span>
+            ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => {
+              const hoursWork = usersData?.find((u) => u.id === user.id)?.hours.toFixed(2);
+              const earnings = usersData?.find((u) => u.id === user.id)?.earnings.toFixed(2);
+              return (
+                <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
+                  <div className="flex items-center gap-x-4 col-span-2">
+                    <span className="block w-10 h-10 bg-gray-100 rounded-full" />
+                    <span>{user.name}</span>
+                  </div>
+                  <div>
+                    <span className={`uppercase tracking-wide ${user.role === 'annotator' ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'} px-4 py-2 -ml-4 text-xs font-bold rounded-full`}>{user.role}</span>
+                  </div>
+                  {/* todo change to real values  */}
+                  <span>{user.projects[idProject].annotated.length}</span>
+                  <span>{user.projects[idProject].verified.length}</span>
+                  <span>{hoursWork}</span>
+                  <span>{Object.entries(user.projects).length}</span>
+                  <span>{earnings}</span>
                 </div>
-                <div>
-                  <span className={`uppercase tracking-wide ${user.role === 'annotator' ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'} px-4 py-2 -ml-4 text-xs font-bold rounded-full`}>{user.role}</span>
-                </div>
-                {/* todo change to real values  */}
-                <span>{Object.entries(user.projects).length}</span>
-                <span>{Object.entries(user.projects).length}</span>
-                <span>{Object.entries(user.projects).length}</span>
-                <span>{Object.entries(user.projects).length}</span>
-                <span>{Object.entries(user.projects).length}</span>
-              </div>
-            ))
+              );
+            })
             : (
               <div className="flex items-center justify-center py-4 text-gray-400">There are no workers registered to the application.</div>
             )}
