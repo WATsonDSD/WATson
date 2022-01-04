@@ -1,5 +1,6 @@
 import {
   Annotation,
+  DBDocument,
   Image,
   Point,
 } from '../../../../data';
@@ -7,23 +8,36 @@ import {
 import { TemplateAnnotation } from './TemplateAnnotation.json';
 import template from './template.png';
 
-export const emptyImage: Image = {
-  idimage
-  data: new Blob(),
+export const emptyImage: DBDocument<Image> = {
+  _id: '',
+  _rev: '',
+  _attachments: {
+    image: {
+      content_type: 'image',
+      data: new Blob(),
+    },
+  },
   annotation: {},
 };
-export const templateImage: Image = {
-  id: 'template',
-  data: new Blob(),
+
+export const templateImage: DBDocument<Image> = {
+  _id: 'template',
+  _rev: '',
+  _attachments: {
+    image: {
+      content_type: 'image',
+      data: new Blob(),
+    },
+  },
   annotation: TemplateAnnotation,
 };
 
 fetch(template)
   .then((res) => res.blob())
-  .then((blob) => { templateImage.data = blob; });
+  .then((blob) => { templateImage._attachments.image!.data = blob; });
 
 export const zoomIn = 1.6;
-expoimagenst zoomOut = 0.625;
+export const zoomOut = 0.625;
 
 export const defaultTransform: {
   scale: number, translatePos: { x: number, y: number }, contrast: number, brightness: number,

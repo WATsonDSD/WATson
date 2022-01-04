@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
  * useData( () => findUserById(id1))
  */
 export default function useData<T>(accessor: () => Promise<T>) {
-  const [data, setData] = useState<T| null>(null);
+  const [data, setData] = useState<T | null>(null);
 
   useEffect(() => {
     accessor().then((result) => setData(result));

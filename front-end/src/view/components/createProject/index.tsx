@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Icon from '@mdi/react';
 import { mdiDelete } from '@mdi/js';
-import HeaLandmarkeader';
+import Header from '../shared/header';
 import {
-  UserID, LandmarkSpecification,
+  UserID, Landmark,
 } from '../../../data/types';
 import {
-  addUserToProject, createProject, getAllUsers, useUserNotNull,
+  // addUserToProject, 
+  // createProject,
+  getAllUsers,
+  useUserNotNull,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
@@ -15,19 +18,20 @@ import { templateImage } from '../shared/annotation/AnnotVerif';
 // eslint-disable-next-line import/extensions
 import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
-import { Paths } from '../shared/routes';
+// import { Paths } from '../shared/routes';
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
   const allUsers = useData(() => getAllUsers());
   const [verifiers, setVerifiers] = useState([{ id: 0, worker: '' }]);
-  const [annotators, setAnnotators] = useState([{ id: 0, worker: '' }]);Landmark
+  const [annotators, setAnnotators] = useState([{ id: 0, worker: '' }]);
   const [currentLandMarks, setLandMarks] = useState([] as number[]);
-  const [project, setProject] = useState< { name: string, client: string, landmarks: LandmarkSpecification, startDate: Date, endDate: Date, users : UserID[], pricePerImageAnnotation: number,
+  const [project, setProject] = useState< { name: string, client: string, landmarks: Landmark[], startDate: Date, endDate: Date, users : UserID[], pricePerImageAnnotation: number,
     pricePerImageVerification: number,
     hourlyRateAnnotation: number,
     hourlyRateVerification: number} |null>(null);
-  const navigate = useNavigate();
+
+  // const navigate = useNavigate();
 
   const handleSubmit = (event: any) => {
     const name = event.target.name.value;
@@ -45,9 +49,10 @@ export default function CreateProject() {
 
     verifiers?.forEach((worker) => {
       users.push(worker.worker);
-    });Landmark
+    });
 
-    const landmarks: LandmarkSpecification = currentLandMarks;
+    const landmarks: Landmark[] = currentLandMarks;
+
     setProject({
       users,
       name,
@@ -88,20 +93,18 @@ export default function CreateProject() {
   useEffect(() => {
     if (project && user) {
       // the projectManager creating the project is assigned to it
-      createProject(project.name, project.client, project.landmarks, project.startDate, project.endDate, {
-        pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
-      })
-        .then(async (id) => {
-          await addUserToProject(user.uuid, id);
-          await addUserToProject('org.couchdb.user:finance@watson.com', id);
-          for (let i = 0; i < project.users.length; i += 1) {
-            if (project.users[i] !== '') {
-              // eslint-disable-next-line no-await-in-loop
-              await addUserToProject(project.users[i], id);
-            }
-          }
-          navigate(Paths.Projects);
-        });
+      // createProject(project)
+      //   .then(async (id) => {
+      //     await addUserToProject(user._id, id);
+      //     await addUserToProject('org.couchdb.user:finance@watson.com', id);
+      //     for (let i = 0; i < project.users.length; i += 1) {
+      //       if (project.users[i] !== '') {
+      //         // eslint-disable-next-line no-await-in-loop
+      //         await addUserToProject(project.users[i], id);
+      //       }
+      //     }
+      //     navigate(Paths.Projects);
+      //   });
     }
   }, [project]); // dependency added
 

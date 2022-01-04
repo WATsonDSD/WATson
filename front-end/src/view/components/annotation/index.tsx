@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+
 import Slider from 'rc-slider';
 import Icon from '@mdi/react';
+
 import {
   mdiLeadPencil,
   mdiCursorMove,
@@ -12,13 +14,22 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
+
 import { useNavigate, useParams } from 'react-router-dom';
+
 import {
-  findProjectById, useUserNotNull,
+  DBDocument,
+  Image,
+  findProjectById,
+  useUserNotNull,
 } from '../../../data';
+
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
+
 import 'rc-slider/assets/index.css';
+
 import { getImagesOfUserFromProject, saveAnnotation } from '../../../data/images';
+
 import AnnotVerif, {
   emptyImage,
   templateImage,
@@ -32,6 +43,8 @@ import AnnotVerif, {
 
 import { Paths } from '../shared/routes';
 
+import useData from '../../../data/hooks';
+
 /* TODO: Keyboard shortcuts
 a - Go to previous image
 d -  Go to next image
@@ -41,8 +54,8 @@ backspace - undo last landmark
 */
 
 export default function AnnotationView() {
-  const [image, setImage] = useState({ ...emptyImage });
-  const [transform, setTransform] = useState({ ...defaultTransform });
+  const [image, setImage] = useState<DBDocument<Image>>(emptyImage);
+  const [transform, setTransform] = useState(defaultTransform);
   const [landmarkId, setLandmarkId] = useState(undefined as number|undefined);
   const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
@@ -51,17 +64,19 @@ export default function AnnotationView() {
   const navigate = useNavigate();
   const [user] = useUserNotNull();
 
+  const projectdb = useData(async () => findProjectById(projectId!));
+
   const {
     onImageWheel,
     zoom,
     changeContrast,
     changeBrightness,
     imageLandmarkColor,
-    templateLandmarkColor: defaultTemplateLandmarkColor,
     getHoveredLandmark,
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
+    templateLandmarkColor: defaultTemplateLandmarkColor,
   } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
@@ -77,7 +92,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUserFromProject(projectId ?? '', 'toAnnotate', user!.uuid).then((result) => {
+    getImagesOfUserFromProject(user, projectId!, 'assignedAnnotations').then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');
@@ -137,10 +152,10 @@ export default function AnnotationView() {
 
   const save = () => {
     if (image.annotation === undefined) {
-      console.warn(`Could not save annotation for image ${image.id}`);
+      console.warn('Could not save annotation');
       return;
     }
-    saveAnnotation(image.annotation, image.id, projectId as string)
+    saveAnnotation(image.annotation, image, projectdb!)
       .then(() => {
         nextImage();
       })

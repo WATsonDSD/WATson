@@ -1,7 +1,9 @@
 import {
   DBDocument,
   User,
+  UserID,
   updateUser,
+  findUserById,
   Project,
   ProjectID,
   ProjectsDB,
@@ -134,7 +136,9 @@ export async function deleteProject(project: DBDocument<Project>): Promise<void>
  * If they are an annotator or a verifier, this
  * function will not assign them any image.
  */
-export async function addUserToProject(user: DBDocument<User>, project: DBDocument<Project>): Promise<void> {
+export async function addUserToProject(userID: UserID, project: DBDocument<Project>): Promise<void> {
+  const user = await findUserById(userID);
+
   return new Promise((resolve, reject) => {
     if (user.projects[project._id]) resolve();
 

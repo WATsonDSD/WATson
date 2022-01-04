@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import {
+  DBDocument,
   AuthDB,
   User,
   Role,
@@ -45,7 +46,7 @@ enum SessionState {
  * object safely (e.g.: SessionState.AUTHENTICATED means that the
  * user object is not null).
  */
-type UserData = [ user: User | null, sessionState: SessionState ];
+type UserData = [ user: DBDocument<User> | null, sessionState: SessionState ];
 
 /**
  * Keeps track of the components that will subscribe to the
@@ -241,5 +242,5 @@ export function useUserNotNull() {
     };
   }, []);
 
-  return [userData[0], userData[1]] as [User, SessionState];
+  return [userData[0], userData[1]] as [DBDocument<User>, SessionState];
 }

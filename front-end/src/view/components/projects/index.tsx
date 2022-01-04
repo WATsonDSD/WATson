@@ -15,7 +15,7 @@ import { Paths } from '../shared/routes';
 import Loading from '../loading';
 
 export default function Dashboard() {
-  const [user] = useUserNotNull(); uuid;
+  const [user] = useUserNotNull();
   const { type } = useParams();
   const navigate = useNavigate();
 
@@ -26,13 +26,13 @@ export default function Dashboard() {
   const toA = Object.keys(user.projects)
     .filter((projectId) => (user.projects[projectId].assignedAnnotations.length !== 0));
 
-  projects = useData(() => getProjectsOfUser(user!._id));
+  projects = useData(() => getProjectsOfUser(user));
   switch (type) {
     case 'annotate':
-      projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
+      projects = projects?.filter((p) => toA.find((projectId) => projectId === p._id));
       break;
     case 'verify':
-      projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
+      projects = projects?.filter((p) => toV.find((projectId) => projectId === p._id));
       break;
     default:
       if (user.role === 'verifier') navigate('/annotate');
@@ -99,7 +99,7 @@ export default function Dashboard() {
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
-                key={project.id}
+                key={project._id}
                 project={project}
                 options={projectOptions[user!.role]}
                 verifierAction={type}

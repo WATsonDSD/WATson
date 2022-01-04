@@ -1,61 +1,62 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Header from '../shared/header';
+
+import { useParams } from 'react-router-dom';
+
 import {
   UserID,
-  Image,
-} from '../../../data/types';
-import {
-  getAllUsers, useUserNotNull, findProjectById, getUsersOfProject,
+  getAllUsers,
+  findProjectById,
+  getUsersOfProject,
+  getPendingImagesFromProject,
 } from '../../../data';
+
+import Header from '../shared/header';
 import useData from '../../../data/hooks';
-import { getPendingImagesFromProject } from '../../../data/images';
 
 export default function EditProject() {
-  const [user] = useUserNotNull();
-  const allUsers = useData(() => getAllUsers());
   const { idProject } = useParams();
-  const projectdb = useData(async () => findProjectById(idProject ?? ''));
-  const users = useData(async () => getUsersOfProject(idProject ?? ''));
+
+  const allUsers = useData(() => getAllUsers());
+  const projectdb = useData(async () => findProjectById(idProject!));
+
+  const users = useData(async () => getUsersOfProject(projectdb!));
   const projectVer: { id: number, worker: string }[] = [];
   users?.filter((u) => u.role === 'verifier').forEach((user, index) => projectVer.push({ id: index, worker: user.uuid }));
   const projectAnn: { id: number, worker: string }[] = [];
   users?.filter((u) => u.role === 'annotator').forEach((user, index) => projectAnn.push({ id: index, worker: user.uuid }));
   const [verifiers, setVerifiers] = useState(projectVer || [{ id: 0, worker: '' }]);
   const [annotators, setAnnotators] = useState(projectAnn || [{ id: 0, worker: '' }]);
-  const [project, setProject] = useState< { name: string, client: string, users : UserID[], pricePerImageAnnotation: number,
-      pricePerImageVerification: number,
-      hourlyRateAnnotation: number,
-      hourlyRateVerification: number} |null>({
-        name: projectdb?.name || '',
-        client: projectdb?.client || '',
-        users: projectdb?.workers || [],
-        pricePerImageAnnotation: projectdb?.pricePerImageAnnotation || 0,
-        pricePerImageVerification: projectdb?.pricePerImageVerification || 0,
-        hourlyRateAnnotation: projectdb?.hourlyRateAnnotation || 0,
-        hourlyRateVerification: projectdb?.hourlyRateVerification || 0,
-      });
-  const navigate = useNavigate();
+  // const [project, setProject] = useState< { name: string, client: string, users : UserID[], pricePerImageAnnotation: number,
+  //     pricePerImageVerification: number,
+  //     hourlyRateAnnotation: number,
+  //     hourlyRateVerification: number} | null>({
+  //       name: projectdb?.name || '',
+  //       client: projectdb?.client || '',
+  //       users: projectdb?.workers || [],
+  //       pricePerImageAnnotation: projectdb?.pricePerImageAnnotation || 0,
+  //       pricePerImageVerification: projectdb?.pricePerImageVerification || 0,
+  //       hourlyRateAnnotation: projectdb?.hourlyRateAnnotation || 0,
+  //       hourlyRateVerification: projectdb?.hourlyRateVerification || 0,
+  //     });
 
   useEffect(() => {
     setAnnotators(projectAnn);
     setVerifiers(projectVer);
   }, []);
 
-  const tabFilesPreview = useData(() => getPendingImagesFromProject(idProject ?? ''));
+  const tabFilesPreview = useData(() => getPendingImagesFromProject(projectdb!));
 
   console.log(annotators);
   console.log(verifiers);
-  const handleSubmit = (event: any) => {
-    const name = event.target.name.value;
-    const client = event.target.client.value;
-    const startDate = event.target.startDate.value;
-    const endDate = event.target.endDate.value;
-    const pricePerImageAnnotation = event.target.paymentPerAnnotation.value;
-    const pricePerImageVerification = event.target.paymentPerVerification.value;
-    const hourlyRateAnnotation = event.target.paymentPerAnn.value;
-    const hourlyRateVerification = event.target.paymentPerVer.value;
+  const handleSubmit = (_event: any) => {
+    // const name = event.target.name.value;
+    // const client = event.target.client.value;
+    // const startDate = event.target.startDate.value;
+    // const endDate = event.target.endDate.value;
+    // const pricePerImageAnnotation = event.target.paymentPerAnnotation.value;
+    // const pricePerImageVerification = event.target.paymentPerVerification.value;
+    // const hourlyRateAnnotation = event.target.paymentPerAnn.value;
+    // const hourlyRateVerification = event.target.paymentPerVer.value;
     const users: UserID[] = [];
     annotators?.forEach((worker) => {
       users.push(worker.worker);
@@ -259,7 +260,7 @@ export default function EditProject() {
             Project Images :
           </h1>
           <div className="flex w-1/2 flex-wrap">
-            {tabFilesPreview?.map((file: any, index: number) => {
+            {tabFilesPreview?.map((file: any) => {
               const objectURL = URL.createObjectURL(file.data);
               return (
                 <div key={objectURL} className=" p-1 w-1/4 h-24">
