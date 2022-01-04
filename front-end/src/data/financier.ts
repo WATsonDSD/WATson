@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, Project, User, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, Project, User, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, findReportById, insertReportRows } from './report';
@@ -18,15 +18,19 @@ export async function generateReport(): Promise<Report> {
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   console.log(listOfUsers);
-  Object.entries(listOfUsers).map(async ([key, user]) => {
+  const now = new Date();
+  const year = now.getFullYear().toString();
+  const month = now.getMonth().toString();
+  await Promise.all(Object.entries(listOfUsers).map(async ([key, user]) => {
     if (user.role === 'annotator' || user.role === 'verifier') {
       const projectsForUser = await getProjectsOfUser(user.id);
       let numberOfImagesAnnotated = 0;
       let numberOfImagesVerified = 0;
-      Object.entries(projectsForUser).map(async ([key, project]) => {
+      await Promise.all(Object.entries(projectsForUser).map(async ([key, project]) => {
         const { client } = project;
-        numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-        numberOfImagesVerified = user.projects[project.id].verified.length;
+        const workDone = await getWorkDoneByUser(user.id, { year, month }, project.id);
+        numberOfImagesAnnotated = workDone.annotation;
+        numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
         const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
         const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
@@ -44,9 +48,9 @@ export async function generateReport(): Promise<Report> {
             });
           }
         }
-      });
+      }));
     }
-  });
+  }));
   await insertReportRows(rep.reportID, rep.reportRow);
   // const report = await findReportById(rep.reportID);
   // console.log('REPORTROWS: ', report.reportRow);
