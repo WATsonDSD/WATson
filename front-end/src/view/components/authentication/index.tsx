@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   useNavigate,
-  useLocation,
 } from 'react-router-dom';
 
+import { Paths } from '../shared/routes';
 import { logIn, useUserData } from '../../../data';
 import { useSnackBar, SnackBarType } from '../../../utils/modals';
 
@@ -22,14 +22,8 @@ export default function Authentication() {
   const [user, sessionState] = useUserData();
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const snackBar = useSnackBar();
-
-  let from = location.state?.from?.pathname || '/';
-
-  // TODO: Unfortunately location.state.from = null throws errors still
-  useEffect(() => { if (!user) from = '/'; }, [user]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -51,7 +45,7 @@ export default function Authentication() {
    * Redirects the user if he is already authenticated.
    */
   if (user && sessionState === 'authenticated') {
-    navigate(from, { replace: true });
+    navigate(Paths.Projects, { replace: true });
   }
 
   return (
