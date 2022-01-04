@@ -5,6 +5,7 @@ import {
 } from '../../../../data';
 // eslint-disable-next-line import/extensions
 import { TemplateAnnotation } from './TemplateAnnotation.json';
+import template from './template.png';
 
 export const emptyImage: Image = {
   id: '',
@@ -13,8 +14,13 @@ export const emptyImage: Image = {
 };
 export const templateImage: Image = {
   id: 'template',
+  data: new Blob(),
   annotation: TemplateAnnotation,
 };
+
+fetch(template)
+  .then((res) => res.blob())
+  .then((blob) => { templateImage.data = blob; });
 
 export const zoomIn = 1.6;
 export const zoomOut = 0.625;
