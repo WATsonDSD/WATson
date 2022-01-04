@@ -262,6 +262,7 @@ export async function getWorkDoneByUser(
   }
 
   if (projectID) {
+    if (!workDoneInTimeSlot[projectID]) { return { annotation: 0, verification: 0 }; }
     return {
       annotation: workDoneInTimeSlot[projectID].annotated.length,
       verification: workDoneInTimeSlot[projectID].verified.length,
