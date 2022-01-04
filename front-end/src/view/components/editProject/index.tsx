@@ -76,8 +76,8 @@ export default function EditProject() {
   return (
     <div className="h-full w-full">
       <Header title="Editing project" />
-      <div className="pl-20 h-full grid-cols-3 grid gap-4">
-        <div>
+      <div className="pl-20 h-full grid-cols-5 grid gap-4">
+        <div className="col-span-2">
           <form className="text-left w-full max-w-lg" onSubmit={handleSubmit}>
             <div className="flex -mx-3 mb-6">
               <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
@@ -99,7 +99,7 @@ export default function EditProject() {
                   Payment params
                 </span>
               </div>
-              <div className="w-full md:w-2/4 px-2 mb-6 md:mb-0">
+              <div className="md:w-2/4 px-2 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   Payment
                 </span>
@@ -116,14 +116,14 @@ export default function EditProject() {
                   Price per Verification
                 </div>
               </div>
-              <div className="w-full md:w-1/4 mb-6 md:mb-0">
+              <div className="md:w-1/4 mb-6 md:mb-0">
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   HRK
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" defaultValue={projectdb?.hourlyRateAnnotation || ''} type="number" placeholder="Payment per hour per Annotator" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" defaultValue={projectdb?.hourlyRateVerification || ''} type="number" placeholder="Payment per hour per Verifier" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" defaultValue={projectdb?.pricePerImageAnnotation || ''} type="number" placeholder="Payment per Annotation" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" defaultValue={projectdb?.pricePerImageVerification || ''} placeholder="Payment per Verification" />
+                <input className="appearance-none relative w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" defaultValue={projectdb?.hourlyRateAnnotation || ''} type="number" placeholder="Payment per hour per Annotator" />
+                <input className="appearance-none relative w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" defaultValue={projectdb?.hourlyRateVerification || ''} type="number" placeholder="Payment per hour per Verifier" />
+                <input className="appearance-none relative w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" defaultValue={projectdb?.pricePerImageAnnotation || ''} type="number" placeholder="Payment per Annotation" />
+                <input className="appearance-none relative w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" defaultValue={projectdb?.pricePerImageVerification || ''} placeholder="Payment per Verification" />
 
               </div>
             </div>
@@ -135,6 +135,7 @@ export default function EditProject() {
               Modify
             </button>
           </form>
+          <br />
           <br />
           <div className="flex flex-wrap gap-4 -mx-3 mb-2">
             <div className="w-full">
@@ -261,7 +262,7 @@ export default function EditProject() {
           </div>
         </div>
         {/* right column */}
-        <div className="col-span-2">
+        <div className="col-span-3">
           <h1 className="">
             Project Images :
           </h1>
