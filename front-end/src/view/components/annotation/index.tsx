@@ -18,7 +18,7 @@ import {
 } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
-import { getImagesOfUser, saveAnnotation } from '../../../data/images';
+import { getImagesOfUserFromProject, saveAnnotation } from '../../../data/images';
 import AnnotVerif, {
   emptyImage,
   templateImage,
@@ -77,7 +77,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.uuid).then((result) => {
+    getImagesOfUserFromProject(projectId ?? '', 'toAnnotate', user!.uuid).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');

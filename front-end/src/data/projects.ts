@@ -9,7 +9,7 @@ import {
   ImageID,
   ImagesDB,
   updateBlock,
-  findBlockOfProject,
+  getBlockFromProject,
   getUsersOfProject,
   removeImageFromUser,
 } from '.';
@@ -89,9 +89,9 @@ export async function updateProject(project: DBDocument<Project>): Promise<void>
  */
 export async function deleteProject(project: DBDocument<Project>): Promise<void> {
   const images : ImageID[] = [
-    ...Object.values(project.images.blocks).map((value) => [
-      ...value.block.assignedAnnotations,
-      ...value.block.assignedVerifications,
+    ...Object.values(project.images.blocks).map((block) => [
+      ...block.assignedAnnotations,
+      ...block.assignedVerifications,
     ]).flat(),
     ...project.images.done.map((image) => image.imageID),
     ...project.images.pendingAssignments,
@@ -190,7 +190,7 @@ export async function addUsersToProject(users: DBDocument<User>[], project: DBDo
       },
     }));
 
-    ProjectsDB.put(updatedProject)
+    updateProject(updatedProject)
       .then(() => {
         Promise.all(updatedUsers.map((user) => updateUser(user)))
           .then(() => resolve())
@@ -200,22 +200,22 @@ export async function addUsersToProject(users: DBDocument<User>[], project: DBDo
   });
 }
 
-async function removePendingImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise <void> {
+async function removePendingImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, _updateProject: boolean = true): Promise <void> {
   const updatedProject: DBDocument<Project> = project;
   const updatedAssignments = project.images.pendingAssignments.filter((id) => id !== image._id);
 
   updatedProject.images.pendingAssignments = updatedAssignments;
 
-  if (updateProject) await ProjectsDB.put(updatedProject);
+  if (_updateProject) await updateProject(updatedProject);
 }
 
-async function removeDoneImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise <void> {
+async function removeDoneImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, _updateProject: boolean = true): Promise <void> {
   const updatedProject: DBDocument<Project> = project;
   const updatedAssignments = project.images.done.filter((img) => img.imageID !== image._id);
 
   updatedProject.images.done = updatedAssignments;
 
-  if (updateProject) await ProjectsDB.put(updatedProject);
+  if (_updateProject) await updateProject(updatedProject);
 }
 
 /**
@@ -227,7 +227,7 @@ async function removeNewImageFromProject(project: DBDocument<Project>, image: DB
 
   // Image is part of a block, so we remove it
   if (image.blockID) {
-    const block = await findBlockOfProject(image.blockID, project);
+    const block = await getBlockFromProject(image.blockID, project);
     if (!block) throw Error('the block does not exist');
 
     const imageIndexBlock = block.assignedAnnotations.findIndex((id) => id === image._id);

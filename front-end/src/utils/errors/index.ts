@@ -36,7 +36,14 @@ export class UpdateUserError extends UpdateError {
   }
 }
 
-export class CreateUserError extends UpdateError {
+export class UploadError extends NetworkError {
+  constructor(message: string = 'Something went wrong...we could not complete your upload request.') {
+    super(message);
+    this.name = 'Upload error';
+  }
+}
+
+export class CreateUserError extends UploadError {
   constructor(message: string = 'Something went wrong while trying to add the user to the application.') {
     super(message);
     this.name = 'Failed to create user';

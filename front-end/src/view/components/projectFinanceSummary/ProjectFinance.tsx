@@ -9,17 +9,17 @@ import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
-  calculateTotalCost, dataChartProjects, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateProjectCost, projectEarningsPerMonth, earningsInTotalPerProjectPerUser, hoursOfWorkOfUserFromProject, numberOfAnnotationsInProject, totalHoursOfWork, numberOfWorkersInProject,
 } from '../../../data/financier';
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
-  const totalCost = useData(async () => calculateTotalCost(idProject!));
+  const totalCost = useData(async () => calculateProjectCost(idProject!));
   const totalHours = useData(async () => totalHoursOfWork(idProject!));
-  const totalWork = useData(async () => totalWorkers(idProject!));
-  const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
-  const data = useData(async () => dataChartProjects(idProject!));
+  const totalWork = useData(async () => numberOfWorkersInProject(idProject!));
+  const totalAnnotation = useData(async () => numberOfAnnotationsInProject(idProject!));
+  const data = useData(async () => projectEarningsPerMonth(idProject!));
   const [users, setProjectUsers] = useState([] as User[]);
   const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number }[]);
 
@@ -29,7 +29,7 @@ export default function ProjectFinance() {
       result.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').forEach((user) => {
         let hoursWork: number;
         let earnings: number;
-        hoursWorkPerProjectPerUser(user.id, idProject ?? '').then(((result) => {
+        hoursOfWorkOfUserFromProject(user.id, idProject ?? '').then(((result) => {
           hoursWork = result;
           earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
             earnings = result;

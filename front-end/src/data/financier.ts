@@ -1,200 +1,176 @@
 import {
-  findProjectById,
-  findUserById,
+  DBDocument,
+  User,
   getAllUsers,
   getProjectsOfUser,
-  UserID,
-  ProjectID,
+  Project,
   numberOfImagesInProject,
+  Report,
+  ReportsDB,
+  initReport,
+  insertReportRow,
 } from '.';
 
-import { initReport, insertReportRow } from './report';
+import { UploadError } from '../utils/errors';
 
-/**
- * this function return a Csv data array with all the fields needed to show up the report * 
- */
-export async function generateReport(): Promise<any> {
-  const reportId = await initReport();
-  // this will be added in the page that generates the reports 
-  const listOfUsers = await getAllUsers(); // first column. all of user
-  await Promise.all(listOfUsers.map(async (user) => {
-    const projectsForUser = await getProjectsOfUser(user.uuid);
-    let numberOfImagesAnnotated = 0;
-    let numberOfImagesVerified = 0;
-    projectsForUser.forEach((project) => {
-      numberOfImagesAnnotated = user.projects[project._id].annotated.length;
-      numberOfImagesVerified = user.projects[project._id].verified.length;
-      const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
-      const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
-      const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-      const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+export async function createReport(): Promise<void> {
+  let report: Report & { _id: string } = initReport();
+
+  const users: DBDocument<User>[] = await getAllUsers();
+
+  await Promise.all(users.map(async (user) => {
+    const projectsOfUser: DBDocument<Project>[] = await getProjectsOfUser(user);
+
+    projectsOfUser.forEach((project) => {
+      const numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+      const numberOfImagesVerified = user.projects[project._id].verified.length;
+
+      const earningsFromAnnotations = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
+      const earningsFromVerifications = (numberOfImagesVerified * project.pricePerImageVerification);
+
+      const hoursOfAnnotation = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+      const hoursOfVerification = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
       if (numberOfImagesAnnotated > 0) {
-        insertReportRow(
-          reportId, user.uuid, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
+        report = insertReportRow(
+          report,
+          user.uuid,
+          user.name,
+          user.email,
+          user.role,
+          project.name,
+          project.client,
+          hoursOfAnnotation,
+          earningsFromAnnotations,
         );
       }
       if (numberOfImagesVerified > 0) {
-        insertReportRow(
-          reportId, user.uuid, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
+        report = insertReportRow(
+          report,
+          user.uuid,
+          user.name,
+          user.email,
+          user.role,
+          project.name,
+          project.client,
+          hoursOfVerification,
+          earningsFromVerifications,
         );
       }
     });
   }));
-  // user1: project 1 Annotating hoursOfWorkA paymentA client 
-  // user1: project 1 Verifing hoursOfWorkV payment client
-  return reportId;
+
+  await ReportsDB.put(report).catch(() => new UploadError('The report could not be uploaded as requested.'));
 }
 
-/** total amount of money spent on a project, 
- * total amount of money spent for annotating a project,
- * total amount of money spent for verifing a project
- */
-export async function calculateTotalCost(projectID: string): Promise<[number, number, number]> {
-  const project = await findProjectById(projectID);
-  const totalImagesInDone = project.images.done.length;
-  const totalAnnotatedCost = (totalImagesInDone * project.pricePerImageAnnotation);
-  const totalVerifiedCost = (totalImagesInDone * project.pricePerImageVerification);
-  const totalCost = totalVerifiedCost + totalAnnotatedCost;
-  return [totalCost, totalAnnotatedCost, totalVerifiedCost];
+export function calculateProjectCost(project: DBDocument<Project>): [number, number, number] {
+  const doneImages = project.images.done.length;
+
+  const annotationsCost = (doneImages * project.pricePerImageAnnotation);
+  const verificationsCost = (doneImages * project.pricePerImageVerification);
+
+  return [verificationsCost + annotationsCost, annotationsCost, verificationsCost];
 }
 
-export async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
-  const project = await findProjectById(projectID);
-  const numberOfImages = project.images.done.length;
-  const hoursAnnotation = ((numberOfImages) * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-  const hoursVerification = (numberOfImages * project.pricePerImageVerification) / project.hourlyRateVerification;
-  return [hoursAnnotation + hoursVerification, hoursAnnotation, hoursVerification];
+export function totalHoursOfWork(project: DBDocument<Project>): [number, number, number] {
+  const doneImages = project.images.done.length;
+
+  const hoursOfAnnotation = ((doneImages) * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+  const hoursOfVerification = (doneImages * project.pricePerImageVerification) / project.hourlyRateVerification;
+
+  return [hoursOfAnnotation + hoursOfVerification, hoursOfAnnotation, hoursOfVerification];
 }
 
-/**
- * Total annotations made
- */
-export async function totalAnnotationMade(projectId: string): Promise<number> {
-  const project = await findProjectById(projectId);
+export function numberOfAnnotationsInProject(project: DBDocument<Project>): number {
   return project.images.done.length;
 }
 
-/**
- * 
- * @param projectId project id
- * @returns number of workers involved in a project 
- */
-export async function totalWorkers(projectId: string): Promise<number> {
-  const project = await findProjectById(projectId);
-  return (project.workers.length - 2); // 2 for PM and Finance guy 
+export function numberOfWorkersInProject(project: DBDocument<Project>): number {
+  return (project.workers.length - 2); // 2 for PM and Finance 
 }
 
-/**
- * Function that return two parameters, one per the total amount of money earned annotating, one for verificating 
- * @param projectId Project we want to calculate the earnings of
- * @param userId of the user we want to calculate the earnings of
- * @returns total earnings of the user per [annotation, verification]
- */
-export async function paymentPerUserPerProject(projectId: string, userId: string): Promise<[ number, number ]> {
-  const project = await findProjectById(projectId);
-  const user = await findUserById(userId);
-  const numTotalAnnotatated = user.projects[projectId].annotated.length;
-  const numTotalVerificated = user.projects[projectId].verified.length;
-  return [(numTotalAnnotatated) * project.pricePerImageAnnotation, (numTotalVerificated) * project.pricePerImageVerification];
-}
-export async function earningsPerUser(userID: UserID): Promise<number> {
-  const user = await findUserById(userID);
-  let numberAnnotated = 0;
-  let numberVerified = 0;
-  let totalEarnings = 0;
-  await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
-    numberAnnotated = proj.annotated.length;
-    numberVerified = proj.verified.length;
-    const project = await findProjectById(id);
-    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
-  }));
+export function userEarningsFromProject(project: DBDocument<Project>, user: DBDocument<User>): [number, number] {
+  const numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+  const numberOfImagesVerified = user.projects[project._id].verified.length;
 
-  return totalEarnings;
+  return [numberOfImagesAnnotated * project.pricePerImageAnnotation, numberOfImagesVerified * project.pricePerImageVerification];
 }
 
-export async function hoursWorkPerProjectPerUser(userID: UserID, projectId: ProjectID): Promise<number> {
-  const user = await findUserById(userID);
-  const project = await findProjectById(projectId);
-  return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation) / project.hourlyRateAnnotation)
- + ((user.projects[projectId].verified.length * project.pricePerImageVerification) / project.hourlyRateVerification);
+export async function earningsPerUser(user: DBDocument<User>): Promise<number> {
+  const projectsOfUser: DBDocument<Project>[] = await getProjectsOfUser(user);
+
+  const earnings: number = projectsOfUser.map((project) => {
+    const earningsFromAnnotations = user.projects[project._id].annotated.length * project.pricePerImageAnnotation;
+    const earningsFromVerifications = user.projects[project._id].verified.length * project.pricePerImageVerification;
+
+    return earningsFromAnnotations + earningsFromVerifications;
+  }).reduce((accumulatedEarnings, currentEarnings) => accumulatedEarnings + currentEarnings);
+
+  return earnings;
 }
 
-export async function hoursWorkPerUser(userID: UserID): Promise<number> {
-  const user = await findUserById(userID);
-  const projectsForUser = await getProjectsOfUser(userID);
-  let hoursA = 0;
-  let hoursV = 0;
-  let numberOfImagesAnnotated = 0;
-  let numberOfImagesVerified = 0;
-  // console.log(user);
-  projectsForUser.forEach((project) => {
-    // console.log('user', user.id, user.projects[project._id]);
-    if (user.projects[project._id]) numberOfImagesAnnotated = user.projects[project._id].annotated.length;
-    if (user.projects[project._id]) numberOfImagesVerified = user.projects[project._id].verified.length;
-    hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-    hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+export function hoursOfWorkOfUserFromProject(user: DBDocument<User>, project: DBDocument<Project>): number {
+  const [earningsFromAnnotations, earningsFromVerifications] = userEarningsFromProject(project, user);
+
+  const hoursOfAnnotation = (earningsFromAnnotations / project.hourlyRateAnnotation);
+  const hoursOfVerifications = (earningsFromVerifications / project.hourlyRateVerification);
+
+  return hoursOfAnnotation + hoursOfVerifications;
+}
+
+export async function hoursOfWorkOfUser(user: DBDocument<User>): Promise<number> {
+  const projectsOfUser: DBDocument<Project>[] = await getProjectsOfUser(user);
+
+  const hoursOfWork: number = projectsOfUser
+    .map((project) => hoursOfWorkOfUserFromProject(user, project))
+    .reduce((accumulatedHoursOfWork, currentHoursOfWork) => accumulatedHoursOfWork + currentHoursOfWork);
+
+  return hoursOfWork;
+}
+
+export function percentageOfImagesDone(project: DBDocument<Project>): number {
+  const numberOfImages: number = numberOfImagesInProject(project);
+  const numberOfDoneImages: number = numberOfAnnotationsInProject(project);
+
+  if (numberOfImages === 0) return 0;
+
+  return numberOfDoneImages / numberOfImages;
+}
+
+export function projectEarningsPerMonth(project: DBDocument<Project>): number[] {
+  const earningsPerMonth: number[] = new Array(12).fill(0);
+
+  const costOfDoneImage = project.pricePerImageAnnotation + project.pricePerImageVerification;
+
+  Object.values(project.images.done).forEach((image) => {
+    const month = image.doneDate.getMonth();
+    earningsPerMonth[month] += costOfDoneImage;
   });
 
-  return (hoursV + hoursA);
+  return earningsPerMonth;
 }
 
-export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId: ProjectID): Promise<number> {
-  const user = await findUserById(userID);
-  const project = await findProjectById(projectId);
-  return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
-  + ((user.projects[projectId].verified.length * project.pricePerImageVerification));
+export async function workerEarningsPerMonth(user: DBDocument<User>): Promise<number[]> {
+  const projectsOfUser: DBDocument<Project>[] = await getProjectsOfUser(user);
+
+  const earningsPerMonth: number[] = new Array(12).fill(0);
+
+  projectsOfUser.forEach((project) => {
+    const earningFromAnnotation = project.pricePerImageAnnotation;
+    const earningFromVerification = project.pricePerImageVerification;
+
+    user.projects[project._id].annotated.forEach((image) => {
+      const month = image.date.getMonth();
+      earningsPerMonth[month] += earningFromAnnotation;
+    });
+
+    user.projects[project._id].verified.forEach((image) => {
+      const month = image.date.getMonth();
+      earningsPerMonth[month] += earningFromVerification;
+    });
+  });
+
+  return earningsPerMonth;
 }
 
-export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
-  const project = await findProjectById(projectID);
-  const totalImages = await numberOfImagesInProject(projectID);
-  if (totalImages === 0) {
-    return 0;
-  }
-  const percentage = project.images.done.length / totalImages;
-  console.log(percentage);
-  return percentage;
-}
-
-export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
-  const project = await findProjectById(projectId);
-  const earningMonth: number[] = new Array(12).fill(0);
-  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
-  Object.entries(project.images.done).forEach(
-    async ([_key, value]) => {
-      const month = new Date(value.doneDate).getMonth();
-      earningMonth[month] += totIm;
-    },
-  );
-  return earningMonth;
-}
-
-export async function dataChartWorker(userId: UserID): Promise<number[]> {
-  const earningPerMonth: number[] = new Array(12).fill(0);
-  const user = await findUserById(userId);
-  await Promise.all(Object.entries(user.projects).map(
-    async ([key, value]) => {
-      const project = await findProjectById(key);
-      const priceAnnotation = project.pricePerImageAnnotation;
-      const priceVerification = project.pricePerImageVerification;
-      // adding earning per month of annotated images
-      Object.entries(value.annotated).forEach(
-        async ([_key, value]) => {
-          const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += priceAnnotation;
-        },
-      );
-      // adding earning per month of verified images
-      Object.entries(value.verified).forEach(
-        async ([_key, value]) => {
-          const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += priceVerification;
-        },
-      );
-    },
-  ));
-  return earningPerMonth;
-}
-
-export default generateReport;
+export default createReport;

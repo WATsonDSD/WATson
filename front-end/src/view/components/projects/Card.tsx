@@ -8,7 +8,7 @@ import {
 
 } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserNotNull } from '../../../data';
+import { DBDocument, Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes';
 
@@ -16,34 +16,34 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
-import { calculateTotalCost, percentageOfImagesDone, totalWorkers } from '../../../data/financier';
+import { calculateProjectCost, percentageOfImagesDone, numberOfWorkersInProject } from '../../../data/financier';
 
-const Card = (props: any) => {
-  const { project, options, verifierAction }: { project: Project, options: any, verifierAction: string | undefined} = props;
+const Card = (props: { project: DBDocument<Project>, options: any, verifierAction: string | undefined}) => {
+  const { project, options, verifierAction } = props;
   const [user] = useUserNotNull();
   const navigate = useNavigate();
-  const totalSpending = useData(async () => calculateTotalCost(project.id));
-  const percentage = useData(async () => percentageOfImagesDone(project.id));
-  const numberOfWorkers = useData(async () => totalWorkers(project.id));
+  const totalSpending = useData(async () => calculateProjectCost(project));
+  const percentage = useData(async () => percentageOfImagesDone(project));
+  const numberOfWorkers = useData(async () => numberOfWorkersInProject(project));
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       case 'annotator':
-        navigate(`${Paths.Annotation}/${project.id}`);
+        navigate(`${Paths.Annotation}/${project._id}`);
         break;
       case 'verifier':
         if (verifierAction === 'annotate') {
-          navigate(`${Paths.Annotation}/${project.id}`);
+          navigate(`${Paths.Annotation}/${project._id}`);
         } else if (verifierAction === 'verify') {
-          navigate(`${Paths.Verification}/${project.id}`);
+          navigate(`${Paths.Verification}/${project._id}`);
         }
         break;
       case 'finance':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       default:
         break;
@@ -75,7 +75,7 @@ const Card = (props: any) => {
       <div className="flex justify-between text-lg w-full mt-2">
         <span className="flex items-center gap-x-1 text-white text-left">
           <MdOutlineSwitchAccount />
-          {user.projects[project.id].assignedAnnotations.length}
+          {user.projects[project._id].assignedAnnotations.length}
         </span>
       </div>
     );
@@ -85,7 +85,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].assignedAnnotations.length}
+            {user.projects[project._id].assignedAnnotations.length}
           </span>
         </div>
       );
@@ -94,7 +94,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].assignedVerifications.length}
+            {user.projects[project._id].assignedVerifications.length}
           </span>
         </div>
       );
@@ -126,7 +126,7 @@ const Card = (props: any) => {
           id={`${option.name}-btn`}
           className="block pl-6 pr-12 py-2 whitespace-nowrap"
           type="button"
-          to={`${option.to}/${project.id}`}
+          to={`${option.to}/${project._id}`}
           onClick={(event) => {
             event.stopPropagation();
           }}
@@ -141,7 +141,7 @@ const Card = (props: any) => {
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            option.action!(project.id);
+            option.action!(project._id);
           }}
         >
           {option.name}

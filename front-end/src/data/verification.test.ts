@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, createWorkersLink, getWorkDoneByUser,
 } from '.';
 import {
-  saveAnnotation, getImagesOfUser, findImageById, assignImagesToAnnotator,
+  saveAnnotation, getImagesOfUserFromProject, findImageById, assignBlockToAnnotator,
 } from './images';
 
 import { acceptAnnotation, rejectAnnotation } from './verification';
@@ -34,17 +34,17 @@ describe('reject annotation', () => {
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignImagesToAnnotator(1, annotatorId, projectId);
+    await assignBlockToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
     await createWorkersLink(projectId, annotatorId, verifierId);
     return rejectAnnotation(imageId, projectId, 'redo!!');
   });
 
-  it('moves the image in toAnnotate for the annotator', () => expect(getImagesOfUser(projectId, 'toAnnotate', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
-  it('removes the image from waitingForVerification for the verifier', () => expect(getImagesOfUser(projectId, 'waitingForVerification', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
+  it('moves the image in toAnnotate for the annotator', () => expect(getImagesOfUserFromProject(projectId, 'toAnnotate', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('removes the image from waitingForVerification for the verifier', () => expect(getImagesOfUserFromProject(projectId, 'waitingForVerification', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
 
-  it('moves the image in waitingForAnnotation for the verifier', () => expect(getImagesOfUser(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
-  it('removes the image from toVerify for the verifier', () => expect(getImagesOfUser(projectId, 'toVerify', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
+  it('moves the image in waitingForAnnotation for the verifier', () => expect(getImagesOfUserFromProject(projectId, 'waitingForAnnotation', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('removes the image from toVerify for the verifier', () => expect(getImagesOfUserFromProject(projectId, 'toVerify', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeLessThan(0));
 
   it('removes the annotation to the image', () => expect(findImageById(imageId).then((image) => image.annotation)).resolves.toBeUndefined());
 });
@@ -66,15 +66,15 @@ describe('Accept annotated image', () => {
     await addUserToProject(verifierId, projectId);
     // se link prima di Save -> no idVerifier
     // se link dopo save -> no block 
-    await assignImagesToAnnotator(1, annotatorId, projectId);
+    await assignBlockToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
     await createWorkersLink(projectId, annotatorId, verifierId);
     return acceptAnnotation(projectId, imageId);
   });
 
   it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageID === imageId))).resolves.toBeGreaterThanOrEqual(0));
-  it('moves the image in annotated for the annotator', () => expect(getImagesOfUser(projectId, 'annotated', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
-  it('moves the image in verified for the verifier', () => expect(getImagesOfUser(projectId, 'verified', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('moves the image in annotated for the annotator', () => expect(getImagesOfUserFromProject(projectId, 'annotated', annotatorId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('moves the image in verified for the verifier', () => expect(getImagesOfUserFromProject(projectId, 'verified', verifierId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 
   it('correctly modifies all workDoneInTime fields', async () => {
     const project = await findProjectById(projectId);

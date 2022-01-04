@@ -5,7 +5,7 @@ import {
   findProjectById, findUserById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
+import { assignBlockToAnnotator, getPendingImagesFromProject } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/header';
 import { Paths } from '../shared/routes';
@@ -25,7 +25,7 @@ export default function ProjectAssign() {
 
   console.log(imagesToAnnotate);
   useEffect(() => {
-    getImagesOfProjectWithoutAnnotator(idProject || '').then((result) => {
+    getPendingImagesFromProject(idProject || '').then((result) => {
       console.log(result);
       setImagesToAnnotate(result!);
     });
@@ -64,7 +64,7 @@ export default function ProjectAssign() {
 
     if (!idProject) { throw Error('no project id!'); }
 
-    await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
+    await assignBlockToAnnotator(nbImages, annotator, idProject ?? '');
     if (verifier !== '0') {
       await createWorkersLink(idProject ?? '', annotator, verifier);
     }

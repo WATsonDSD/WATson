@@ -13,22 +13,29 @@ export async function findReportById(id: ReportID): Promise<DBDocument<Report>> 
   return ReportsDB.get(id);
 }
 
-export async function initReport(): Promise<ReportID> {
+export function initReport(): Report & { _id: string } {
   const report: Report & { _id: string } = {
     _id: uuid(),
     rows: [],
     date: new Date(),
   };
 
-  await ReportsDB.put(report);
-  return id;
+  return report;
 }
 
-export async function insertReportRow(reportId: ReportID, userID: UserID, name: string, email: string, role: Role, projectName: string, hours: number, earnings: number, client: string) {
-  const report = await findReportById(reportId);
-  const row = {
-    userID, name, email, role, projectName, hours, earnings, client,
-  };
-  report.rows.push(row);
-  await ReportsDB.put(report);
+export function insertReportRow(report: Report & { _id: string }, userID: UserID, name: string, email: string, role: Role, projectName: string, client: string, hours: number, earnings: number) {
+  const updatedReport: Report & { _id: string } = report;
+
+  updatedReport.rows.push({
+    userID,
+    name,
+    email,
+    role,
+    projectName,
+    client,
+    hours,
+    earnings,
+  });
+
+  return updatedReport;
 }

@@ -1,16 +1,16 @@
 import {
-  signUp,
+  DBDocument,
   Role,
   User,
-  ProjectID,
   UserID,
   AuthDB,
-  ProjectsDB,
-  assignVerifier,
+  signUp,
   findUserBlockFromProject,
-  DBDocument,
-  Project,
   ImageID,
+  assignBlockToVerifier,
+  Project,
+  ProjectID,
+  updateProject,
 } from '.';
 
 import {
@@ -22,8 +22,6 @@ import {
 } from '../utils/errors';
 
 export const IDPrefix: string = 'org.couchdb.user:';
-
-/* eslint-disable no-underscore-dangle */
 
 /**
  * Fetches the user corresponding to a certain id.
@@ -126,7 +124,7 @@ export async function getUsersOfProject(project: DBDocument<Project>): Promise<D
 /**
  * Fetches all the users registered on the application, regardless of role. 
  */
-export async function getAllUsers(): Promise<User[]> {
+export async function getAllUsers(): Promise<DBDocument<User>[]> {
   return new Promise((resolve, reject) => {
     AuthDB.allDocs({
       startkey: 'a', // excludes the design documents
@@ -146,6 +144,33 @@ export async function getAllUsers(): Promise<User[]> {
         }));
 
         resolve(users);
+      }
+    }).catch(() => {
+      reject(new FetchingError('We could not fetch the list of users as requested.'));
+    });
+  });
+}
+
+export async function getUsers(users: UserID[]): Promise<DBDocument<User>[]> {
+  return new Promise((resolve, reject) => {
+    AuthDB.allDocs({
+      startkey: 'a', // excludes the design documents
+      include_docs: true,
+      keys: users,
+    }).then((response) => {
+      if (response) {
+        const users: DBDocument<User>[] = response.rows.filter((row) => row.doc).map((row: any) => ({
+          _id: row.doc._id,
+          _rev: row.doc._rev,
+
+          uuid: row.doc.uuid,
+          email: row.doc.name,
+          name: row.doc.fullname,
+          role: row.doc.roles[0],
+          projects: row.doc.projects,
+          timedWork: row.doc.timedWork,
+        }));
+
         resolve(users);
       }
     }).catch(() => {
@@ -225,13 +250,15 @@ export async function createWorkersLink(project: DBDocument<Project>, annotatorI
 
   if (links.includes(link)) return;
 
-  const block = await findUserBlockFromProject(project._id, annotatorID);
-  // se già esiste un blocco 
+  const block = findUserBlockFromProject(project, annotatorID);
+
   if (block) {
-    await assignVerifier(block.id, verifierID, project._id);
+    const verifier: DBDocument<User> = await findUserById(verifierID);
+    await assignBlockToVerifier(block, verifier, project);
   } else {
-    project.linkedWorkers.push({ annotatorID, verifierID });
-    await ProjectsDB.put(project);
+    const updatedProject: DBDocument<Project> = project;
+    updatedProject.linkedWorkers.push({ annotatorID, verifierID });
+    await updateProject(updatedProject);
   }
 }
 

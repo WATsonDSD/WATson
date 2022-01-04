@@ -2,10 +2,10 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createWorkersLink,
 } from '.';
 import {
-  calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
+  calculateProjectCost, projectEarningsPerMonth, workerEarningsPerMonth, earningsInTotalPerProjectPerUser, hoursOfWorkOfUserFromProject, hoursOfWorkOfUser, percentageOfImagesDone, numberOfAnnotationsInProject, totalHoursOfWork, numberOfWorkersInProject,
 } from './financier';
 import {
-  assignImagesToAnnotator,
+  assignBlockToAnnotator,
   saveAnnotation,
 } from './images';
 import { acceptAnnotation } from './verification';
@@ -55,7 +55,7 @@ describe('adding annotation', () => {
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignImagesToAnnotator(3, annotatorId, projectId);
+    await assignBlockToAnnotator(3, annotatorId, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator'); pendingVerification;
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
     userIdF = await createUser('financ', 'finance@watson', 'finance');
@@ -72,15 +72,15 @@ describe('adding annotation', () => {
   it('number of images in annotated is 3',
     () => expect(findUserById(annotatorId).then((user) => user.projects[projectId].waitingForVerification.length)).resolves.toBe(3));
 
-  test('total cost of the project', () => calculateTotalCost(projectId).then((data) => {
+  test('total cost of the project', () => calculateProjectCost(projectId).then((data) => {
     expect(data[0]).toBe(0);
   }));
 
-  test('number of total annotation made in a project', () => totalAnnotationMade(projectId).then((data) => {
+  test('number of total annotation made in a project', () => numberOfAnnotationsInProject(projectId).then((data) => {
     expect(data).toBe(0);
   }));
 
-  test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
+  test('number of total workers in a project', () => numberOfWorkersInProject(projectId).then((data) => {
     expect(data).toBe(4);
   }));
 });
@@ -99,7 +99,7 @@ describe('adding verification', () => {
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
     await addUserToProject(annotatorId2, projectId);
-    await assignImagesToAnnotator(3, annotatorId, projectId);
+    await assignBlockToAnnotator(3, annotatorId, projectId);
     // await assignImagesToAnnotator(2, annotatorId2, projectId);pendingVerification
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
@@ -127,19 +127,19 @@ describe('adding verification', () => {
     () => expect(findUserById(annotatorId2).then((user) => user.projects[projectId].waitingForVerification.length)).resolves.toBe(0));
 
   // 3 images annotated + 3 images verified 30 + 23*3 
-  test('total cost of the project', () => calculateTotalCost(projectId).then((data) => {
+  test('total cost of the project', () => calculateProjectCost(projectId).then((data) => {
     expect(data[0]).toBe(99);
   }));
 
-  test('total cost of annotation for the project', () => calculateTotalCost(projectId).then((data) => {
+  test('total cost of annotation for the project', () => calculateProjectCost(projectId).then((data) => {
     expect(data[1]).toBe(30);
   }));
 
-  test('total cost of verification for the project', () => calculateTotalCost(projectId).then((data) => {
+  test('total cost of verification for the project', () => calculateProjectCost(projectId).then((data) => {
     expect(data[2]).toBe(69);
   }));
 
-  test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
+  test('number of total workers in a project', () => numberOfWorkersInProject(projectId).then((data) => {
     expect(data).toBe(6);
   }));
   // 30/4 + 23*3/8-> 7,5 + 8,625
@@ -149,28 +149,28 @@ describe('adding verification', () => {
   test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
     expect(data[1]).toBe(7.5);
   }));
-  test('chart december', () => dataChartWorker(userId).then((data) => {
+  test('chart december', () => workerEarningsPerMonth(userId).then((data) => {
     expect(data[11]).toBe(0);
   }));
-  test('chart january', () => dataChartWorker(userId).then((data) => {
+  test('chart january', () => workerEarningsPerMonth(userId).then((data) => {
     expect(data[0]).toBe(30);
   }));
-  test('hours work', () => hoursWorkPerProjectPerUser(annotatorId, projectId).then((data) => {
+  test('hours work', () => hoursOfWorkOfUserFromProject(annotatorId, projectId).then((data) => {
     expect(data).toBe(7.5);
   }));
-  test('hours work', () => hoursWorkPerProjectPerUser(verifierId, projectId).then((data) => {
+  test('hours work', () => hoursOfWorkOfUserFromProject(verifierId, projectId).then((data) => {
     expect(data).toBe(8.625);
   }));
   test('earnings verifier', () => earningsInTotalPerProjectPerUser(verifierId, projectId).then((data) => {
     expect(data).toBe(69);
   }));
-  test('chart project', () => dataChartProjects(projectId).then((data) => {
+  test('chart project', () => projectEarningsPerMonth(projectId).then((data) => {
     expect(data[0]).toBe(99);
   }));
   test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
     expect(data).toBe(0.75);
   }));
-  test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
+  test('total hours of work of an user', () => hoursOfWorkOfUser(userId).then((data) => {
     expect(data).toBe(7.5);
   }));
 });

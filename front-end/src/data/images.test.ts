@@ -2,7 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createWorkersLink,
 } from '.';
 import {
-  findImageById, saveAnnotation, getImagesOfUser, assignImagesToAnnotator,
+  findImageById, saveAnnotation, getImagesOfUserFromProject, assignBlockToAnnotator,
 } from './images';
 
 jest.mock('./databases');
@@ -34,17 +34,17 @@ describe('addAnnotation', () => {
     imageId = await addImageToProject(imageData, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     await addUserToProject(userId, projectId);
-    await assignImagesToAnnotator(3, userId, projectId);
+    await assignBlockToAnnotator(3, userId, projectId);
     // add test on block 
     return saveAnnotation(validAnnotation, imageId, projectId);
   });
 
   it('adds the annotation to the image', () => expect(findImageById(imageId).then((image) => image.annotation)).resolves.toBeDefined());
 
-  it('removes the image from toAnnotate', () => expect(getImagesOfUser(projectId, 'toAnnotate', userId).then((images) => images.findIndex((image) => image.id === imageId)))
+  it('removes the image from toAnnotate', () => expect(getImagesOfUserFromProject(projectId, 'toAnnotate', userId).then((images) => images.findIndex((image) => image.id === imageId)))
     .resolves.toBe(-1));
 
-  it('adds the image to waitingForVerification', () => expect(getImagesOfUser(projectId, 'waitingForVerification', userId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
+  it('adds the image to waitingForVerification', () => expect(getImagesOfUserFromProject(projectId, 'waitingForVerification', userId).then((images) => images.findIndex((image) => image.id === imageId))).resolves.toBeGreaterThanOrEqual(0));
 
   it('reject invalid annotations', () => {
     expect(saveAnnotation(invalidAnnotation, imageId, projectId)).rejects.toThrow();
@@ -71,7 +71,7 @@ describe('assignVerifierToImage', () => {
     await addUserToProject(verifierId, projectId);
     await createWorkersLink(projectId, annotatorId, verifierId);
     // check lenght of images 
-    await assignImagesToAnnotator(2, annotatorId, projectId);
+    await assignBlockToAnnotator(2, annotatorId, projectId);
     // await saveAnnotation(validAnnotation, annotatedImageId, projectId);
   }); rejectedAnnotation;
 
@@ -98,7 +98,7 @@ describe('save Annotation ', () => {
     await addUserToProject(verifierId, projectId);
     await createWorkersLink(projectId, annotatorId, verifierId);
     // check lenght of images 
-    await assignImagesToAnnotator(2, annotatorId, projectId);
+    await assignBlockToAnnotator(2, annotatorId, projectId);
     await saveAnnotation(validAnnotation, imageId, projectId);
   });
 

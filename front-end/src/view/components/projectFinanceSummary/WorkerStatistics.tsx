@@ -10,7 +10,7 @@ import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
 import {
-  dataChartWorker,
+  workerEarningsPerMonth,
   earningsPerUser,
 } from '../../../data/financier';
 
@@ -18,7 +18,7 @@ export default function WorkerFinance() {
   const [user] = useUserNotNull();
   const idUser = user.uuid;
   const payment = useData(async () => earningsPerUser(idUser!));
-  const data = useData(async () => dataChartWorker(idUser!));
+  const data = useData(async () => workerEarningsPerMonth(idUser!));
 
   if (!idUser || !data) return null;
 

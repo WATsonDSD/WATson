@@ -12,7 +12,7 @@ import {
 import { useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
-import { getImagesOfUser } from '../../../data/images';
+import { getImagesOfUserFromProject } from '../../../data/images';
 import { acceptAnnotation, modifyAnnotation, rejectAnnotation } from '../../../data/verification';
 import { Paths } from '../shared/routes';
 
@@ -52,7 +52,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.uuid).then((result) => {
+    getImagesOfUserFromProject(projectId ?? '', 'toVerify', user.uuid).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);

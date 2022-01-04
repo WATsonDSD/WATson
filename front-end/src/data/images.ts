@@ -4,28 +4,41 @@ import {
   DBDocument,
   User,
   UserID,
+  getUsers,
   updateUser,
   findUserById,
   Image,
   ImageID,
   ImagesDB,
   ImageData,
-  BlockID,
-  createBlock,
-  addImagesToBlock,
   Landmark,
   Annotation,
   Project,
   ProjectID,
   ProjectsDB,
-  findProjectById,
   findUserBlockFromProject,
+  updateBlock,
 } from '.';
 
-import { UpdateError } from '../utils/errors';
+import { FetchingError, UpdateError } from '../utils/errors';
 
 export async function findImageById(imageID: ImageID): Promise<DBDocument<Image>> {
   return ImagesDB.get(imageID, { attachments: true, binary: true });
+}
+
+export async function getImages(images: ImageID[]): Promise<DBDocument<Image>[]> {
+  return new Promise((resolve, reject) => {
+    ImagesDB.allDocs({
+      include_docs: true,
+      attachments: true,
+      binary: true,
+      keys: images,
+    }).then((response) => {
+      resolve(response.rows.filter((row) => row.doc !== undefined).map((row) => row.doc!));
+    }).catch(() => {
+      reject(new FetchingError('We could not fetch the images as requested.'));
+    });
+  });
 }
 
 /**
@@ -63,8 +76,8 @@ export async function addImageToProject(data: ImageData, project: DBDocument<Pro
 export function numberOfImagesInProject(project: DBDocument<Project>): number {
   let numberOfImages = project.images.pendingAssignments.length + project.images.done.length;
 
-  Object.values(project.images.blocks).forEach((value) => {
-    numberOfImages += value.block.assignedAnnotations.length + value.block.assignedVerifications.length;
+  Object.values(project.images.blocks).forEach((block) => {
+    numberOfImages += block.assignedAnnotations.length + block.assignedVerifications.length;
   });
 
   return numberOfImages;
@@ -74,154 +87,93 @@ export function numberOfImagesInProject(project: DBDocument<Project>): number {
  * Finds and returns images with the given `status` in a given `project`.
  * If the `user` parameter is specified, returns images assigned to that `User` only.
  */
-export async function getImagesOfUser(
+export async function getImagesOfUserFromProject(
+  user: DBDocument<User>,
   projectID: ProjectID,
   status: 'assignedAnnotations' | 'rejectedAnnotations' | 'annotated' | 'assignedVerifications' | 'pendingVerifications' | 'verified',
-  userID: UserID,
-): Promise<Image[]> {
-  const user = await findUserById(userID);
-  if (status === 'verified' || status === 'annotated') {
-    return Promise.all(user.projects[projectID][status].map((image) => findImageById(image.imageID)));
-  }
-  return Promise.all(user.projects[projectID][status].map((id) => findImageById(id)));
+): Promise<DBDocument<Image>[]> {
+  const keys: ImageID[] = (status === 'verified' || status === 'annotated')
+    ? user.projects[projectID][status].map((image) => image.imageID)
+    : user.projects[projectID][status];
+
+  return getImages(keys);
 }
 
 /**
  * @returns the images of the project without annotator
  */
-export async function getImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <Image[]> {
-  const project = await findProjectById(projectId);
-  const images : Image[] = [];
-  await Promise.all(Object.entries(project.images.pendingAssignments).map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, imageId]) => {
-      const image = await findImageById(imageId);
-      images.push(image);
-    },
-  ));
-  return images;
+export async function getPendingImagesFromProject(project: DBDocument<Project>): Promise<DBDocument<Image>[]> {
+  return getImages(project.images.pendingAssignments);
 }
 
 /**
  * @returns the number of images of the project without annotator
  */
-export async function getNumberOfImagesOfProjectWithoutAnnotator(projectId: ProjectID): Promise <number> {
-  const project = await findProjectById(projectId);
+export function getNumberOfPendingImagesFromProject(project: DBDocument<Project>): number {
   return project.images.pendingAssignments.length;
 }
 
 /**
  * @returns all the users of the project
  */
-export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise <User[]> {
-  const project = await findProjectById(projectId);
-  const usersId = project.workers; // list di tutti gli id
+export async function getUnlinkedAnnotators(project: DBDocument<Project>): Promise<DBDocument<User>[]> {
+  const linkedAnnotators : UserID[] = project.linkedWorkers.map((worker) => worker.annotatorID);
+  const unlinkedAnnotators: UserID[] = project.workers.filter((worker) => !linkedAnnotators.includes(worker));
 
-  // from users remove the annotator that has an association in annVer
-  Object.entries(project.linkedWorkers).forEach(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, annVer]) => {
-      const index = usersId.findIndex((userId) => annVer.annotatorID === userId);
-      usersId.splice(index, 1);
-    },
-  );
-  const users: User[] = [];
-  await Promise.all(Object.entries(usersId).map(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, userId]) => {
-      const user = await findUserById(userId);
-      users.push(user);
-    },
-  ));
-  return users;
+  return getUsers(unlinkedAnnotators);
 }
 
 /**
  * Determines whether `annotation` is valid for the `specification`. 
  */
 export function fitsSpecification(annotation: Annotation, specification: Landmark[]): boolean {
-  let valid = true;
-  specification.forEach((landmark) => { if (!annotation[landmark]) valid = false; });
-  return valid;
+  return specification.every((landmark) => annotation[landmark]);
 }
 
 /**
  * Saves the annotation and associates it with the image.
  * Also moves the image from 'toAnnotate' to 'toVerify'.
- * ! This function does NOT assign a verifier (yet).
  * @param annotation Has to be complete and has to match the project's `LandmarkSpecification`.
- * @param imageId The image the annotation will be associated to.
+ * @param imageID The image the annotation will be associated to.
  * @param projectId The project that includes the image.
  */
-export async function saveAnnotation(
-  annotation: Annotation,
-  imageId: ImageID,
-  projectId: ProjectID,
-): Promise<void> {
-  const project = await findProjectById(projectId);
+export async function saveAnnotation(annotation: Annotation, image: DBDocument<Image>, project: DBDocument<Project>): Promise<void> {
+  if (!fitsSpecification(annotation, project.landmarks)) throw new UpdateError("The annotation does not fit the project's specification.");
+  if (!image.annotatorID) throw new UpdateError('The image has no annotator, therefore the annotation cannot be saved.');
 
-  // check if the annotation is valid.
-  if (!fitsSpecification(annotation, project.landmarks)) {
-    throw Error("The annotation does not fit the project's specification");
-  }
+  const updatedImage: DBDocument<Image> = image;
 
-  // save the annotation
-  const image = await findImageById(imageId);
-  image.annotation = annotation;
+  // Saves the annotation
+  updatedImage.annotation = annotation;
 
-  // move from toAnnotate to waitingForVerification in the user annotator
-  const annotatorId = image.annotatorID;
-  console.log('savve Annotation', image.annotatorID);
-  if (!annotatorId) throw Error('The image to be annotated has no annotator');
-  const annotator = await findUserById(annotatorId);
-  const imageIndexAnnotator = annotator.projects[projectId].assignedAnnotations.findIndex((ent) => ent === imageId);
+  // Move image from assignedAnnotations to pendingVerifications for the annotator
+  const annotator: DBDocument<User> = await findUserById(image.annotatorID);
 
-  annotator.projects[projectId].pendingVerifications.push(imageId);
-  annotator.projects[projectId].assignedAnnotations.splice(imageIndexAnnotator, 1);
+  const block = findUserBlockFromProject(project, annotator._id);
+
+  if (!block) throw new UpdateError('The annotation could not be saved. The target block does not exist.');
+
+  annotator.projects[project._id].pendingVerifications.push(image._id);
+  annotator.projects[project._id].assignedAnnotations = annotator.projects[project._id].assignedAnnotations.filter((imageID) => imageID !== image._id);
 
   // if there is a verifier, move the image to the toVerify field.
   if (image.verifierID) {
-    const verifier = await findUserById(image.verifierID);
-    const imageIndexVerifier = verifier.projects[projectId].rejectedAnnotations.findIndex((ent) => ent === imageId);
-    verifier.projects[projectId].rejectedAnnotations.splice(imageIndexVerifier, 1);
-    verifier.projects[projectId].assignedVerifications.push(imageId);
+    const verifier: DBDocument<User> = await findUserById(image.verifierID);
+
+    verifier.projects[project._id].assignedVerifications.push(image._id);
+    verifier.projects[project._id].rejectedAnnotations = verifier.projects[project._id].rejectedAnnotations.filter((imageID) => imageID !== image._id);
+
     await updateUser(verifier);
   }
 
   // move the image from toAnnotate to toVerify in the block
-  const block = await findUserBlockFromProject(projectId, annotatorId);
-  if (!block) throw Error('the block does not exist');
-  const imageIndexBlock = block.assignedAnnotations.findIndex((im) => im === imageId);
-  block.assignedAnnotations.splice(imageIndexBlock, 1);
-  block.assignedVerifications.push(imageId);
+  block.assignedVerifications.push(image._id);
+  block.assignedAnnotations = block.assignedAnnotations.filter((imageID) => imageID !== image._id);
 
   // reflect the changes to the DB.
-  await ProjectsDB.put(project);
-  await ImagesDB.put(image);
   await updateUser(annotator);
-}
-
-/**
- * assigns the image to an annotator: 
- * if a block for that annotator already exists, 
- * it adds size images to the existing block, 
- * otherwise it creates a new block
- */
-export async function assignImagesToAnnotator(
-  size: number,
-  annotatorId: UserID,
-  projectId: ProjectID,
-) : Promise <BlockID> {
-  let blockId: BlockID = '';
-  // create the block and assign images to annotator (and verifier if exists)
-  const block = await findUserBlockFromProject(projectId, annotatorId);
-  if (!block) {
-    blockId = await createBlock(size, annotatorId, projectId);
-  } else {
-    blockId = block.id;
-    await addImagesToBlock(size, blockId, projectId);
-  }
-  return blockId;
+  await updateBlock(block, project);
+  await ImagesDB.put(updatedImage);
 }
 
 export async function deleteImage(imageId: ImageID): Promise <void> {

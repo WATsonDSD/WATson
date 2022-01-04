@@ -5,10 +5,10 @@ import {
   Annotation,
   BlockID,
   createWorkersLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
+  createProject, createUser, getBlockFromProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
 
-import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
+import { assignBlockToAnnotator, findImageById, saveAnnotation } from './images';
 import { acceptAnnotation, rejectAnnotation } from './verification';
 
 jest.mock('./databases');

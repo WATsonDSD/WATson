@@ -65,7 +65,7 @@ export type User = {
 };
 
 export type Block = {
-    id: BlockID,
+    _id: BlockID,
 
     projectID: ProjectID,
     verifierID?: UserID,
@@ -109,9 +109,7 @@ export type Project = {
 
     images: {
         blocks: {
-            [blockID: BlockID]: {
-                block: Block,
-            }
+            [blockID: BlockID]: Block,
         },
         pendingAssignments: ImageID[],
         done: { imageID: ImageID, doneDate: Date }[],
