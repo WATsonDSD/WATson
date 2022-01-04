@@ -25,9 +25,9 @@ const templateImage = {
   annotation: TemplateAnnotation,
 };
 
-(async () => {
-  templateImage.data = await (await fetch(template)).blob();
-})();
+fetch(template)
+  .then(res => res.blob())
+  .then(blob => templateImage.data = blob);
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
