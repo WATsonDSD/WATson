@@ -113,12 +113,13 @@ export async function earningsPerUser(userID: UserID): Promise<number> {
   let numberVerified = 0;
   let totalEarnings = 0;
   await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
-    numberAnnotated = proj.annotated.length;
-    numberVerified = proj.verified.length;
+    numberAnnotated = +proj.annotated.length;
+    numberVerified = +proj.verified.length;
     const project = await findProjectById(id);
-    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+    totalEarnings += (numberAnnotated * +project.pricePerImageAnnotation);
+    totalEarnings += (numberVerified * +project.pricePerImageVerification);
+    console.log(proj, totalEarnings);
   }));
-
   return totalEarnings;
 }
 
@@ -169,11 +170,14 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
 export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
-  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
+  const totIm = +project.pricePerImageAnnotation + +project.pricePerImageVerification;
+  console.log('tot', totIm);
+  console.log(project.pricePerImageAnnotation);
+  console.log(project.pricePerImageVerification);
   Object.entries(project.images.done).forEach(
     async ([key, value]) => {
       const month = new Date(value.doneDate).getMonth();
-      earningMonth[month] += totIm;
+      earningMonth[month] += +totIm;
     },
   );
   return earningMonth;
@@ -191,14 +195,14 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       Object.entries(value.annotated).forEach(
         async ([key, value]) => {
           const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += priceAnnotation;
+          earningPerMonth[month] += +priceAnnotation;
         },
       );
       // adding earning per month of verified images
       Object.entries(value.verified).forEach(
         async ([key, value]) => {
           const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += priceVerification;
+          earningPerMonth[month] += +priceVerification;
         },
       );
     },
