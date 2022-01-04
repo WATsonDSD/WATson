@@ -4,8 +4,10 @@ import {
   addUserToProject,
   Annotation,
   BlockID,
+  changeProjectName,
+  closeProject,
   createAnnotatorVerifierLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
 } from '.';
 
 import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
@@ -76,7 +78,6 @@ describe('addImageToProject', () => {
     */
 });
 
-/** 
 describe('remove user correctly,', () => {
   let userId: UserID;
   let imageId: ImageID;
@@ -132,4 +133,3 @@ describe('remove user correctly,', () => {
   it('closed project', async () => expect(() => closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
   it('change project name', async () => expect(() => changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
 });
-*/
