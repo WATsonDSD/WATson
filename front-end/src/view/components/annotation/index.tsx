@@ -85,7 +85,7 @@ export default function AnnotationView() {
         return;
       }
       setImage(result[0]);
-      const next = nextLandmark(image.annotation, templateImage.annotation);
+      const next = nextLandmark(result[0].annotation, templateImage.annotation);
       setLandmarkId(next);
       setTransform(defaultTransform);
     });
@@ -108,9 +108,7 @@ export default function AnnotationView() {
       }
     } else if (tool === 'delete') {
       const hoveredLandmark = getHoveredLandmark(x, y);
-      console.log('deleting landmark', hoveredLandmark);
       if (hoveredLandmark) removeLandmark(hoveredLandmark);
-      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
     } else if (tool === 'move') {
       onMouseUpMove();
     }
@@ -125,8 +123,10 @@ export default function AnnotationView() {
 
   const removeLandmark = (id: number|undefined) => {
     if (image.annotation && id !== undefined) {
-      delete image.annotation[id];
-      setLandmarkId(nextLandmark(image.annotation, templateImage.annotation));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [id]: _, ...newAnnotation } = image.annotation;
+      setImage({ ...image, annotation: newAnnotation });
+      setLandmarkId(nextLandmark(newAnnotation, templateImage.annotation));
     } else {
       console.warn(`Could not remove landmark with id: ${id}`);
     }
