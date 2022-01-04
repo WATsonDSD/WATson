@@ -262,41 +262,35 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
   await Promise.all(Object.entries(project.images.blocks).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, block]) => {
-      // console.log(block.block);
-      const myBlock = await findBlockOfProject(projectId, block.block.blockId);
-      console.log(myBlock);
-      if (!myBlock) throw Error('block not found');
-
       if (block.block.idAnnotator === userId) { // if user is an annotator
         if (block.block.idVerifier) {
-          // if verifier assigned, remains a block with images in toVerify and the verifierId
-          // const verifier = await findUserById(block.block.idVerifier);
-
           // remove the link annotator-verifier
           const index = project.annVer.findIndex((anVe) => anVe.annotatorId === userId && anVe.verifierId === block.block.idVerifier);
           project.annVer.splice(index, 1);
 
           // put the toAnnotate images in imagesWithoutAnnotator and remove them from the block
           project.images.imagesWithoutAnnotator.push(...block.block.toAnnotate);
-          myBlock.toAnnotate = [];
+          // eslint-disable-next-line no-param-reassign
+          block.block.toAnnotate = [];
 
           // delete idAnnotator from the block
-          myBlock.idAnnotator = undefined;
+          // eslint-disable-next-line no-param-reassign
+          block.block.idAnnotator = undefined;
 
           // reflect changes in the db
           await ProjectsDB.put(project);
-          await updateBlock(myBlock, projectId);
+          await updateBlock(block.block, projectId);
           // await updateUser(verifier);
         } else {
           // if verifier not assigned, remove the block and put all the images in the block in imagesWithoutAnnotator
           // put the images in imagesWithoutAnnotator
-          project.images.imagesWithoutAnnotator.push(...myBlock.toAnnotate);
+          project.images.imagesWithoutAnnotator.push(...block.block.toAnnotate);
           // remove the block from the project 
-          delete project.images.blocks[myBlock.blockId];
+          delete project.images.blocks[block.block.blockId];
           await ProjectsDB.put(project);
         }
         // remove idAnnotator from images
-        await Promise.all(Object.entries(myBlock.toAnnotate).map(
+        await Promise.all(Object.entries(block.block.toAnnotate).map(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           async ([key, imId]) => {
             const image = await findImageById(imId);
@@ -306,7 +300,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
         ));
       } else if (block.block.idVerifier === userId) { // if the user is a verifier
         // remove idVerifier from images
-        await Promise.all(Object.entries(myBlock.toAnnotate).map(
+        await Promise.all(Object.entries(block.block.toAnnotate).map(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
           async ([key, imId]) => {
             const image = await findImageById(imId);
@@ -315,7 +309,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           },
         ));
 
-        await Promise.all(Object.entries(myBlock.toVerify).map(
+        await Promise.all(Object.entries(block.block.toVerify).map(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
           async ([key, imId]) => {
             const image = await findImageById(imId);
@@ -328,10 +322,11 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           const index = project.annVer.findIndex((anVe) => anVe.annotatorId === block.block.idAnnotator && anVe.verifierId === user.id);
           project.annVer.splice(index, 1);
           // remove the verifier id from the block
-          myBlock.idVerifier = undefined;
-          await updateBlock(myBlock, projectId);
+          // eslint-disable-next-line no-param-reassign
+          block.block.idVerifier = undefined;
+          await updateBlock(block.block, projectId);
         } else { // if the annotator is not linked
-          delete project.images.blocks[myBlock.blockId];
+          delete project.images.blocks[block.block.blockId];
           await ProjectsDB.put(project);
         }
       }

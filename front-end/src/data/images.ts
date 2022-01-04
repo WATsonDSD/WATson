@@ -130,7 +130,6 @@ export async function saveAnnotation(
 
   // move from toAnnotate to waitingForVerification in the user annotator
   const annotatorId = image.idAnnotator;
-  console.log('savve Annotation', image.idAnnotator);
   if (!annotatorId) throw Error('The image to be annotated has no annotator');
   const annotator = await findUserById(annotatorId);
   const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);

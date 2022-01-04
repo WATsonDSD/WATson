@@ -162,7 +162,6 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
     return 0;
   }
   const percentage = project.images.done.length / totalImages;
-  console.log(percentage);
   return percentage;
 }
 
