@@ -18,9 +18,9 @@ export const templateImage: Image = {
   annotation: TemplateAnnotation,
 };
 
-(async () => {
-  templateImage.data = await (await fetch(template)).blob();
-})();
+fetch(template)
+  .then((res) => res.blob())
+  .then((blob) => { templateImage.data = blob; });
 
 export const zoomIn = 1.6;
 export const zoomOut = 0.625;
