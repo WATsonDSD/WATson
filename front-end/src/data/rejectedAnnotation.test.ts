@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, Rejection, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, Rejection, createWorkersLink,
 } from '.';
 import {
   saveAnnotation, assignImagesToAnnotator,
@@ -65,11 +65,11 @@ describe('get rejected images', () => {
     await addUserToProject(verifierId, projectId);
     await assignImagesToAnnotator(1, annotatorId, projectId);
     await assignImagesToAnnotator(2, annotator2Id, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
     await saveAnnotation(annotation, imageId, projectId);
     await saveAnnotation(annotation2, image2Id, projectId);
     await saveAnnotation(annotation3, image3Id, projectId);
-    await createAnnotatorVerifierLink(projectId, annotator2Id, verifierId);
+    await createWorkersLink(projectId, annotator2Id, verifierId);
     await rejectAnnotation(imageId, projectId, 'redo!!');
     await rejectAnnotation(image2Id, projectId, 'redoooooo!!');
     await rejectAnnotation(image3Id, projectId, 'redooooo!');

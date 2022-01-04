@@ -2,17 +2,16 @@ import {
   DBDocument,
   User,
   updateUser,
-  findUserById,
   Project,
   ProjectID,
   ProjectsDB,
   Image,
   ImageID,
   ImagesDB,
-  Block,
+  updateBlock,
   findBlockOfProject,
   getUsersOfProject,
-  UserID,
+  removeImageFromUser,
 } from '.';
 
 import { FetchingError, UpdateError } from '../utils/errors';
@@ -91,11 +90,11 @@ export async function updateProject(project: DBDocument<Project>): Promise<void>
 export async function deleteProject(project: DBDocument<Project>): Promise<void> {
   const images : ImageID[] = [
     ...Object.values(project.images.blocks).map((value) => [
-      ...value.block.assignedAnnotation,
-      ...value.block.assignedVerification,
+      ...value.block.assignedAnnotations,
+      ...value.block.assignedVerifications,
     ]).flat(),
     ...project.images.done.map((image) => image.imageID),
-    ...project.images.pendingAssignment,
+    ...project.images.pendingAssignments,
   ];
 
   const imagesToDelete = await ImagesDB.allDocs({
@@ -111,7 +110,7 @@ export async function deleteProject(project: DBDocument<Project>): Promise<void>
   );
 
   await Promise.all(imagesToDelete.rows.filter((row) => row.doc !== undefined).map(async (row) => {
-    await removeImageFromProject(project, row.doc!);
+    await removeImageFromProject(project, row.doc!, false);
   }));
 
   // Fetches the users of this project
@@ -201,61 +200,43 @@ export async function addUsersToProject(users: DBDocument<User>[], project: DBDo
   });
 }
 
-export async function updateBlock(block: Block, project: DBDocument<Project>): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const updatedProject: DBDocument<Project> = project;
-    updatedProject.images.blocks[block.id] = { block };
-
-    ProjectsDB.put(project)
-      .then(() => resolve())
-      .catch(() => reject(new UpdateError('The block could not be updated as requested.')));
-  });
-}
-
-export async function removeImageFromWorker(userID: UserID, imageID: ImageID, projectID: ProjectID): Promise<void> {
-  const worker: DBDocument<User> = await findUserById(userID);
-  const updatedAssignments = worker.projects[projectID].assignedAnnotations.filter((id) => id !== imageID);
-
-  worker.projects[projectID].assignedAnnotations = updatedAssignments;
-
-  await updateUser(worker);
-}
-
-/**
- * Delete an image that has been annotated and verified.
- */
-async function removeDoneImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = false): Promise <void> {
+async function removePendingImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise <void> {
   const updatedProject: DBDocument<Project> = project;
-  const updatedAssignments = project.images.pendingAssignment.filter((id) => id !== image._id);
+  const updatedAssignments = project.images.pendingAssignments.filter((id) => id !== image._id);
 
-  updatedProject.images.pendingAssignment = updatedAssignments;
+  updatedProject.images.pendingAssignments = updatedAssignments;
 
-  if (updateProject) await ProjectsDB.put(project);
+  if (updateProject) await ProjectsDB.put(updatedProject);
+}
+
+async function removeDoneImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise <void> {
+  const updatedProject: DBDocument<Project> = project;
+  const updatedAssignments = project.images.done.filter((img) => img.imageID !== image._id);
+
+  updatedProject.images.done = updatedAssignments;
+
+  if (updateProject) await ProjectsDB.put(updatedProject);
 }
 
 /**
  * Deletes an image that has never been annotated and/or verified.
  */
-async function deleteNewImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = false): Promise<void> {
-  if (image.annotatorID) await removeImageFromWorker(image.annotatorID, image._id, project._id);
-  if (image.verifierID) await removeImageFromWorker(image.verifierID, image._id, project._id);
+async function removeNewImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise<void> {
+  if (image.annotatorID) await removeImageFromUser(image.annotatorID, image._id, project._id);
+  if (image.verifierID) await removeImageFromUser(image.verifierID, image._id, project._id);
 
-  // image is in a block, so we remove the image from the block
+  // Image is part of a block, so we remove it
   if (image.blockID) {
     const block = await findBlockOfProject(image.blockID, project);
     if (!block) throw Error('the block does not exist');
-    const imageIndexBlock = block.assignedAnnotation.findIndex((id) => id === image._id);
-    block.assignedAnnotation.splice(imageIndexBlock, 1);
-    await updateBlock(block, project);
-  } else {
-    // image is not assigned yet, we remove the image from imagesWithoutAnnotator
-    if (updateProject) {
-      const imageIndexProject = project.images.pendingAssignment.findIndex((id) => id === image._id);
-      project.images.pendingAssignment.splice(imageIndexProject, 1);
 
-      await ProjectsDB.put(project);
-    }
+    const imageIndexBlock = block.assignedAnnotations.findIndex((id) => id === image._id);
+    block.assignedAnnotations.splice(imageIndexBlock, 1);
+    await updateBlock(block, project);
   }
+
+  // Image is not assigned yet, so we remove it from the pending annotations
+  await removePendingImageFromProject(project, image, updateProject);
 }
 
 /**
@@ -263,13 +244,13 @@ async function deleteNewImageFromProject(project: DBDocument<Project>, image: DB
  * Notice that this function throws an error if the image is in
  * progress, since it is possible to remove only new and done images.
  */
-export async function removeImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>): Promise<void> {
-  if (!image.annotation) {
-    await deleteNewImageFromProject(project, image);
-  } else if (project.images.done.find((im) => im.imageID === image._id)) {
-    await removeDoneImageFromProject(project, image);
+export async function removeImageFromProject(project: DBDocument<Project>, image: DBDocument<Image>, updateProject: boolean = true): Promise<void> {
+  if (image.annotation) throw new UpdateError('The image cannot be removed from the project while an annotation is in progress!');
+
+  if (project.images.done.find((img) => img.imageID === image._id)) {
+    await removeDoneImageFromProject(project, image, updateProject);
   } else {
-    throw Error('This image cannot be removed!');
+    await removeNewImageFromProject(project, image, updateProject);
   }
 }
 

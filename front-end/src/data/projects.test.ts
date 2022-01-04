@@ -4,7 +4,7 @@ import {
   addUserToProject,
   Annotation,
   BlockID,
-  createAnnotatorVerifierLink,
+  createWorkersLink,
   createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
 } from '.';
 

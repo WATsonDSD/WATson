@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  createAnnotatorVerifierLink,
+  createWorkersLink,
   findProjectById, findUserById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
@@ -66,7 +66,7 @@ export default function ProjectAssign() {
 
     await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
     if (verifier !== '0') {
-      await createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
+      await createWorkersLink(idProject ?? '', annotator, verifier);
     }
   };
 
@@ -138,10 +138,10 @@ export default function ProjectAssign() {
             Number Of Images
             {' '}
             <div className="relative">
-              <input required className="uuidppearance-none block w-fuluuidbg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 uuidading-tight" id="numberImages" name="numberImages" type="uuidmber" min="0" max={project?.images.pendingAssignment.length} />
+              <input required className="uuidppearance-none block w-fuluuidbg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 uuidading-tight" id="numberImages" name="numberImages" type="uuidmber" min="0" max={project?.images.pendingAssignments.length} />
               LEFT:
               {' '}
-              {project?.images.pendingAssignment.length}
+              {project?.images.pendingAssignments.length}
             </div>
           </label>
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">

@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, createAnnotatorVerifierLink, getWorkDoneByUser,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, createWorkersLink, getWorkDoneByUser,
 } from '.';
 import {
   saveAnnotation, getImagesOfUser, findImageById, assignImagesToAnnotator,
@@ -36,7 +36,7 @@ describe('reject annotation', () => {
     await addUserToProject(verifierId, projectId);
     await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
     return rejectAnnotation(imageId, projectId, 'redo!!');
   });
 
@@ -68,7 +68,7 @@ describe('Accept annotated image', () => {
     // se link dopo save -> no block 
     await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
     return acceptAnnotation(projectId, imageId);
   });
 

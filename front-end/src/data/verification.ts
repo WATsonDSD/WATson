@@ -2,7 +2,7 @@ import {
   ImagesDB, ProjectsDB,
 } from './databases';
 import {
-  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, User, Project, findAnnotatorBlockOfProject, updateBlock,
+  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, User, Project, findUserBlockFromProject, updateBlock,
 } from '.';
 import { createRejectedImage } from './rejectedAnnotation';
 import { findImageById } from './images';
@@ -46,11 +46,11 @@ export async function rejectAnnotation(
   await updateUser(verifier);
 
   // move the image from to verify to to annotate in the block 
-  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
+  const block = await findUserBlockFromProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
-  const index = block.assignedVerification.findIndex((imId) => imId === imageID);
-  block.assignedVerification.splice(index, 1);
-  block.assignedAnnotation.push(imageID);
+  const index = block.assignedVerifications.findIndex((imId) => imId === imageID);
+  block.assignedVerifications.splice(index, 1);
+  block.assignedAnnotations.push(imageID);
 
   // the image's annotation becomes undefined
   const imageCleared = {
@@ -84,10 +84,10 @@ export async function acceptAnnotation(
   putWorkDoneInTime(annotator, verifier, project, imageID);
 
   // remove the image from the block
-  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
+  const block = await findUserBlockFromProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
-  const index = block.assignedVerification.findIndex((imId) => imId === imageID);
-  block.assignedVerification.splice(index, 1);
+  const index = block.assignedVerifications.findIndex((imId) => imId === imageID);
+  block.assignedVerifications.splice(index, 1);
 
   const imageIndexAnnotator = annotator.projects[projectID].pendingVerifications.findIndex((id) => id === imageID);
   const imageIndexVerifier = verifier.projects[projectID].assignedVerifications.findIndex((id) => id === imageID);
@@ -133,10 +133,10 @@ export async function modifyAnnotation(
   putWorkDoneInTime(annotator, verifier, project, imageID);
 
   // remove the image from the block
-  const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
+  const block = await findUserBlockFromProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
-  const index = block.assignedVerification.findIndex((imId) => imId === imageID);
-  block.assignedVerification.splice(index, 1);
+  const index = block.assignedVerifications.findIndex((imId) => imId === imageID);
+  block.assignedVerifications.splice(index, 1);
 
   const imageIndexAnnotator = annotator.projects[projectID].pendingVerifications.findIndex((id) => id === imageID);
   const imageIndexVerifier = verifier.projects[projectID].assignedVerifications.findIndex((id) => id === imageID);

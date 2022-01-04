@@ -1,8 +1,23 @@
 import { v4 as uuid } from 'uuid';
+
 import {
-  Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateBlock, updateUser, User, UserID,
+  Block,
+  BlockID,
+  DBDocument,
+  findProjectById,
+  findImageById,
+  findUserById,
+  ImageID,
+  ImagesDB,
+  Project,
+  ProjectID,
+  ProjectsDB,
+  updateUser,
+  User,
+  UserID,
 } from '.';
-import { findImageById } from './images';
+
+import { UpdateError } from '../utils/errors';
 
 /**
  * creates a new block with 'size' images
@@ -10,7 +25,7 @@ import { findImageById } from './images';
  * if the association verifier-annotator already exists, assigns images to the verifier
  * @param size number of images to be assigned
  */
-export async function addBlock(
+export async function createBlock(
   size: number,
   idAnnotator: UserID,
   projectId: ProjectID,
@@ -18,16 +33,16 @@ export async function addBlock(
   const id = uuid();
   let toAnnotate: ImageID[] = [];
   const project = await findProjectById(projectId);
-  const toBeAssigned = project.images.pendingAssignment;
+  const toBeAssigned = project.images.pendingAssignments;
 
   // retrieve images for the block
   if (size >= toBeAssigned.length) {
     toAnnotate = toBeAssigned;
-    project.images.pendingAssignment = [];
+    project.images.pendingAssignments = [];
   } else {
     toAnnotate = toBeAssigned.slice(0, size);
-    const remainedToBeAssigned = project.images.pendingAssignment.slice(size, toBeAssigned.length);
-    project.images.pendingAssignment = remainedToBeAssigned;
+    const remainedToBeAssigned = project.images.pendingAssignments.slice(size, toBeAssigned.length);
+    project.images.pendingAssignments = remainedToBeAssigned;
   }
 
   let idVerifier: UserID | undefined;
@@ -45,8 +60,8 @@ export async function addBlock(
   const block: Block = {
     id,
     size,
-    assignedAnnotation: toAnnotate,
-    assignedVerification: [],
+    assignedAnnotations: toAnnotate,
+    assignedVerifications: [],
     annotatorID: idAnnotator,
     verifierID: idVerifier,
     projectID: projectId,
@@ -70,7 +85,7 @@ export async function addBlock(
   }
 
   // update the annotator and verifier field for each assigned image
-  await Promise.all(Object.entries(block.assignedAnnotation).map(
+  await Promise.all(Object.entries(block.assignedAnnotations).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
@@ -83,6 +98,17 @@ export async function addBlock(
   return id;
 }
 
+export async function updateBlock(block: Block, project: DBDocument<Project>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const updatedProject: DBDocument<Project> = project;
+    updatedProject.images.blocks[block.id] = { block };
+
+    ProjectsDB.put(project)
+      .then(() => resolve())
+      .catch(() => reject(new UpdateError('The block could not be updated as requested.')));
+  });
+}
+
 /**
  * adds toAdd images to an existing block,
  * assign those images to the associated annotator, and
@@ -93,7 +119,7 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   if (!block) throw Error('the block does not exist');
   const project = await findProjectById(projectId);
 
-  const toBeAssigned = project.images.pendingAssignment;
+  const toBeAssigned = project.images.pendingAssignments;
   const imagesToAdd = toBeAssigned.slice(0, toAdd);
   const annotatorId = block.annotatorID;
   if (!annotatorId) throw Error('the block does not have an annotator');
@@ -105,12 +131,12 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   }
 
   // remove the image from allImagesWithoutAnnotator in project
-  const remainedToBeAssigned = project.images.pendingAssignment.slice(toAdd);
+  const remainedToBeAssigned = project.images.pendingAssignments.slice(toAdd);
   console.log('remainedToBeAssigned', remainedToBeAssigned);
-  project.images.pendingAssignment = remainedToBeAssigned;
+  project.images.pendingAssignments = remainedToBeAssigned;
 
   // add the images to the block
-  block.assignedAnnotation = block.assignedAnnotation.concat(imagesToAdd);
+  block.assignedAnnotations = block.assignedAnnotations.concat(imagesToAdd);
   // assign the images to the annotator (put it in toAnnotate field)
   annotator.projects[projectId].assignedAnnotations = annotator.projects[projectId].assignedAnnotations.concat(imagesToAdd);
   updateUser(annotator);
@@ -159,10 +185,10 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
   block.verifierID = verifierId;
 
   // add the images to the waitingForAnnotation and/or toVerify field of the verifier
-  const blockImagestoAnnotate = block.assignedAnnotation;
+  const blockImagestoAnnotate = block.assignedAnnotations;
   verifier.projects[projectId].rejectedAnnotations.push(...blockImagestoAnnotate);
 
-  const blockImagesToVerify = block.assignedVerification;
+  const blockImagesToVerify = block.assignedVerifications;
   verifier.projects[projectId].assignedVerifications.push(...blockImagesToVerify);
 
   await Promise.all(Object.entries(blockImagestoAnnotate).map(
@@ -190,12 +216,10 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
 /**
  * finds the block with blockId of the projectId
  */
-export async function findBlockOfProject(blockId: BlockID, projectId: ProjectID): Promise <Block | undefined> {
-  const project = await findProjectById(projectId);
+export async function findBlockOfProject(blockId: BlockID, project: DBDocument<Project>): Promise <Block | undefined> {
   let myBlock: Block | undefined;
-  Object.entries(project.images.blocks).forEach(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ([key, value]) => {
+  Object.values(project.images.blocks).forEach(
+    (value) => {
       if (value.block.id === blockId) {
         myBlock = value.block;
       }
@@ -208,7 +232,7 @@ export async function findBlockOfProject(blockId: BlockID, projectId: ProjectID)
  * finds the block of a project associated to an annotator
  * @returns the id of the block if it exists, undefined otherwise
  */
-export async function findAnnotatorBlockOfProject(projectId: ProjectID, annotatorId: UserID): Promise < Block | undefined > {
+export async function findUserBlockFromProject(projectId: ProjectID, annotatorId: UserID): Promise < Block | undefined > {
   const project = await findProjectById(projectId);
   let myBlock: Block | undefined;
   Object.entries(project.images.blocks).forEach(

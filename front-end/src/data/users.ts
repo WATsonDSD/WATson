@@ -1,6 +1,5 @@
 import {
   signUp,
-  findProjectById,
   Role,
   User,
   ProjectID,
@@ -8,9 +7,10 @@ import {
   AuthDB,
   ProjectsDB,
   assignVerifier,
-  findAnnotatorBlockOfProject,
+  findUserBlockFromProject,
   DBDocument,
   Project,
+  ImageID,
 } from '.';
 
 import {
@@ -187,25 +187,6 @@ export async function createUser(name: string, email: string, role: Role): Promi
   });
 }
 
-/**
- * if the annotator has not a verifier assigned, it creates the new link
- */
-export async function createAnnotatorVerifierLink(projectId: ProjectID, annotatorId: UserID, verifierId: UserID): Promise<void> {
-  const project = await findProjectById(projectId);
-  const annVerLinks = project.linkedWorkers;
-  annVerLinks.forEach((anVer) => {
-    if (anVer.annotatorID === annotatorId) throw Error('annotator has already been assigned to a verifier');
-  });
-  const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
-  // se già esiste un blocco 
-  if (block) {
-    await assignVerifier(block.id, verifierId, projectId);
-  } else {
-    project.linkedWorkers.push({ annotatorID: annotatorId, verifierID: verifierId });
-    await ProjectsDB.put(project);
-  }
-}
-
 export async function changePassword(email: string, password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     AuthDB.changePassword(email, password, (error) => {
@@ -220,6 +201,38 @@ export async function changePassword(email: string, password: string): Promise<b
       }
     });
   });
+}
+
+export async function removeImageFromUser(userID: UserID, imageID: ImageID, projectID: ProjectID): Promise<void> {
+  const worker: DBDocument<User> = await findUserById(userID);
+  const updatedAssignments = worker.projects[projectID].assignedAnnotations.filter((id) => id !== imageID);
+
+  worker.projects[projectID].assignedAnnotations = updatedAssignments;
+
+  await updateUser(worker);
+}
+
+/**
+ * if the annotator has not a verifier assigned, it creates the new link
+ */
+export async function createWorkersLink(project: DBDocument<Project>, annotatorID: UserID, verifierID: UserID): Promise<void> {
+  const links = project.linkedWorkers;
+
+  const link = {
+    annotatorID,
+    verifierID,
+  };
+
+  if (links.includes(link)) return;
+
+  const block = await findUserBlockFromProject(project._id, annotatorID);
+  // se già esiste un blocco 
+  if (block) {
+    await assignVerifier(block.id, verifierID, project._id);
+  } else {
+    project.linkedWorkers.push({ annotatorID, verifierID });
+    await ProjectsDB.put(project);
+  }
 }
 
 /**

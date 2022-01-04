@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createWorkersLink,
 } from '.';
 import {
   findImageById, saveAnnotation, getImagesOfUser, assignImagesToAnnotator,
@@ -69,7 +69,7 @@ describe('assignVerifierToImage', () => {
     annotatorId = await createUser('Bobby', 'bobby@annotator.com', 'annotator');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
     // check lenght of images 
     await assignImagesToAnnotator(2, annotatorId, projectId);
     // await saveAnnotation(validAnnotation, annotatedImageId, projectId);
@@ -96,7 +96,7 @@ describe('save Annotation ', () => {
     annotatorId = await createUser('Bobby', 'bobby@annotator.com', 'annotator');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
     // check lenght of images 
     await assignImagesToAnnotator(2, annotatorId, projectId);
     await saveAnnotation(validAnnotation, imageId, projectId);

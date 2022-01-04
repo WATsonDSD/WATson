@@ -8,13 +8,13 @@ import {
   numberOfImagesInProject,
 } from '.';
 
-import { createReport, insertReportRow } from './report';
+import { initReport, insertReportRow } from './report';
 
 /**
  * this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<any> {
-  const reportId = await createReport();
+  const reportId = await initReport();
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   await Promise.all(listOfUsers.map(async (user) => {

@@ -72,8 +72,8 @@ export type Block = {
     annotatorID?: UserID,
 
     size: number,
-    assignedAnnotation: ImageID[],
-    assignedVerification: ImageID[],
+    assignedAnnotations: ImageID[],
+    assignedVerifications: ImageID[],
 };
 
 export type Landmark = number;
@@ -113,7 +113,7 @@ export type Project = {
                 block: Block,
             }
         },
-        pendingAssignment: ImageID[],
+        pendingAssignments: ImageID[],
         done: { imageID: ImageID, doneDate: Date }[],
     }
 };

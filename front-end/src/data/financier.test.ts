@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createWorkersLink,
 } from '.';
 import {
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
@@ -116,8 +116,8 @@ describe('adding verification', () => {
     await saveAnnotation(validAnnotation, imageId1, projectId);
     await saveAnnotation(validAnnotation, imageId2, projectId);
     await saveAnnotation(validAnnotation, imageId3, projectId);
-    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
-    await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
+    await createWorkersLink(projectId, annotatorId, verifierId);
+    await createWorkersLink(projectId, annotatorId2, verifierId);
     await acceptAnnotation(projectId, imageId1);
     await acceptAnnotation(projectId, imageId2);
     await acceptAnnotation(projectId, imageId3);

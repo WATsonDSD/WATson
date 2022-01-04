@@ -1,29 +1,27 @@
 import { v4 as uuid } from 'uuid';
 
 import {
+  DBDocument,
+  Role,
+  UserID,
   Report,
   ReportID,
   ReportsDB,
-  Role,
-  UserID,
 } from '.';
 
-export async function createReport() : Promise<ReportID> {
-  const id = uuid(); // unique id's.
+export async function findReportById(id: ReportID): Promise<DBDocument<Report>> {
+  return ReportsDB.get(id);
+}
 
-  const report = {
-    _id: id,
-    reportID: id,
-    date: new Date(),
+export async function initReport(): Promise<ReportID> {
+  const report: Report & { _id: string } = {
+    _id: uuid(),
     rows: [],
-  } as Report & {_id: string};
+    date: new Date(),
+  };
 
   await ReportsDB.put(report);
   return id;
-}
-
-export async function findReportById(id: ReportID): Promise<Report & {_id: string, _rev: string}> {
-  return ReportsDB.get(id);
 }
 
 export async function insertReportRow(reportId: ReportID, userID: UserID, name: string, email: string, role: Role, projectName: string, hours: number, earnings: number, client: string) {
