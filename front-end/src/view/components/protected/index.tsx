@@ -5,14 +5,14 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import { useUserNotNull } from '../../../data';
+import { useUserData } from '../../../data';
 import { Paths } from '../shared/routes/paths';
 
 import Loading from '../loading';
 
 export default function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation();
-  const [user, sessionState] = useUserNotNull();
+  const [user, sessionState] = useUserData();
 
   if (sessionState === 'pending') {
     return <Loading />;

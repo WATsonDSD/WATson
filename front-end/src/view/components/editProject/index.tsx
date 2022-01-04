@@ -10,7 +10,7 @@ import {
   getAllUsers, useUserNotNull, findProjectById, getUsersOfProject,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import { getImagesOfProject } from '../../../data/images';
+import { getImagesOfProjectWithoutAnnotator } from '../../../data/images';
 
 export default function EditProject() {
   const [user] = useUserNotNull();
@@ -43,7 +43,7 @@ export default function EditProject() {
     setVerifiers(projectVer);
   }, []);
 
-  const tabFilesPreview = useData(() => getImagesOfProject(idProject ?? '', 'needsAnnotatorAssignment'));
+  const tabFilesPreview = useData(() => getImagesOfProjectWithoutAnnotator(idProject ?? ''));
 
   console.log(annotators);
   console.log(verifiers);
