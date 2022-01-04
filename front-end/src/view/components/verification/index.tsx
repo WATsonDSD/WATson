@@ -15,7 +15,6 @@ import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
 import { rejectAnnotation, verifyImage } from '../../../data/verification';
 import { Paths } from '../shared/routes';
-
 import AnnotVerif, {
   emptyImage,
   templateImage,
@@ -23,6 +22,8 @@ import AnnotVerif, {
   zoomOut,
   defaultTransform,
 } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
 
 export default function VerificationView() {
   const [image, setImage] = useState({ ...emptyImage });
@@ -206,6 +207,7 @@ export default function VerificationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>

@@ -29,6 +29,8 @@ import AnnotVerif, {
   lastLandmark,
   mousePosition,
 } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
 
 import { Paths } from '../shared/routes';
 
@@ -250,6 +252,7 @@ export default function AnnotationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>
