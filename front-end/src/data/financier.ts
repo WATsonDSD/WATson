@@ -36,13 +36,13 @@ export async function generateReport(): Promise<Report> {
         const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
         const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
-        if (numberOfImagesAnnotated >= 0) {
+        if (numberOfImagesAnnotated > 0) {
           rep.reportRow.push({
             user: user.id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
           });
         }
         if (user.role === 'verifier') {
-          if (numberOfImagesVerified >= 0) {
+          if (numberOfImagesVerified > 0) {
             rep.reportRow.push({
               user: user.id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
             });

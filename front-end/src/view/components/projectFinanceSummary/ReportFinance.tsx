@@ -26,8 +26,8 @@ export default function ReportFinance() {
     { label: 'Email', key: 'email' },
     { label: 'Role', key: 'role' },
     { label: 'Project', key: 'projectName' },
-    { label: 'hoursOfWork', key: 'hours' },
-    { label: 'images', key: 'payment' },
+    { label: 'Hours Of Work', key: 'hours' },
+    { label: 'Earnings', key: 'payment' },
     { label: 'Client', key: 'client' },
   ];
   // let data: Report;
