@@ -241,7 +241,7 @@ async function deleteDoneImageFromProject(projectId: ProjectID, imageId: ImageID
  */
 export async function deleteImageFromProject(projectId: ProjectID, imageId: ImageID): Promise<void> {
   const image = await findImageById(imageId);
-  const project = await findProjectById(imageId);
+  const project = await findProjectById(projectId);
   if (!image.annotation) {
     await deleteNewImageFromProject(projectId, imageId);
   } else if (project.images.done.find((im) => im.imageId === imageId)) {
