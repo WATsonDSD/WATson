@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import template from './template.png';
 import { Image } from '../../../../data';
 
 // Used for template image, image to annotate and image to verify.
@@ -39,7 +38,7 @@ export default function AnnotatedImage(props: {
   const draw = (ctx: any) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = image.data ? URL.crimagebjectURL(image.data) : template; image;
+    backgroundImage.src = URL.createObjectURL(image._attachments.image!.data);
     // draw canvas after image loading
     backgroundImage.onload = () => {
       // clear canvas
