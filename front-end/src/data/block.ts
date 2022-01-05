@@ -108,7 +108,6 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
 
   // remove the image from allImagesWithoutAnnotator in project
   const remainedToBeAssigned = project.images.imagesWithoutAnnotator.slice(toAdd);
-  console.log('remainedToBeAssigned', remainedToBeAssigned);
   project.images.imagesWithoutAnnotator = remainedToBeAssigned;
 
   // add the images to the block
@@ -128,7 +127,6 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
     async ([key, value]) => {
       const image = await findImageById(value);
       image.idAnnotator = annotator.id;
-      console.log('hsdgjahdg', image.idAnnotator);
       if (verifier) {
         image.idVerifier = verifier.id;
       }
