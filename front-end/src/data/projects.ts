@@ -41,7 +41,7 @@ export async function getProjectsOfUser(user: DBDocument<User>): Promise<DBDocum
 /**
  * Creates a new project.
  */
-export async function createProject(project: Project): Promise<void> {
+export async function createProject(project: Project & { _id: ProjectID }): Promise<void> {
   // const project = {
   //   _id: id,
   //   id,

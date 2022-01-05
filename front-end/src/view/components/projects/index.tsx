@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+  // useNavigate,
+  useParams,
+} from 'react-router-dom';
+
 import {
   useUserNotNull,
   deleteProject,
@@ -17,26 +21,24 @@ import Loading from '../loading';
 export default function Dashboard() {
   const [user] = useUserNotNull();
   const { type } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  let projects;
+  // const toV = Object.keys(user.projects)
+  //   .filter((projectId) => (user.projects[projectId].assignedVerifications.length !== 0));
+  // const toA = Object.keys(user.projects)
+  //   .filter((projectId) => (user.projects[projectId].assignedAnnotations.length !== 0));
 
-  const toV = Object.keys(user.projects)
-    .filter((projectId) => (user.projects[projectId].assignedVerifications.length !== 0));
-  const toA = Object.keys(user.projects)
-    .filter((projectId) => (user.projects[projectId].assignedAnnotations.length !== 0));
-
-  projects = useData(() => getProjectsOfUser(user));
-  switch (type) {
-    case 'annotate':
-      projects = projects?.filter((p) => toA.find((projectId) => projectId === p._id));
-      break;
-    case 'verify':
-      projects = projects?.filter((p) => toV.find((projectId) => projectId === p._id));
-      break;
-    default:
-      if (user.role === 'verifier') navigate('/annotate');
-  }
+  const projects = useData(() => getProjectsOfUser(user));
+  // switch (type) {
+  //   case 'annotate':
+  //     projects = projects?.filter((p) => toA.find((projectId) => projectId === p._id));
+  //     break;
+  //   case 'verify':
+  //     projects = projects?.filter((p) => toV.find((projectId) => projectId === p._id));
+  //     break;
+  //   default:
+  //     if (user.role === 'verifier') navigate('/annotate');
+  // }
 
   if (!projects || !user) {
     return <Loading />;

@@ -9,17 +9,15 @@ import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  ProjectID,
   UserID,
-} from '../../../data/types';
-
-import {
+  ImageID,
+  ProjectID,
   Image,
   ImagesDB,
   Project,
-  ProjectsDB,
   updateUser,
   getAllUsers,
+  createProject,
 } from '../../../data';
 
 import useData from '../../../data/hooks';
@@ -122,7 +120,7 @@ export default function CreateProject() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const images: Image[] = files.map((file) => (
+    const images: (Image & { _id: ImageID})[] = files.map((file) => (
       {
         _id: v4(),
         _attachments: {
@@ -135,11 +133,10 @@ export default function CreateProject() {
     ));
 
     project.workers = [...project.workers, 'org.couchdb.user:pm@watson.com', 'org.couchdb.user:finance@watson.com'];
-    // project.images.needsAnnotatorAssignment = images.map((image) => image._id);
+    project.images.pendingAssignments = images.map((image) => image._id);
     project._id = v4();
 
-    await ProjectsDB
-      .put(project)
+    await createProject(project)
       .then(() => {
         ImagesDB.bulkDocs(images)
           .catch((error) => { throw error; });
