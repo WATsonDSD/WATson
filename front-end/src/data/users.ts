@@ -276,3 +276,11 @@ export async function getWorkDoneByUser(
   });
   return { annotation: numAnnotations, verification: numVerifications };
 }
+
+export async function calculateWorkerProgressForProject(userId: UserID, projectId: ProjectID): Promise<number> {
+  const user = await findUserById(userId);
+  const totalimages = user.projects[projectId].annotated.length + user.projects[projectId].toAnnotate.length + user.projects[projectId].toVerify.length + user.projects[projectId].verified.length + user.projects[projectId].waitingForAnnotation.length + user.projects[projectId].waitingForVerification.length;
+  const doneImages = user.projects[projectId].annotated.length + user.projects[projectId].verified.length;
+  if (totalimages === 0) return 0;
+  return (doneImages / totalimages);
+}

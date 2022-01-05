@@ -4,7 +4,9 @@ import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
-import { findProjectById, getUsersOfProject, User } from '../../../data';
+import {
+  calculateWorkerProgressForProject, findProjectById, getUsersOfProject, User,
+} from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
@@ -21,7 +23,7 @@ export default function ProjectFinance() {
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
   const data = useData(async () => dataChartProjects(idProject!));
   const [users, setProjectUsers] = useState([] as User[]);
-  const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number }[]);
+  const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number, progress: number}[]);
 
   useEffect(() => {
     getUsersOfProject(idProject || '').then((result) => {
@@ -29,11 +31,17 @@ export default function ProjectFinance() {
       result.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').forEach((user) => {
         let hoursWork: number;
         let earnings: number;
+        let progress: number;
         hoursWorkPerProjectPerUser(user.id, idProject ?? '').then(((result) => {
           hoursWork = result;
           earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
             earnings = result;
-            setUsersData((state) => [...state, { id: user.id, hours: hoursWork, earnings }]);
+            calculateWorkerProgressForProject(user.id, idProject ?? '').then((result) => {
+              progress = result;
+              setUsersData((state) => [...state, {
+                id: user.id, hours: hoursWork, earnings, progress,
+              }]);
+            });
           });
         }));
       });
@@ -158,7 +166,7 @@ export default function ProjectFinance() {
             <span>Annotated images</span>
             <span>Verified images</span>
             <span>Hours of work</span>
-            <span>Efficiency</span>
+            <span>Progress</span>
             <span>Earnings</span>
           </div>
 
@@ -166,6 +174,7 @@ export default function ProjectFinance() {
             ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => {
               const hoursWork = usersData?.find((u) => u.id === user.id)?.hours.toFixed(2);
               const earnings = usersData?.find((u) => u.id === user.id)?.earnings.toFixed(2);
+              const progress = usersData?.find((u) => u.id === user.id)?.progress.toFixed(2);
               return (
                 <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
                   <div className="flex items-center gap-x-4 col-span-2">
@@ -179,7 +188,7 @@ export default function ProjectFinance() {
                   <span>{user.projects[idProject].annotated.length}</span>
                   <span>{user.projects[idProject].verified.length}</span>
                   <span>{hoursWork}</span>
-                  <span>{Object.entries(user.projects).length}</span>
+                  <span>{progress}</span>
                   <span>{earnings}</span>
                 </div>
               );
