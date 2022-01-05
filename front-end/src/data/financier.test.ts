@@ -1,5 +1,5 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink, addBonus,
 } from '.';
 import {
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
@@ -100,7 +100,7 @@ describe('adding verification', () => {
     await addUserToProject(verifierId, projectId);
     await addUserToProject(annotatorId2, projectId);
     await assignImagesToAnnotator(3, annotatorId, projectId);
-    // await assignImagesToAnnotator(2, annotatorId2, projectId);
+    await assignImagesToAnnotator(2, annotatorId2, projectId);
     userId = await createUser('Laura', 'laura@watson', 'annotator');
     userId2 = await createUser('Cem', 'cem@watson', 'verifier');
     userId3 = await createUser('Ari', 'ari@watson', 'annotator');
@@ -172,5 +172,51 @@ describe('adding verification', () => {
   }));
   test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
     expect(data).toBe(7.5);
+  }));
+});
+
+describe('adding verification', () => {
+  beforeAll(async () => {
+    projectId = await createProject('Test Project', 'Spongebob', [0, 3, 27], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 4, hourlyRateVerification: 8,
+    });
+    imageId1 = await addImageToProject(imageData1, projectId);
+    imageId2 = await addImageToProject(imageData2, projectId);
+    imageId3 = await addImageToProject(imageData3, projectId);
+    annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
+    verifierId = await createUser('Cem', 'cem@watson', 'verifier');
+    annotatorId2 = await createUser('Ari', 'ari@watson', 'annotator');
+    await addUserToProject(annotatorId, projectId);
+    await addUserToProject(verifierId, projectId);
+    await addUserToProject(annotatorId2, projectId);
+    await assignImagesToAnnotator(3, annotatorId, projectId);
+    await assignImagesToAnnotator(2, annotatorId2, projectId);
+    userIdF = await createUser('financ', 'finance@watson', 'finance');
+    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId4 = await addImageToProject(imageData4, projectId);
+    await addUserToProject(userIdF, projectId);
+    await addUserToProject(userIdPM, projectId);
+    await saveAnnotation(validAnnotation, imageId1, projectId);
+    await saveAnnotation(validAnnotation, imageId2, projectId);
+    await saveAnnotation(validAnnotation, imageId3, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
+    await acceptAnnotation(projectId, imageId1);
+    await acceptAnnotation(projectId, imageId2);
+    await acceptAnnotation(projectId, imageId3);
+    await addBonus(annotatorId, projectId, 10);
+    await addBonus(verifierId, projectId, 20);
+  });
+  test('total cost of the project', () => calculateTotalCost(projectId).then((data) => {
+    expect(data[0]).toBe(129);
+  }));
+
+  test('earning of annotator of project', () => earningsInTotalPerProjectPerUser(annotatorId, projectId).then((data) => {
+    expect(data).toBe(40);
+  }));
+
+  test('earning of verifier of project', () => earningsInTotalPerProjectPerUser(verifierId, projectId).then((data) => {
+    expect(data).toBe(89);
   }));
 });

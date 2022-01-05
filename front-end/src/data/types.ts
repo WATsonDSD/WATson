@@ -5,6 +5,7 @@ export type User = {
     id: UserID,
     projects: {
         [projectID: ProjectID]: {
+            bonus: number,
             toAnnotate: ImageID[],
             waitingForAnnotation: ImageID[], // used when the annotation is rejected
             annotated:{ imageID: ImageID, date: Date}[]

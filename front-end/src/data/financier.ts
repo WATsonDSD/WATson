@@ -17,7 +17,6 @@ export async function generateReport(): Promise<Report> {
   const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
-  console.log(listOfUsers);
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
@@ -64,13 +63,19 @@ export async function generateReport(): Promise<Report> {
  * total amount of money spent for annotating a project,
  * total amount of money spent for verifing a project
  */
-export async function calculateTotalCost(projectID: string): Promise<[number, number, number]> {
+export async function calculateTotalCost(projectID: string): Promise<[number, number, number, number]> {
   const project = await findProjectById(projectID);
   const totalImagesInDone = project.images.done.length;
   const totalAnnotatedCost = (totalImagesInDone * project.pricePerImageAnnotation);
   const totalVerifiedCost = (totalImagesInDone * project.pricePerImageVerification);
-  const totalCost = totalVerifiedCost + totalAnnotatedCost;
-  return [totalCost, totalAnnotatedCost, totalVerifiedCost];
+  let totBonus = 0;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  await Promise.all(Object.entries(project.users).map(async ([key, userId]) => {
+    const user = await findUserById(userId);
+    totBonus += user.projects[projectID].bonus;
+  }));
+  const totalCost = totalVerifiedCost + totalAnnotatedCost + totBonus;
+  return [totalCost, totalAnnotatedCost, totalVerifiedCost, totBonus];
 }
 
 export async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
@@ -141,9 +146,7 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let hoursV = 0;
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
-  // console.log(user);
   projectsForUser.forEach((project) => {
-    // console.log('user', user.id, user.projects[project.id]);
     if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
     if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
@@ -157,7 +160,7 @@ export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
-  + ((user.projects[projectId].verified.length * project.pricePerImageVerification));
+  + ((user.projects[projectId].verified.length * project.pricePerImageVerification)) + user.projects[projectId].bonus;
 }
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {

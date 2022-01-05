@@ -276,3 +276,9 @@ export async function getWorkDoneByUser(
   });
   return { annotation: numAnnotations, verification: numVerifications };
 }
+
+export async function addBonus(userID: UserID, projectID: ProjectID, bonus: number): Promise<void> {
+  const user = await findUserById(userID);
+  user.projects[projectID].bonus += bonus;
+  updateUser(user);
+}

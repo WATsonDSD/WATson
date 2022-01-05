@@ -140,6 +140,7 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
   project.users.push(userId);
 
   user.projects[projectId] = { // initally, the user is assigned no images.
+    bonus: 0,
     toAnnotate: [],
     waitingForAnnotation: [],
     annotated: [],
