@@ -7,7 +7,7 @@ import {
   Image,
 } from '../../../data/types';
 import {
-  getAllUsers, useUserNotNull, findProjectById, getUsersOfProject, deleteImageFromProject, removeUserFromProject, addUserToProject, changeProjectName,
+  getAllUsers, useUserNotNull, findProjectById, getUsersOfProject, deleteImageFromProject, removeUserFromProject, addUserToProject, changeProjectName, modifyProject,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import { getImagesOfProjectWithoutAnnotator } from '../../../data/images';
@@ -52,6 +52,7 @@ export default function EditProject() {
   console.log(verifiers);
   const handleSubmit = (event: any) => {
     const name = event.target.name.value;
+    const client = event.target.client.value;
     const pricePerImageAnnotation = event.target.paymentPerAnnotation.value;
     const pricePerImageVerification = event.target.paymentPerVerification.value;
     const hourlyRateAnnotation = event.target.paymentPerAnn.value;
@@ -65,7 +66,11 @@ export default function EditProject() {
       users.push(worker.worker);
     });
 
-    changeProjectName(idProject ?? '', name);
+    //  changeProjectName(idProject ?? '', name);
+    console.log(project?.name);
+    modifyProject(idProject ?? '', name, client, pricePerImageAnnotation, pricePerImageVerification, hourlyRateAnnotation, hourlyRateVerification);
+    console.log(project?.name);
+    event.preventDefault();
   };
 
   function deleteFile(imageId: any) {

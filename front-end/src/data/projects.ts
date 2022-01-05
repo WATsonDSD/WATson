@@ -360,3 +360,38 @@ export async function closeProject(projectID: ProjectID) {
   project.status = 'closed';
   await ProjectsDB.put(project);
 }
+
+/**
+ * modifies parameters of projects that are not passed as undefined
+ */
+export async function modifyProject(
+  projectId: ProjectID,
+  name: string|undefined,
+  client: string|undefined,
+  pricePerImageAnnotation: number|undefined,
+  pricePerImageVerification: number|undefined,
+  hourlyRateAnnotation: number|undefined,
+  hourlyRateVerification: number|undefined,
+): Promise<void> {
+  const project = await findProjectById(projectId);
+  if (name) {
+    project.name = name;
+  }
+  if (client) {
+    project.client = client;
+  }
+  if (pricePerImageAnnotation) {
+    project.pricePerImageAnnotation = pricePerImageAnnotation;
+  }
+  if (pricePerImageVerification) {
+    project.pricePerImageVerification = pricePerImageVerification;
+  }
+  if (hourlyRateAnnotation) {
+    project.hourlyRateAnnotation = hourlyRateAnnotation;
+  }
+  if (hourlyRateVerification) {
+    project.hourlyRateVerification = hourlyRateVerification;
+  }
+
+  await ProjectsDB.put(project);
+}
