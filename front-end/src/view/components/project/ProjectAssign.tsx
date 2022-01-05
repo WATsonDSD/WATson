@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   createAnnotatorVerifierLink,
-  findProjectById, findUserById, getUsersOfProject, Image, User,
+  findProjectById, getUsersOfProject, Image, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
@@ -51,16 +51,9 @@ export default function ProjectAssign() {
     const annotator = event.target.annotator.value;
     const verifier = event.target.verifier.value;
     const nbImages = event.target.numberImages.value;
-    const ann = await findUserById(annotator);
     console.log(annotator);
     console.log(verifier);
     console.log(nbImages);
-    console.log('LENGHT OF IMAGES TO ANNOTATE', ann.projects[idProject!].toAnnotate.length);
-    console.log('PROJECT BLOCKS', project!.images.blocks);
-    console.log('numberFoImages', nbImages);
-    console.log('lenght', (project!.annVer.filter((e) => e.annotatorId === annotator && e.verifierId === verifier).length));
-    console.log(project?.annVer);
-    console.log('project id:', idProject);
 
     if (!idProject) { throw Error('no project id!'); }
 
