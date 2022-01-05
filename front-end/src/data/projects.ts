@@ -74,9 +74,14 @@ export async function createProject(project: Project): Promise<void> {
 }
 
 export async function updateProject(project: DBDocument<Project>): Promise<void> {
+  const updatedProject: DBDocument<Project> = project;
   return new Promise((resolve) => {
-    ProjectsDB.put(project)
-      .then(() => resolve())
+    ProjectsDB.get(project._id)
+      .then((response) => {
+        updatedProject._rev = response._rev;
+        ProjectsDB.put(updatedProject)
+          .then(() => resolve());
+      })
       .catch(() => new UpdateError('The project could not be updated as requested.'));
   });
 }
