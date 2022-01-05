@@ -13,7 +13,7 @@ import { useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
-import { rejectAnnotation, verifyImage } from '../../../data/verification';
+import { acceptAnnotation, modifyAnnotation, rejectAnnotation } from '../../../data/verification';
 import { Paths } from '../shared/routes';
 
 import AnnotVerif, {
@@ -64,15 +64,22 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectId ?? '', image.id, image.annotation);
+    if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
+    await acceptAnnotation(projectId ?? '', image.id);
     nextImage();
   };
 
-  const sendReject = () => {
+  const editImage = () => {
+    if (edit) modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
+    setEdit(!edit);
+  };
+
+  const sendReject = async () => {
     const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    rejectAnnotation(image.id, projectId ?? '', comment ?? '');
+    await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
+    nextImage();
   };
 
   const onClick = () => {
@@ -135,7 +142,7 @@ export default function VerificationView() {
           <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl ml-4 mr-auto">
             <div className="divide-y divide-gray-400">
               <div>
-                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={() => setEdit(!edit)}>
+                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={editImage}>
                   <span className="mx-auto text-white">
                     {edit ? 'Confirm modifications' : 'Edit annotation' }
                   </span>
