@@ -102,7 +102,6 @@ export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
  */
 export async function getAllUsers(): Promise<User[]> {
   let users: User[] = [];
-
   return new Promise((resolve, reject) => {
     AuthDB.allDocs({
       startkey: 'a', // excludes the design documents
@@ -263,6 +262,7 @@ export async function getWorkDoneByUser(
   }
 
   if (projectID) {
+    if (!workDoneInTimeSlot[projectID]) { return { annotation: 0, verification: 0 }; }
     return {
       annotation: workDoneInTimeSlot[projectID].annotated.length,
       verification: workDoneInTimeSlot[projectID].verified.length,
