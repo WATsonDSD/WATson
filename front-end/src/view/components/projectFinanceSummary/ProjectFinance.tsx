@@ -4,38 +4,33 @@ import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
-import { findProjectById, getUsersOfProject, User } from '../../../data';
+import {
+  findProjectById, getUsersOfProject, User,
+  calculateProjectCost, projectEarningsPerMonth, userEarningsFromProject, hoursOfWorkOfUserFromProject, numberOfAnnotationsInProject, totalHoursOfWork, numberOfWorkersInProject, DBDocument,
+} from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
-import {
-  calculateProjectCost, projectEarningsPerMonth, earningsInTotalPerProjectPerUser, hoursOfWorkOfUserFromProject, numberOfAnnotationsInProject, totalHoursOfWork, numberOfWorkersInProject,
-} from '../../../data/financier';
 
 export default function ProjectFinance() {
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
-  const totalCost = useData(async () => calculateProjectCost(idProject!));
-  const totalHours = useData(async () => totalHoursOfWork(idProject!));
-  const totalWork = useData(async () => numberOfWorkersInProject(idProject!));
-  const totalAnnotation = useData(async () => numberOfAnnotationsInProject(idProject!));
-  const data = useData(async () => projectEarningsPerMonth(idProject!));
-  const [users, setProjectUsers] = useState([] as User[]);
+  const totalCost = useData(async () => calculateProjectCost(project!));
+  const totalHours = useData(async () => totalHoursOfWork(project!));
+  const totalWork = useData(async () => numberOfWorkersInProject(project!));
+  const totalAnnotation = useData(async () => numberOfAnnotationsInProject(project!));
+  const data = useData(async () => projectEarningsPerMonth(project!));
+  const [users, setProjectUsers] = useState([] as DBDocument<User>[]);
   const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number }[]);
 
   useEffect(() => {
-    getUsersOfProject(idProject || '').then((result) => {
+    getUsersOfProject(project!).then((result) => {
       setProjectUsers(result);
       result.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').forEach((user) => {
-        let hoursWork: number;
-        let earnings: number;
-        hoursOfWorkOfUserFromProject(user.id, idProject ?? '').then(((result) => {
-          hoursWork = result;
-          earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
-            earnings = result;
-            setUsersData((state) => [...state, { id: user.id, hours: hoursWork, earnings }]);
-          });
-        }));
+        const hoursWork = hoursOfWorkOfUserFromProject(user, project!);
+
+        const earnings = userEarningsFromProject(project!, user).reduce((acc, prev) => acc + prev);
+        setUsersData((state) => [...state, { id: user._id, hours: hoursWork, earnings }]);
       });
     });
   }, []);
@@ -164,10 +159,10 @@ export default function ProjectFinance() {
 
           {users && users.length > 0
             ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => {
-              const hoursWork = usersData?.find((u) => u.id === user.id)?.hours.toFixed(2);
-              const earnings = usersData?.find((u) => u.id === user.id)?.earnings.toFixed(2);
+              const hoursWork = usersData?.find((u) => u.id === user._id)?.hours.toFixed(2);
+              const earnings = usersData?.find((u) => u.id === user._id)?.earnings.toFixed(2);
               return (
-                <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
+                <div key={user._id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
                   <div className="flex items-center gap-x-4 col-span-2">
                     <span className="block w-10 h-10 bg-gray-100 rounded-full" />
                     <span>{user.name}</span>

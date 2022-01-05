@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { addImageToProject, findProjectById } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
-import { Paths } from '../shared/routes';
 
 export default function ProjectEdit() {
   const [FILES, setFILES] = useState({} as {
@@ -12,7 +11,6 @@ export default function ProjectEdit() {
   const folderInput = React.useRef(null);
 
   const { idProject } = useParams();
-  const navigate = useNavigate();
 
   let empty = document.getElementById('empty');
 
@@ -23,10 +21,8 @@ export default function ProjectEdit() {
     const files = Object.values(FILES);
     for (let i = 0; i < files.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await addImageToProject(files[i], idProject);
+      await addImageToProject(files[i], project!);
     }
-
-    navigate(`${Paths.ProjectAssign}/${idProject}`);
   };
 
   console.log(project);

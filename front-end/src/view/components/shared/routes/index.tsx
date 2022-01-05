@@ -15,7 +15,6 @@ import Workers from '../../workers';
 import CreateProject from '../../createProject';
 import EditProject from '../../editProject';
 import Annotation from '../../annotation';
-import ProjectAssign from '../../project/ProjectAssign';
 import ProjectFinance from '../../projectFinanceSummary/ProjectFinance';
 import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 import VerificationView from '../../verification';
@@ -31,7 +30,6 @@ export const Paths = {
   Annotation: '/annotation',
   Verification: '/verification',
   Finances: '/finances',
-  ProjectAssign: '/projectAssign',
   ProjectFinance: '/projectFinance',
   Reports: '/reports',
   Statistics: '/statistics',
@@ -62,9 +60,6 @@ export default () => (
         <Route path=":idProject" element={<ProjectFinance />} />
       </Route>
       <Route path={Paths.Reports} element={<ReportFinance />} />
-      <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
-        <Route path=":idProject" element={<ProjectAssign />} />
-      </Route>
       <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
   </Routes>

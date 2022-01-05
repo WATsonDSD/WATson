@@ -121,6 +121,8 @@ export function hoursOfWorkOfUserFromProject(user: DBDocument<User>, project: DB
 export async function hoursOfWorkOfUser(user: DBDocument<User>): Promise<number> {
   const projectsOfUser: DBDocument<Project>[] = await getProjectsOfUser(user);
 
+  if (projectsOfUser.length === 0) return 0;
+
   const hoursOfWork: number = projectsOfUser
     .map((project) => hoursOfWorkOfUserFromProject(user, project))
     .reduce((accumulatedHoursOfWork, currentHoursOfWork) => accumulatedHoursOfWork + currentHoursOfWork);

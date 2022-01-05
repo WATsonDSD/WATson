@@ -16,9 +16,9 @@ import {
 
 export default function WorkerFinance() {
   const [user] = useUserNotNull();
-  const idUser = user.uuid;
-  const payment = useData(async () => earningsPerUser(idUser!));
-  const data = useData(async () => workerEarningsPerMonth(idUser!));
+  const idUser = user._id;
+  const payment = useData(async () => earningsPerUser(user));
+  const data = useData(async () => workerEarningsPerMonth(user));
 
   if (!idUser || !data) return null;
 

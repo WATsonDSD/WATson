@@ -9,7 +9,7 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { useUserNotNull } from '../../../data';
+import { findProjectById, useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUserFromProject } from '../../../data/images';
@@ -23,10 +23,11 @@ import AnnotVerif, {
   zoomOut,
   defaultTransform,
 } from '../shared/annotation/AnnotVerif';
+import useData from '../../../data/hooks';
 
 export default function VerificationView() {
-  const [image, setImage] = useState({ ...emptyImage });
-  const [transform, setTransform] = useState({ ...defaultTransform });
+  const [image, setImage] = useState(emptyImage);
+  const [transform, setTransform] = useState(defaultTransform);
   const [showReject, setShowReject] = useState(false);
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [edit, setEdit] = useState(false);
@@ -34,6 +35,8 @@ export default function VerificationView() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
+
+  const project = useData(async () => findProjectById(projectId ?? ''));
 
   const {
     onImageWheel,
@@ -52,7 +55,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUserFromProject(projectId ?? '', 'toVerify', user.uuid).then((result) => {
+    getImagesOfUserFromProject(user, projectId!, 'assignedVerifications').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -64,20 +67,20 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
-    await acceptAnnotation(projectId ?? '', image.id);
+    if (edit) await modifyAnnotation(projectId ?? '', image._id, image.annotation ?? {});
+    await acceptAnnotation(projectId ?? '', image._id);
     nextImage();
   };
 
   const editImage = () => {
-    if (edit) modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
+    if (edit) modifyAnnotation(projectId ?? '', image._id, image.annotation ?? {});
     setEdit(!edit);
   };
 
   const sendReject = async () => {
     const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
+    await rejectAnnotation(image._id, project!, comment ?? '');
     setShowReject(false);
     nextImage();
   };

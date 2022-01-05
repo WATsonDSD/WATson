@@ -1,5 +1,6 @@
 export * from './authenticator';
 export * from './databases';
+export * from './financier';
 export * from './projects';
 export * from './report';
 export * from './images';
