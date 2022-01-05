@@ -145,46 +145,50 @@ export async function assignVerifier(blockId: BlockID, verifierId: UserID, proje
   const verifier = await findUserById(verifierId);
   const block = await findBlockOfProject(blockId, projectId);
 
+  // add the annotator-verifier link to the project
   if (!block) throw Error('the block does not exist');
   const annotatorId = block.idAnnotator;
   if (!annotatorId) throw Error('the block does not have an annotator');
 
-  // add the annotator-verifier link to the project
-  project.annVer.push({ annotatorId, verifierId });
+  if (verifierId !== annotatorId) {
+    project.annVer.push({ annotatorId, verifierId });
 
-  if (block.idVerifier) throw Error('the verifies has been already assigned!');
+    if (block.idVerifier) throw Error('the verifies has been already assigned!');
 
-  // add idVerifier to the block
-  // eslint-disable-next-line no-param-reassign
-  block.idVerifier = verifierId;
+    // add idVerifier to the block
+    // eslint-disable-next-line no-param-reassign
+    block.idVerifier = verifierId;
 
-  // add the images to the waitingForAnnotation and/or toVerify field of the verifier
-  const blockImagestoAnnotate = block.toAnnotate;
-  verifier.projects[projectId].waitingForAnnotation.push(...blockImagestoAnnotate);
+    // add the images to the waitingForAnnotation and/or toVerify field of the verifier
+    const blockImagestoAnnotate = block.toAnnotate;
+    verifier.projects[projectId].waitingForAnnotation.push(...blockImagestoAnnotate);
 
-  const blockImagesToVerify = block.toVerify;
-  verifier.projects[projectId].toVerify.push(...blockImagesToVerify);
+    const blockImagesToVerify = block.toVerify;
+    verifier.projects[projectId].toVerify.push(...blockImagesToVerify);
 
-  await Promise.all(Object.entries(blockImagestoAnnotate).map(
+    await Promise.all(Object.entries(blockImagestoAnnotate).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
-      const image = await findImageById(value);
-      image.idVerifier = verifierId;
-      await ImagesDB.put(image);
-    },
-  ));
-  await Promise.all(Object.entries(blockImagesToVerify).map(
+      async ([key, value]) => {
+        const image = await findImageById(value);
+        image.idVerifier = verifierId;
+        await ImagesDB.put(image);
+      },
+    ));
+    await Promise.all(Object.entries(blockImagesToVerify).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
-      const image = await findImageById(value);
-      image.idVerifier = verifierId;
-      await ImagesDB.put(image);
-    },
-  ));
+      async ([key, value]) => {
+        const image = await findImageById(value);
+        image.idVerifier = verifierId;
+        await ImagesDB.put(image);
+      },
+    ));
 
-  await ProjectsDB.put(project);
-  await updateBlock(block, projectId);
-  await updateUser(verifier);
+    await ProjectsDB.put(project);
+    await updateBlock(block, projectId);
+    await updateUser(verifier);
+  } else {
+    throw Error('Verifier cannot be assigned to itself');
+  }
 }
 
 /**
