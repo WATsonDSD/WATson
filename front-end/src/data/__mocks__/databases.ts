@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
 
-/* eslint-disable no-underscore-dangle */
 type DBDocument<T> = T & { _id: string, _rev?: string, attach: IMGattachment }
 type IMGattachment = { attachID: string, attachType: string, data: Blob }
 

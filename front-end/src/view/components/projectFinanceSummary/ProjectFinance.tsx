@@ -13,8 +13,8 @@ import Header from '../shared/header';
 import GraphChart from './GraphChart';
 
 export default function ProjectFinance() {
-  const { idProject } = useParams();
-  const project = useData(async () => findProjectById(idProject ?? ''));
+  const { projectID } = useParams();
+  const project = useData(async () => findProjectById(projectID ?? ''));
   const totalCost = useData(async () => calculateProjectCost(project!));
   const totalHours = useData(async () => totalHoursOfWork(project!));
   const totalWork = useData(async () => numberOfWorkersInProject(project!));
@@ -35,7 +35,7 @@ export default function ProjectFinance() {
     });
   }, []);
 
-  if (!idProject || !data) return null;
+  if (!projectID || !data) return null;
 
   if (!project || !totalCost || !totalHours) return null;
 
@@ -171,8 +171,8 @@ export default function ProjectFinance() {
                     <span className={`uppercase tracking-wide ${user.role === 'annotator' ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'} px-4 py-2 -ml-4 text-xs font-bold rounded-full`}>{user.role}</span>
                   </div>
                   {/* todo change to real values  */}
-                  <span>{user.projects[idProject].annotated.length}</span>
-                  <span>{user.projects[idProject].verified.length}</span>
+                  <span>{user.projects[projectID].annotated.length}</span>
+                  <span>{user.projects[projectID].verified.length}</span>
                   <span>{hoursWork}</span>
                   <span>{Object.entries(user.projects).length}</span>
                   <span>{earnings}</span>

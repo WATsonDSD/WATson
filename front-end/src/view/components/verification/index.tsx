@@ -32,11 +32,11 @@ export default function VerificationView() {
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [edit, setEdit] = useState(false);
 
-  const { projectId } = useParams();
+  const { projectID } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
 
-  const project = useData(async () => findProjectById(projectId ?? ''));
+  const project = useData(async () => findProjectById(projectID ?? ''));
 
   const {
     onImageWheel,
@@ -55,7 +55,7 @@ export default function VerificationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUserFromProject(user, projectId!, 'assignedVerifications').then((result) => {
+    getImagesOfUserFromProject(user, projectID!, 'assignedVerifications').then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -67,13 +67,13 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    if (edit) await modifyAnnotation(projectId ?? '', image._id, image.annotation ?? {});
-    await acceptAnnotation(projectId ?? '', image._id);
+    if (edit) await modifyAnnotation(projectID ?? '', image._id, image.annotation ?? {});
+    await acceptAnnotation(projectID ?? '', image._id);
     nextImage();
   };
 
   const editImage = () => {
-    if (edit) modifyAnnotation(projectId ?? '', image._id, image.annotation ?? {});
+    if (edit) modifyAnnotation(projectID ?? '', image._id, image.annotation ?? {});
     setEdit(!edit);
   };
 

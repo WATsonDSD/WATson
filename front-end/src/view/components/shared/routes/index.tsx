@@ -24,7 +24,7 @@ export const Paths = {
   Authentication: '/authentication',
   Projects: '/',
   Project: '/project',
-  CreateProject: '/createProject',
+  CreateProject: '/create-project',
   EditProject: '/editProject',
   Workers: '/workers',
   Annotation: '/annotation',
@@ -44,23 +44,25 @@ export default () => (
       <Route path="/:type" element={<Projects />} />
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
-        <Route path=":idProject" element={<Workers />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.EditProject} element={<EditProject />}>
         <Route path=":idProject" element={<EditProject />} />
       </Route>
       <Route path={Paths.CreateProject} element={<CreateProject />} />
       <Route path={Paths.Annotation} element={<Annotation />}>
-        <Route path=":projectId" element={<Annotation />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.Verification} element={<VerificationView />}>
-        <Route path=":projectId" element={<VerificationView />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.ProjectFinance} element={<ProjectFinance />}>
-        <Route path=":idProject" element={<ProjectFinance />} />
+        <Route path=":projectID" />
       </Route>
       <Route path={Paths.Reports} element={<ReportFinance />} />
       <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
+
+    <Route path={Paths.CreateProject} element={<Protected><CreateProject /></Protected>} />
   </Routes>
 );

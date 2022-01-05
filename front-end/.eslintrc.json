@@ -20,18 +20,18 @@
   },
   "plugins": ["react", "@typescript-eslint", "jest"],
   "rules": {
-    "import/extensions": ["error", "never"],
-    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
-    "max-len": "off",
+    "no-use-before-define": "off",
+    "no-underscore-dangle": "off",
+    "no-console": "off",
+    "no-shadow": "off",
     "no-alert": "off",
     "no-undef": "off",
-    "no-shadow": "off",
-    "no-console": "off",
+    "max-len": "off",
     "no-unused-vars": 0,
     "linebreak-style": 0,
-    "no-use-before-define": 0,
-    "no-underscore-dangle": 0,
-    "no-trailing-spaces": ["warn", { "ignoreComments": true }],
+    "import/extensions": ["error", "never"],
+    "no-trailing-spaces": ["error", { "ignoreComments": true }],
+    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   }
 }

@@ -83,8 +83,8 @@ export type ProjectStatus = 'pending' | 'active' | 'closed';
 export type Project = {
     name: string,
     client: string,
-    startDate: string,
-    endDate: string,
+    startDate: Date,
+    endDate: Date,
     status: ProjectStatus,
 
     landmarks: Landmark[],

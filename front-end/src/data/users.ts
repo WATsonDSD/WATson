@@ -119,8 +119,6 @@ export async function getUsersOfProject(project: DBDocument<Project>): Promise<D
   });
 }
 
-/* eslint-disable no-underscore-dangle */
-
 /**
  * Fetches all the users registered on the application, regardless of role. 
  */

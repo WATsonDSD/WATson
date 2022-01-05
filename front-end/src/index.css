@@ -4,6 +4,12 @@
 
 @import url('./assets/fonts/fonts.css');
 
+@layer utilities {
+  .selected-worker {
+    transform: rotate(45deg);
+  }
+}
+
 body {
   margin: 0;
   font-family: 'Circular', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -12,7 +18,6 @@ body {
   font-weight: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 }
 
 #main {
@@ -30,7 +35,8 @@ body {
   
 }
 
-header {
+header,
+#create-project-header {
   padding: 2.5rem 4rem;
 }
 
@@ -48,6 +54,33 @@ header {
   background-color: #f9f9f9;
 }
 
+#create-project {
+  padding: 2.5rem 4rem 5rem;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5rem;
+  row-gap: 2rem;
+}
+
+#create-project-header {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5rem;
+  z-index: 999;
+}
+
 #account-settings {
   width: 800px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

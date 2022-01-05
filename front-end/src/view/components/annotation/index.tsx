@@ -60,11 +60,11 @@ export default function AnnotationView() {
   const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
 
-  const { projectId } = useParams();
+  const { projectID } = useParams();
   const navigate = useNavigate();
   const [user] = useUserNotNull();
 
-  const projectdb = useData(async () => findProjectById(projectId!));
+  const projectdb = useData(async () => findProjectById(projectID!));
 
   const {
     onImageWheel,
@@ -80,7 +80,7 @@ export default function AnnotationView() {
   } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
-    findProjectById(projectId ?? '')
+    findProjectById(projectID ?? '')
       .then((project) => {
         Object.keys(templateImage.annotation ?? {}).forEach((a) => {
           if (!project.landmarks.includes(+a) && templateImage.annotation) {
@@ -92,7 +92,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUserFromProject(user, projectId!, 'assignedAnnotations').then((result) => {
+    getImagesOfUserFromProject(user, projectID!, 'assignedAnnotations').then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');

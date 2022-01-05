@@ -10,13 +10,13 @@ export default function ProjectEdit() {
   });
   const folderInput = React.useRef(null);
 
-  const { idProject } = useParams();
+  const { projectID } = useParams();
 
   let empty = document.getElementById('empty');
 
-  const project = useData(async () => findProjectById(idProject ?? ''));
+  const project = useData(async () => findProjectById(projectID ?? ''));
   const handleUpload = async () => {
-    if (!idProject) throw Error('no project id!');
+    if (!projectID) throw Error('no project id!');
 
     const files = Object.values(FILES);
     for (let i = 0; i < files.length; i += 1) {
