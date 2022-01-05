@@ -278,7 +278,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           block.block.idAnnotator = undefined;
 
           // reflect changes in the db
-          await ProjectsDB.put(project);
+          // await ProjectsDB.put(project);
           await updateBlock(block.block, projectId);
           // await updateUser(verifier);
         } else {
@@ -287,7 +287,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           project.images.imagesWithoutAnnotator.push(...block.block.toAnnotate);
           // remove the block from the project 
           delete project.images.blocks[block.block.blockId];
-          await ProjectsDB.put(project);
+          // await ProjectsDB.put(project);
         }
         // remove idAnnotator from images
         await Promise.all(Object.entries(block.block.toAnnotate).map(
@@ -324,18 +324,18 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
           // remove the verifier id from the block
           // eslint-disable-next-line no-param-reassign
           block.block.idVerifier = undefined;
-          await updateBlock(block.block, projectId);
+          // await updateBlock(block.block, projectId);
         } else { // if the annotator is not linked
           delete project.images.blocks[block.block.blockId];
-          await ProjectsDB.put(project);
+          // await ProjectsDB.put(project);
         }
       }
     },
   ));
-  const userIdex = project.users.findIndex((user) => user === userId);
-  project.users.splice(userIdex, 1);
-  await ProjectsDB.put(project);
-
+  const project2 = await findProjectById(projectId);
+  const userIdex = project2.users.findIndex((user) => user === userId);
+  project2.users.splice(userIdex, 1);
+  await ProjectsDB.put(project2);
   delete user.projects[projectId];
   await updateUser(user);
 }
