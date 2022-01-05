@@ -11,6 +11,11 @@ for (let i = 0; i < 101; i++) {
 	widths[i + 'v'] = i + 'vw';
 }
 widths['90h'] = '90vh';
+const margins = {};
+for (let i = 0; i < 101; i++) {
+	margins[i + 'vw'] = i + 'vw';
+	margins[i + 'vh'] = i + 'vh';
+}
 
 module.exports = {
 	purge: [],
@@ -31,15 +36,7 @@ module.exports = {
 				'5vw': '5vw',
 				'10vw': '10vw',
 			},
-			margin: {
-				'2vh': '2vh',
-				'5vh': '5vh',
-				'10vh': '10vh',
-				'60vh': '60vh',
-				'5vw': '5vw',
-				'10vw': '10vw',
-				'20vw': '20vw',
-			},
+			margin: margins,
 			colors: {
 				ui: {
 					graygloss: '#44444477',
