@@ -4,8 +4,10 @@ import {
   addUserToProject,
   Annotation,
   BlockID,
+  changeProjectName,
+  closeProject,
   createAnnotatorVerifierLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, UserID,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
 } from '.';
 
 import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
@@ -76,7 +78,6 @@ describe('addImageToProject', () => {
     */
 });
 
-/** 
 describe('remove user correctly,', () => {
   let userId: UserID;
   let imageId: ImageID;
@@ -118,18 +119,15 @@ describe('remove user correctly,', () => {
     await rejectAnnotation(imageId2, projectId, 'nah');
     await removeUserFromProject(projectId, userId);
   });
+  it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === userId && x.verifierId === verifierId).length)).resolves.toBe(0));
 
-  it('modifies user state', async () => expect(() => findUserById(userId).then((user) => user.projects[projectId]))
-    .resolves.not.toContain(projectId));
+  it('block returns correctly', async () => expect(findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
 
-  it('doesnt contain user anymore', async () => expect(() => findProjectById(projectId).then((project) => project.users))
-    .resolves.not.toContain(userId));
+  it('modifies user state', async () => expect(findUserById(userId).then((user) => user.projects)).resolves.not.toContain(projectId));
 
-  it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === annotatorId2 && x.verifierId === verifierId).length)).resolves.toBe(0));
+  it('doesnt contain user anymore', async () => expect(findProjectById(projectId).then((project) => project.users)).resolves.not.toContain(userId));
 
-  it('block returns correctly', async () => expect(() => findBlockOfProject(BlockId, projectId).then((block) => block?.blockId === BlockId)).resolves.toBe(true));
+  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
 
-  it('closed project', async () => expect(() => closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
-  it('change project name', async () => expect(() => changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
+  it('change project name', async () => expect(changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
 });
-*/
