@@ -21,7 +21,7 @@ import 'rc-slider/assets/index.css';
 import { getImagesOfUser, saveAnnotation } from '../../../data/images';
 import AnnotVerif, {
   emptyImage,
-  templateImage,
+  templateImage as initialTemplateImage,
   zoomIn,
   zoomOut,
   defaultTransform,
@@ -39,6 +39,8 @@ s - Save image landmarks
 g - Optical Flow prediction
 backspace - undo last landmark
 */
+
+let templateImage = emptyImage;
 
 export default function AnnotationView() {
   const [image, setImage] = useState({ ...emptyImage });
@@ -67,6 +69,7 @@ export default function AnnotationView() {
   useEffect(() => {
     findProjectById(projectId ?? '')
       .then((project) => {
+        templateImage = { ...initialTemplateImage, annotation: { ...initialTemplateImage.annotation } };
         Object.keys(templateImage.annotation ?? {}).forEach((a) => {
           if (!project.landmarks.includes(+a) && templateImage.annotation) {
             delete templateImage.annotation[+a];
@@ -158,6 +161,7 @@ export default function AnnotationView() {
     return defaultTemplateLandmarkColor(id);
   };
 
+  console.log(templateImage);
   return (
     <div>
       <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
