@@ -212,3 +212,14 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
   return earningPerMonth;
 }
 export default generateReport;
+
+export async function calculateTotalBonus(): Promise<number> {
+  let totBonus = 0;
+  const users = await getAllUsers();
+  await Promise.all(Object.entries(users).map(
+    async ([key, user]) => {
+      totBonus += user.bonus;
+    },
+  ));
+  return totBonus;
+}

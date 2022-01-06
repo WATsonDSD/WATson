@@ -109,7 +109,6 @@ export async function getAllUsers(): Promise<User[]> {
       startkey: 'a', // excludes the design documents
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
         users = response.rows.map((row: any) => ({
           id: row.doc._id,
@@ -117,6 +116,7 @@ export async function getAllUsers(): Promise<User[]> {
           name: row.doc.fullname,
           role: row.doc.roles[0],
           projects: row.doc.projects,
+          bonus: row.doc.bonus,
         } as User));
       }
       resolve(users);

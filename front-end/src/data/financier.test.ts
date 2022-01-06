@@ -2,6 +2,7 @@ import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink, addBonus,
 } from '.';
 import {
+  calculateTotalBonus,
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
@@ -192,4 +193,5 @@ describe('assign bonus', () => {
     () => expect(findUserById(userId).then((user) => user.bonus)).resolves.toBe(10));
   it('add bonus to user',
     () => expect(findUserById(userId2).then((user2) => user2.bonus)).resolves.toBe(100));
+  it('all bonus', () => expect(calculateTotalBonus()).resolves.toBe(110));
 });
