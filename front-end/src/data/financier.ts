@@ -1,9 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-loop-func */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, Project, User, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, Project, Worker, UserID,
 } from '.';
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, findReportById, insertReportRows } from './report';
@@ -23,12 +24,12 @@ export async function generateReport(): Promise<Report> {
   const month = now.getMonth().toString();
   await Promise.all(Object.entries(listOfUsers).map(async ([key, user]) => {
     if (user.role === 'annotator' || user.role === 'verifier') {
-      const projectsForUser = await getProjectsOfUser(user.id);
+      const projectsForUser = await getProjectsOfUser(user._id);
       let numberOfImagesAnnotated = 0;
       let numberOfImagesVerified = 0;
       await Promise.all(Object.entries(projectsForUser).map(async ([key, project]) => {
         const { client } = project;
-        const workDone = await getWorkDoneByUser(user.id, { year, month }, project.id);
+        const workDone = await getWorkDoneByUser(user._id, { year, month }, project.id);
         numberOfImagesAnnotated = workDone.annotation;
         numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
@@ -38,13 +39,13 @@ export async function generateReport(): Promise<Report> {
 
         if (paymentA > 0) {
           rep.reportRow.push({
-            user: user.id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
+            user: user._id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
           });
         }
         if (user.role === 'verifier') {
           if (paymentV > 0) {
             rep.reportRow.push({
-              user: user.id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
+              user: user._id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
             });
           }
         }
@@ -143,7 +144,7 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let numberOfImagesVerified = 0;
   // console.log(user);
   projectsForUser.forEach((project) => {
-    // console.log('user', user.id, user.projects[project.id]);
+    // console.log('user', user._id, user.projects[project.id]);
     if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
     if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;

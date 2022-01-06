@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid';
 
 import {
   AuthDB,
-  User,
+  Worker,
   Role,
-  findUserById,
+  findUserByAuthId,
   IDPrefix,
 } from '.';
 
@@ -45,7 +45,7 @@ enum SessionState {
  * object safely (e.g.: SessionState.AUTHENTICATED means that the
  * user object is not null).
  */
-type UserData = [ user: User | null, sessionState: SessionState ];
+type UserData = [ user: Worker | null, sessionState: SessionState ];
 
 /**
  * Keeps track of the components that will subscribe to the
@@ -85,10 +85,11 @@ async function updateUserData(): Promise<UserData> {
         userData = [null, SessionState.NONE];
       } else {
         // response.userCtx contains the current logged in user
-        await findUserById(IDPrefix + response.userCtx.name)
+        await findUserByAuthId(IDPrefix + response.userCtx.name)
           .then((user) => { userData = [user, SessionState.AUTHENTICATED]; })
-          .catch(() => {
+          .catch((err) => {
             userData = [null, SessionState.NONE];
+            console.log(err);
           });
       }
       notifySubscribers(userData);
@@ -135,9 +136,7 @@ export async function signUp(name: string, email: string, password: string, role
     AuthDB.signUp(email, password, {
       roles: [role],
       metadata: {
-        fullname: name,
-        projects: {},
-        workDoneInTime: {},
+        uuid: uuid(),
       },
     }, (error, response) => {
       if (error) {
@@ -239,5 +238,5 @@ export function useUserNotNull() {
     };
   }, []);
 
-  return [userData[0], userData[1]] as [User, SessionState];
+  return [userData[0], userData[1]] as [Worker, SessionState];
 }
