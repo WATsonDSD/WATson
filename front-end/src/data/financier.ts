@@ -1,34 +1,26 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, Project, Worker, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, UserID,
 } from '.';
-import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
-import { createReport, findReportById, insertReportRows } from './report';
-import { ProjectID, Report, Role } from './types';
+import { createReport, insertReportRows } from './report';
+import { ProjectID, Report } from './types';
 
 /**
  * this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<Report> {
   const rep = await createReport();
-  const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   console.log(listOfUsers);
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
-  await Promise.all(Object.entries(listOfUsers).map(async ([key, user]) => {
+  await Promise.all(Object.values(listOfUsers).map(async (user) => {
     if (user.role === 'annotator' || user.role === 'verifier') {
       const projectsForUser = await getProjectsOfUser(user._id);
       let numberOfImagesAnnotated = 0;
       let numberOfImagesVerified = 0;
-      await Promise.all(Object.entries(projectsForUser).map(async ([key, project]) => {
-        const { client } = project;
+      await Promise.all(Object.values(projectsForUser).map(async (project) => {
         const workDone = await getWorkDoneByUser(user._id, { year, month }, project.id);
         numberOfImagesAnnotated = workDone.annotation;
         numberOfImagesVerified = workDone.verification;
@@ -175,8 +167,8 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
-  Object.entries(project.images.done).forEach(
-    async ([key, value]) => {
+  Object.values(project.images.done).forEach(
+    async (value) => {
       const month = new Date(value.doneDate).getMonth();
       earningMonth[month] += totIm;
     },
@@ -193,15 +185,15 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const priceAnnotation = project.pricePerImageAnnotation;
       const priceVerification = project.pricePerImageVerification;
       // adding earning per month of annotated images
-      Object.entries(value.annotated).forEach(
-        async ([key, value]) => {
+      Object.values(value.annotated).forEach(
+        async (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
-      Object.entries(value.verified).forEach(
-        async ([key, value]) => {
+      Object.values(value.verified).forEach(
+        async (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },

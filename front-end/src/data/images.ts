@@ -24,7 +24,6 @@ export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
   return {
     ...im,
     data: attach,
-    // eslint-disable-next-line no-underscore-dangle
     id: im._id,
   };
 }

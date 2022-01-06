@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { v4 as uuid } from 'uuid';
 import {
   Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateBlock, updateUser, Worker, UserID,
