@@ -5,7 +5,8 @@ import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
 import {
-  calculateWorkerProgressForProject, findProjectById, getUsersOfProject, User,
+  calculatePercentageWorkerProgressForProject,
+  findProjectById, getUsersOfProject, User,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
@@ -36,7 +37,7 @@ export default function ProjectFinance() {
           hoursWork = result;
           earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
             earnings = result;
-            calculateWorkerProgressForProject(user.id, idProject ?? '').then((result) => {
+            calculatePercentageWorkerProgressForProject(user.id, idProject ?? '').then((result) => {
               progress = result;
               setUsersData((state) => [...state, {
                 id: user.id, hours: hoursWork, earnings, progress,
@@ -188,7 +189,11 @@ export default function ProjectFinance() {
                   <span>{user.projects[idProject].annotated.length}</span>
                   <span>{user.projects[idProject].verified.length}</span>
                   <span>{hoursWork}</span>
-                  <span>{progress}</span>
+                  <span>
+                    {progress}
+                    {' '}
+                    %
+                  </span>
                   <span>{earnings}</span>
                 </div>
               );
