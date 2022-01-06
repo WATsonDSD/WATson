@@ -180,8 +180,6 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
-  console.log(user);
-  console.log(Object.values(user.projects).map((proj) => proj.annotated));
 
   await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {

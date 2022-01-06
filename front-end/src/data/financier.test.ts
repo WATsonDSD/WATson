@@ -28,18 +28,15 @@ const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 const imageData1 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData2 = new Blob(['Hello, world!'], { type: 'text/plain' });
 const imageData3 = new Blob(['Hello, world!'], { type: 'text/plain' });
-const imageData4 = new Blob(['Heldfsgsfglo, world!'], { type: 'text/plain' });
 let imageId1: ImageID;
 let imageId2: ImageID;
 let imageId3: ImageID;
-let imageId4: ImageID;
 let projectId: ProjectID;
 let annotatorId: UserID;
 let verifierId: UserID;
 let annotatorId2: UserID;
 let userId: UserID;
 let userId2: UserID;
-let userId3: UserID;
 let userIdF: UserID;
 let userIdPM: UserID;
 
@@ -93,26 +90,21 @@ describe('adding verification', () => {
     imageId1 = await addImageToProject(imageData1, projectId);
     imageId2 = await addImageToProject(imageData2, projectId);
     imageId3 = await addImageToProject(imageData3, projectId);
+
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
-    verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     annotatorId2 = await createUser('Ari', 'ari@watson', 'annotator');
+    verifierId = await createUser('Cem', 'cem@watson', 'verifier');
+    userIdF = await createUser('financ', 'finance@watson', 'finance');
+    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
+
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
     await addUserToProject(annotatorId2, projectId);
-    await assignImagesToAnnotator(3, annotatorId, projectId);
-    // await assignImagesToAnnotator(2, annotatorId2, projectId);
-    userId = await createUser('Laura', 'laura@watson', 'annotator');
-    userId2 = await createUser('Cem', 'cem@watson', 'verifier');
-    userId3 = await createUser('Ari', 'ari@watson', 'annotator');
-    userIdF = await createUser('financ', 'finance@watson', 'finance');
-    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    imageId4 = await addImageToProject(imageData4, projectId);
-    await addUserToProject(userId, projectId);
-    await addUserToProject(userId2, projectId);
-    await addUserToProject(userId3, projectId);
     await addUserToProject(userIdF, projectId);
     await addUserToProject(userIdPM, projectId);
+
+    await assignImagesToAnnotator(3, annotatorId, projectId);
+
     await saveAnnotation(validAnnotation, imageId1, projectId);
     await saveAnnotation(validAnnotation, imageId2, projectId);
     await saveAnnotation(validAnnotation, imageId3, projectId);
@@ -140,7 +132,7 @@ describe('adding verification', () => {
   }));
 
   test('number of total workers in a project', () => totalWorkers(projectId).then((data) => {
-    expect(data).toBe(6);
+    expect(data).toBe(3);
   }));
   // 30/4 + 23*3/8-> 7,5 + 8,625
   test('total hours of work in total ', () => totalHoursOfWork(projectId).then((data) => {
@@ -149,15 +141,14 @@ describe('adding verification', () => {
   test('total hours of work per annotating', () => totalHoursOfWork(projectId).then((data) => {
     expect(data[1]).toBe(7.5);
   }));
-  test('chart december', () => dataChartWorker(userId).then((data) => {
+  test('chart december', () => dataChartWorker(annotatorId).then((data) => {
     expect(data[11]).toBe(0);
   }));
-  test('chart january', () => dataChartWorker(userId).then((data) => {
-    console.log(data);
-    expect(data[0]).toBe(0);
+  test('chart january', () => dataChartWorker(annotatorId).then(async (data) => {
+    expect(data[0]).toBe(30);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(annotatorId, projectId).then((data) => {
-    expect(data).toBe(0);
+    expect(data).toBe(7.5);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(verifierId, projectId).then((data) => {
     expect(data).toBe(8.625);
@@ -169,9 +160,9 @@ describe('adding verification', () => {
     expect(data[0]).toBe(99);
   }));
   test('percentage', () => percentageOfImagesDone(projectId).then((data) => {
-    expect(data).toBe(0.75);
+    expect(data).toBe(1);
   }));
-  test('total hours of work of an user', () => hoursWorkPerUser(userId).then((data) => {
+  test('total hours of work of an user', () => hoursWorkPerUser(annotatorId).then((data) => {
     expect(data).toBe(7.5);
   }));
 });
