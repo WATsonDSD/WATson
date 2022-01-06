@@ -2,10 +2,12 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, Block, findBlockOfProject,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, Block, findBlockOfProject, getAllUsers,
 } from '.';
+import { FetchingError } from '../utils/errors';
 
 import { ImagesDB, ProjectsDB } from './databases';
+import { calculateTotalCost, totalHoursOfWork } from './financier';
 import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
@@ -71,6 +73,62 @@ export async function createProject(
   return id;
 }
 
+/**
+ * Fetches all the project registered on the application
+ */
+export async function getAllProjects(): Promise<Project[]> {
+  let projects: Project[] = [];
+  return new Promise((resolve, reject) => {
+    ProjectsDB.allDocs({
+      startkey: 'a', // excludes the design documents
+      include_docs: true,
+    }).then((response) => {
+      console.log(response);
+      if (response) {
+        projects = response.rows.map((row: any) => ({
+          // eslint-disable-next-line no-underscore-dangle
+          id: row.doc._id,
+          users: row.doc.users,
+          name: row.doc.name,
+          client: row.doc.client,
+          startDate: row.doc.startDate,
+          endDate: row.doc.endDate,
+          status: row.doc.status[0],
+          landmarks: row.doc.landmarks,
+          pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
+          pricePerImageVerification: row.doc.pricePerImageVerification,
+          hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
+          hourlyRateVerification: row.doc.hourlyRateVerification,
+          annVer: row.doc.annVer,
+          images: row.doc.images,
+        } as Project));
+      }
+      resolve(projects);
+    }).catch(() => {
+      reject(new FetchingError());
+    });
+  });
+}
+
+export async function statisticsInformation(): Promise<[number, number, number, number, number]> {
+  const projects = await getAllProjects();
+  const totalNumberOfProjects = projects.length;
+  const numberOfActiveProjects = (projects.map((project) => project.status === 'active')).length;
+  let totalSpendings = 0;
+  let totalHours = 0;
+  (await (Promise.all(Object.entries(projects)))).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, value]) => {
+      const cost = await calculateTotalCost(value.id);
+      totalSpendings += cost[0];
+      const hours = await totalHoursOfWork(value.id);
+      totalHours += hours[0];
+    },
+  );
+  const users = await getAllUsers();
+
+  return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length];
+}
 /**
  * Deletes a project:
  * it deletes the images from the database, 

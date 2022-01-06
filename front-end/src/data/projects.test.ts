@@ -7,7 +7,7 @@ import {
   changeProjectName,
   closeProject,
   createAnnotatorVerifierLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, UserID,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, statisticsInformation, UserID,
 } from '.';
 
 import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
@@ -130,4 +130,50 @@ describe('remove user correctly,', () => {
   it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
 
   it('change project name', async () => expect(changeProjectName(projectId, 'lauretta').then(() => findProjectById(projectId).then((project) => project.name === 'lauretta'))).resolves.toBe(true));
+});
+
+describe('statistics numbers', () => {
+  let userId: UserID;
+  let imageId: ImageID;
+  let imageId2: ImageID;
+  let imageId3: ImageID;
+  let verifierId: UserID;
+  let annotatorId2: UserID;
+  let projectId: ProjectID;
+  let projectId2: ProjectID;
+  beforeAll(async () => {
+    userId = await createUser('User 1', 'user1@watson.com', 'annotator');
+    annotatorId2 = await createUser('User 2', 'user2@watson.com', 'annotator');
+    verifierId = await createUser('User 3', 'user3@watson.com', 'verifier');
+    projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    projectId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
+      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    });
+    imageId = await addImageToProject(imageData, projectId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId2 = await addImageToProject(imageData2, projectId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    imageId3 = await addImageToProject(imageData3, projectId);
+    await addUserToProject(userId, projectId);
+    // await addUserToProject(userId, projectId2);
+    await addUserToProject(verifierId, projectId);
+    await addUserToProject(annotatorId2, projectId);
+    await addUserToProject(annotatorId2, projectId2);
+    // se link prima di Save -> no idVerifier
+    // se link dopo save -> no block 
+    await createAnnotatorVerifierLink(projectId, userId, verifierId);
+    await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
+    await assignImagesToAnnotator(1, userId, projectId);
+    await assignImagesToAnnotator(2, annotatorId2, projectId);
+    await saveAnnotation(annotation, imageId, projectId);
+    await saveAnnotation(annotation, imageId2, projectId);
+    await acceptAnnotation(projectId, imageId);
+    await rejectAnnotation(imageId2, projectId, 'nah');
+    await removeUserFromProject(projectId, userId);
+    await statisticsInformation();
+  });
+
+  test('chart december', () => statisticsInformation().then((data) => expect(data[0]).toBe(0)));
 });
