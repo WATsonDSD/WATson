@@ -8,6 +8,7 @@ import {
 import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
 import { createReport, findReportById, insertReportRows } from './report';
 import { ProjectID, Report, Role } from './types';
+import { UsersDB } from './__mocks__/databases';
 
 /**
  * this function return a Csv data array with all the fields needed to show up the report * 
@@ -63,19 +64,17 @@ export async function generateReport(): Promise<Report> {
  * total amount of money spent for annotating a project,
  * total amount of money spent for verifing a project
  */
-export async function calculateTotalCost(projectID: string): Promise<[number, number, number, number]> {
+export async function calculateTotalCost(projectID: string): Promise<[number, number, number]> {
   const project = await findProjectById(projectID);
   const totalImagesInDone = project.images.done.length;
   const totalAnnotatedCost = (totalImagesInDone * project.pricePerImageAnnotation);
   const totalVerifiedCost = (totalImagesInDone * project.pricePerImageVerification);
-  let totBonus = 0;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   await Promise.all(Object.entries(project.users).map(async ([key, userId]) => {
     const user = await findUserById(userId);
-    totBonus += user.projects[projectID].bonus;
   }));
-  const totalCost = totalVerifiedCost + totalAnnotatedCost + totBonus;
-  return [totalCost, totalAnnotatedCost, totalVerifiedCost, totBonus];
+  const totalCost = totalVerifiedCost + totalAnnotatedCost;
+  return [totalCost, totalAnnotatedCost, totalVerifiedCost];
 }
 
 export async function totalHoursOfWork(projectID: string): Promise<[number, number, number]> {
@@ -160,7 +159,7 @@ export async function earningsInTotalPerProjectPerUser(userID: UserID, projectId
   const user = await findUserById(userID);
   const project = await findProjectById(projectId);
   return ((user.projects[projectId].annotated.length * project.pricePerImageAnnotation))
-  + ((user.projects[projectId].verified.length * project.pricePerImageVerification)) + user.projects[projectId].bonus;
+  + ((user.projects[projectId].verified.length * project.pricePerImageVerification));
 }
 
 export async function percentageOfImagesDone(projectID: ProjectID): Promise<number> {
@@ -212,5 +211,4 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
   ));
   return earningPerMonth;
 }
-
 export default generateReport;

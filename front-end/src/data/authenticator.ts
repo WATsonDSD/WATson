@@ -139,6 +139,7 @@ export async function signUp(name: string, email: string, password: string, role
         fullname: name,
         projects: {},
         workDoneInTime: {},
+        bonus: 0,
       },
     }, (error, response) => {
       if (error) {

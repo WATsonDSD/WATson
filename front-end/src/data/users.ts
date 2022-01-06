@@ -54,6 +54,7 @@ export async function findUserById(id: UserID): Promise<User> {
           role: response.roles[0],
           projects: response.projects,
           workDoneInTime: response.workDoneInTime,
+          bonus: response.bonus,
         };
 
         resolve(user);
@@ -72,6 +73,7 @@ export async function updateUser(user: User): Promise<void> {
         fullname: user.name,
         projects: user.projects,
         workDoneInTime: user.workDoneInTime,
+        bonus: user.bonus,
       },
     }, (error, response) => {
       if (error) {
@@ -277,8 +279,8 @@ export async function getWorkDoneByUser(
   return { annotation: numAnnotations, verification: numVerifications };
 }
 
-export async function addBonus(userID: UserID, projectID: ProjectID, bonus: number): Promise<void> {
-  const user = await findUserById(userID);
-  user.projects[projectID].bonus += bonus;
+export async function addBonus(user: User, bonus: number): Promise<void> {
+  // eslint-disable-next-line no-param-reassign
+  user.bonus += bonus;
   updateUser(user);
 }
