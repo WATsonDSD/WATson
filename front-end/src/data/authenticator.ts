@@ -7,6 +7,7 @@ import {
   Role,
   findUserByAuthId,
   IDPrefix,
+  WorkersDB,
 } from '.';
 
 import {
@@ -131,12 +132,14 @@ export async function logIn(email: string, password: string): Promise<boolean> {
  * up the right permissions for each database this
  * user should have access to.
  */
-export async function signUp(name: string, email: string, password: string, role: Role): Promise<boolean> {
+export async function signUp(name: string, email: string, password: string, role: Role): Promise<string> {
+  const id: string = uuid();
+
   return new Promise((resolve, reject) => {
     AuthDB.signUp(email, password, {
       roles: [role],
       metadata: {
-        uuid: uuid(),
+        uuid: id,
       },
     }, (error, response) => {
       if (error) {
@@ -152,7 +155,14 @@ export async function signUp(name: string, email: string, password: string, role
           reject(new AuthenticationError(error.message));
         }
       } else if (response) {
-        resolve(true);
+        WorkersDB.put({
+          _id: id,
+          name,
+          email,
+          role,
+          projects: {},
+          workDoneInTime: {},
+        }).then(() => resolve(id));
       } else {
         // Something went wrong...
         reject(new AuthenticationError());

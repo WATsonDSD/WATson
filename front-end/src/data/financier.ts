@@ -180,6 +180,9 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
+  console.log(user);
+  console.log(Object.values(user.projects).map((proj) => proj.annotated));
+
   await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {
       const project = await findProjectById(key);
@@ -187,16 +190,16 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
       const priceVerification = project.pricePerImageVerification;
       // adding earning per month of annotated images
       Object.values(value.annotated).forEach(
-        async (value) => {
+        (value) => {
           const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += +priceAnnotation;
+          earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
       Object.values(value.verified).forEach(
-        async (value) => {
+        (value) => {
           const month = new Date(value.date).getMonth();
-          earningPerMonth[month] += +priceVerification;
+          earningPerMonth[month] += priceVerification;
         },
       );
     },

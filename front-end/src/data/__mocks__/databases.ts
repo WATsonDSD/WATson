@@ -6,15 +6,15 @@ type IMGattachment = { attachID: string, attachType: string, data: Blob }
 const MockPouch = <T>() => ({
   documents: {} as { [id: string]: DBDocument<T> },
 
-  put(document: DBDocument<T>) {
+  async put(document: DBDocument<T>) {
     if (!document._id) { throw Error('document must have an _id'); }
     if (this.documents[document._id]) {
-      if (this.documents[document._id]._rev !== document._rev) { throw Error('Document update conflict'); }
+      if (this.documents[document._id]._rev !== document._rev) { throw Error(`Document update conflict ${this.documents[document._id]._rev}, ${document._rev}`); }
     }
     this.documents[document._id] = { ...document, _rev: uuid() };
   },
 
-  get(id: string) {
+  async get(id: string) {
     return { ...this.documents[id] };
   },
 
@@ -33,10 +33,9 @@ const MockPouch = <T>() => ({
     return this.documents[docId].attach.data;
   },
 
-  allDocs: async () => new Promise((resolve) => resolve({
-    rows: Object.values(RejectionsDB.documents)
-      .map((doc) => ({ doc })),
-  })),
+  async allDocs() {
+    return { rows: Object.values(this.documents).map((doc) => ({ doc })) };
+  },
 
 });
 
@@ -49,14 +48,8 @@ export const WorkersDB = MockPouch();
 
 export const AuthDB = {
   users: {} as {[email: string]: any},
-  signUp: (email: string, password: string, metadata: any, callback: (error: any, response: any) => void) => {
-    AuthDB.users[email] = {
-      _id: `org.couchdb.user:${email}`,
-      name: email,
-      roles: metadata.roles,
-      ...metadata.metadata,
-    };
-    callback(null, true);
+  signUp: async (email: string, password: string, metadata: any, callback: (error: any, response: any) => void) => {
+    callback(null, metadata.metadata.uuid);
   },
   getUser: (email: string, callback: (error: any, response: any) => void) => { callback(null, AuthDB.users[email]); },
   putUser: (email: string, metadata: any, callback: (error: any, response: any) => void) => {

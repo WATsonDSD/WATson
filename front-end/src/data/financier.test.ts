@@ -153,6 +153,7 @@ describe('adding verification', () => {
     expect(data[11]).toBe(0);
   }));
   test('chart january', () => dataChartWorker(userId).then((data) => {
+    console.log(data);
     expect(data[0]).toBe(30);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(annotatorId, projectId).then((data) => {

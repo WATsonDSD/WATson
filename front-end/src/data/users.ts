@@ -156,7 +156,7 @@ export async function createUser(name: string, email: string, role: Role): Promi
          * we can get away with hard-coding the user id.
          */
         if (result) {
-          resolve(IDPrefix + email);
+          resolve(result);
         } else {
           reject(new CreateUserError());
         }
