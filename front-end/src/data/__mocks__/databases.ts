@@ -45,6 +45,7 @@ export const ImagesDB = MockPouch();
 export const ProjectsDB = MockPouch();
 export const RejectionsDB = MockPouch();
 export const ReportsDB = MockPouch();
+export const WorkersDB = MockPouch();
 
 export const AuthDB = {
   users: {} as {[email: string]: any},
