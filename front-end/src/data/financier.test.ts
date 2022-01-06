@@ -154,10 +154,10 @@ describe('adding verification', () => {
   }));
   test('chart january', () => dataChartWorker(userId).then((data) => {
     console.log(data);
-    expect(data[0]).toBe(30);
+    expect(data[0]).toBe(0);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(annotatorId, projectId).then((data) => {
-    expect(data).toBe(7.5);
+    expect(data).toBe(0);
   }));
   test('hours work', () => hoursWorkPerProjectPerUser(verifierId, projectId).then((data) => {
     expect(data).toBe(8.625);
