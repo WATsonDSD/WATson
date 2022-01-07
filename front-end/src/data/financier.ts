@@ -17,7 +17,6 @@ export async function generateReport(): Promise<Report> {
   const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
-  console.log(listOfUsers);
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
@@ -175,9 +174,6 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
   const totIm = +project.pricePerImageAnnotation + +project.pricePerImageVerification;
-  console.log('tot', totIm);
-  console.log(project.pricePerImageAnnotation);
-  console.log(project.pricePerImageVerification);
   Object.entries(project.images.done).forEach(
     async ([key, value]) => {
       const month = new Date(value.doneDate).getMonth();

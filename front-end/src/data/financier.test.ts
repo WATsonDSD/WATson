@@ -1,13 +1,14 @@
 import {
   addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
 } from '.';
-import {
+import generateReport, {
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
   assignImagesToAnnotator,
   saveAnnotation,
 } from './images';
+import { getAllReports } from './report';
 import { acceptAnnotation } from './verification';
 
 jest.mock('./databases');
@@ -121,6 +122,10 @@ describe('adding verification', () => {
     await acceptAnnotation(projectId, imageId1);
     await acceptAnnotation(projectId, imageId2);
     await acceptAnnotation(projectId, imageId3);
+    await generateReport();
+    await generateReport();
+    const reports = await getAllReports();
+    console.log(reports);
   });
 
   it('number images waiting for verification',

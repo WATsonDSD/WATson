@@ -19,5 +19,5 @@ export const ProjectsDB = new BufferefCached(nonWrappedProjectsDB);
 export const nonWrappedImagesDB: PouchDB.Database<Image> = new PouchDB<Image>(`${baseURL}/images`);
 export const ImagesDB = new Buffered(nonWrappedImagesDB);
 
-export const nonWrappedReportsDB: PouchDB.Database<Report> = new PouchDB<Report>(`${baseURL}/reports`);
-export const ReportsDB = new Buffered(nonWrappedReportsDB);
+// export const nonWrappedReportsDB: PouchDB.Database<Report> = new PouchDB<Report>(`${baseURL}/reports`);
+export const ReportsDB = new PouchDB<Report>(`${baseURL}/reports`);
