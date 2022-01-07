@@ -18,8 +18,8 @@ export default function EditProject() {
   const { idProject } = useParams();
   const projectdb = useData(async () => findProjectById(idProject ?? ''));
   const users = useData(async () => getUsersOfProject(idProject ?? '').then((result) => {
-    result?.filter((u) => u.role === 'verifier').forEach((user, index) => setVerifiers((state) => [...state, { id: index, worker: user.id }]));
-    result?.filter((u) => u.role === 'annotator').forEach((user, index) => setAnnotators((state) => [...state, { id: index, worker: user.id }]));
+    result?.filter((u) => u.role === 'verifier').forEach((user, index) => setVerifiers((state) => [...state, { id: index, worker: user._id }]));
+    result?.filter((u) => u.role === 'annotator').forEach((user, index) => setAnnotators((state) => [...state, { id: index, worker: user._id }]));
   }));
   const projectVer: { id: number, worker: string }[] = [];
   const projectAnn: { id: number, worker: string }[] = [];
@@ -165,7 +165,7 @@ export default function EditProject() {
                       }}
                     >
                       <option value={0}>Select a user</option>
-                      {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                      {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -179,7 +179,7 @@ export default function EditProject() {
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
                     </div>
@@ -223,7 +223,7 @@ export default function EditProject() {
                       }}
                     >
                       <option value={0}>Select a user</option>
-                      {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                      {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -237,7 +237,7 @@ export default function EditProject() {
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
                     </div>
