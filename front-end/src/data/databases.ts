@@ -2,7 +2,7 @@ import PouchDB from 'pouchdb';
 import PouchDBAuthentication from 'pouchdb-authentication';
 
 import {
-  Image, Project, RejectedAnnotation, Report,
+  Worker, Image, Project, RejectedAnnotation, Report,
 } from '.';
 import { Buffered } from './PouchWrapper';
 
@@ -12,6 +12,7 @@ const baseURL = 'https://watson.visagetechnologies.com/couchdb';
 
 export const AuthDB: PouchDB.Database = new PouchDB(`${baseURL}/_users`, { skip_setup: true, adapter: 'http' });
 export const RejectionsDB: PouchDB.Database<RejectedAnnotation> = new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`);
+export const WorkersDB: PouchDB.Database<Worker> = new PouchDB<Worker>(`${baseURL}/workers`);
 
 // const nonWrappedProjectsDB: PouchDB.Database<Project> = new PouchDB<Project>(`${baseURL}/projects`);
 export const ProjectsDB = new PouchDB<Project>(`${baseURL}/projects`);

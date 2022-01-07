@@ -9,20 +9,23 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { useUserNotNull } from '../../../data';
+import { findProjectById, useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
 import { acceptAnnotation, modifyAnnotation, rejectAnnotation } from '../../../data/verification';
 import { Paths } from '../shared/routes';
-
 import AnnotVerif, {
   emptyImage,
-  templateImage,
+  templateImage as initialTemplateImage,
   zoomIn,
   zoomOut,
   defaultTransform,
 } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
+
+let templateImage = emptyImage;
 
 export default function VerificationView() {
   const [image, setImage] = useState({ ...emptyImage });
@@ -48,11 +51,20 @@ export default function VerificationView() {
   } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
+    findProjectById(projectId ?? '')
+      .then((project) => {
+        templateImage = { ...initialTemplateImage, annotation: { ...initialTemplateImage.annotation } };
+        Object.keys(templateImage.annotation ?? {}).forEach((a) => {
+          if (!project.landmarks.includes(+a) && templateImage.annotation) {
+            delete templateImage.annotation[+a];
+          }
+        });
+      });
     nextImage();
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -92,15 +104,7 @@ export default function VerificationView() {
     if (edit) onMouseMoveMove(ctx, event);
   };
 
-  // Here goes the image count condition if images to annotate is empty, allDone = true
-  const allDone = false;
-  if (allDone) {
-    return (
-      <div className="text-7xl m-auto p-auto">
-        <h1 className="pt-24 pl-24"> No Image to annotate </h1>
-      </div>
-    );
-  }
+  console.log(templateImage);
   return (
     <div>
       { showReject
@@ -213,6 +217,7 @@ export default function VerificationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>
