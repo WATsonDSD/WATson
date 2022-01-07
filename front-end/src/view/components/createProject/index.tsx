@@ -93,7 +93,7 @@ export default function CreateProject() {
       })
         .then(async (id) => {
           await addUserToProject(user._id, id);
-          await addUserToProject('org.couchdb.user:finance@watson.com', id);
+          await addUserToProject('75883cd5c22adf54dcacb5213e030550', id); // the finance users uuid.
           for (let i = 0; i < project.users.length; i += 1) {
             if (project.users[i] !== '') {
               // eslint-disable-next-line no-await-in-loop
