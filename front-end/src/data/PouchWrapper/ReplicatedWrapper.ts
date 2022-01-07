@@ -19,7 +19,7 @@ export default class ReplicatedPouch<T> {
 
     constructor(pouch: PouchDB.Database<T>) {
       this.pouch = pouch;
-      this.name = pouch.name;
+      this.name = pouch.name.split('/')[-1];
       this.localCache = new PouchDB<T>(pouch.name);
       this.sync();
     }
