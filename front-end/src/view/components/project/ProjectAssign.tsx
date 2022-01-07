@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   createAnnotatorVerifierLink,
-  findProjectById, getUsersOfProject, Image, User,
+  findProjectById, getUsersOfProject, Image, Worker,
 } from '../../../data';
 import useData from '../../../data/hooks';
 import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
@@ -17,7 +17,7 @@ export default function ProjectAssign() {
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
   const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-  const [projectUsers, setProjectUsers] = useState([] as User[]);
+  const [projectUsers, setProjectUsers] = useState([] as Worker[]);
 
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
@@ -147,7 +147,7 @@ export default function ProjectAssign() {
                 name="annotator"
               >
                 <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -164,7 +164,7 @@ export default function ProjectAssign() {
                 name="verifier"
               >
                 <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -192,7 +192,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex flex-row grow shrink gap-4">
             { projectUsers.filter((user) => user.role === 'annotator' || user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-annotator`} userId={user.id} accept="annotate" images={toAnnotate.filter((e) => e.user === user.id)} onDrop={(item: any) => handleDrop(index, item, user.id, 'annotate')} />
+              <UserCardDnD key={`${user._id}-annotator`} userId={user._id} accept="annotate" images={toAnnotate.filter((e) => e.user === user._id)} onDrop={(item: any) => handleDrop(index, item, user._id, 'annotate')} />
             ))}
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex grow shrink flex-row gap-4">
             { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-verifier`} userId={user.id} accept="verify" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { handleDrop(index, item, user.id, 'verify'); }} />
+              <UserCardDnD key={`${user._id}-verifier`} userId={user._id} accept="verify" images={toVerify.filter((e) => e.user === user._id)} onDrop={(item: any) => { handleDrop(index, item, user._id, 'verify'); }} />
             ))}
           </div>
         </div>
