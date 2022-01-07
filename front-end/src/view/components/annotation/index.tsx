@@ -31,12 +31,13 @@ import AnnotVerif, {
   lastLandmark,
   mousePosition,
 } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
 import ctrlKey from '../../../assets/icons/Ctrl.png';
 import plusIcon from '../../../assets/icons/Plus.png';
 import mouseLeft from '../../../assets/icons/mouse-l.png';
 import mouseRight from '../../../assets/icons/mouse-r.png';
 import mouseScroll from '../../../assets/icons/mouse-s.png';
-
 import { Paths } from '../shared/routes';
 
 /* TODO: Keyboard shortcuts
@@ -302,6 +303,7 @@ export default function AnnotationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>
