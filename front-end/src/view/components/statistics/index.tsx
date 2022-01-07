@@ -7,8 +7,14 @@ import {
 import { ChartConfiguration } from 'chart.js';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
+import { statisticsInformation } from '../../../data/projects';
+import useData from '../../../data/hooks';
 
 export default function Statistics() {
+  // return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length];
+  const statistics = useData(async () => statisticsInformation());
+  console.log('statistics on view', statistics);
+  if (!statistics) throw Error('there are no statistics here');
   const exampleChart: ChartConfiguration = {
     type: 'line',
     data: {
@@ -48,7 +54,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  72.583 €
+                  {statistics[2]}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total spendings
@@ -75,7 +81,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  1.583h
+                  {statistics[3]}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total hours of work
@@ -103,7 +109,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  120
+                  {statistics[4]}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total workers
@@ -140,7 +146,7 @@ export default function Statistics() {
                 Total number of projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                0
+                {statistics[0]}
 
               </p>
             </div>
@@ -160,7 +166,7 @@ export default function Statistics() {
                 Active projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                0
+                {statistics[1]}
               </p>
             </div>
           </div>

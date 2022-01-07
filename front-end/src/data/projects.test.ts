@@ -174,7 +174,8 @@ describe('statistics numbers', () => {
     await removeUserFromProject(projectId, userId);
     const projects = await getAllProjects();
     console.log(projects);
-    // const ciao = await statisticsInformation();
+    const ciao = await statisticsInformation();
+    console.log(ciao);
   });
 
   it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));

@@ -115,7 +115,7 @@ export async function statisticsInformation(): Promise<[number, number, number, 
   const numberOfActiveProjects = (projects.map((project) => project.status === 'active')).length;
   let totalSpendings = 0;
   let totalHours = 0;
-  (await (Promise.all(Object.entries(projects)))).map(
+  await Promise.all(Object.entries(projects).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const cost = await calculateTotalCost(value.id);
@@ -123,10 +123,11 @@ export async function statisticsInformation(): Promise<[number, number, number, 
       const hours = await totalHoursOfWork(value.id);
       totalHours += hours[0];
     },
-  );
+  ));
   const users = await getAllUsers();
+  console.log('statistics:', totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length);
 
-  return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length];
+  return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, +totalHours.toFixed(2), users.length];
 }
 /**
  * Deletes a project:
