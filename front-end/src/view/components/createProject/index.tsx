@@ -92,7 +92,7 @@ export default function CreateProject() {
         pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
       })
         .then(async (id) => {
-          await addUserToProject(user.id, id);
+          await addUserToProject(user._id, id);
           await addUserToProject('org.couchdb.user:finance@watson.com', id);
           for (let i = 0; i < project.users.length; i += 1) {
             if (project.users[i] !== '') {
@@ -326,7 +326,7 @@ export default function CreateProject() {
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
                           (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
-                        {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                        {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -339,7 +339,7 @@ export default function CreateProject() {
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
                       <button type="button" onClick={() => { const newState = [...annotators]; newState.splice(index, 1); setAnnotators(newState); }}>
@@ -373,7 +373,7 @@ export default function CreateProject() {
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
                           (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
-                        {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                        {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -386,7 +386,7 @@ export default function CreateProject() {
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
                       <button type="button" onClick={() => { const newState = [...verifiers]; newState.splice(index, 1); setVerifiers(newState); }}>

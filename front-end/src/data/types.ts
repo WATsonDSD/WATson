@@ -2,7 +2,12 @@ export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: strin
 export type UserID = string;
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
-    id: UserID,
+    name: string,
+    uuid: UserID,
+};
+
+export type Worker = {
+    _id: UserID,
     projects: {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],

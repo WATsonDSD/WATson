@@ -2,7 +2,7 @@ import {
   ImagesDB, ProjectsDB,
 } from './databases';
 import {
-  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, User, Project, findAnnotatorBlockOfProject, updateBlock,
+  ImageID, Annotation, ProjectID, updateUser, findUserById, findProjectById, Worker, Project, findAnnotatorBlockOfProject, updateBlock,
 } from '.';
 import { createRejectedImage } from './rejectedAnnotation';
 import { findImageById } from './images';
@@ -169,7 +169,7 @@ export async function modifyAnnotation(
  * ! Does not save the objects to the database !  
  * ! Modifies the passed objects !  
  */
-function putWorkDoneInTime(annotator:User, verifier: User, project: Project, image: ImageID) {
+function putWorkDoneInTime(annotator:Worker, verifier: Worker, project: Project, image: ImageID) {
   // find the time fields.
   const now = new Date();
   const year = now.getFullYear().toString();
@@ -199,5 +199,5 @@ function putWorkDoneInTime(annotator:User, verifier: User, project: Project, ima
   // put the new entry in the required fields.
   annotator.workDoneInTime[year][month][day][project.id].annotated.push(image);
   verifier.workDoneInTime[year][month][day][project.id].verified.push(image);
-  project.workDoneInTime[year][month][day].push({ annotator: annotator.id, verifier: verifier.id, imageId: image });
+  project.workDoneInTime[year][month][day].push({ annotator: annotator._id, verifier: verifier._id, imageId: image });
 }

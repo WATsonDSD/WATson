@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, Block, findBlockOfProject,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, Worker, Block, findBlockOfProject,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
@@ -15,7 +15,7 @@ export async function findProjectById(id: ProjectID): Promise<Project & {_id: st
  * Finds and returns all projects of a user.
  */
 export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
-  const user: User = await findUserById(userID);
+  const user: Worker = await findUserById(userID);
 
   const projects = await Promise.all(
     Object.keys(user.projects).map((id) => findProjectById(id)),
@@ -111,7 +111,7 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
   }));
 
   // Fetches the users of this project
-  const users: User[] = await Promise.all(project.users.map((userID) => findUserById(userID)));
+  const users: Worker[] = await Promise.all(project.users.map((userID) => findUserById(userID)));
 
   // Removes the project from the list of projects of each user
   await Promise.all(users.map(async (user) => {
@@ -319,7 +319,7 @@ export async function removeUserFromProject(projectId: ProjectID, userId: UserID
         ));
         if (block.block.idAnnotator) { // if the annotator is linked
         // remove the pair annotator-verifier
-          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === block.block.idAnnotator && anVe.verifierId === user.id);
+          const index = project.annVer.findIndex((anVe) => anVe.annotatorId === block.block.idAnnotator && anVe.verifierId === user._id);
           project.annVer.splice(index, 1);
           // remove the verifier id from the block
           // eslint-disable-next-line no-param-reassign
