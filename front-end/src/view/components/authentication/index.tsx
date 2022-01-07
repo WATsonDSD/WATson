@@ -45,7 +45,7 @@ export default function Authentication() {
    * Redirects the user if he is already authenticated.
    */
   if (user && sessionState === 'authenticated') {
-    navigate(Paths.Projects, { replace: true });
+    navigate(user.role === 'verifier' ? '/annotate' : Paths.Projects, { replace: true });
   }
 
   return (
