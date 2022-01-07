@@ -4,6 +4,7 @@ import { getAllUsers } from '../../../data';
 
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
+import Hours from './Hours';
 
 export default function Workers() {
   const users = useData(async () => getAllUsers());
@@ -71,7 +72,7 @@ export default function Workers() {
 
           {users && users.length > 0
             ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => (
-              <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
+              <div key={user._id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
                 <div className="flex items-center gap-x-4 col-span-2">
                   <span className="block w-10 h-10 bg-gray-100 rounded-full" />
                   <span>{user.name}</span>
@@ -81,7 +82,7 @@ export default function Workers() {
                   <span className={`uppercase tracking-wide ${user.role === 'annotator' ? 'bg-green-100 text-green-500' : 'bg-blue-100 text-blue-500'} px-4 py-2 -ml-4 text-xs font-bold rounded-full`}>{user.role}</span>
                 </div>
                 <span>{Object.entries(user.projects).length}</span>
-                <span>-</span>
+                <Hours user={user} />
                 <button type="button" className="p-4 justify-self-center">
                   {OptionsIcon}
                 </button>

@@ -9,21 +9,23 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { useUserNotNull } from '../../../data';
+import { findProjectById, useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
-import { rejectAnnotation, verifyImage } from '../../../data/verification';
+import { acceptAnnotation, modifyAnnotation, rejectAnnotation } from '../../../data/verification';
 import { Paths } from '../shared/routes';
 import AnnotVerif, {
   emptyImage,
-  templateImage,
+  templateImage as initialTemplateImage,
   zoomIn,
   zoomOut,
   defaultTransform,
 } from '../shared/annotation/AnnotVerif';
 // eslint-disable-next-line import/extensions
 import { splines } from '../shared/annotation/TemplateAnnotation.json';
+
+let templateImage = emptyImage;
 
 export default function VerificationView() {
   const [image, setImage] = useState({ ...emptyImage });
@@ -49,11 +51,20 @@ export default function VerificationView() {
   } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
 
   useEffect(() => {
+    findProjectById(projectId ?? '')
+      .then((project) => {
+        templateImage = { ...initialTemplateImage, annotation: { ...initialTemplateImage.annotation } };
+        Object.keys(templateImage.annotation ?? {}).forEach((a) => {
+          if (!project.landmarks.includes(+a) && templateImage.annotation) {
+            delete templateImage.annotation[+a];
+          }
+        });
+      });
     nextImage();
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -65,15 +76,22 @@ export default function VerificationView() {
   };
 
   const saveAsValid = async () => {
-    await verifyImage(projectId ?? '', image.id, image.annotation);
+    if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
+    await acceptAnnotation(projectId ?? '', image.id);
     nextImage();
   };
 
-  const sendReject = () => {
+  const editImage = () => {
+    if (edit) modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
+    setEdit(!edit);
+  };
+
+  const sendReject = async () => {
     const comment = (document.getElementById('rejectionComment') as HTMLTextAreaElement).value;
     console.log(comment);
-    rejectAnnotation(image.id, projectId ?? '', comment ?? '');
+    await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
+    nextImage();
   };
 
   const onClick = () => {
@@ -86,15 +104,7 @@ export default function VerificationView() {
     if (edit) onMouseMoveMove(ctx, event);
   };
 
-  // Here goes the image count condition if images to annotate is empty, allDone = true
-  const allDone = false;
-  if (allDone) {
-    return (
-      <div className="text-7xl m-auto p-auto">
-        <h1 className="pt-24 pl-24"> No Image to annotate </h1>
-      </div>
-    );
-  }
+  console.log(templateImage);
   return (
     <div>
       { showReject
@@ -136,7 +146,7 @@ export default function VerificationView() {
           <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl ml-4 mr-auto">
             <div className="divide-y divide-gray-400">
               <div>
-                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={() => setEdit(!edit)}>
+                <button className="py-2 px-4 h-6v w-full bg-ui-darkgray shadow-lg rounded-3xl text-center" type="button" onClick={editImage}>
                   <span className="mx-auto text-white">
                     {edit ? 'Confirm modifications' : 'Edit annotation' }
                   </span>

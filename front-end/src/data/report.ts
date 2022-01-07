@@ -1,10 +1,9 @@
 import { v4 as uuid } from 'uuid';
 import {
-  Report, ReportID, ReportsDB, Role, UserID,
+  Report, ReportID, ReportsDB,
 } from '.';
-
 //  user: UserID, name: string, mail: string, role: Role, project: ProjectID, hours: number, payment: number, client: string
-export async function createReport() : Promise<ReportID> {
+export async function createReport() : Promise<Report> {
   const id = uuid(); // unique id's.
 
   const report = {
@@ -15,18 +14,15 @@ export async function createReport() : Promise<ReportID> {
   } as Report & {_id: string};
 
   await ReportsDB.put(report);
-  return id;
+  return report;
 }
 
 export async function findReportById(id: ReportID): Promise<Report & {_id: string, _rev: string}> {
   return ReportsDB.get(id);
 }
 
-export async function insertReportRow(reportId: ReportID, user: UserID, name: string, email: string, role: Role, projectName: string, hours: number, payment: number, client: string) {
+export async function insertReportRows(reportId: ReportID, rows: any[]): Promise<any> {
   const report = await findReportById(reportId);
-  const row = {
-    user, name, email, role, projectName, hours, payment, client,
-  };
-  report.reportRow.push(row);
+  report.reportRow = rows;
   await ReportsDB.put(report);
 }

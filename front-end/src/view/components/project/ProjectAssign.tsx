@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  findProjectById, getUsersOfProject, Image, User,
+  createAnnotatorVerifierLink,
+  findProjectById, getUsersOfProject, Image, Worker,
 } from '../../../data';
 import useData from '../../../data/hooks';
-import {
-  assignAnnotatorToImage, assignVerifierToImage, getImagesOfProject,
-} from '../../../data/images';
+import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
 // import { findImageById } from '../../../data/images';
 import Header from '../shared/header';
 import { Paths } from '../shared/routes';
@@ -18,28 +17,49 @@ export default function ProjectAssign() {
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
   const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-  const [projectUsers, setProjectUsers] = useState([] as User[]);
+  const [projectUsers, setProjectUsers] = useState([] as Worker[]);
 
   const { idProject } = useParams();
   const project = useData(async () => findProjectById(idProject ?? ''));
   const navigate = useNavigate();
 
+  console.log(imagesToAnnotate);
   useEffect(() => {
-    getImagesOfProject(idProject || '', 'needsAnnotatorAssignment').then((result) => { setImagesToAnnotate(result); });
-    getImagesOfProject(idProject || '', 'needsVerifierAssignment').then((result) => { setImagesToVerify(result); showAssignedImages(result, 'annotate'); });
-    getImagesOfProject(idProject || '', 'pending').then((result) => { showAssignedImages(result, 'annotate'); showAssignedImages(result, 'verify'); });
-    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result); });
+    getImagesOfProjectWithoutAnnotator(idProject || '').then((result) => {
+      console.log(result);
+      setImagesToAnnotate(result!);
+    });
+    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const showAssignedImages = (images: Image[], role: string) => {
     if (role === 'annotate') {
-      images.forEach(async (image: Image) => {
+      images.forEach((image: Image) => {
         updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
       });
     } else {
-      images.forEach(async (image: Image) => {
+      images.forEach((image: Image) => {
         updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
       });
+    }
+  };
+
+  const handleAssign = async (event: any) => {
+    event.preventDefault();
+
+    const annotator = event.target.annotator.value;
+    const verifier = event.target.verifier.value;
+    const nbImages = event.target.numberImages.value;
+    console.log(annotator);
+    console.log(verifier);
+    console.log(nbImages);
+
+    if (!idProject) { throw Error('no project id!'); }
+
+    await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
+    if (verifier !== '0') {
+      await createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
     }
   };
 
@@ -91,12 +111,13 @@ export default function ProjectAssign() {
   const handleSubmit = async () => {
     for (let i = 0; i < toAnnotate.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
+      // await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
     }
 
     for (let i = 0; i < toVerify.length; i += 1) {
       // eslint-disable-next-line no-await-in-loop
-      await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+      // await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+
     }
 
     navigate(Paths.Projects);
@@ -105,6 +126,57 @@ export default function ProjectAssign() {
   return (
     <div className="min-h-full w-full">
       <Header title={`Assigning images : ${project?.name ?? ''}`} />
+      <form className="w-full" onSubmit={handleAssign}>
+        <div className="w-full flex flex-row space-x-4 md:w-2/3 px-3 mb-6 md:mb-0">
+          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+            Number Of Images
+            {' '}
+            <div className="relative">
+              <input required className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight" id="numberImages" name="numberImages" type="number" min="0" max={project?.images.imagesWithoutAnnotator.length} />
+              LEFT:
+              {' '}
+              {project?.images.imagesWithoutAnnotator.length}
+            </div>
+          </label>
+          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+            Annotators
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="annotator"
+                name="annotator"
+              >
+                <option value={0}>Select a user</option>
+                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+              </div>
+            </div>
+          </label>
+
+          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+            Verifiers
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="verifier"
+                name="verifier"
+              >
+                <option value={0}>Select a user</option>
+                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+              </div>
+            </div>
+          </label>
+
+          <button type="submit" id="btn-assign" onClick={() => {}} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l">
+            Assign
+          </button>
+        </div>
+      </form>
       <h1 className="ml-2 pl-2 mt-3 text-gray-800 text-3xl font-bold ">Drag and drop to assign :</h1>
       <div id="annotation" className="h-1/2 my-5">
         <h2 className="ml-2 pl-2 mt-3 text-gray-800 text-2xl font-bold ">Annotation :</h2>
@@ -120,7 +192,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex flex-row grow shrink gap-4">
             { projectUsers.filter((user) => user.role === 'annotator' || user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-annotator`} userId={user.id} accept="annotate" images={toAnnotate.filter((e) => e.user === user.id)} onDrop={(item: any) => handleDrop(index, item, user.id, 'annotate')} />
+              <UserCardDnD key={`${user._id}-annotator`} userId={user._id} accept="annotate" images={toAnnotate.filter((e) => e.user === user._id)} onDrop={(item: any) => handleDrop(index, item, user._id, 'annotate')} />
             ))}
           </div>
         </div>
@@ -139,7 +211,7 @@ export default function ProjectAssign() {
           </div>
           <div className="flex grow shrink flex-row gap-4">
             { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user.id}-verifier`} userId={user.id} accept="verify" images={toVerify.filter((e) => e.user === user.id)} onDrop={(item: any) => { handleDrop(index, item, user.id, 'verify'); }} />
+              <UserCardDnD key={`${user._id}-verifier`} userId={user._id} accept="verify" images={toVerify.filter((e) => e.user === user._id)} onDrop={(item: any) => { handleDrop(index, item, user._id, 'verify'); }} />
             ))}
           </div>
         </div>

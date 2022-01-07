@@ -26,7 +26,7 @@ export default function Dashboard() {
   const toA = Object.keys(user.projects)
     .filter((projectId) => (user.projects[projectId].toAnnotate.length !== 0));
 
-  projects = useData(() => getProjectsOfUser(user!.id));
+  projects = useData(() => getProjectsOfUser(user!._id));
   switch (type) {
     case 'annotate':
       projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));

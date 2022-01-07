@@ -2,7 +2,12 @@ export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: strin
 export type UserID = string;
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
-    id: UserID,
+    name: string,
+    uuid: UserID,
+};
+
+export type Worker = {
+    _id: UserID,
     projects: {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],
@@ -25,6 +30,16 @@ export type User = {
     role: Role,
 };
 
+export type BlockID = string;
+export type Block = {
+    blockId: BlockID,
+    toAnnotate: ImageID[],
+    toVerify: ImageID[],
+    idAnnotator: UserID | undefined,
+    idVerifier: UserID | undefined,
+    projectId: ProjectID,
+}
+
 export type ProjectID = string;
 export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
@@ -40,7 +55,8 @@ export type Project = {
     pricePerImageAnnotation: number,
     pricePerImageVerification: number,
     hourlyRateAnnotation: number,
-    hourlyRateVerification: number
+    hourlyRateVerification: number,
+    annVer: { annotatorId: UserID, verifierId: UserID}[],
 
     workDoneInTime: YearMonthDay <{
         imageId: ImageID,
@@ -49,11 +65,13 @@ export type Project = {
     }[]>
 
     images: {
-        needsAnnotatorAssignment: ImageID[],
-        needsVerifierAssignment: ImageID[],
-        pending: ImageID[],
+        blocks: { // block of images instanziated by the annotator
+            [blockID: BlockID]: {
+                block: Block
+            }}
+        imagesWithoutAnnotator: ImageID[], // images that doesn't have annotator : ALL THE IMAGES
         done: {imageId: ImageID, doneDate: Date}[],
-    }}
+    }};
 
 export type ImageID = string;
 
@@ -61,7 +79,8 @@ export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
-    data?: ImageData,
+    blockId?: BlockID,
+    data: ImageData,
     annotation?: Annotation,
     idAnnotator?: UserID,
     idVerifier?: UserID

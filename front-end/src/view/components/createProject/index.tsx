@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '@mdi/react';
+import { mdiDelete } from '@mdi/js';
 import Header from '../shared/header';
 import {
   UserID, LandmarkSpecification,
@@ -90,11 +92,13 @@ export default function CreateProject() {
         pricePerImageAnnotation: project.pricePerImageAnnotation, pricePerImageVerification: project.pricePerImageVerification, hourlyRateAnnotation: project.hourlyRateAnnotation, hourlyRateVerification: project.hourlyRateVerification,
       })
         .then(async (id) => {
-          await addUserToProject(user.id, id);
-          await addUserToProject('org.couchdb.user:finance@watson.com', id);
+          await addUserToProject(user._id, id);
+          await addUserToProject('75883cd5c22adf54dcacb5213e030550', id); // the finance users uuid.
           for (let i = 0; i < project.users.length; i += 1) {
-            // eslint-disable-next-line no-await-in-loop
-            await addUserToProject(project.users[i], id);
+            if (project.users[i] !== '') {
+              // eslint-disable-next-line no-await-in-loop
+              await addUserToProject(project.users[i], id);
+            }
           }
           navigate(Paths.Projects);
         });
@@ -242,25 +246,25 @@ export default function CreateProject() {
               <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
                   Project Name
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="name" name="name" type="text" placeholder="Jane" required />
                 </label>
               </div>
               <div className="w-full md:w-1/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="client">
                   Client
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="gclient" name="client" type="text" placeholder="Doe" required />
                 </label>
               </div>
               <div className="w-full md:w-2/4 px-1 mb-6 md:mb-0">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="startDate">
                   Start Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 mb-3 leading-tight focus:outline-none focus:bg-white" id="startDate" name="startDate" type="date" required />
                 </label>
               </div>
               <div className="w-full md:w-2/4 px-1">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="endDate">
                   End Date
-                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" />
+                  <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="endDate" name="endDate" type="date" required />
                 </label>
               </div>
             </div>
@@ -322,22 +326,25 @@ export default function CreateProject() {
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
                           (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
-                        {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                        {allUsers?.filter((u) => u.role === 'annotator' && !annotators.find((a) => a.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...annotators]; newState.splice(index, 1); setAnnotators(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -366,22 +373,25 @@ export default function CreateProject() {
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
                           (<option value={u.id}>{`${u.name} - ${u.role}`}</option>))} */}
-                        {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u.id)).map((u) => (<option key={u.name} value={u.id}>{`${u.name}`}</option>))}
+                        {allUsers?.filter((u) => u.role === 'verifier' && !verifiers.find((v) => v.worker === u._id)).map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                       </div>
                     </div>
                   ) : (
-                    <div className="relative" key={`workers.user${worker.id}`}>
+                    <div className="relative flex" key={`workers.user${worker.id}`}>
                       <input
                         className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id={`worker-${index}`}
                         name={`users[${index}].id`}
                         type="text"
-                        value={allUsers?.find((u) => u.id === worker.worker)?.name}
+                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
                         readOnly
                       />
+                      <button type="button" onClick={() => { const newState = [...verifiers]; newState.splice(index, 1); setVerifiers(newState); }}>
+                        <Icon path={mdiDelete} size={1} />
+                      </button>
                     </div>
                   )))}
                 </label>
@@ -449,10 +459,10 @@ export default function CreateProject() {
                 <span className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                   HRK
                 </span>
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" placeholder="Payment per hour per Annotator" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" placeholder="Payment per hour per Verifier" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" type="number" placeholder="Payment per Annotation" />
-                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" placeholder="Payment per Verification" />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnn" name="paymentPerAnn" type="number" min="0" placeholder="Payment per hour per Annotator" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVer" name="paymentPerVer" type="number" min="0" placeholder="Payment per hour per Verifier" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerAnnotation" name="paymentPerAnnotation" min="0" type="number" placeholder="Payment per Annotation" required />
+                <input className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="paymentPerVerification" name="paymentPerVerification" type="number" min="0" placeholder="Payment per Verification" required />
 
               </div>
             </div>

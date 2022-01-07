@@ -2,28 +2,29 @@ import {
   signUp,
   findProjectById,
   Role,
-  User,
+  Worker,
   ProjectID,
   UserID,
   AuthDB,
+  ProjectsDB,
+  assignVerifier,
+  findAnnotatorBlockOfProject,
+  WorkersDB,
 } from '.';
 
 import {
   FetchingError,
   UserNotFoundError,
-  UpdateError,
   UpdateUserError,
   CreateUserError,
 } from '../utils/errors';
 
 export const IDPrefix: string = 'org.couchdb.user:';
 
-/* eslint-disable no-underscore-dangle */
-
 /**
  * Fetches the user corresponding to a certain id.
  */
-export async function findUserById(id: UserID): Promise<User> {
+export async function findUserByAuthId(id: UserID): Promise<Worker> {
   return new Promise((resolve, reject) => {
     /**
      * Under the hood, the getUser function calls a PouchDB function that
@@ -44,16 +45,12 @@ export async function findUserById(id: UserID): Promise<User> {
           reject(new FetchingError(error.message));
         }
       } else if (response) {
-        const user: User = {
-          id: response._id,
-          email: response.name,
-          name: response.fullname,
-          role: response.roles[0],
-          projects: response.projects,
-          workDoneInTime: response.workDoneInTime,
-        };
-
-        resolve(user);
+        const { uuid } = response;
+        WorkersDB.get(uuid)
+          .then((response) => {
+            resolve(response);
+          })
+          .catch(() => reject(new FetchingError()));
       } else {
         reject(new FetchingError());
       }
@@ -61,24 +58,48 @@ export async function findUserById(id: UserID): Promise<User> {
   });
 }
 
-export async function updateUser(user: User): Promise<void> {
+export async function findUserById(id: UserID): Promise<Worker> {
   return new Promise((resolve, reject) => {
-    AuthDB.putUser(user.email, {
-      roles: [user.role],
-      metadata: {
-        fullname: user.name,
-        projects: user.projects,
-        workDoneInTime: user.workDoneInTime,
-      },
-    }, (error, response) => {
-      if (error) {
-        reject(new UpdateUserError());
-      } else if (response) {
-        resolve();
-      } else {
-        reject(new UpdateError());
-      }
-    });
+    WorkersDB.get(id)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(() => reject(new UserNotFoundError()));
+  });
+}
+
+export async function updateUser(user: Worker): Promise<void> {
+  return new Promise((resolve, reject) => {
+    /**
+    * ? This comment will be useful in another pull request 
+    * ? This function will only update the user in the WorkersDB.
+    * ? The changeEmail function will update the user in AuthDB as
+    * ? well, and that's possible because each user can change their
+    * ? own email though AuthDB.
+    * 
+    * ? promoteToVerifier will modify the user in AuthDB as well,
+    * ? and that's possible because the pm is an admin server!
+    */
+    //   AuthDB.putUser(user.email, {
+    //     roles: [user.role],
+    //     metadata: {
+    //       uuid: user._id,
+    //     },
+    //   }, (error, response) => {
+    //     if (error) {
+    //       reject(new UpdateUserError());
+    //     } else if (response) {
+    //       WorkersDB.put(user)
+    //         .then(() => resolve())
+    //         .catch(() => reject(new UpdateError()));
+    //     } else {
+    //       reject(new UpdateError());
+    //     }
+    //   });
+    // });
+    WorkersDB.put(user)
+      .then(() => resolve())
+      .catch(() => reject(new UpdateUserError()));
   });
 }
 
@@ -86,34 +107,23 @@ export async function updateUser(user: User): Promise<void> {
  * Fetches and returns all the users of a given project.
  */
 // TODO: Use ProjectsDB.allDocs with the keys parameter instead
-export async function getUsersOfProject(projectId: ProjectID): Promise<User[]> {
+export async function getUsersOfProject(projectId: ProjectID): Promise<Worker[]> {
   return Promise.all(
     (await findProjectById(projectId)).users.map((id) => findUserById(id)),
   );
 }
 
-/* eslint-disable no-underscore-dangle */
-
 /**
  * Fetches all the users registered on the application, regardless of role. 
  */
-export async function getAllUsers(): Promise<User[]> {
-  let users: User[] = [];
-
+export async function getAllUsers(): Promise<Worker[]> {
+  let users: Worker[] = [];
   return new Promise((resolve, reject) => {
-    AuthDB.allDocs({
-      startkey: 'a', // excludes the design documents
+    WorkersDB.allDocs({
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
-        users = response.rows.map((row: any) => ({
-          id: row.doc._id,
-          email: row.doc.name,
-          name: row.doc.fullname,
-          role: row.doc.roles[0],
-          projects: row.doc.projects,
-        } as User));
+        users = response.rows.map((row) => row.doc!);
       }
       resolve(users);
     }).catch(() => {
@@ -146,7 +156,7 @@ export async function createUser(name: string, email: string, role: Role): Promi
          * we can get away with hard-coding the user id.
          */
         if (result) {
-          resolve(IDPrefix + email);
+          resolve(result);
         } else {
           reject(new CreateUserError());
         }
@@ -156,6 +166,24 @@ export async function createUser(name: string, email: string, role: Role): Promi
 }
 
 /**
+ * if the annotator has not a verifier assigned, it creates the new link
+ */
+export async function createAnnotatorVerifierLink(projectId: ProjectID, annotatorId: UserID, verifierId: UserID): Promise<void> {
+  const project = await findProjectById(projectId);
+  const annVerLinks = project.annVer;
+  annVerLinks.forEach((anVer) => {
+    if (anVer.annotatorId === annotatorId) throw Error('annotator has already been assigned to a verifier');
+  });
+  const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
+  // se già esiste un blocco 
+  if (block) {
+    await assignVerifier(block.blockId, verifierId, projectId);
+  } else {
+    project.annVer.push({ annotatorId, verifierId });
+    await ProjectsDB.put(project);
+  }
+}
+/*
  * export async function changeEmail(email: string) {}
  * 
  * 1 - change user.id
@@ -242,6 +270,7 @@ export async function getWorkDoneByUser(
   }
 
   if (projectID) {
+    if (!workDoneInTimeSlot[projectID]) { return { annotation: 0, verification: 0 }; }
     return {
       annotation: workDoneInTimeSlot[projectID].annotated.length,
       verification: workDoneInTimeSlot[projectID].verified.length,

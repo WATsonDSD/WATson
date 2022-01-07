@@ -1,15 +1,16 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, getWorkDoneByUser,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findProjectById, findUserById, createAnnotatorVerifierLink, getWorkDoneByUser,
 } from '.';
 import {
-  saveAnnotation, assignVerifierToImage, assignAnnotatorToImage, getImagesOfUser, findImageById,
+  saveAnnotation, getImagesOfUser, findImageById, assignImagesToAnnotator,
 } from './images';
 
-import { rejectAnnotation, verifyImage } from './verification';
+import { acceptAnnotation, rejectAnnotation } from './verification';
 
 jest.mock('./databases');
 
 const imageData = new Blob(['Hello, world!'], { type: 'text/plain' });
+// const imageData2 = new Blob(['Grandi Laura e Arianna!!!!'], { type: 'text/plain' });
 const startDate: Date = new Date(2021, 4, 4, 17, 23, 42, 11);
 const endDate: Date = new Date(2022, 4, 4, 17, 23, 42, 11);
 
@@ -33,9 +34,9 @@ describe('reject annotation', () => {
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
+    await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
     return rejectAnnotation(imageId, projectId, 'redo!!');
   });
 
@@ -58,14 +59,17 @@ describe('Accept annotated image', () => {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(imageData, projectId);
+    // await addImageToProject(imageData2, projectId);
     annotatorId = await createUser('Laura', 'laura@watson', 'annotator');
     verifierId = await createUser('Cem', 'cem@watson', 'verifier');
     await addUserToProject(annotatorId, projectId);
     await addUserToProject(verifierId, projectId);
-    await assignAnnotatorToImage(imageId, annotatorId, projectId);
+    // se link prima di Save -> no idVerifier
+    // se link dopo save -> no block 
+    await assignImagesToAnnotator(1, annotatorId, projectId);
     await saveAnnotation(annotation, imageId, projectId);
-    await assignVerifierToImage(imageId, verifierId, projectId);
-    return verifyImage(projectId, imageId);
+    await createAnnotatorVerifierLink(projectId, annotatorId, verifierId);
+    return acceptAnnotation(projectId, imageId);
   });
 
   it('moves the image in done for the project', () => expect(findProjectById(projectId).then((project) => project.images.done.findIndex((image) => image.imageId === imageId))).resolves.toBeGreaterThanOrEqual(0));

@@ -16,7 +16,7 @@ import {
 
 export default function WorkerFinance() {
   const [user] = useUserNotNull();
-  const idUser = user.id;
+  const idUser = user._id;
   const payment = useData(async () => earningsPerUser(idUser!));
   const data = useData(async () => dataChartWorker(idUser!));
 
@@ -51,7 +51,7 @@ export default function WorkerFinance() {
   };
   return (
     <div className="h-full w-full">
-      <Header title="USER NAME" />
+      <Header title={user.name} />
       <div className="grid grid-rows-3 grid-flow-col gap-4">
         <div className="row-span-3 ...">
           <div className="w-full mx-10">
