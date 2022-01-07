@@ -4,7 +4,6 @@ import {
   findUserById,
   LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, User, Block, findBlockOfProject, getAllUsers,
 } from '.';
-import { FetchingError } from '../utils/errors';
 
 import { ImagesDB, ProjectsDB } from './databases';
 import { calculateTotalCost, totalHoursOfWork } from './financier';
@@ -80,10 +79,9 @@ export async function getAllProjects(): Promise<Project[]> {
   let projects: Project[] = [];
   return new Promise((resolve, reject) => {
     ProjectsDB.allDocs({
-      startkey: 'a', // excludes the design documents
+      startkey: 'a',
       include_docs: true,
     }).then((response) => {
-      console.log(response);
       if (response) {
         projects = response.rows.map((row: any) => ({
           // eslint-disable-next-line no-underscore-dangle
@@ -93,19 +91,20 @@ export async function getAllProjects(): Promise<Project[]> {
           client: row.doc.client,
           startDate: row.doc.startDate,
           endDate: row.doc.endDate,
-          status: row.doc.status[0],
-          landmarks: row.doc.landmarks,
+          status: row.doc.ProjectStatus,
+          landmarks: row.doc.LandmarkSpecification,
           pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
           pricePerImageVerification: row.doc.pricePerImageVerification,
           hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
           hourlyRateVerification: row.doc.hourlyRateVerification,
           annVer: row.doc.annVer,
+          workDoneInTime: row.doc.workDoneInTime,
           images: row.doc.images,
         } as Project));
       }
       resolve(projects);
-    }).catch(() => {
-      reject(new FetchingError());
+    }).catch((error) => {
+      reject(error);
     });
   });
 }

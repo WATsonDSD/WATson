@@ -7,7 +7,7 @@ import {
   changeProjectName,
   closeProject,
   createAnnotatorVerifierLink,
-  createProject, createUser, findBlockOfProject, findProjectById, findUserById, ImageID, ProjectID, removeUserFromProject, statisticsInformation, UserID,
+  createProject, createUser, findBlockOfProject, findProjectById, findUserById, getAllProjects, ImageID, ProjectID, removeUserFromProject, statisticsInformation, UserID,
 } from '.';
 
 import { assignImagesToAnnotator, findImageById, saveAnnotation } from './images';
@@ -172,8 +172,12 @@ describe('statistics numbers', () => {
     await acceptAnnotation(projectId, imageId);
     await rejectAnnotation(imageId2, projectId, 'nah');
     await removeUserFromProject(projectId, userId);
-    await statisticsInformation();
+    const projects = await getAllProjects();
+    console.log(projects);
+    // const ciao = await statisticsInformation();
   });
 
-  test('chart december', () => statisticsInformation().then((data) => expect(data[0]).toBe(0)));
+  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
+
+  // it('statistics', () => expect(ciao[0]).toBe(0));
 });
