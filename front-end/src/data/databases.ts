@@ -11,8 +11,8 @@ PouchDB.plugin(PouchDBAuthentication);
 const baseURL = 'https://watson.visagetechnologies.com/couchdb';
 
 export const AuthDB: PouchDB.Database = new PouchDB(`${baseURL}/_users`, { skip_setup: true, adapter: 'http' });
-export const RejectionsDB: PouchDB.Database<RejectedAnnotation> = new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`);
-export const WorkersDB: PouchDB.Database<Worker> = new PouchDB<Worker>(`${baseURL}/workers`);
+export const RejectionsDB = new Replicated(new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`));
+export const WorkersDB = new Replicated(new PouchDB<Worker>(`${baseURL}/workers`));
 
 const remoteProjectDB: PouchDB.Database<Project> = new PouchDB<Project>(`${baseURL}/projects`);
 export const ProjectsDB = new Replicated(remoteProjectDB);
