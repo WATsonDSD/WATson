@@ -69,8 +69,6 @@ export default class ReplicatedPouch<T> {
 
       this.localCache.sync(this.pouch, syncOptions).on('change', (change) => {
         console.log(`[${this.name}] replicating change: `, change);
-      }).on('paused', (info) => {
-        console.log(`[${this.name}]paused replication: `, info);
       }).on('error', (err) => {
         console.log(`[${this.name}]error on replicaiton: `, err);
       });
