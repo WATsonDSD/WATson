@@ -28,6 +28,7 @@
     "no-undef": "off",
     "no-shadow": "off",
     "linebreak-style": 0,
+    "no-underscore-dangle" : 0,
     "max-len": "off",
     "no-trailing-spaces": ["error", { "ignoreComments": true }],
     "no-unused-vars": 0,

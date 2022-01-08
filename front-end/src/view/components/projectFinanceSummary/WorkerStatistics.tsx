@@ -16,7 +16,7 @@ import {
 
 export default function WorkerFinance() {
   const [user] = useUserNotNull();
-  const idUser = user.id;
+  const idUser = user._id;
   const payment = useData(async () => earningsPerUser(idUser!));
   const data = useData(async () => dataChartWorker(idUser!));
 
