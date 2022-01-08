@@ -35,7 +35,6 @@ export async function getAllReports(): Promise<Report[]> {
       startkey: 'a',
       include_docs: true,
     }).then((response) => {
-      console.log(reports);
       if (response) {
         reports = response.rows.map((row: any) => ({
           reportID: row.doc.reportID,
