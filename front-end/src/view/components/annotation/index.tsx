@@ -59,7 +59,7 @@ export default function AnnotationView() {
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [imageId, setImageId] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
-  const [remaningCount, setTotalImages] = useState(0);
+  const [remaningCount, setRemainingCount] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -106,7 +106,7 @@ export default function AnnotationView() {
       const next = nextLandmark(result[realImageId].annotation, templateImage.annotation);
       setLandmarkId(next);
       setTransform(defaultTransform);
-      setTotalImages(result.length);
+      setRemainingCount(result.length);
     });
   };
   useEffect(updateImage, [imageId]);
