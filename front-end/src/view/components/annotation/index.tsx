@@ -73,7 +73,8 @@ export default function AnnotationView() {
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
-  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
+    updateImageId,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark, imageId, setImageId);
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -103,21 +104,7 @@ export default function AnnotationView() {
       setTransform(defaultTransform);
     });
   };
-
   useEffect(updateImage, [imageId]);
-
-  const updateImageId = (imageCount: number) => {
-    // To include in nextImage() ?
-    let newImageId = imageId;
-    if (newImageId >= imageCount) {
-      newImageId = 0;
-    }
-    if (newImageId < 0) {
-      newImageId = imageCount - 1;
-    }
-    setImageId(newImageId);
-    return newImageId;
-  };
 
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
     const { x, y } = mousePosition(ctx.canvas, transform, event);

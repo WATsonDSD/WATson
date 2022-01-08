@@ -33,6 +33,7 @@ export default function VerificationView() {
   const [showReject, setShowReject] = useState(false);
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [edit, setEdit] = useState(false);
+  const [imageId, setImageId] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -48,7 +49,8 @@ export default function VerificationView() {
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
-  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
+    updateImageId,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark, imageId, setImageId);
 
   useEffect(() => {
     findProjectById(projectId ?? '')
@@ -60,25 +62,27 @@ export default function VerificationView() {
           }
         });
       });
-    nextImage();
+    updateImage();
   }, []);
 
-  const nextImage = () => {
+  const updateImage = () => {
     getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
         return;
       }
-      setImage(result[0]);
+      const realImageId = updateImageId(result.length);
+      setImage(result[realImageId]);
       setTransform(defaultTransform);
     });
   };
+  useEffect(updateImage, [imageId]);
 
   const saveAsValid = async () => {
     if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
     await acceptAnnotation(projectId ?? '', image.id);
-    nextImage();
+    updateImage();
   };
 
   const editImage = () => {
@@ -91,7 +95,7 @@ export default function VerificationView() {
     console.log(comment);
     await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
-    nextImage();
+    updateImage();
   };
 
   const onClick = () => {
@@ -198,7 +202,7 @@ export default function VerificationView() {
           </div>
         </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId - 1)}>
             <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
               <Icon className="col-span-1" path={mdiChevronLeft} />
             </div>
@@ -222,7 +226,7 @@ export default function VerificationView() {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId + 1)}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
