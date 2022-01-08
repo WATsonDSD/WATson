@@ -285,8 +285,8 @@ export async function getWorkDoneByUser(
   return { annotation: numAnnotations, verification: numVerifications };
 }
 
-export async function promoteToVerifier(user: User) {
-  const updatedUser: User = user;
+export async function promoteToVerifier(user: Worker) {
+  const updatedUser: Worker = user;
   updatedUser.role = 'verifier';
 
   updateUser(updatedUser);
