@@ -58,6 +58,8 @@ export default function AnnotationView() {
   const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [imageId, setImageId] = useState(0);
+  const [doneCount, setDoneCount] = useState(0);
+  const [remaningCount, setTotalImages] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -104,6 +106,7 @@ export default function AnnotationView() {
       const next = nextLandmark(result[realImageId].annotation, templateImage.annotation);
       setLandmarkId(next);
       setTransform(defaultTransform);
+      setTotalImages(result.length);
     });
   };
   useEffect(updateImage, [imageId]);
@@ -159,6 +162,7 @@ export default function AnnotationView() {
     }
     saveAnnotation(image.annotation, image.id, projectId as string)
       .then(() => {
+        setDoneCount(doneCount + 1);
         updateImage();
       })
       .catch((e) => {
@@ -276,10 +280,10 @@ export default function AnnotationView() {
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
           <div className="h-full p-4 w-20v bg-ui-light shadow-lg rounded-3xl mx-auto">
-            Progress (WIP):
-            {0}
+            Progress:
+            {doneCount}
             /
-            {0}
+            {remaningCount + doneCount}
             <br />
             <button className="pt-4 pb-2" type="button">
               <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
