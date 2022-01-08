@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { UpdateUserError } from '../../../../utils/errors';
-import { updateUser, useUserNotNull } from '../../../../data';
+import { changeEmail, updateUser, useUserNotNull } from '../../../../data';
 import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
 export function EditProfileDialog(props: {onClose: VoidFunction}) {
@@ -12,13 +12,19 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
   console.log(user.name);
 
   const name = useRef<HTMLInputElement>(null);
+  const email = useRef<HTMLInputElement>(null);
 
   const snackBar = useSnackBar();
 
   async function onSave() {
-    if (name.current && name.current?.value.length > 0 && name.current?.value !== user.email) {
+    if (name.current && name.current?.value.length > 0 && name.current?.value !== user.name) {
       updateUser({ ...user, name: name.current.value })
         .catch(() => { throw new UpdateUserError('We could not update your name, please try again later...'); });
+    }
+
+    if (email.current && email.current?.value.length > 0 && email.current?.value !== user.email) {
+      changeEmail(user, email.current.value)
+        .catch(() => { throw new UpdateUserError('We could not update your email, please try again later...'); });
     }
   }
 
@@ -50,7 +56,7 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
         </div>
         <label htmlFor="email" className="flex flex-col items-start text-sm text-gray-400">
           Email address
-          <input id="email" name="email" type="email" readOnly value={user.email ?? 'loading'} className="w-full pb-1 text-gray-800 text-lg border-b focus:outline-none" />
+          <input id="email" name="email" type="email" ref={email} placeholder={user.email ?? 'loading'} className="w-full pb-1 text-gray-800 text-lg border-b focus:outline-none" />
         </label>
       </div>
 
