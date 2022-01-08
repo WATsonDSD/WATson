@@ -34,6 +34,8 @@ export default function VerificationView() {
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [edit, setEdit] = useState(false);
   const [imageId, setImageId] = useState(0);
+  const [doneCount, setDoneCount] = useState(0);
+  const [remaningCount, setRemainingCount] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -75,6 +77,7 @@ export default function VerificationView() {
       const realImageId = updateImageId(result.length);
       setImage(result[realImageId]);
       setTransform(defaultTransform);
+      setRemainingCount(result.length);
     });
   };
   useEffect(updateImage, [imageId]);
@@ -83,6 +86,7 @@ export default function VerificationView() {
     if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
     await acceptAnnotation(projectId ?? '', image.id);
     updateImage();
+    setDoneCount(doneCount + 1);
   };
 
   const editImage = () => {
@@ -96,6 +100,7 @@ export default function VerificationView() {
     await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
     updateImage();
+    setDoneCount(doneCount + 1);
   };
 
   const onClick = () => {
@@ -189,15 +194,13 @@ export default function VerificationView() {
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
           <div className="h-full p-4 w-20v ml-1 mr-auto text-left ">
-            <span className="text-lg pl-1 font-bold">Image Landmarks:</span>
+            <span className="text-lg pl-1 font-bold">Progress:</span>
             <br />
             <span className="text-5xl pl-4 text font-bold">
               {/* Get Here the data of the verification of images in the current session */}
-              { image.annotation
-                ? Object.keys(image.annotation).length
-                : 1 }
+              { doneCount }
               {' / '}
-              {templateImage.annotation ? Object.keys(templateImage.annotation).length : 1}
+              { doneCount + remaningCount }
             </span>
           </div>
         </div>
