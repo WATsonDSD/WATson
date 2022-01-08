@@ -17,6 +17,7 @@ import {
   UserNotFoundError,
   UpdateUserError,
   CreateUserError,
+  UpdateError,
 } from '../utils/errors';
 
 export const IDPrefix: string = 'org.couchdb.user:';
@@ -70,43 +71,31 @@ export async function findUserById(id: UserID): Promise<Worker> {
 
 export async function updateUser(user: Worker): Promise<void> {
   return new Promise((resolve, reject) => {
-    /**
-    * ? This comment will be useful in another pull request 
-    * ? This function will only update the user in the WorkersDB.
-    * ? The changeEmail function will update the user in AuthDB as
-    * ? well, and that's possible because each user can change their
-    * ? own email though AuthDB.
-    * 
-    * ? promoteToVerifier will modify the user in AuthDB as well,
-    * ? and that's possible because the pm is an admin server!
-    */
-    //   AuthDB.putUser(user.email, {
-    //     roles: [user.role],
-    //     metadata: {
-    //       uuid: user._id,
-    //     },
-    //   }, (error, response) => {
-    //     if (error) {
-    //       reject(new UpdateUserError());
-    //     } else if (response) {
-    //       WorkersDB.put(user)
-    //         .then(() => resolve())
-    //         .catch(() => reject(new UpdateError()));
-    //     } else {
-    //       reject(new UpdateError());
-    //     }
-    //   });
-    // });
     WorkersDB.put(user)
       .then(() => resolve())
       .catch(() => reject(new UpdateUserError()));
   });
 }
 
+export async function changeEmail(user: Worker, newEmail: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    AuthDB.changeUsername(user.email, newEmail, (error, response) => {
+      if (error) {
+        reject(new UpdateUserError(error.message));
+      } else if (response) {
+        updateUser({ ...user, email: newEmail })
+          .then(() => resolve())
+          .catch((error) => { throw error; });
+      } else {
+        reject(new UpdateError());
+      }
+    });
+  });
+}
+
 /**
  * Fetches and returns all the users of a given project.
  */
-// TODO: Use ProjectsDB.allDocs with the keys parameter instead
 export async function getUsersOfProject(projectId: ProjectID): Promise<Worker[]> {
   return Promise.all(
     (await findProjectById(projectId)).users.map((id) => findUserById(id)),
@@ -183,23 +172,6 @@ export async function createAnnotatorVerifierLink(projectId: ProjectID, annotato
     await ProjectsDB.put(project);
   }
 }
-/*
- * export async function changeEmail(email: string) {}
- * 
- * 1 - change user.id
- * 2 - change user.email
- * 3 - change user.id in every project.users
- * 4 - change user.id in every project.workDoneInTime
- * 5 - change user.id in every image
- * 6 - change user.id in every rejection
- * 
- * Better approach: each user has a uid, different from his couchdb id.
- * Every other type will reference the user.uid instead of the user.id.
- * This way, a change in email won't change the reference of the other
- * types.
- * 
- * TODO: wait for model changes to implement this
- */
 
 export async function changePassword(email: string, password: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
