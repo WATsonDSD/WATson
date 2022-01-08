@@ -8,7 +8,7 @@ import {
   assignImagesToAnnotator,
   saveAnnotation,
 } from './images';
-import { getAllReports } from './report';
+import { deleteReport, getAllReports } from './report';
 import { acceptAnnotation } from './verification';
 
 jest.mock('./databases');
@@ -114,10 +114,12 @@ describe('adding verification', () => {
     await acceptAnnotation(projectId, imageId1);
     await acceptAnnotation(projectId, imageId2);
     await acceptAnnotation(projectId, imageId3);
-    await generateReport();
+    // const reportID = await generateReport();
     await generateReport();
     const reports = await getAllReports();
     console.log(reports);
+    // await deleteReport(reportID.reportID);
+    // console.log(reports);
   });
 
   it('number images waiting for verification',

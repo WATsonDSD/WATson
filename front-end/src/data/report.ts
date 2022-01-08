@@ -48,3 +48,8 @@ export async function getAllReports(): Promise<Report[]> {
     });
   });
 }
+
+export async function deleteReport(reportID: ReportID): Promise<void> {
+  // Removes the project from ProjectsDB
+  await ReportsDB.get(reportID).then((report) => ReportsDB.remove(report));
+}
