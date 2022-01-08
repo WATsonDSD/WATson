@@ -11,7 +11,6 @@ export async function generateReport(): Promise<Report> {
   const rep = await createReport();
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
-  console.log(listOfUsers);
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
@@ -135,9 +134,7 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let hoursV = 0;
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
-  // console.log(user);
   projectsForUser.forEach((project) => {
-    // console.log('user', user._id, user.projects[project.id]);
     if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
     if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
@@ -204,5 +201,16 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
   ));
   return earningPerMonth;
 }
-
 export default generateReport;
+
+export async function calculateTotalBonus(): Promise<number> {
+  let totBonus = 0;
+  const users = await getAllUsers();
+  await Promise.all(Object.entries(users).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, user]) => {
+      totBonus += user.bonus;
+    },
+  ));
+  return totBonus;
+}

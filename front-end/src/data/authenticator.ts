@@ -162,6 +162,7 @@ export async function signUp(name: string, email: string, password: string, role
           role,
           projects: {},
           workDoneInTime: {},
+          bonus: 0,
         }).then(() => resolve(id));
       } else {
         // Something went wrong...

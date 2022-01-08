@@ -25,6 +25,7 @@ export type Worker = {
             verified: ImageID[],
         }
     }>
+    bonus: number,
     name: string,
     email: string,
     role: Role,

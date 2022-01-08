@@ -1,7 +1,8 @@
 import {
-  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink,
+  addImageToProject, Annotation, createProject, createUser, ImageID, ProjectID, UserID, addUserToProject, findUserById, createAnnotatorVerifierLink, addBonus,
 } from '.';
 import {
+  calculateTotalBonus,
   calculateTotalCost, dataChartProjects, dataChartWorker, earningsInTotalPerProjectPerUser, hoursWorkPerProjectPerUser, hoursWorkPerUser, percentageOfImagesDone, totalAnnotationMade, totalHoursOfWork, totalWorkers,
 } from './financier';
 import {
@@ -165,4 +166,23 @@ describe('adding verification', () => {
   test('total hours of work of an user', () => hoursWorkPerUser(annotatorId).then((data) => {
     expect(data).toBe(7.5);
   }));
+});
+
+describe('assign bonus', () => {
+  beforeAll(async () => {
+    userId = await createUser('Laura', 'laura@watson', 'annotator');
+    userId2 = await createUser('Cem', 'cem@watson', 'verifier');
+    userIdF = await createUser('financ', 'finance@watson', 'finance');
+    userIdPM = await createUser('pm', 'pm@watson', 'projectManager');
+    const user = await findUserById(userId);
+    const user2 = await findUserById(userId2);
+    addBonus(user, 10);
+    addBonus(user2, 100);
+  });
+
+  it('add bonus to user',
+    () => expect(findUserById(userId).then((user) => user.bonus)).resolves.toBe(10));
+  it('add bonus to user',
+    () => expect(findUserById(userId2).then((user2) => user2.bonus)).resolves.toBe(100));
+  it('all bonus', () => expect(calculateTotalBonus()).resolves.toBe(110));
 });
