@@ -16,6 +16,7 @@ import {
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  deleteImageFromProject,
   findProjectById, useUserNotNull,
 } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
@@ -68,6 +69,7 @@ export default function AnnotationView() {
     changeContrast,
     changeBrightness,
     imageLandmarkColor,
+
     templateLandmarkColor: defaultTemplateLandmarkColor,
     getHoveredLandmark,
     onMouseDownMove,
@@ -281,7 +283,7 @@ export default function AnnotationView() {
             <br />
             <button className="pt-4 pb-2" type="button">
               <div className="flex py-2 px-4 h-6v w-full bg-ui-red shadow-lg rounded-3xl text-center">
-                <span className="text-ui-darkred mx-auto"> Mark As invalid </span>
+                <button type="button" className="text-ui-darkred mx-auto" onClick={() => { deleteImageFromProject(projectId!, image.id).then(() => { updateImage(); }); }}> Mark As invalid </button>
               </div>
             </button>
           </div>
