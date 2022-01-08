@@ -167,7 +167,7 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
 export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
-  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
+  const totIm = +project.pricePerImageAnnotation + +project.pricePerImageVerification;
   Object.values(project.images.done).forEach(
     async (value) => {
       const month = new Date(value.doneDate).getMonth();

@@ -13,8 +13,6 @@ import useData from '../../../data/hooks';
 export default function Statistics() {
   // return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length];
   const statistics = useData(async () => statisticsInformation());
-  console.log('statistics on view', statistics);
-  if (!statistics) throw Error('there are no statistics here');
   const exampleChart: ChartConfiguration = {
     type: 'line',
     data: {
@@ -35,6 +33,23 @@ export default function Statistics() {
       ],
     },
   };
+  let totalNumberOfProjects = 0;
+  let numberOfActiveProjects = 0;
+  let totalSpendings = 0;
+  let totalHours = 0;
+  let usersLength = 0;
+  if (statistics) {
+    // eslint-disable-next-line prefer-destructuring
+    totalNumberOfProjects = statistics[0];
+    // eslint-disable-next-line prefer-destructuring
+    numberOfActiveProjects = statistics[1];
+    // eslint-disable-next-line prefer-destructuring
+    totalSpendings = statistics[2];
+    // eslint-disable-next-line prefer-destructuring
+    totalHours = statistics[3];
+    // eslint-disable-next-line prefer-destructuring
+    usersLength = statistics[4];
+  }
 
   return (
     <div className="h-full w-full">
@@ -54,7 +69,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  {statistics[2]}
+                  {totalSpendings}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total spendings
@@ -81,7 +96,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  {statistics[3]}
+                  {totalHours}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total hours of work
@@ -109,7 +124,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  {statistics[4]}
+                  {usersLength}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total workers
@@ -146,7 +161,7 @@ export default function Statistics() {
                 Total number of projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                {statistics[0]}
+                {totalNumberOfProjects}
 
               </p>
             </div>
@@ -166,7 +181,7 @@ export default function Statistics() {
                 Active projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                {statistics[1]}
+                {numberOfActiveProjects}
               </p>
             </div>
           </div>
