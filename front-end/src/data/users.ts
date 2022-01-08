@@ -284,3 +284,10 @@ export async function getWorkDoneByUser(
   });
   return { annotation: numAnnotations, verification: numVerifications };
 }
+
+export async function promoteToVerifier(user: User) {
+  const updatedUser: User = user;
+  updatedUser.role = 'verifier';
+
+  updateUser(updatedUser);
+}
