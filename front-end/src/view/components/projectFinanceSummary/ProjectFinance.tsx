@@ -4,7 +4,7 @@ import { BiTimeFive, BiPencil } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
 import { FiUsers } from 'react-icons/fi';
 import { ChartConfiguration } from 'chart.js';
-import { findProjectById, getUsersOfProject, User } from '../../../data';
+import { findProjectById, getUsersOfProject, Worker } from '../../../data';
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
@@ -20,7 +20,7 @@ export default function ProjectFinance() {
   const totalWork = useData(async () => totalWorkers(idProject!));
   const totalAnnotation = useData(async () => totalAnnotationMade(idProject!));
   const data = useData(async () => dataChartProjects(idProject!));
-  const [users, setProjectUsers] = useState([] as User[]);
+  const [users, setProjectUsers] = useState([] as Worker[]);
   const [usersData, setUsersData] = useState([] as { id: string, hours: number, earnings: number }[]);
 
   useEffect(() => {
@@ -29,11 +29,11 @@ export default function ProjectFinance() {
       result.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').forEach((user) => {
         let hoursWork: number;
         let earnings: number;
-        hoursWorkPerProjectPerUser(user.id, idProject ?? '').then(((result) => {
+        hoursWorkPerProjectPerUser(user._id, idProject ?? '').then(((result) => {
           hoursWork = result;
-          earningsInTotalPerProjectPerUser(user.id, idProject ?? '').then((result) => {
+          earningsInTotalPerProjectPerUser(user._id, idProject ?? '').then((result) => {
             earnings = result;
-            setUsersData((state) => [...state, { id: user.id, hours: hoursWork, earnings }]);
+            setUsersData((state) => [...state, { id: user._id, hours: hoursWork, earnings }]);
           });
         }));
       });
@@ -164,10 +164,10 @@ export default function ProjectFinance() {
 
           {users && users.length > 0
             ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => {
-              const hoursWork = usersData?.find((u) => u.id === user.id)?.hours.toFixed(2);
-              const earnings = usersData?.find((u) => u.id === user.id)?.earnings.toFixed(2);
+              const hoursWork = usersData?.find((u) => u.id === user._id)?.hours.toFixed(2);
+              const earnings = usersData?.find((u) => u.id === user._id)?.earnings.toFixed(2);
               return (
-                <div key={user.id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
+                <div key={user._id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
                   <div className="flex items-center gap-x-4 col-span-2">
                     <span className="block w-10 h-10 bg-gray-100 rounded-full" />
                     <span>{user.name}</span>

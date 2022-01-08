@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import {
-  Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateBlock, updateUser, User, UserID,
+  Block, BlockID, findProjectById, findUserById, ImageID, ImagesDB, ProjectID, ProjectsDB, updateBlock, updateUser, Worker, UserID,
 } from '.';
 import { findImageById } from './images';
 
@@ -101,7 +101,7 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
   if (!annotatorId) throw Error('the block does not have an annotator');
 
   const annotator = await findUserById(annotatorId);
-  let verifier: User | undefined;
+  let verifier: Worker | undefined;
   if (block.idVerifier) {
     verifier = await findUserById(block.idVerifier);
   }
@@ -126,9 +126,9 @@ export async function addImagesToBlock(toAdd: number, blockId: BlockID, projectI
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
       const image = await findImageById(value);
-      image.idAnnotator = annotator.id;
+      image.idAnnotator = annotator._id;
       if (verifier) {
-        image.idVerifier = verifier.id;
+        image.idVerifier = verifier._id;
       }
       ImagesDB.put(image);
     },

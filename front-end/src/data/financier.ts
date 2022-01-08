@@ -1,34 +1,26 @@
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, Project, User, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, UserID,
 } from '.';
-import { ProjectsIcon } from '../view/components/shared/sidebar/MenuIcons';
-import { createReport, findReportById, insertReportRows } from './report';
-import { ProjectID, Report, Role } from './types';
-import { UsersDB } from './__mocks__/databases';
+import { createReport, insertReportRows } from './report';
+import { ProjectID, Report } from './types';
 
 /**
  * this function return a Csv data array with all the fields needed to show up the report * 
  */
 export async function generateReport(): Promise<Report> {
   const rep = await createReport();
-  const reportsRows: any[] = [];
   // this will be added in the page that generates the reports 
   const listOfUsers = await getAllUsers(); // first column. all of user
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = now.getMonth().toString();
-  await Promise.all(Object.entries(listOfUsers).map(async ([key, user]) => {
+  await Promise.all(Object.values(listOfUsers).map(async (user) => {
     if (user.role === 'annotator' || user.role === 'verifier') {
-      const projectsForUser = await getProjectsOfUser(user.id);
+      const projectsForUser = await getProjectsOfUser(user._id);
       let numberOfImagesAnnotated = 0;
       let numberOfImagesVerified = 0;
-      await Promise.all(Object.entries(projectsForUser).map(async ([key, project]) => {
-        const { client } = project;
-        const workDone = await getWorkDoneByUser(user.id, { year, month }, project.id);
+      await Promise.all(Object.values(projectsForUser).map(async (project) => {
+        const workDone = await getWorkDoneByUser(user._id, { year, month }, project.id);
         numberOfImagesAnnotated = workDone.annotation;
         numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
@@ -38,13 +30,13 @@ export async function generateReport(): Promise<Report> {
 
         if (paymentA > 0) {
           rep.reportRow.push({
-            user: user.id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
+            user: user._id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
           });
         }
         if (user.role === 'verifier') {
           if (paymentV > 0) {
             rep.reportRow.push({
-              user: user.id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
+              user: user._id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
             });
           }
         }
@@ -118,12 +110,13 @@ export async function earningsPerUser(userID: UserID): Promise<number> {
   let numberVerified = 0;
   let totalEarnings = 0;
   await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
-    numberAnnotated = proj.annotated.length;
-    numberVerified = proj.verified.length;
+    numberAnnotated = +proj.annotated.length;
+    numberVerified = +proj.verified.length;
     const project = await findProjectById(id);
-    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+    totalEarnings += (numberAnnotated * +project.pricePerImageAnnotation);
+    totalEarnings += (numberVerified * +project.pricePerImageVerification);
+    console.log(proj, totalEarnings);
   }));
-
   return totalEarnings;
 }
 
@@ -172,10 +165,10 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
   const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
-  Object.entries(project.images.done).forEach(
-    async ([key, value]) => {
+  Object.values(project.images.done).forEach(
+    async (value) => {
       const month = new Date(value.doneDate).getMonth();
-      earningMonth[month] += totIm;
+      earningMonth[month] += +totIm;
     },
   );
   return earningMonth;
@@ -184,21 +177,22 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
+
   await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {
       const project = await findProjectById(key);
-      const priceAnnotation = project.pricePerImageAnnotation;
-      const priceVerification = project.pricePerImageVerification;
+      const priceAnnotation = +project.pricePerImageAnnotation;
+      const priceVerification = +project.pricePerImageVerification;
       // adding earning per month of annotated images
-      Object.entries(value.annotated).forEach(
-        async ([key, value]) => {
+      Object.values(value.annotated).forEach(
+        (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
-      Object.entries(value.verified).forEach(
-        async ([key, value]) => {
+      Object.values(value.verified).forEach(
+        (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
@@ -213,6 +207,7 @@ export async function calculateTotalBonus(): Promise<number> {
   let totBonus = 0;
   const users = await getAllUsers();
   await Promise.all(Object.entries(users).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, user]) => {
       totBonus += user.bonus;
     },

@@ -11,6 +11,8 @@ import {
   mdiChevronLeft,
   mdiChevronRight,
   mdiHelpCircle,
+  mdiArrowRightBoldBoxOutline,
+  mdiArrowLeftBoldBoxOutline,
 } from '@mdi/js';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -21,7 +23,7 @@ import 'rc-slider/assets/index.css';
 import { getImagesOfUser, saveAnnotation } from '../../../data/images';
 import AnnotVerif, {
   emptyImage,
-  templateImage,
+  templateImage as initialTemplateImage,
   zoomIn,
   zoomOut,
   defaultTransform,
@@ -29,7 +31,13 @@ import AnnotVerif, {
   lastLandmark,
   mousePosition,
 } from '../shared/annotation/AnnotVerif';
-
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
+import ctrlKey from '../../../assets/icons/Ctrl.png';
+import plusIcon from '../../../assets/icons/Plus.png';
+import mouseLeft from '../../../assets/icons/mouse-l.png';
+import mouseRight from '../../../assets/icons/mouse-r.png';
+import mouseScroll from '../../../assets/icons/mouse-s.png';
 import { Paths } from '../shared/routes';
 
 /* TODO: Keyboard shortcuts
@@ -40,9 +48,12 @@ g - Optical Flow prediction
 backspace - undo last landmark
 */
 
+let templateImage = emptyImage;
+
 export default function AnnotationView() {
   const [image, setImage] = useState({ ...emptyImage });
   const [transform, setTransform] = useState({ ...defaultTransform });
+  const [showHelp, setShowHelp] = useState(false);
   const [landmarkId, setLandmarkId] = useState(undefined as number|undefined);
   const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
@@ -67,6 +78,7 @@ export default function AnnotationView() {
   useEffect(() => {
     findProjectById(projectId ?? '')
       .then((project) => {
+        templateImage = { ...initialTemplateImage, annotation: { ...initialTemplateImage.annotation } };
         Object.keys(templateImage.annotation ?? {}).forEach((a) => {
           if (!project.landmarks.includes(+a) && templateImage.annotation) {
             delete templateImage.annotation[+a];
@@ -77,7 +89,7 @@ export default function AnnotationView() {
   }, []);
 
   const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toAnnotate', user!.id).then((result) => {
+    getImagesOfUser(projectId ?? '', 'toAnnotate', user!._id).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');
@@ -158,8 +170,52 @@ export default function AnnotationView() {
     return defaultTemplateLandmarkColor(id);
   };
 
+  console.log(templateImage);
   return (
     <div>
+      { showHelp
+        && (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+        <div className="fixed h-100v w-100v bg-transparent z-10" onClick={() => setShowHelp(false)}>
+          <div className="fixed h-fill w-20v bg-gray-100 z-20 rounded-3xl p-5vh ml-56vw bottom-24">
+            <h1 className="-mt-4">Shortcuts</h1>
+            <div className="mt-2vh">
+              <span>Landmarks Shortcuts:</span>
+              <br />
+              <span className="flex my-1">
+                <img className="w-6 h-6" src={mouseLeft} alt="" />
+                <span className="px-2">- Normal</span>
+              </span>
+              <span className="flex my-1">
+                <img className="w-6 h-6" src={mouseRight} alt="" />
+                <span className="px-2">- Non Visible</span>
+              </span>
+              <span className="flex my-1">
+                <img className="w-8 h-6" src={ctrlKey} alt="" />
+                <img className="w-5 h-5 mx-1" src={plusIcon} alt="" />
+                <img className="w-6 h-6" src={mouseLeft} alt="" />
+                <span className="px-2">- Ocluded</span>
+              </span>
+              <br />
+              <br />
+              Navigation:
+              <br />
+              <span className="flex my-1">
+                <img className="w-8 h-8" src={mouseScroll} alt="" />
+                <span className="px-2">- Zoom in/out</span>
+              </span>
+              <span className="flex my-1">
+                <Icon size={1.5} path={mdiArrowRightBoldBoxOutline} />
+                <span className="px-2">- Next Image</span>
+              </span>
+              <span className="flex my-1">
+                <Icon size={1.5} path={mdiArrowLeftBoldBoxOutline} />
+                <span className="px-2">- Previous Image</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        )}
       <div className="grid grid-cols-12 grid-rows-5 gap-2 h-100v bg-gray-100">
         <div className="h-full p-4 col-span-2 row-start-1 row-end-5 w-full">
           <div className="h-full p-4 w-9v bg-ui-gray shadow-lg rounded-3xl mx-auto">
@@ -210,9 +266,6 @@ export default function AnnotationView() {
                   <Icon className="col-span-1" path={mdiMagnifyPlus} horizontal />
                 </button>
               </div>
-              <div className="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
-                <p>Optical Flow</p>
-              </div>
             </div>
           </div>
         </div>
@@ -250,6 +303,7 @@ export default function AnnotationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>
@@ -280,10 +334,10 @@ export default function AnnotationView() {
           <div className="h-20v px-4  mx-auto grid m-auto grid-cols-2 gap-6">
             <button className="col-span-1 pt-auto pb-0" type="button" onClick={save}>
               <div className="flex py-2 px-4 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
-                <span className="mx-auto text-white"> Save Annotation </span>
+                <span className="mx-auto text-white"> Save </span>
               </div>
             </button>
-            <button className="col-span-1" type="button">
+            <button className="col-span-1" type="button" onClick={() => setShowHelp(true)}>
               <div className="flex p-1 h-6v w-full bg-ui-gray shadow-lg rounded-3xl text-center">
                 <Icon className="fill-current text-white" path={mdiHelpCircle} />
                 <span className="px-4 text-white"> Help </span>
