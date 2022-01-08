@@ -69,10 +69,6 @@ export async function calculateTotalCost(projectID: string): Promise<[number, nu
   const totalImagesInDone = project.images.done.length;
   const totalAnnotatedCost = (totalImagesInDone * project.pricePerImageAnnotation);
   const totalVerifiedCost = (totalImagesInDone * project.pricePerImageVerification);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  await Promise.all(Object.entries(project.users).map(async ([key, userId]) => {
-    const user = await findUserById(userId);
-  }));
   const totalCost = totalVerifiedCost + totalAnnotatedCost;
   return [totalCost, totalAnnotatedCost, totalVerifiedCost];
 }
