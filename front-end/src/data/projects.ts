@@ -112,7 +112,7 @@ export async function getAllProjects(): Promise<Project[]> {
 export async function statisticsInformation(): Promise<[number, number, number, number, number]> {
   const projects = await getAllProjects();
   const totalNumberOfProjects = projects.length;
-  const numberOfActiveProjects = (projects.map((project) => project.status === 'active')).length;
+  const numberOfActiveProjects = (projects.filter((project) => project.status === 'active'));
   let totalSpendings = 0;
   let totalHours = 0;
   await Promise.all(Object.entries(projects).map(
@@ -125,9 +125,9 @@ export async function statisticsInformation(): Promise<[number, number, number, 
     },
   ));
   const users = await getAllUsers();
-  console.log('statistics:', totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length);
+  console.log(users);
 
-  return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, +totalHours.toFixed(2), users.length];
+  return [totalNumberOfProjects, numberOfActiveProjects.length, totalSpendings, +totalHours.toFixed(2), (users.length)];
 }
 /**
  * Deletes a project:

@@ -29,11 +29,11 @@ const annotation = {
 } as Annotation;
 
 test('Can find created project', async () => {
-  const id = await createProject('Test Project', 'The Flintstones', [], startDate, endDate, {
+  const id = await createProject('Project 7', 'The Flintstones', [], startDate, endDate, {
     pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
   });
   const name = findProjectById(id).then((project) => project.name);
-  return expect(name).resolves.toBe('Test Project');
+  return expect(name).resolves.toBe('Project 7');
 });
 
 describe('addUserToProject', () => {
@@ -41,7 +41,7 @@ describe('addUserToProject', () => {
   let projectId: ProjectID;
   beforeAll(async () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
-    projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
+    projectId = await createProject('Project 6', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     await addUserToProject(userId, projectId);
@@ -61,7 +61,7 @@ describe('addImageToProject', () => {
   let imageId: ImageID;
 
   beforeAll(async () => {
-    projectId = await createProject('Test Project', 'Dr. Doofenschmirtz', [], startDate, endDate, {
+    projectId = await createProject('Project 5', 'Dr. Doofenschmirtz', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(new Blob(['Hello, world!'], { type: 'text/plain' }), projectId);
@@ -91,10 +91,10 @@ describe('remove user correctly,', () => {
     userId = await createUser('User 1', 'user1@watson.com', 'annotator');
     annotatorId2 = await createUser('User 2', 'user2@watson.com', 'annotator');
     verifierId = await createUser('User 3', 'user3@watson.com', 'verifier');
-    projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
+    projectId = await createProject('Project 3', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
-    projectId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
+    projectId2 = await createProject('Project 4', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
     });
     imageId = await addImageToProject(imageData, projectId);
@@ -103,7 +103,6 @@ describe('remove user correctly,', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     imageId3 = await addImageToProject(imageData3, projectId);
     await addUserToProject(userId, projectId);
-    // await addUserToProject(userId, projectId2);
     await addUserToProject(verifierId, projectId);
     await addUserToProject(annotatorId2, projectId);
     await addUserToProject(annotatorId2, projectId2);
@@ -113,8 +112,8 @@ describe('remove user correctly,', () => {
     await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
     await assignImagesToAnnotator(1, userId, projectId);
     await assignImagesToAnnotator(2, annotatorId2, projectId);
-    await saveAnnotation(annotation, imageId, projectId);
-    await saveAnnotation(annotation, imageId2, projectId);
+    await saveAnnotation(annotation, imageId, projectId); // one annotated
+    await saveAnnotation(annotation, imageId2, projectId); // one rejected
     await acceptAnnotation(projectId, imageId);
     await rejectAnnotation(imageId2, projectId, 'nah');
     await removeUserFromProject(projectId, userId);
@@ -140,45 +139,31 @@ describe('statistics numbers', () => {
   let verifierId: UserID;
   let annotatorId2: UserID;
   let projectId: ProjectID;
-  let projectId2: ProjectID;
+  let projectIdtoClose: ProjectID;
   beforeAll(async () => {
-    userId = await createUser('User 1', 'user1@watson.com', 'annotator');
-    annotatorId2 = await createUser('User 2', 'user2@watson.com', 'annotator');
-    verifierId = await createUser('User 3', 'user3@watson.com', 'verifier');
     projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
-      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+      pricePerImageAnnotation: 10, pricePerImageVerification: 20, hourlyRateAnnotation: 100, hourlyRateVerification: 200,
     });
-    projectId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
-      pricePerImageAnnotation: 10, pricePerImageVerification: 23, hourlyRateAnnotation: 23, hourlyRateVerification: 56,
+    projectIdtoClose = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
+      pricePerImageAnnotation: 15, pricePerImageVerification: 25, hourlyRateAnnotation: 60, hourlyRateVerification: 75,
     });
-    imageId = await addImageToProject(imageData, projectId);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    imageId2 = await addImageToProject(imageData2, projectId);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    imageId3 = await addImageToProject(imageData3, projectId);
-    await addUserToProject(userId, projectId);
-    // await addUserToProject(userId, projectId2);
-    await addUserToProject(verifierId, projectId);
-    await addUserToProject(annotatorId2, projectId);
-    await addUserToProject(annotatorId2, projectId2);
-    // se link prima di Save -> no idVerifier
-    // se link dopo save -> no block 
-    await createAnnotatorVerifierLink(projectId, userId, verifierId);
-    await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId);
-    await assignImagesToAnnotator(1, userId, projectId);
-    await assignImagesToAnnotator(2, annotatorId2, projectId);
-    await saveAnnotation(annotation, imageId, projectId);
-    await saveAnnotation(annotation, imageId2, projectId);
-    await acceptAnnotation(projectId, imageId);
-    await rejectAnnotation(imageId2, projectId, 'nah');
-    await removeUserFromProject(projectId, userId);
     const projects = await getAllProjects();
-    console.log(projects);
-    const ciao = await statisticsInformation();
-    console.log(ciao);
+    // console.log(projects);
+    const statistics = await statisticsInformation();
+    // console.log(statistics);
+    await closeProject(projectIdtoClose);
   });
-
-  it('closed project', async () => expect(closeProject(projectId).then(() => findProjectById(projectId).then((project) => project.status === 'closed'))).resolves.toBe(true));
-
-  // it('statistics', () => expect(ciao[0]).toBe(0));
+  // totalSpendings, totalHours, users.length);
+  it('n umber of projects', () => statisticsInformation().then((data) => {
+    expect(data[0]).toBe(7);
+  }));
+  it('number of active projects', () => statisticsInformation().then((data) => {
+    expect(data[1]).toBe(5);
+  }));
+  it('total Spendings', () => statisticsInformation().then((data) => {
+    expect(data[2]).toBe(33);
+  }));
+  it('numer of users', () => statisticsInformation().then((data) => {
+    expect(data[4]).toBe(4);
+  }));
 });
