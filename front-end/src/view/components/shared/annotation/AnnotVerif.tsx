@@ -62,6 +62,8 @@ export default (
   setTransform: Function,
   movedLandmark: number|null,
   setMovedLandmark: Function,
+  imageId: number,
+  setImageId: Function,
 ) => {
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
@@ -150,6 +152,19 @@ export default (
     setMovedLandmark(null);
   };
 
+  const updateImageId = (imageCount: number) => {
+    // To include in nextImage() ?
+    let newImageId = imageId;
+    if (newImageId >= imageCount) {
+      newImageId = 0;
+    }
+    if (newImageId < 0) {
+      newImageId = imageCount - 1;
+    }
+    setImageId(newImageId);
+    return newImageId;
+  };
+
   return {
     onImageWheel,
     zoom,
@@ -161,5 +176,6 @@ export default (
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
+    updateImageId,
   };
 };
