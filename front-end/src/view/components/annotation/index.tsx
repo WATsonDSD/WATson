@@ -44,7 +44,6 @@ import { Paths } from '../shared/routes';
 a - Go to previous image
 d -  Go to next image
 s - Save image landmarks
-g - Optical Flow prediction
 backspace - undo last landmark
 */
 
@@ -57,6 +56,7 @@ export default function AnnotationView() {
   const [landmarkId, setLandmarkId] = useState(undefined as number|undefined);
   const [tool, setTool] = useState('normal' as 'normal'|'move'|'delete');
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
+  const [imageId, setImageId] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -85,10 +85,10 @@ export default function AnnotationView() {
           }
         });
       });
-    nextImage();
+    updateImage();
   }, []);
 
-  const nextImage = () => {
+  const updateImage = () => {
     getImagesOfUser(projectId ?? '', 'toAnnotate', user!._id).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
@@ -96,11 +96,27 @@ export default function AnnotationView() {
         navigate(Paths.Projects);
         return;
       }
-      setImage(result[0]);
-      const next = nextLandmark(result[0].annotation, templateImage.annotation);
+      const realImageId = updateImageId(result.length);
+      setImage(result[realImageId]);
+      const next = nextLandmark(result[realImageId].annotation, templateImage.annotation);
       setLandmarkId(next);
       setTransform(defaultTransform);
     });
+  };
+
+  useEffect(updateImage, [imageId]);
+
+  const updateImageId = (imageCount: number) => {
+    // To include in nextImage() ?
+    let newImageId = imageId;
+    if (newImageId >= imageCount) {
+      newImageId = 0;
+    }
+    if (newImageId < 0) {
+      newImageId = imageCount - 1;
+    }
+    setImageId(newImageId);
+    return newImageId;
   };
 
   const onImageClick = (ctx: any, event: MouseEvent, rightClick: boolean) => {
@@ -154,7 +170,7 @@ export default function AnnotationView() {
     }
     saveAnnotation(image.annotation, image.id, projectId as string)
       .then(() => {
-        nextImage();
+        updateImage();
       })
       .catch((e) => {
         // TODO: Alert user that the annotation is incorrect
@@ -284,7 +300,7 @@ export default function AnnotationView() {
           </div>
         </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId - 1)}>
             <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
               <Icon className="col-span-1" path={mdiChevronLeft} />
             </div>
@@ -308,7 +324,7 @@ export default function AnnotationView() {
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId + 1)}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>
