@@ -147,14 +147,11 @@ describe('statistics numbers', () => {
     projectIdtoClose = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 15, pricePerImageVerification: 25, hourlyRateAnnotation: 60, hourlyRateVerification: 75,
     });
-    const projects = await getAllProjects();
-    // console.log(projects);
-    const statistics = await statisticsInformation();
-    // console.log(statistics);
+
     await closeProject(projectIdtoClose);
   });
   // totalSpendings, totalHours, users.length);
-  it('n umber of projects', () => statisticsInformation().then((data) => {
+  it('number of projects', () => statisticsInformation().then((data) => {
     expect(data[0]).toBe(7);
   }));
   it('number of active projects', () => statisticsInformation().then((data) => {

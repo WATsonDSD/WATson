@@ -109,25 +109,32 @@ export async function getAllProjects(): Promise<Project[]> {
   });
 }
 
-export async function statisticsInformation(): Promise<[number, number, number, number, number]> {
+export async function statisticsInformation(): Promise<[number, number, number, number, number, number, number, number]> {
   const projects = await getAllProjects();
+  const users = await getAllUsers();
   const totalNumberOfProjects = projects.length;
   const numberOfActiveProjects = (projects.filter((project) => project.status === 'active'));
   let totalSpendings = 0;
   let totalHours = 0;
-  await Promise.all(Object.entries(projects).map(
+  let averageProjectSpendings = 0;
+  let averageProjectHours = 0;
+  let averageProjectWorkers = 0;
+  if (totalNumberOfProjects !== 0) {
+    await Promise.all(Object.entries(projects).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async ([key, value]) => {
-      const cost = await calculateTotalCost(value.id);
-      totalSpendings += cost[0];
-      const hours = await totalHoursOfWork(value.id);
-      totalHours += hours[0];
-    },
-  ));
-  const users = await getAllUsers();
-  console.log(users);
+      async ([key, value]) => {
+        const cost = await calculateTotalCost(value.id);
+        totalSpendings += cost[0];
+        const hours = await totalHoursOfWork(value.id);
+        totalHours += hours[0];
+      },
+    ));
+    averageProjectSpendings = totalSpendings / totalNumberOfProjects;
+    averageProjectHours = totalHours / totalNumberOfProjects;
+  }
+  averageProjectWorkers = users.length / totalNumberOfProjects;
 
-  return [totalNumberOfProjects, numberOfActiveProjects.length, totalSpendings, +totalHours.toFixed(2), (users.length)];
+  return [totalNumberOfProjects, numberOfActiveProjects.length, totalSpendings, +totalHours.toFixed(2), (users.length), +averageProjectSpendings.toFixed(2), +averageProjectHours.toFixed(2), +averageProjectWorkers.toFixed(2)];
 }
 /**
  * Deletes a project:
