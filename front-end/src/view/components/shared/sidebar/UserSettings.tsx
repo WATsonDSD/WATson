@@ -8,10 +8,6 @@ import { SignOutDialog, EditProfileDialog, AccountSettings } from '../dialogs';
 
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(' ');
-}
-
 export default function UserSettings() {
   const [user] = useUserNotNull();
   const dialog = useDialog();
@@ -49,20 +45,6 @@ export default function UserSettings() {
               <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<AccountSettings onClose={dialog.close} />)}>
                 Account Settings
               </button>
-            </Menu.Item>
-
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="./"
-                  className={classNames(
-                    active ? 'text-black' : 'text-gray-600',
-                    'block pr-16 pb-4',
-                  )}
-                >
-                  Notifications
-                </a>
-              )}
             </Menu.Item>
 
             <span className="block border-b" />
