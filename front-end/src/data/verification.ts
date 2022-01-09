@@ -159,6 +159,7 @@ export async function modifyAnnotation(
   verifier.projects[projectID].annotated.push({ imageID, date: dateTime });
 
   await ProjectsDB.put(project);
+  await updateBlock(block, projectID);
   await updateUser(annotator);
   await updateUser(verifier);
 }
