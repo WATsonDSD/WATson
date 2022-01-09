@@ -79,7 +79,6 @@ export async function getAllProjects(): Promise<Project[]> {
   let projects: Project[] = [];
   return new Promise((resolve, reject) => {
     ProjectsDB.allDocs({
-      startkey: 'a',
       include_docs: true,
     }).then((response) => {
       if (response) {
