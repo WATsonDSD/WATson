@@ -139,23 +139,28 @@ describe('statistics numbers', () => {
   let verifierId: UserID;
   let annotatorId2: UserID;
   let projectId: ProjectID;
+  let projId2: ProjectID;
   let projectIdtoClose: ProjectID;
   beforeAll(async () => {
     projectId = await createProject('Project 1', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 10, pricePerImageVerification: 20, hourlyRateAnnotation: 100, hourlyRateVerification: 200,
     });
-    projectIdtoClose = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
+    projId2 = await createProject('Project 2', 'Client 1', [], startDate, endDate, {
       pricePerImageAnnotation: 15, pricePerImageVerification: 25, hourlyRateAnnotation: 60, hourlyRateVerification: 75,
     });
-
+    projectIdtoClose = await createProject(' NEW ONE', 'Client MEAHG', [], startDate, endDate, {
+      pricePerImageAnnotation: 15, pricePerImageVerification: 25, hourlyRateAnnotation: 60, hourlyRateVerification: 75,
+    });
+    const projects = await getAllProjects();
+    console.log(projects.length);
     await closeProject(projectIdtoClose);
   });
   // totalSpendings, totalHours, users.length);
   it('number of projects', () => statisticsInformation().then((data) => {
-    expect(data[0]).toBe(7);
+    expect(data[0]).toBe(8);
   }));
   it('number of active projects', () => statisticsInformation().then((data) => {
-    expect(data[1]).toBe(5);
+    expect(data[1]).toBe(6);
   }));
   it('total Spendings', () => statisticsInformation().then((data) => {
     expect(data[2]).toBe(33);

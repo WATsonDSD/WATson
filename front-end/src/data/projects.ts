@@ -111,6 +111,8 @@ export async function getAllProjects(): Promise<Project[]> {
 
 export async function statisticsInformation(): Promise<[number, number, number, number, number, number, number, number]> {
   const projects = await getAllProjects();
+  console.log('number of projects', projects.length);
+  console.log(projects);
   const users = await getAllUsers();
   const totalNumberOfProjects = projects.length;
   const numberOfActiveProjects = (projects.filter((project) => project.status === 'active'));
