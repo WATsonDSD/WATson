@@ -3,6 +3,7 @@ import Select from 'react-select';
 
 import { Role, createUser } from '../../../../data';
 import { useSnackBar, SnackBarType } from '../../../../utils/modals';
+import { refetchWorkersData } from '../../workers';
 
 export function CreateUserDialog(props: {onClose: VoidFunction}) {
   const { onClose } = props;
@@ -74,6 +75,7 @@ export function CreateUserDialog(props: {onClose: VoidFunction}) {
     createUser(formData.fullname, formData.email, formData.role as Role)
       .then(() => {
         onClose();
+        refetchWorkersData();
         snackBar({
           title: 'Success',
           message: 'The worker was successfully invited.',
