@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, import/no-unresolved
-import { CSVDownload, CSVLink } from 'react-csv';
 // eslint-disable-next-line import/no-unresolved
 import { BiDotsVertical } from 'react-icons/bi';
 import { Role } from '../../../data/types';
