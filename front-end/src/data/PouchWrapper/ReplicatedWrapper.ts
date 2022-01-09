@@ -6,6 +6,14 @@ const syncOptions = {
   retry: true,
 };
 
+const replicators = [] as Function[];
+let notified = false;
+export function notifyReplicators() {
+  if (notified) return;
+  notified = true;
+  replicators.forEach((replicate) => replicate());
+}
+
 export default class ReplicatedPouch<T> {
     private pouch: PouchDB.Database<T>;
 
@@ -21,7 +29,7 @@ export default class ReplicatedPouch<T> {
       this.pouch = pouch;
       this.name = pouch.name.split('/')[-1];
       this.localCache = new PouchDB<T>(pouch.name);
-      this.sync();
+      replicators.push(() => this.sync());
     }
 
     /* -------------------------------------------------------------------------- */
