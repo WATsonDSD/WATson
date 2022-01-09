@@ -7,6 +7,9 @@ import {
 
 import { Worker } from '../../../data';
 
+import { useDialog } from '../../../utils/modals';
+import { AwardBonusDialog, EditUserDialog, DeleteUserDialog } from '../shared/dialogs';
+
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
@@ -15,20 +18,28 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user, icon } = props;
 
+  const dialog = useDialog();
+
   let counter = 0;
 
   const options = [
     {
       name: 'Edit Worker',
-      action: () => {}, // TODO: implement update user data dialog
+      action: () => {
+        dialog.open(<EditUserDialog user={user} onClose={dialog.close} />);
+      },
     },
     {
       name: 'Award Bonus',
-      action: () => {},
+      action: () => {
+        dialog.open(<AwardBonusDialog user={user} onClose={dialog.close} />);
+      },
     },
     {
       name: 'Delete User',
-      action: () => {}, // TODO: implement delete user dialog
+      action: () => {
+        dialog.open(<DeleteUserDialog user={user} onClose={dialog.close} />);
+      },
     },
   ];
 
@@ -48,8 +59,8 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
   ));
 
   return (
-    <div className="Dropdown justify-self-center">
-      <Menu as="div" className="z-10 relative text-left my-0.5 max-h-6">
+    <div className="Dropdown justify-self-center text-black focus:outline-none">
+      <Menu as="div" className="relative text-left my-0.5 max-h-6">
         <Menu.Button>
           <span className="my-1 block w-auto font-bold px-2 align-middle text-center">{icon}</span>
         </Menu.Button>
@@ -63,7 +74,7 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-3/4 bg-white rounded-md shadow-lg py-2 focus:outline-none">
+          <Menu.Items className="absolute right-3/4 py-2 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
             <div>
               {dropDownOptions.slice(0, -1).map((option) => {
                 counter += 1;
