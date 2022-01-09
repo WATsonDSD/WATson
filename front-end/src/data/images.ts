@@ -1,6 +1,6 @@
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, User, BlockID,
+  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, Worker, BlockID,
 } from '.';
 import { ImagesDB } from './databases';
 import { DBDocument } from './PouchWrapper/PouchCache';
@@ -24,7 +24,6 @@ export async function findImageById(id: ImageID): Promise<DBDocument<Image>> {
   return {
     ...im,
     data: attach,
-    // eslint-disable-next-line no-underscore-dangle
     id: im._id,
   };
 }
@@ -72,7 +71,7 @@ export async function getNumberOfImagesOfProjectWithoutAnnotator(projectId: Proj
 /**
  * @returns all the users of the project
  */
-export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise <User[]> {
+export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise <Worker[]> {
   const project = await findProjectById(projectId);
   const usersId = project.users; // list di tutti gli id
 
@@ -84,7 +83,7 @@ export async function getAnnotatorWithoutVerifier(projectId: ProjectID): Promise
       usersId.splice(index, 1);
     },
   );
-  const users: User[] = [];
+  const users: Worker[] = [];
   await Promise.all(Object.entries(usersId).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, userId]) => {
@@ -130,7 +129,6 @@ export async function saveAnnotation(
 
   // move from toAnnotate to waitingForVerification in the user annotator
   const annotatorId = image.idAnnotator;
-  console.log('savve Annotation', image.idAnnotator);
   if (!annotatorId) throw Error('The image to be annotated has no annotator');
   const annotator = await findUserById(annotatorId);
   const imageIndexAnnotator = annotator.projects[projectId].toAnnotate.findIndex((ent) => ent === imageId);

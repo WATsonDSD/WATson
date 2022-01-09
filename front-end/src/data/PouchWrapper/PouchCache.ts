@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 export type DBDocument<T> = T & { _id: string, _rev?: string}
 
 const TTL = 4000;

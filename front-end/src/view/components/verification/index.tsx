@@ -9,7 +9,7 @@ import {
   mdiChevronRight,
   mdiHelpCircle,
 } from '@mdi/js';
-import { useUserNotNull } from '../../../data';
+import { findProjectById, useUserNotNull } from '../../../data';
 import AnnotatedImage from '../shared/annotation/AnnotatedImage';
 import 'rc-slider/assets/index.css';
 import { getImagesOfUser } from '../../../data/images';
@@ -18,11 +18,15 @@ import { Paths } from '../shared/routes/paths';
 
 import AnnotVerif, {
   emptyImage,
-  templateImage,
+  templateImage as initialTemplateImage,
   zoomIn,
   zoomOut,
   defaultTransform,
 } from '../shared/annotation/AnnotVerif';
+// eslint-disable-next-line import/extensions
+import { splines } from '../shared/annotation/TemplateAnnotation.json';
+
+let templateImage = emptyImage;
 
 export default function VerificationView() {
   const [image, setImage] = useState({ ...emptyImage });
@@ -30,6 +34,9 @@ export default function VerificationView() {
   const [showReject, setShowReject] = useState(false);
   const [movedLandmark, setMovedLandmark] = useState(null as number|null);
   const [edit, setEdit] = useState(false);
+  const [imageId, setImageId] = useState(0);
+  const [doneCount, setDoneCount] = useState(0);
+  const [remaningCount, setRemainingCount] = useState(0);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -45,28 +52,42 @@ export default function VerificationView() {
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
-  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark);
+    updateImageId,
+  } = AnnotVerif(image, setImage, transform, setTransform, movedLandmark, setMovedLandmark, imageId, setImageId);
 
   useEffect(() => {
-    nextImage();
+    findProjectById(projectId ?? '')
+      .then((project) => {
+        templateImage = { ...initialTemplateImage, annotation: { ...initialTemplateImage.annotation } };
+        Object.keys(templateImage.annotation ?? {}).forEach((a) => {
+          if (!project.landmarks.includes(+a) && templateImage.annotation) {
+            delete templateImage.annotation[+a];
+          }
+        });
+      });
+    updateImage();
   }, []);
 
-  const nextImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user.id).then((result) => {
+  const updateImage = () => {
+    getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
         return;
       }
-      setImage(result[0]);
+      const realImageId = updateImageId(result.length);
+      setImage(result[realImageId]);
       setTransform(defaultTransform);
+      setRemainingCount(result.length);
     });
   };
+  useEffect(updateImage, [imageId]);
 
   const saveAsValid = async () => {
     if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
     await acceptAnnotation(projectId ?? '', image.id);
-    nextImage();
+    updateImage();
+    setDoneCount(doneCount + 1);
   };
 
   const editImage = () => {
@@ -79,7 +100,8 @@ export default function VerificationView() {
     console.log(comment);
     await rejectAnnotation(image.id, projectId ?? '', comment ?? '');
     setShowReject(false);
-    nextImage();
+    updateImage();
+    setDoneCount(doneCount + 1);
   };
 
   const onClick = () => {
@@ -92,15 +114,7 @@ export default function VerificationView() {
     if (edit) onMouseMoveMove(ctx, event);
   };
 
-  // Here goes the image count condition if images to annotate is empty, allDone = true
-  const allDone = false;
-  if (allDone) {
-    return (
-      <div className="text-7xl m-auto p-auto">
-        <h1 className="pt-24 pl-24"> No Image to annotate </h1>
-      </div>
-    );
-  }
+  console.log(templateImage);
   return (
     <div>
       { showReject
@@ -181,20 +195,18 @@ export default function VerificationView() {
         </div>
         <div className="h-full p-4 col-start-1 col-span-3 row-start-5 row-end-6 w-full">
           <div className="h-full p-4 w-20v ml-1 mr-auto text-left ">
-            <span className="text-lg pl-1 font-bold">Image Landmarks:</span>
+            <span className="text-lg pl-1 font-bold">Progress:</span>
             <br />
             <span className="text-5xl pl-4 text font-bold">
               {/* Get Here the data of the verification of images in the current session */}
-              { image.annotation
-                ? Object.keys(image.annotation).length
-                : 1 }
+              { doneCount }
               {' / '}
-              {templateImage.annotation ? Object.keys(templateImage.annotation).length : 1}
+              { doneCount + remaningCount }
             </span>
           </div>
         </div>
         <div className="h-full p-4 col-span-1 row-start-2 row-span-2 w-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId - 1)}>
             <div className="flex h-50v w-full bg-ui-light shadow-lg rounded-3xl text-center">
               <Icon className="col-span-1" path={mdiChevronLeft} />
             </div>
@@ -213,11 +225,12 @@ export default function VerificationView() {
               translatePos={transform.translatePos}
               contrast={transform.contrast}
               brightness={transform.brightness}
+              splines={splines}
             />
           </div>
         </div>
         <div className="p-4 col-span-1 row-start-2 row-span-2 w-full h-full">
-          <button type="button" style={{ width: '6vw' }}>
+          <button type="button" style={{ width: '6vw' }} onClick={() => setImageId(imageId + 1)}>
             <div className="flex h-50v bg-ui-light shadow-lg rounded-3xl mx-auto text-center">
               <Icon className="col-span-1" path={mdiChevronRight} />
             </div>

@@ -2,7 +2,12 @@ export type YearMonthDay<T> = { [year: string]: { [month: string]: { [day: strin
 export type UserID = string;
 export type Role = 'projectManager' | 'annotator' | 'verifier' | 'finance';
 export type User = {
-    id: UserID,
+    name: string,
+    uuid: UserID,
+};
+
+export type Worker = {
+    _id: UserID,
     projects: {
         [projectID: ProjectID]: {
             toAnnotate: ImageID[],
@@ -20,6 +25,7 @@ export type User = {
             verified: ImageID[],
         }
     }>
+    bonus: number,
     name: string,
     email: string,
     role: Role,
@@ -74,8 +80,8 @@ export type ImageData = Blob;
 
 export type Image = {
     id: ImageID,
-    blockId?: BlockID
-    data?: ImageData,
+    blockId?: BlockID,
+    data: ImageData,
     annotation?: Annotation,
     idAnnotator?: UserID,
     idVerifier?: UserID

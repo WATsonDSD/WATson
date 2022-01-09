@@ -1,57 +1,55 @@
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { userInfo } from 'os';
 import {
-  findProjectById, findUserById, getAllUsers, getProjectsOfUser, numberOfImagesInProject, Project, User, UserID,
+  findProjectById, findUserById, getAllUsers, getProjectsOfUser, getWorkDoneByUser, numberOfImagesInProject, UserID,
 } from '.';
-import { createReport, insertReportRow } from './report';
-import { ProjectID, Role } from './types';
+import { createReport, insertReportRows } from './report';
+import { ProjectID, Report } from './types';
 
 /**
  * this function return a Csv data array with all the fields needed to show up the report * 
  */
-export async function generateReport(): Promise<any> {
-  const reportId = await createReport();
+export async function generateReport(): Promise<Report> {
+  const rep = await createReport();
   // this will be added in the page that generates the reports 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const headers = [
-    { label: 'Name', key: 'username' },
-    { label: 'Project', key: 'project' },
-    { label: 'Client', key: 'client' },
-    { label: 'Role', key: 'role' },
-    { label: 'images', key: 'images' },
-    { label: 'hoursOfWork', key: 'hours' },
-  ];
   const listOfUsers = await getAllUsers(); // first column. all of user
-  await Promise.all(listOfUsers.map(async (user) => {
-    const projectsForUser = await getProjectsOfUser(user.id);
-    let numberOfImagesAnnotated = 0;
-    let numberOfImagesVerified = 0;
-    projectsForUser.forEach((project) => {
-      const { client } = project;
-      numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-      numberOfImagesVerified = user.projects[project.id].verified.length;
-      const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
-      const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
-      const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-      const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+  const now = new Date();
+  const year = now.getFullYear().toString();
+  const month = now.getMonth().toString();
+  await Promise.all(Object.values(listOfUsers).map(async (user) => {
+    if (user.role === 'annotator' || user.role === 'verifier') {
+      const projectsForUser = await getProjectsOfUser(user._id);
+      let numberOfImagesAnnotated = 0;
+      let numberOfImagesVerified = 0;
+      await Promise.all(Object.values(projectsForUser).map(async (project) => {
+        const workDone = await getWorkDoneByUser(user._id, { year, month }, project.id);
+        numberOfImagesAnnotated = workDone.annotation;
+        numberOfImagesVerified = workDone.verification;
+        const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
+        const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
+        const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
+        const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
 
-      if (numberOfImagesAnnotated > 0) {
-        insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursA, paymentA, project.client,
-        );
-      }
-      if (numberOfImagesVerified > 0) {
-        insertReportRow(
-          reportId, user.id, user.name, user.email, user.role, project.name, hoursV, paymentV, project.client,
-        );
-      }
-    });
+        if (paymentA > 0) {
+          rep.reportRow.push({
+            user: user._id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
+          });
+        }
+        if (user.role === 'verifier') {
+          if (paymentV > 0) {
+            rep.reportRow.push({
+              user: user._id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
+            });
+          }
+        }
+      }));
+    }
   }));
+  await insertReportRows(rep.reportID, rep.reportRow);
+  // const report = await findReportById(rep.reportID);
+  // console.log('REPORTROWS: ', report.reportRow);
+  // console.log(rep);
   // user1: project 1 Annotating hoursOfWorkA paymentA client 
   // user1: project 1 Verifing hoursOfWorkV payment client
-  return reportId;
+  return rep;
 }
 
 /** total amount of money spent on a project, 
@@ -112,12 +110,13 @@ export async function earningsPerUser(userID: UserID): Promise<number> {
   let numberVerified = 0;
   let totalEarnings = 0;
   await Promise.all(Object.entries(user.projects).map(async ([id, proj]) => {
-    numberAnnotated = proj.annotated.length;
-    numberVerified = proj.verified.length;
+    numberAnnotated = +proj.annotated.length;
+    numberVerified = +proj.verified.length;
     const project = await findProjectById(id);
-    totalEarnings += numberAnnotated * project.pricePerImageAnnotation + numberVerified * project.pricePerImageVerification;
+    totalEarnings += (numberAnnotated * +project.pricePerImageAnnotation);
+    totalEarnings += (numberVerified * +project.pricePerImageVerification);
+    console.log(proj, totalEarnings);
   }));
-
   return totalEarnings;
 }
 
@@ -135,9 +134,7 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let hoursV = 0;
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
-  // console.log(user);
   projectsForUser.forEach((project) => {
-    // console.log('user', user.id, user.projects[project.id]);
     if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
     if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
@@ -161,18 +158,17 @@ export async function percentageOfImagesDone(projectID: ProjectID): Promise<numb
     return 0;
   }
   const percentage = project.images.done.length / totalImages;
-  console.log(percentage);
   return percentage;
 }
 
 export async function dataChartProjects(projectId: ProjectID): Promise<number[]> {
   const project = await findProjectById(projectId);
   const earningMonth: number[] = new Array(12).fill(0);
-  const totIm = project.pricePerImageAnnotation + project.pricePerImageVerification;
-  Object.entries(project.images.done).forEach(
-    async ([key, value]) => {
+  const totIm = +project.pricePerImageAnnotation + +project.pricePerImageVerification;
+  Object.values(project.images.done).forEach(
+    async (value) => {
       const month = new Date(value.doneDate).getMonth();
-      earningMonth[month] += totIm;
+      earningMonth[month] += +totIm;
     },
   );
   return earningMonth;
@@ -181,21 +177,22 @@ export async function dataChartProjects(projectId: ProjectID): Promise<number[]>
 export async function dataChartWorker(userId: UserID): Promise<number[]> {
   const earningPerMonth: number[] = new Array(12).fill(0);
   const user = await findUserById(userId);
+
   await Promise.all(Object.entries(user.projects).map(
     async ([key, value]) => {
       const project = await findProjectById(key);
-      const priceAnnotation = project.pricePerImageAnnotation;
-      const priceVerification = project.pricePerImageVerification;
+      const priceAnnotation = +project.pricePerImageAnnotation;
+      const priceVerification = +project.pricePerImageVerification;
       // adding earning per month of annotated images
-      Object.entries(value.annotated).forEach(
-        async ([key, value]) => {
+      Object.values(value.annotated).forEach(
+        (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceAnnotation;
         },
       );
       // adding earning per month of verified images
-      Object.entries(value.verified).forEach(
-        async ([key, value]) => {
+      Object.values(value.verified).forEach(
+        (value) => {
           const month = new Date(value.date).getMonth();
           earningPerMonth[month] += priceVerification;
         },
@@ -204,5 +201,16 @@ export async function dataChartWorker(userId: UserID): Promise<number[]> {
   ));
   return earningPerMonth;
 }
-
 export default generateReport;
+
+export async function calculateTotalBonus(): Promise<number> {
+  let totBonus = 0;
+  const users = await getAllUsers();
+  await Promise.all(Object.entries(users).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async ([key, user]) => {
+      totBonus += user.bonus;
+    },
+  ));
+  return totBonus;
+}

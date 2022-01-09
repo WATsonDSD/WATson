@@ -102,6 +102,7 @@ describe('Accept annotated image', () => {
     await createAnnotatorVerifierLink(projectId, annotatorId3, verifierId1);
     await saveAnnotation(annotation, imageId2, projectId);
     await createAnnotatorVerifierLink(projectId, annotatorId2, verifierId1);
+    await createAnnotatorVerifierLink(projectId, verifierId, verifierId1);
   });
 
   it('annotator has image in waitingForVerification', () => expect(getImagesOfUser(projectId, 'waitingForVerification', annotatorId2).then((images) => images.findIndex((image) => image.id === imageId2))).resolves.toBeGreaterThanOrEqual(0));
@@ -115,4 +116,7 @@ describe('Accept annotated image', () => {
   it('add the annotator in the annotatorId field of the image', () => expect(findImageById(imageId3).then((image) => image.idAnnotator === annotatorId2)).resolves.toBe(true));
   it('project has two blocks', () => expect(findProjectById(projectId).then((project) => (project.images.blocks[blockId]))).toBeDefined());
   it('project has two blocks', () => expect(findProjectById(projectId).then((project) => (project.images.blocks[blockId2]))).toBeDefined());
+  it('verifier cannot be assigned toverify its own annotations', () => {
+    expect(createAnnotatorVerifierLink(projectId, verifierId, verifierId)).rejects.toThrow();
+  });
 });

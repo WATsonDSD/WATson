@@ -10,6 +10,7 @@ import Authentication from '../../authentication';
 import Protected from '../../protected';
 import Layout from '../layout';
 import Projects from '../../projects';
+import Statistics from '../../statistics';
 import Project from '../../project';
 import Workers from '../../workers';
 import CreateProject from '../../createProject';
@@ -30,6 +31,7 @@ export default () => (
     <Route path={Paths.Projects} element={<Protected><Layout /></Protected>}>
       <Route index element={<Projects />} />
       <Route path="/:type" element={<Projects />} />
+      <Route path={Paths.Statistics} element={<Statistics />} />
       <Route path={Paths.Workers} element={<Workers />} />
       <Route path={Paths.Project} element={<Project />}>
         <Route path=":idProject" element={<Workers />} />

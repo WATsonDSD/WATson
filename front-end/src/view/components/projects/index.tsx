@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useNavigate, useParams } from 'react-router-dom';
+
 import {
   useUserNotNull,
   deleteProject,
@@ -8,14 +10,34 @@ import {
 
 import useData from '../../../data/hooks';
 import Header from '../shared/header';
+import Loading from '../loading';
 import Card from './Card';
 
 import { Paths } from '../shared/routes/paths';
-import Loading from '../loading';
 
 export default function Dashboard() {
   const [user] = useUserNotNull();
-  const projects = useData(() => getProjectsOfUser(user!.id));
+  const { type } = useParams();
+  const navigate = useNavigate();
+
+  let projects;
+
+  const toV = Object.keys(user.projects)
+    .filter((projectId) => (user.projects[projectId].toVerify.length !== 0));
+  const toA = Object.keys(user.projects)
+    .filter((projectId) => (user.projects[projectId].toAnnotate.length !== 0));
+
+  projects = useData(() => getProjectsOfUser(user!._id));
+  switch (type) {
+    case 'annotate':
+      projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
+      break;
+    case 'verify':
+      projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
+      break;
+    default:
+      if (user.role === 'verifier') navigate('/annotate');
+  }
 
   if (!projects || !user) {
     return <Loading />;

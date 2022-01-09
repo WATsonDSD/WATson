@@ -5,6 +5,7 @@ import {
 } from '../../../../data';
 // eslint-disable-next-line import/extensions
 import { TemplateAnnotation } from './TemplateAnnotation.json';
+import template from './template.png';
 
 export const emptyImage: Image = {
   id: '',
@@ -13,8 +14,13 @@ export const emptyImage: Image = {
 };
 export const templateImage: Image = {
   id: 'template',
+  data: new Blob(),
   annotation: TemplateAnnotation,
 };
+
+fetch(template)
+  .then((res) => res.blob())
+  .then((blob) => { templateImage.data = blob; });
 
 export const zoomIn = 1.6;
 export const zoomOut = 0.625;
@@ -56,6 +62,8 @@ export default (
   setTransform: Function,
   movedLandmark: number|null,
   setMovedLandmark: Function,
+  imageId: number,
+  setImageId: Function,
 ) => {
   const onImageWheel = (ctx: any, event: WheelEvent) => {
     const { canvas } = ctx;
@@ -144,6 +152,19 @@ export default (
     setMovedLandmark(null);
   };
 
+  const updateImageId = (imageCount: number) => {
+    // To include in nextImage() ?
+    let newImageId = imageId;
+    if (newImageId >= imageCount) {
+      newImageId = 0;
+    }
+    if (newImageId < 0) {
+      newImageId = imageCount - 1;
+    }
+    setImageId(newImageId);
+    return newImageId;
+  };
+
   return {
     onImageWheel,
     zoom,
@@ -155,5 +176,6 @@ export default (
     onMouseDownMove,
     onMouseMoveMove,
     onMouseUpMove,
+    updateImageId,
   };
 };

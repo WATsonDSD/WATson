@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import template from './template.png';
 import { Image } from '../../../../data';
 
 // Used for template image, image to annotate and image to verify.
@@ -14,6 +13,7 @@ AnnotatedImage.defaultProps = {
   contrast: 100,
   brightness: 100,
   size: '300',
+  splines: [],
 };
 export default function AnnotatedImage(props: {
   image: Image,
@@ -27,6 +27,7 @@ export default function AnnotatedImage(props: {
   contrast?: number,
   brightness?: number,
   size?: string,
+  splines?: number[][],
 }) {
   const {
     image, onClick, onMouseWheel, onMouseDown, onMouseMove, landmarkColor, scale, translatePos, size,
@@ -36,10 +37,10 @@ export default function AnnotatedImage(props: {
   const { w, h } = imageSize;
   const canvasRef = useRef(null);
 
-  const draw = (ctx: any) => {
+  const draw = (ctx: CanvasRenderingContext2D) => {
     const { canvas } = ctx;
     const backgroundImage = new window.Image();
-    backgroundImage.src = image.data ? URL.createObjectURL(image.data) : template;
+    backgroundImage.src = URL.createObjectURL(image.data);
     // draw canvas after image loading
     backgroundImage.onload = () => {
       // clear canvas
@@ -66,6 +67,18 @@ export default function AnnotatedImage(props: {
       ctx.filter = 'brightness(100%) contrast(100%)';
       // draw landmarks
       if (image.annotation) {
+        // splines
+        ctx.strokeStyle = '#000000';
+        props.splines!.forEach((spline) => {
+          ctx.beginPath();
+          spline.forEach((id) => {
+            if (image.annotation![id]) {
+              ctx.lineTo(image.annotation![id].x * canvas.width, image.annotation![id].y * canvas.height);
+            }
+          });
+          ctx.stroke();
+        });
+        // points
         Object.entries(image.annotation).forEach(([id, point]) => {
           const { fill, stroke } = landmarkColor(+id);
           [ctx.fillStyle, ctx.strokeStyle] = [fill || '#00000000', stroke || '#00000000'];
