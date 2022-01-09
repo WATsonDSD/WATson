@@ -60,7 +60,7 @@ export default function ProjectFinance() {
         {
           label: 'Label of the chart',
           borderColor: '#4A5568',
-          data,
+          data: [],
           fill: false,
           pointBackgroundColor: '#4A5568',
           borderWidth: 3,
