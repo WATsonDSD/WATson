@@ -1,17 +1,16 @@
 import React, { useRef } from 'react';
 
-import { Worker } from '../../../../data';
+import { addBonus, Worker } from '../../../../data';
 import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
 export function AwardBonusDialog(props: {onClose: VoidFunction, user: Worker}) {
   const { onClose, user } = props;
 
   const bonus = useRef<HTMLInputElement>(null);
-
   const snackBar = useSnackBar();
 
   async function onSave() {
-    // TODO Call the award bonus function here
+    addBonus(user, Number(bonus.current?.value));
     console.log(user);
   }
 
