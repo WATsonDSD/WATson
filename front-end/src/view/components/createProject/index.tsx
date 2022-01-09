@@ -133,6 +133,7 @@ export default function CreateProject() {
   const landmarkButton = (i: number) => (
     <button
       type="button"
+      key={`landmark${i}`}
       id={`b${i}`}
       onClick={(e) => handleLandmarksButton(e, i)}
       className={`hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-r rounded-l ${
@@ -283,7 +284,7 @@ export default function CreateProject() {
               {categories.map((row) => (
                 <div className="inline-flex space-x-4 mb-1">
                   {Object.entries(row).map(([name, landmarks]: [string, number[]]) => (
-                    <div>
+                    <div key={name}>
                       <div className="flex">
                         {landmarkCheckbox(landmarks)}
                         <span className="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
@@ -321,7 +322,7 @@ export default function CreateProject() {
                           setAnnotators(newState);
                         }}
                       >
-                        <option value={0}>Select a user</option>
+                        <option value="">Select a user</option>
                         {/* {allUsers?.filter((u) => workers
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
@@ -368,7 +369,7 @@ export default function CreateProject() {
                           setVerifiers(newState);
                         }}
                       >
-                        <option value={0}>Select a user</option>
+                        <option value="">Select a user</option>
                         {/* {allUsers?.filter((u) => workers
                           .find((w) => w.worker === u.id) === undefined)
                           .map((u) => 
