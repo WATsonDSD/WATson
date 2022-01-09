@@ -4,7 +4,7 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import { Paths } from '../shared/routes';
+import { Paths } from '../shared/routes/paths';
 import { logIn, useUserData } from '../../../data';
 import { useSnackBar, SnackBarType } from '../../../utils/modals';
 
