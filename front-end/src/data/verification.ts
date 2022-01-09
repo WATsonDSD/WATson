@@ -129,9 +129,6 @@ export async function modifyAnnotation(
 
   const project = await findProjectById(projectID);
 
-  // populate the workDoneInTime fields.
-  putWorkDoneInTime(annotator, verifier, project, imageID);
-
   // remove the image from the block
   const block = await findAnnotatorBlockOfProject(projectID, annotatorId);
   if (!block) throw Error('the block does not exist');
@@ -150,6 +147,9 @@ export async function modifyAnnotation(
   };
   await ImagesDB.put(newImage);
 
+  // populate the workDoneInTime fields.
+  putWorkDoneInTime(verifier, verifier, project, imageID);
+
   // for the annotator user, the image is removed
   annotator.projects[projectID].waitingForVerification.splice(imageIndexAnnotator, 1);
 
@@ -159,6 +159,7 @@ export async function modifyAnnotation(
   verifier.projects[projectID].annotated.push({ imageID, date: dateTime });
 
   await ProjectsDB.put(project);
+  await updateBlock(block, projectID);
   await updateUser(annotator);
   await updateUser(verifier);
 }

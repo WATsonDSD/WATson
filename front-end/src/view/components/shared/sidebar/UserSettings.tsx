@@ -8,10 +8,6 @@ import { SignOutDialog, EditProfileDialog, AccountSettings } from '../dialogs';
 
 import DownArrow from '../../../../assets/icons/down-arrow.svg';
 
-function classNames(...classes: any) {
-  return classes.filter(Boolean).join(' ');
-}
-
 export default function UserSettings() {
   const [user] = useUserNotNull();
   const dialog = useDialog();
@@ -21,7 +17,6 @@ export default function UserSettings() {
       <Menu as="div" className="flex">
         <Menu.Button>
           <div className="flex items-center gap-3 p-1 text-black hover:bg-blue-50 transition-all rounded-full">
-            <span className="block h-9 w-9 bg-blue-200 rounded-full" />
             {user ? user.name : 'loading...'}
             <img className="mr-4" src={DownArrow} alt="Profile Options" />
           </div>
@@ -49,20 +44,6 @@ export default function UserSettings() {
               <button className="block pr-16 py-4 text-gray-600 hover:text-black" type="button" onClick={() => dialog.open(<AccountSettings onClose={dialog.close} />)}>
                 Account Settings
               </button>
-            </Menu.Item>
-
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="./"
-                  className={classNames(
-                    active ? 'text-black' : 'text-gray-600',
-                    'block pr-16 pb-4',
-                  )}
-                >
-                  Notifications
-                </a>
-              )}
             </Menu.Item>
 
             <span className="block border-b" />

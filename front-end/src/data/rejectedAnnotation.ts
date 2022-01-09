@@ -3,6 +3,7 @@ import {
   ImageID, RejectedAnnotation, UserID,
 } from '.';
 import { RejectionsDB } from './databases';
+import { DBDocument } from './PouchWrapper/PouchCache';
 /**
  * Creates a new `RejectedImage`.
  */
@@ -19,7 +20,7 @@ export async function createRejectedImage(
     comment,
     annotatorID,
     wrongAnnonation,
-  } as RejectedAnnotation;
+  } as DBDocument<RejectedAnnotation>;
   await RejectionsDB.put(rejection);
 }
 
