@@ -64,10 +64,6 @@ export default function Dashboard() {
         name: 'Close',
         action: () => null,
       },
-      {
-        name: 'Delete',
-        action: deleteProject,
-      },
     ],
     annotator: [
       {
