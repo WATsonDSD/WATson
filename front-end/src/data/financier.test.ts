@@ -114,12 +114,13 @@ describe('adding verification', () => {
     await acceptAnnotation(projectId, imageId1);
     await acceptAnnotation(projectId, imageId2);
     await acceptAnnotation(projectId, imageId3);
-    // const reportID = await generateReport();
+    const report = await generateReport();
     await generateReport();
     const reports = await getAllReports();
     console.log(reports);
-    // await deleteReport(reportID.reportID);
-    // console.log(reports);
+    await deleteReport(report.reportID);
+    const reports2 = await getAllReports();
+    console.log(reports2);
   });
 
   it('number images waiting for verification',

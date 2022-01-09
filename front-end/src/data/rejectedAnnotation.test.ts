@@ -82,7 +82,6 @@ describe('get rejected images', () => {
     rejections = await getRejectedImagesByAnnotatorID(annotatorId);
     rejections2 = await getRejectedImagesByAnnotatorID(annotator2Id);
     allRejections = await getAllRejections();
-    console.log('rejections', allRejections);
   });
 
   it('returns all the imageId of the rejected images', () => {

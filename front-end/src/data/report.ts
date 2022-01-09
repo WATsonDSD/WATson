@@ -50,6 +50,8 @@ export async function getAllReports(): Promise<Report[]> {
 }
 
 export async function deleteReport(reportID: ReportID): Promise<void> {
-  // Removes the project from ProjectsDB
+  // Removes the project from ReportDB
+  // const report = await ReportsDB.get(reportID);
+  // await ReportsDB.remove(report);
   await ReportsDB.get(reportID).then((report) => ReportsDB.remove(report));
 }
