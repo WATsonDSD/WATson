@@ -27,16 +27,7 @@ export default function GraphChart(props : { chart: ChartConfiguration, title: s
                   {title}
                 </h3>
                 <div className="flex items-center justify-between lg:justify-start mt-2 md:mt-4 lg:mt-0">
-                  <div className="lg:ml-14">
-                    <div className="bg-gray-100 dark:bg-gray-700 ease-in duration-150 hover:bg-gray-200 pb-2 pt-1 px-3 rounded-sm">
-                      <select className="text-xs text-gray-600 dark:text-gray-400 bg-transparent focus:outline-none">
-                        <option className="leading-1">Year</option>
-                        <option className="leading-1">{new Date().getFullYear()}</option>
-                        <option className="leading-1">{new Date().getFullYear() - 1}</option>
-                        <option className="leading-1">{new Date().getFullYear() - 2}</option>
-                      </select>
-                    </div>
-                  </div>
+                  <div className="lg:ml-14" />
                 </div>
               </div>
             </div>
