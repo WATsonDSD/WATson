@@ -104,12 +104,12 @@ export default function AnnotationView() {
         return;
       }
       const realImageId = updateImageId(result.length);
-      if (result[realImageId].idVerifier !== undefined) {
-        getRejectedAnnotationByID(String(result[realImageId].id)).then((annotation) => {
+      getRejectedAnnotationByID(String(result[realImageId].id))
+        .then((annotation) => {
           console.log(annotation.comment);
           setRejectionMessage(annotation.comment);
-        });
-      }
+        })
+        .catch((e) => console.log(e));// if it is not found, it was not rejected
       setImage(result[realImageId]);
       const next = nextLandmark(result[realImageId].annotation, templateImage.annotation);
       setLandmarkId(next);
