@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import React from 'react';
 import { BiTimeFive } from 'react-icons/bi';
 import { GiMoneyStack } from 'react-icons/gi';
@@ -7,8 +8,12 @@ import {
 import { ChartConfiguration } from 'chart.js';
 import Header from '../shared/header';
 import GraphChart from './GraphChart';
+import { statisticsInformation } from '../../../data/projects';
+import useData from '../../../data/hooks';
 
 export default function Statistics() {
+  // return [totalNumberOfProjects, numberOfActiveProjects, totalSpendings, totalHours, users.length];
+  const statistics = useData(async () => statisticsInformation());
   const exampleChart: ChartConfiguration = {
     type: 'line',
     data: {
@@ -29,6 +34,24 @@ export default function Statistics() {
       ],
     },
   };
+  let totalNumberOfProjects = 0;
+  let numberOfActiveProjects = 0;
+  let totalSpendings = 0;
+  let totalHours = 0;
+  let usersLength = 0;
+  let averageProjectSpendings = 0;
+  let averageProjectHours = 0;
+  let averageProjectWorkers = 0;
+  if (statistics) {
+    totalNumberOfProjects = statistics[0];
+    numberOfActiveProjects = statistics[1];
+    totalSpendings = statistics[2];
+    totalHours = statistics[3];
+    usersLength = statistics[4];
+    averageProjectSpendings = statistics[5];
+    averageProjectHours = statistics[6];
+    averageProjectWorkers = statistics[7];
+  }
 
   return (
     <div className="h-full w-full">
@@ -48,7 +71,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  72.583 €
+                  {totalSpendings}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total spendings
@@ -61,7 +84,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  5.891 €
+                  {averageProjectSpendings}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Avg cost p.p
@@ -75,7 +98,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  1.583h
+                  {totalHours}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total hours of work
@@ -89,7 +112,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  72h
+                  {averageProjectHours}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Avg work hours p.p
@@ -103,7 +126,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  120
+                  {usersLength}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Total workers
@@ -117,7 +140,7 @@ export default function Statistics() {
               </div>
               <div className="w-2/3">
                 <p className="ml-2 text-base font-semibold text-gray-700">
-                  20
+                  {averageProjectWorkers}
                 </p>
                 <p className="ml-2 text-xs font-semibold text-gray-400">
                   Avg workers p.p
@@ -140,7 +163,7 @@ export default function Statistics() {
                 Total number of projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                0
+                {totalNumberOfProjects}
 
               </p>
             </div>
@@ -160,7 +183,7 @@ export default function Statistics() {
                 Active projects
               </p>
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                0
+                {numberOfActiveProjects}
               </p>
             </div>
           </div>
