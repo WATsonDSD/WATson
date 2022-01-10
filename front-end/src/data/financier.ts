@@ -25,18 +25,18 @@ export async function generateReport(): Promise<Report> {
         numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
         const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
-        const hoursA = Number(((numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation).toFixed(2));
-        const hoursV = Number(((numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification).toFixed(2));
+        const hoursA = (((numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation));
+        const hoursV = (((numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification));
 
         if (paymentA > 0) {
           rep.reportRow.push({
-            user: user._id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: hoursA, payment: paymentA, client: project.client,
+            user: user._id, name: user.name, email: user.email, role: 'annotator', projectName: project.name, hours: +hoursA.toFixed(2), payment: paymentA, client: project.client,
           });
         }
         if (user.role === 'verifier') {
           if (paymentV > 0) {
             rep.reportRow.push({
-              user: user._id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: hoursV, payment: paymentV, client: project.client,
+              user: user._id, name: user.name, email: user.email, role: 'verifier', projectName: project.name, hours: +hoursV.toFixed(2), payment: paymentV, client: project.client,
             });
           }
         }

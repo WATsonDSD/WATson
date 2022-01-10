@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { CSVDownload } from 'react-csv';
 // eslint-disable-next-line import/no-unresolved
 import { BiDotsVertical } from 'react-icons/bi';
+import generateReport from '../../../data/financier';
 import { Role } from '../../../data/types';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/header';
@@ -17,7 +19,6 @@ const dropDownActions: any = [(
 ];
 
 export default function ReportFinance() {
-  /*
   const headers = [
     { label: 'ID', key: 'id' },
     { label: 'Name', key: 'name' },
@@ -28,7 +29,6 @@ export default function ReportFinance() {
     { label: 'Earnings', key: 'payment' },
     { label: 'Client', key: 'client' },
   ];
-  */
   // let data: Report;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rows, setRows] = useState< {user: string;
@@ -107,6 +107,18 @@ export default function ReportFinance() {
               </td>
               <td className="">
                 <div className="flex pr-8">
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const data = await generateReport();
+                        setRows(data.reportRow);
+                      }}
+                    >
+                      Generate Report
+                    </button>
+                    {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
+                  </div>
                   <Dropdown elements={dropDownActions} icon={<BiDotsVertical className="ml-8 mt-1" />} />
                 </div>
               </td>
