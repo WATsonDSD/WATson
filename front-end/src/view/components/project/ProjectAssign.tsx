@@ -1,6 +1,7 @@
 import React, {
-  useEffect,
+  useRef,
   useState,
+  useEffect,
 } from 'react';
 
 import { useNavigate, useParams } from 'react-router-dom';
@@ -9,18 +10,18 @@ import Select from 'react-select';
 
 import {
   Worker,
-  Image,
+  // Image,
   findProjectById,
   getUsersOfProject,
   createAnnotatorVerifierLink,
   assignImagesToAnnotator,
-  getImagesOfProjectWithoutAnnotator,
+  // getImagesOfProjectWithoutAnnotator,
 } from '../../../data';
 
 import useData from '../../../data/hooks';
 
-import ImageDnD from './ImageDnD';
-import UserCardDnD from './UserCardDnD';
+// import ImageDnD from './ImageDnD';
+// import UserCardDnD from './UserCardDnD';
 import BackIcon from '../../../assets/icons/back.svg';
 
 import { Paths } from '../shared/routes/paths';
@@ -33,94 +34,112 @@ export default function ProjectAssign() {
 
   const project = useData(async () => findProjectById(idProject));
 
-  const [toAnnotate, setToAnnotate] = useState([] as {user:string, image:string, data: Blob}[]);
-  const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
-  const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
-  const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // const [toAnnotate, setToAnnotate] = useState([] as {user:string, image:string, data: Blob}[]);
+  // const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
+  // const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
+  // const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
+
   const [projectUsers, setProjectUsers] = useState<Worker[]>([]);
+
+  const [assignedAssets] = useState<number>(0);
 
   const annotators = projectUsers ? projectUsers.filter((user) => user.role === 'annotator') : [];
   const verifiers = projectUsers ? projectUsers.filter((user) => user.role === 'verifier') : [];
 
+  const links: { [annotatorID: string]: {verifierID: string, numberOfAssets: number}} = {};
+
   useEffect(() => {
-    getImagesOfProjectWithoutAnnotator(idProject).then((result) => {
-      setImagesToAnnotate(result);
-    });
+    // getImagesOfProjectWithoutAnnotator(idProject).then((result) => {
+    //   setImagesToAnnotate(result);
+    // });
 
     getUsersOfProject(idProject).then((result) => {
       setProjectUsers(result);
     });
   }, []);
 
-  const handleAssign = async (event: any) => {
-    event.preventDefault();
+  // const handleAssign = async (event: any) => {
+  //   event.preventDefault();
 
-    const annotator = event.target.annotator.value;
-    const verifier = event.target.verifier.value;
-    const nbImages = event.target.numberImages.value;
+  //   const annotator = event.target.annotator.value;
+  //   const verifier = event.target.verifier.value;
+  //   const nbImages = event.target.numberImages.value;
 
-    await assignImagesToAnnotator(nbImages, annotator, idProject);
-    if (verifier !== '0') {
-      await createAnnotatorVerifierLink(idProject, annotator, verifier);
-    }
-  };
-
-  const onCancelClick = () => {
-    navigate(Paths.Projects);
-  };
-
-  const updateToAnnotate = (newElement: any) => {
-    setToAnnotate((prevState) => [...prevState, newElement]);
-  };
-
-  const updateToVerify = (newElement: any) => {
-    setToVerify((prevState) => [...prevState, newElement]);
-  };
-
-  const handleDrop = (index: number, item: { id: string}, userId: string, action: 'annotate' | 'verify') => {
-    const { id } = item;
-    if (action === 'annotate') {
-      // Remove pic from to annotate pictures
-      const newPictureList = Array.from(imagesToAnnotate);
-      const selected = newPictureList.find((e) => e.id === id);
-      const data = selected ? selected.data : toAnnotate.find((e) => e.image === id)?.data;
-      const imageIndex = newPictureList.findIndex((e) => e.id === id);
-      if (selected) {
-        newPictureList.splice(imageIndex, 1);
-      } else {
-        toAnnotate.splice(toAnnotate.findIndex((e) => e.image === id), 1);
-      }
-      setImagesToAnnotate(newPictureList);
-      // updateToAnnotate 
-      updateToAnnotate({ user: userId, image: id, data });
-    } else {
-      // Remove pic from to annotate pictures
-      const newPictureList = Array.from(imagesToVerify);
-      const selected = newPictureList.find((e) => e.id === id);
-      const data = selected ? selected.data : toVerify.find((e) => e.image === id)?.data;
-      const imageIndex = newPictureList.findIndex((e) => e.id === id);
-      if (selected) {
-        newPictureList.splice(imageIndex, 1);
-      } else {
-        toVerify.splice(toVerify.findIndex((e) => e.image === id), 1);
-      }
-      setImagesToVerify(newPictureList);
-      // update to verify
-      updateToVerify({ user: userId, image: id, data }); // remove picture from to verify list
-    }
-  };
-
-  // const handleSelectChange = () => {
-  //   // I need to remove the already selected verifiers from the list of possible verifiers
+  //   await assignImagesToAnnotator(nbImages, annotator, idProject);
+  //   if (verifier !== '0') {
+  //     await createAnnotatorVerifierLink(idProject, annotator, verifier);
+  //   }
   // };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // I need to subtract all the input numbers from the assets left
-    console.log(event.currentTarget.value);
+  // const updateToAnnotate = (newElement: any) => {
+  //   setToAnnotate((prevState) => [...prevState, newElement]);
+  // };
+
+  // const updateToVerify = (newElement: any) => {
+  //   setToVerify((prevState) => [...prevState, newElement]);
+  // };
+
+  // const handleDrop = (index: number, item: { id: string}, userId: string, action: 'annotate' | 'verify') => {
+  //   const { id } = item;
+  //   if (action === 'annotate') {
+  //     // Remove pic from to annotate pictures
+  //     const newPictureList = Array.from(imagesToAnnotate);
+  //     const selected = newPictureList.find((e) => e.id === id);
+  //     const data = selected ? selected.data : toAnnotate.find((e) => e.image === id)?.data;
+  //     const imageIndex = newPictureList.findIndex((e) => e.id === id);
+  //     if (selected) {
+  //       newPictureList.splice(imageIndex, 1);
+  //     } else {
+  //       toAnnotate.splice(toAnnotate.findIndex((e) => e.image === id), 1);
+  //     }
+  //     setImagesToAnnotate(newPictureList);
+  //     // updateToAnnotate 
+  //     updateToAnnotate({ user: userId, image: id, data });
+  //   } else {
+  //     // Remove pic from to annotate pictures
+  //     const newPictureList = Array.from(imagesToVerify);
+  //     const selected = newPictureList.find((e) => e.id === id);
+  //     const data = selected ? selected.data : toVerify.find((e) => e.image === id)?.data;
+  //     const imageIndex = newPictureList.findIndex((e) => e.id === id);
+  //     if (selected) {
+  //       newPictureList.splice(imageIndex, 1);
+  //     } else {
+  //       toVerify.splice(toVerify.findIndex((e) => e.image === id), 1);
+  //     }
+  //     setImagesToVerify(newPictureList);
+  //     // update to verify
+  //     updateToVerify({ user: userId, image: id, data }); // remove picture from to verify list
+  //   }
+  // };
+
+  const handleSelectChange = (option: any, meta: any) => {
+    links[meta.name] = {
+      ...links[meta.name],
+      numberOfAssets: Number(option?.value ?? ''),
+    };
   };
 
-  const handleSubmit = async () => {
-    // navigate(Paths.Projects);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    links[event.currentTarget.name] = {
+      ...links[event.currentTarget.name],
+      numberOfAssets: Number(event.currentTarget.value),
+    };
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    Object.entries(links).map(async ([annotator, value]) => {
+      await assignImagesToAnnotator(value.numberOfAssets, annotator, idProject);
+
+      if (value.verifierID) {
+        await createAnnotatorVerifierLink(idProject, annotator, value.verifierID);
+      }
+    });
+
+    navigate(Paths.Projects);
   };
 
   const SelectStyles = {
@@ -169,7 +188,19 @@ export default function ProjectAssign() {
         <button type="button" onClick={() => navigate(Paths.Projects)} className="transition-opacity opacity-60 hover:opacity-100">
           <img src={BackIcon} alt="Go Back" />
         </button>
-        <h1 className="self-center text-2xl font-bold">Assign images to workers</h1>
+        <div className="flex justify-between">
+          <h1 className="self-center text-2xl font-bold">Assign images to workers</h1>
+          <div>
+            <button
+              id="submit"
+              type="button"
+              className="justify-self-end col-start-2 py-2 px-6 border border-black text-white bg-gray-700 hover:bg-black transition-all rounded-full"
+              onClick={() => inputRef?.current?.click()}
+            >
+              Assign assets
+            </button>
+          </div>
+        </div>
       </header>
 
       <form className="px-14 py-8" onSubmit={handleSubmit}>
@@ -178,7 +209,7 @@ export default function ProjectAssign() {
             <h4 className="text-md font-medium">
               Assets left:
               {' '}
-              {project?.images.imagesWithoutAnnotator.length}
+              {project?.images.imagesWithoutAnnotator.length ?? 0 - assignedAssets}
             </h4>
           </div>
 
@@ -200,21 +231,20 @@ export default function ProjectAssign() {
               >
                 <span>{user.name}</span>
                 <Select
-                  name={`${user._id}-verifier`}
+                  name={user._id}
                   isClearable
-                  // onChange={handleSelectChange}
+                  onChange={handleSelectChange}
                   styles={SelectStyles}
-                  options={verifiers.map((verifier) => ({ value: verifier.name, label: verifier.name }))}
+                  options={verifiers.map((verifier) => ({ value: verifier._id, label: verifier.name }))}
                   className="w-full text-base"
                 />
                 <input
-                  id="assigned-assets"
-                  name={`${user._id}-assigned-assets`}
+                  name={user._id}
                   type="number"
                   min={0}
                   onChange={handleInputChange}
                   placeholder="0"
-                  className="justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black"
+                  className="assigned-assets justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black"
                 />
               </div>
             );
@@ -224,9 +254,10 @@ export default function ProjectAssign() {
             </div>
           )}
         </div>
+        <input ref={inputRef} className="hidden" type="submit" />
       </form>
 
-      <form className="w-full" onSubmit={handleAssign}>
+      {/* <form className="w-full" onSubmit={handleAssign}>
         <div className="w-full flex flex-row space-x-4 md:w-2/3 px-3 mb-6 md:mb-0">
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
             Number Of Images
@@ -329,7 +360,7 @@ export default function ProjectAssign() {
         <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
           Cancel
         </button>
-      </footer>
+      </footer> */}
     </div>
   );
 }
