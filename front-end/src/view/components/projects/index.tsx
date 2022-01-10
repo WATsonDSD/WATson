@@ -3,7 +3,6 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useUserNotNull,
-  deleteProject,
   getProjectsOfUser,
   closeProject,
 } from '../../../data';
@@ -64,10 +63,6 @@ export default function Dashboard() {
       {
         name: 'Close & Get Landmarks',
         action: closeProject,
-      },
-      {
-        name: 'Delete',
-        action: deleteProject,
       },
     ],
     annotator: [

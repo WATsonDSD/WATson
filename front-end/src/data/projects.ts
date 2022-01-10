@@ -152,23 +152,23 @@ export async function deleteProject(projectID: ProjectID): Promise<void> {
   const project: Project = await findProjectById(projectID);
 
   // delete all the images from the images' database
-  await Promise.all(Object.entries(project.images.blocks).map(
+  Object.entries(project.images.blocks).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
-      await Promise.all(Object.entries(value.block.toAnnotate).map(
+      Object.entries(value.block.toAnnotate).forEach(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
           await deleteImageFromProject(projectID, imageID);
         },
-      ));
-      await Promise.all(Object.entries(value.block.toVerify).map(
+      );
+      Object.entries(value.block.toVerify).forEach(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async ([key, imageID]) => {
           await deleteImageFromProject(projectID, imageID);
         },
-      ));
+      );
     },
-  ));
+  );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   await Promise.all(Object.entries(project.images.done).map(async ([key, image]) => {
     await deleteImageFromProject(projectID, image.imageId);
