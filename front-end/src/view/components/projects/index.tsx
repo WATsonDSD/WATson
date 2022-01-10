@@ -19,24 +19,8 @@ export default function Dashboard() {
   const { type } = useParams();
   const navigate = useNavigate();
 
-  let projects;
-
-  const toV = Object.keys(user.projects)
-    .filter((projectId) => (user.projects[projectId].toVerify.length !== 0));
-  const toA = Object.keys(user.projects)
-    .filter((projectId) => (user.projects[projectId].toAnnotate.length !== 0));
-
-  projects = useData(() => getProjectsOfUser(user!._id));
-  switch (type) {
-    case 'annotate':
-      projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
-      break;
-    case 'verify':
-      projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
-      break;
-    default:
-      if (user.role === 'verifier') navigate('/annotate');
-  }
+  const projects = useData(() => getProjectsOfUser(user!._id));
+  if (user.role === 'verifier' && type !== 'annotate' && type !== 'verify') navigate('/annotate');
 
   if (!projects || !user) {
     return <Loading />;
