@@ -25,8 +25,8 @@ export async function generateReport(): Promise<Report> {
         numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
         const paymentV = (numberOfImagesVerified * project.pricePerImageVerification);
-        const hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
-        const hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
+        const hoursA = Number(((numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation).toFixed(2));
+        const hoursV = Number(((numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification).toFixed(2));
 
         if (paymentA > 0) {
           rep.reportRow.push({
