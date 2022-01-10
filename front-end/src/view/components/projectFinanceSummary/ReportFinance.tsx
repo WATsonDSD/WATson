@@ -91,7 +91,7 @@ export default function ReportFinance() {
                       elements={[(
                         <button
                           type="button"
-                          className="text-red-500"
+                          className="text-red-500 tag px-8"
                           onClick={async () => {
                             await deleteReport(report.reportID);
                           }}
