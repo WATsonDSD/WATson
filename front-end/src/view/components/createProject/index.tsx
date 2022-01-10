@@ -160,8 +160,9 @@ export default function CreateProject() {
 
   const landmarkButton = (i: number) => (
     <button
-      key={i}
+      id={`b${i}`}
       type="button"
+      key={`landmark${i}`}
       onClick={(e) => handleLandmarksButton(e, i)}
       className={`border w-10 h-10 transition-all ${
         selectedLandmarks.current.includes(i)
