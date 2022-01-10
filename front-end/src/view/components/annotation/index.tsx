@@ -41,6 +41,7 @@ import mouseRight from '../../../assets/icons/mouse-r.png';
 import mouseScroll from '../../../assets/icons/mouse-s.png';
 
 import { Paths } from '../shared/routes/paths';
+import { getRejectedAnnotationByID } from '../../../data/rejectedAnnotation';
 
 /* TODO: Keyboard shortcuts
 a - Go to previous image
@@ -61,6 +62,7 @@ export default function AnnotationView() {
   const [imageId, setImageId] = useState(0);
   const [doneCount, setDoneCount] = useState(0);
   const [remaningCount, setRemainingCount] = useState(0);
+  const [rejectionMessage, setRejectionMessage] = useState(undefined as String|undefined);
 
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -103,6 +105,12 @@ export default function AnnotationView() {
         return;
       }
       const realImageId = updateImageId(result.length);
+      getRejectedAnnotationByID(String(result[realImageId].id))
+        .then((annotation) => {
+          console.log(annotation.comment);
+          setRejectionMessage(annotation.comment);
+        })
+        .catch((e) => console.log(e));// if it is not found, it was not rejected
       setImage(result[realImageId]);
       const next = nextLandmark(result[realImageId].annotation, templateImage.annotation);
       setLandmarkId(next);
@@ -223,6 +231,16 @@ export default function AnnotationView() {
                 <span className="px-2">- Previous Image</span>
               </span>
             </div>
+          </div>
+        </div>
+        )}
+      { rejectionMessage
+        && (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+        <div className="fixed h-100v w-100v bg-transparent z-10 flex justify-center" onClick={() => setRejectionMessage(undefined)}>
+          <div className="fixed h-fill w-30v bg-red-200 z-20 rounded-3xl p-5vh top-15">
+            <h1 className="-mt-4 mb-3">This image was rejected for the following reasons:</h1>
+            <p>{rejectionMessage}</p>
           </div>
         </div>
         )}

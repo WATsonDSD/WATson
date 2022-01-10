@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { CSVDownload, CSVLink } from 'react-csv';
 // eslint-disable-next-line import/no-unresolved
 import { BiDotsVertical } from 'react-icons/bi';
+import { useRefetchableData } from '../../../data/hooks';
+import { deleteReport, findReportById, getAllReports } from '../../../data/report';
 import { Role } from '../../../data/types';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/header';
 
-const dropDownActions: any = [(
-  <button type="button" className="text-white">
-    Rename
-  </button>),
-  <div className="border-b" />,
-  (
-    <button type="button" className="text-red-500">
-      Delete
-    </button>),
-];
+export const refetchReport = () => {
+  refetcher?.();
+};
 
+let refetcher = null as Function | null;
 export default function ReportFinance() {
-  /*
   const headers = [
     { label: 'ID', key: 'id' },
     { label: 'Name', key: 'name' },
@@ -28,8 +25,7 @@ export default function ReportFinance() {
     { label: 'Earnings', key: 'payment' },
     { label: 'Client', key: 'client' },
   ];
-  */
-  // let data: Report;
+  const [reports, refetch] = useRefetchableData(async () => getAllReports());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rows, setRows] = useState< {user: string;
   name: string;
@@ -39,7 +35,9 @@ export default function ReportFinance() {
   hours: number;
   payment: number;
   client: string;}[]>([]);
-  // const getRows = () => rows;
+
+  useEffect(() => { refetcher = refetch; return () => { refetcher = null; }; });
+
   return (
     <div className="h-full w-full">
       <Header title="Reports" />
@@ -55,62 +53,63 @@ export default function ReportFinance() {
               <th
                 className="px-2 py-3 w-1/6 text-left text-xs font-semibold text-gray-500 "
               >
-                Month
-              </th>
-              <th
-                className="px-2 py-3 w-1/6 text-left text-xs font-semibold text-gray-500 "
-              >
-                Year
+                Date
               </th>
               <th
                 className="px-2 py-3 w-5/12 text-left text-xs font-semibold text-gray-500 "
               >
-                Source
+                Download
               </th>
               <th
-                className="px-5 py-3 w-1/6 right-0 text-right text-xs font-semibold text-gray-500 "
+                className="px-5 py-3 w-1/6  text-xs font-semibold text-gray-500 "
               >
                 Actions
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b">
-              <td className="px-2 py-3 text-left text-xs font-semibold">
-                <p>Test Name</p>
-              </td>
-              <td className="px-2 py-3 text-left text-xs font-semibold">
-                <p>Test Month</p>
-              </td>
-              <td className="px-2 py-3 text-left text-xs font-semibold">
-                <p>Test</p>
-              </td>
-              <td className="px-0 py-3 text-left text-xs font-semibold uppercase">
-                {/* <span
-                  className="relative inline-block px-3 py-1 text-purple-900"
-                >
-                  <span
-                    aria-hidden
-                    className="absolute inset-0 bg-purple-400 opacity-50 rounded-full"
-                  />
-                  <p>Manually generated</p>
-                </span> */}
-                <span
-                  className="relative inline-block px-3 py-1 text-green-800"
-                >
-                  <span
-                    aria-hidden
-                    className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
-                  />
-                  <p>Automatically generated</p>
-                </span>
-              </td>
-              <td className="">
-                <div className="flex pr-8">
-                  <Dropdown elements={dropDownActions} icon={<BiDotsVertical className="ml-8 mt-1" />} />
-                </div>
-              </td>
-            </tr>
+            {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
+            {reports?.sort((a, b) => ((a.date < b.date) ? 1 : -1)).map((report) => (
+              <tr className="border-b" key={report.reportID}>
+                <td className="px-2 py-3 text-left text-xs font-semibold">
+                  <p>{report?.reportID}</p>
+                </td>
+                <td className="px-2 py-3 text-left text-xs font-semibold">
+                  <p>{new Date(report?.date).toLocaleDateString()}</p>
+                </td>
+                <td className="px-0 py-3 text-left text-xs font-semibold uppercase">
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const data = await findReportById(report.reportID);
+                        setRows(data.reportRow);
+                      }}
+                    >
+                      Download Report
+                    </button>
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex pr-8 right-0">
+                    <Dropdown
+                      elements={[(
+                        <button
+                          type="button"
+                          className="text-red-500 tag px-8"
+                          onClick={async () => {
+                            await deleteReport(report.reportID);
+                            refetch();
+                          }}
+                        >
+                          Delete
+                        </button>)]}
+                      icon={<BiDotsVertical className="ml-8 mt-1" />}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

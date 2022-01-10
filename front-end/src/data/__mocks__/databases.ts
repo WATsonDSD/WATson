@@ -36,6 +36,10 @@ const MockPouch = <T>() => ({
   async allDocs() {
     return { rows: Object.values(this.documents).map((doc) => ({ doc })) };
   },
+  remove(obj: {_id: string, _rev: string}) {
+    if (this.documents[obj._id]?._rev !== obj._rev) { throw Error('Error on removing the document!'); }
+    delete this.documents[obj._id];
+  },
 
 });
 
