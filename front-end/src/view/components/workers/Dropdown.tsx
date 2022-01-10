@@ -8,15 +8,15 @@ import {
 import { Worker } from '../../../data';
 
 import { useDialog } from '../../../utils/modals';
-import { AwardBonusDialog, EditUserDialog, DeleteUserDialog } from '../shared/dialogs';
+import { AwardBonusDialog, EditUserDialog } from '../shared/dialogs';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
+const Dropdown = (props: {user: Worker, icon: ReactElement, refetch: Function }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user, icon } = props;
+  const { user, icon, refetch } = props;
 
   const dialog = useDialog();
 
@@ -26,7 +26,7 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
     {
       name: 'Edit Worker',
       action: () => {
-        dialog.open(<EditUserDialog user={user} onClose={dialog.close} />);
+        dialog.open(<EditUserDialog user={user} onClose={() => { dialog.close(); refetch(); }} />);
       },
     },
     {
@@ -35,12 +35,14 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
         dialog.open(<AwardBonusDialog user={user} onClose={dialog.close} />);
       },
     },
+    /*
     {
       name: 'Delete User',
       action: () => {
-        dialog.open(<DeleteUserDialog user={user} onClose={dialog.close} />);
+        dialog.open(<DeleteUserDialog user={user} onClose={() => { dialog.close(); refetch(); }} />);
       },
     },
+    */
   ];
 
   const dropDownOptions = options.map((option: {name: string, action: Function}) => ((
