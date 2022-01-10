@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { UpdateUserError } from '../../../../utils/errors';
-import { updateUser, useUserNotNull } from '../../../../data';
+import { updateUser, updateUserData, useUserNotNull } from '../../../../data';
 import { useSnackBar, SnackBarType } from '../../../../utils/modals';
 
 export function EditProfileDialog(props: {onClose: VoidFunction}) {
@@ -16,7 +16,8 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
   async function onSave() {
     if (name.current && name.current?.value.length > 0 && name.current?.value !== user.email) {
       updateUser({ ...user, name: name.current.value })
-        .catch(() => { throw new UpdateUserError('We could not update your name, please try again later...'); });
+        .catch(() => { throw new UpdateUserError('We could not update your name, please try again later...'); })
+        .then(() => updateUserData());
     }
   }
 
