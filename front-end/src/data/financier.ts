@@ -20,7 +20,7 @@ export async function generateReport(): Promise<Report> {
       let numberOfImagesAnnotated = 0;
       let numberOfImagesVerified = 0;
       await Promise.all(Object.values(projectsForUser).map(async (project) => {
-        const workDone = await getWorkDoneByUser(user._id, { year, month }, project.id);
+        const workDone = await getWorkDoneByUser(user._id, { year, month }, project._id);
         numberOfImagesAnnotated = workDone.annotation;
         numberOfImagesVerified = workDone.verification;
         const paymentA = (numberOfImagesAnnotated * project.pricePerImageAnnotation);
@@ -135,8 +135,8 @@ export async function hoursWorkPerUser(userID: UserID): Promise<number> {
   let numberOfImagesAnnotated = 0;
   let numberOfImagesVerified = 0;
   projectsForUser.forEach((project) => {
-    if (user.projects[project.id]) numberOfImagesAnnotated = user.projects[project.id].annotated.length;
-    if (user.projects[project.id]) numberOfImagesVerified = user.projects[project.id].verified.length;
+    if (user.projects[project._id]) numberOfImagesAnnotated = user.projects[project._id].annotated.length;
+    if (user.projects[project._id]) numberOfImagesVerified = user.projects[project._id].verified.length;
     hoursA = (numberOfImagesAnnotated * project.pricePerImageAnnotation) / project.hourlyRateAnnotation;
     hoursV = (numberOfImagesVerified * project.pricePerImageVerification) / project.hourlyRateVerification;
   });

@@ -30,10 +30,10 @@ export default function Dashboard() {
   projects = useData(() => getProjectsOfUser(user!._id));
   switch (type) {
     case 'annotate':
-      projects = projects?.filter((p) => toA.find((projectId) => projectId === p.id));
+      projects = projects?.filter((p) => toA.find((projectId) => projectId === p._id));
       break;
     case 'verify':
-      projects = projects?.filter((p) => toV.find((projectId) => projectId === p.id));
+      projects = projects?.filter((p) => toV.find((projectId) => projectId === p._id));
       break;
     default:
       if (user.role === 'verifier') navigate('/annotate');
@@ -98,7 +98,7 @@ export default function Dashboard() {
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (
               <Card
-                key={project.id}
+                key={project._id}
                 project={project}
                 options={projectOptions[user!.role]}
               />

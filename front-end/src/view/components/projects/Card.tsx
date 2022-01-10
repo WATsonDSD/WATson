@@ -22,28 +22,28 @@ const Card = (props: any) => {
   const { project, options, verifierAction }: { project: Project, options: any, verifierAction: string | undefined} = props;
   const [user] = useUserNotNull();
   const navigate = useNavigate();
-  const totalSpending = useData(async () => calculateTotalCost(project.id));
-  const percentage = useData(async () => percentageOfImagesDone(project.id));
-  const numberOfWorkers = useData(async () => totalWorkers(project.id));
+  const totalSpending = useData(async () => calculateTotalCost(project._id));
+  const percentage = useData(async () => percentageOfImagesDone(project._id));
+  const numberOfWorkers = useData(async () => totalWorkers(project._id));
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
     switch (user!.role) {
       case 'projectManager':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       case 'annotator':
-        navigate(`${Paths.Annotation}/${project.id}`);
+        navigate(`${Paths.Annotation}/${project._id}`);
         break;
       case 'verifier':
         if (verifierAction === 'annotate') {
-          navigate(`${Paths.Annotation}/${project.id}`);
+          navigate(`${Paths.Annotation}/${project._id}`);
         } else if (verifierAction === 'verify') {
-          navigate(`${Paths.Verification}/${project.id}`);
+          navigate(`${Paths.Verification}/${project._id}`);
         }
         break;
       case 'finance':
-        navigate(`${Paths.ProjectFinance}/${project.id}`);
+        navigate(`${Paths.ProjectFinance}/${project._id}`);
         break;
       default:
         break;
@@ -75,7 +75,7 @@ const Card = (props: any) => {
       <div className="flex justify-between text-lg w-full mt-2">
         <span className="flex items-center gap-x-1 text-white text-left">
           <MdOutlineSwitchAccount />
-          {user.projects[project.id].toAnnotate.length}
+          {user.projects[project._id].toAnnotate.length}
         </span>
       </div>
     );
@@ -85,7 +85,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].toAnnotate.length}
+            {user.projects[project._id].toAnnotate.length}
           </span>
         </div>
       );
@@ -94,7 +94,7 @@ const Card = (props: any) => {
         <div className="flex justify-between text-lg w-full mt-2">
           <span className="flex items-center gap-x-1 text-white text-left">
             <MdOutlineSwitchAccount />
-            {user.projects[project.id].toVerify.length}
+            {user.projects[project._id].toVerify.length}
           </span>
         </div>
       );
@@ -126,7 +126,7 @@ const Card = (props: any) => {
           id={`${option.name}-btn`}
           className="block pl-6 pr-12 py-2 whitespace-nowrap"
           type="button"
-          to={`${option.to}/${project.id}`}
+          to={`${option.to}/${project._id}`}
           onClick={(event) => {
             event.stopPropagation();
           }}
@@ -141,7 +141,7 @@ const Card = (props: any) => {
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            option.action!(project.id);
+            option.action!(project._id);
           }}
         >
           {option.name}

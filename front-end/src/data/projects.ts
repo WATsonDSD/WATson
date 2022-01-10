@@ -1,12 +1,21 @@
 import { v4 as uuid } from 'uuid';
+
 import {
+  UserID,
+  Worker,
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, Worker, Block, findBlockOfProject,
+  ProjectsDB,
+  Project,
+  ProjectID,
+  ImageID,
+  ImagesDB,
+  ImageData,
+  findImageById,
+  Block,
+  findBlockOfProject,
+  // LandmarkSpecification,
 } from '.';
-
-import { ImagesDB, ProjectsDB } from './databases';
-import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
@@ -28,44 +37,29 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
  */
-export async function createProject(
-  name: string,
-  client: string,
-  landmarks: LandmarkSpecification,
-  startDate: Date,
-  endDate: Date,
-  financialModel: {
-  pricePerImageAnnotation: number
-  pricePerImageVerification: number,
-  hourlyRateAnnotation: number,
-  hourlyRateVerification: number,
-  },
-) : Promise<ProjectID> {
+export async function createProject(project: Project) : Promise<ProjectID> {
   const id = uuid(); // unique id's.
 
-  const project = {
-    _id: id,
-    id,
-    users: [], // A newly created project has no users.
-    name,
-    client,
-    startDate: new Date().toJSON(),
-    endDate: '',
-    status: 'active', // A newly created project start in progress.
-    landmarks,
-    pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
-    pricePerImageVerification: financialModel.pricePerImageVerification,
-    hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
-    hourlyRateVerification: financialModel.hourlyRateVerification,
-    annVer: [],
-    workDoneInTime: {},
-    images: {
-      blocks: {},
-      imagesWithoutAnnotator: [],
-      done: [],
-    }, // A newly created project has no images.
+  // const project = {
+  //   _id: id,
+  //   users: [], // A newly created project has no users.
+  //   name,
+  //   client,
+  //   status: 'active', // A newly created project start in progress.
+  //   landmarks,
+  //   pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
+  //   pricePerImageVerification: financialModel.pricePerImageVerification,
+  //   hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
+  //   hourlyRateVerification: financialModel.hourlyRateVerification,
+  //   annVer: [],
+  //   workDoneInTime: {},
+  //   images: {
+  //     blocks: {},
+  //     imagesWithoutAnnotator: [],
+  //     done: [],
+  //   }, // A newly created project has no images.
 
-  } as Project & {_id: string};
+  // };
 
   await ProjectsDB.put(project);
   return id;

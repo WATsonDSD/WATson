@@ -45,12 +45,12 @@ export type ProjectID = string;
 export type ProjectStatus = 'active' | 'closed'; // perhaps even more.
 export type LandmarkSpecification = number[];
 export type Project = {
-    id: ProjectID,
+    _id: ProjectID,
     users: UserID[],
     name: string,
     client: string,
-    startDate: string,
-    endDate: string,
+    startDate: Date,
+    endDate: Date,
     status: ProjectStatus,
     landmarks: LandmarkSpecification,
     pricePerImageAnnotation: number,
