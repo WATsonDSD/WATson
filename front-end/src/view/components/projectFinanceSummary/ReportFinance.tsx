@@ -20,8 +20,9 @@ export default function ReportFinance() {
     { label: 'Earnings', key: 'payment' },
     { label: 'Client', key: 'client' },
   ];
-  const reports = useData(async () => getAllReports());
-  console.log(reports);
+  let reports = useData(async () => getAllReports());
+  reports = reports?.sort((a: any, b: any) => new Date(b.date).valueOf() - new Date(a.date).valueOf()) ?? [];
+  console.log(reports.length);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rows, setRows] = useState< {user: string;
   name: string;
@@ -31,8 +32,7 @@ export default function ReportFinance() {
   hours: number;
   payment: number;
   client: string;}[]>([]);
-  // const getRows = () => rows;
-  console.log(rows);
+
   return (
     <div className="h-full w-full">
       <Header title="Reports" />
@@ -63,6 +63,7 @@ export default function ReportFinance() {
             </tr>
           </thead>
           <tbody>
+            {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
             {reports?.map((report) => (
               <tr className="border-b" key={report.reportID}>
                 <td className="px-2 py-3 text-left text-xs font-semibold">
@@ -82,7 +83,6 @@ export default function ReportFinance() {
                     >
                       Download Report
                     </button>
-                    {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
                   </div>
                 </td>
                 <td className="">
