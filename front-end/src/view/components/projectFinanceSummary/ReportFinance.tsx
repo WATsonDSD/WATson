@@ -64,7 +64,7 @@ export default function ReportFinance() {
           </thead>
           <tbody>
             {Object.entries(rows).length > 0 ? <CSVDownload data={rows} headers={headers} filename="report.csv" target="_blank" /> : null }
-            {reports?.map((report) => (
+            {reports?.sort((a, b) => ((a.date < b.date) ? 1 : -1)).map((report) => (
               <tr className="border-b" key={report.reportID}>
                 <td className="px-2 py-3 text-left text-xs font-semibold">
                   <p>{report?.reportID}</p>
