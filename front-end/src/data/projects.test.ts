@@ -117,6 +117,8 @@ describe('remove user correctly,', () => {
     await acceptAnnotation(projectId, imageId);
     await rejectAnnotation(imageId2, projectId, 'nah');
     await removeUserFromProject(projectId, userId);
+    const projLaur = await findProjectById(projectId);
+    console.log(projLaur.images.done);
   });
   it('couple annVer no more exists in project', async () => expect(findProjectById(projectId).then((proj) => proj.annVer.filter((x) => x.annotatorId === userId && x.verifierId === verifierId).length)).resolves.toBe(0));
 
@@ -165,6 +167,11 @@ describe('statistics numbers', () => {
   it('total Spendings', () => statisticsInformation().then((data) => {
     expect(data[2]).toBe(33);
   }));
+
+  it('hourlyRate', () => statisticsInformation().then((data) => {
+    expect(data[3]).toBe(0.85);
+  }));
+
   it('numer of users', () => statisticsInformation().then((data) => {
     expect(data[4]).toBe(4);
   }));
