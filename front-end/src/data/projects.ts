@@ -2,10 +2,11 @@ import { v4 as uuid } from 'uuid';
 import {
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, Worker, Block, findBlockOfProject,
+  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, Worker, Block, findBlockOfProject, getAllUsers,
 } from '.';
 
 import { ImagesDB, ProjectsDB } from './databases';
+import { calculateTotalCost, totalHoursOfWork } from './financier';
 import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
@@ -71,6 +72,71 @@ export async function createProject(
   return id;
 }
 
+/**
+ * Fetches all the project registered on the application
+ */
+export async function getAllProjects(): Promise<Project[]> {
+  let projects: Project[] = [];
+  return new Promise((resolve, reject) => {
+    ProjectsDB.allDocs({
+      include_docs: true,
+    }).then((response) => {
+      if (response) {
+        projects = response.rows.map((row: any) => ({
+          // eslint-disable-next-line no-underscore-dangle
+          id: row.doc._id,
+          users: row.doc.users,
+          name: row.doc.name,
+          client: row.doc.client,
+          startDate: row.doc.startDate,
+          endDate: row.doc.endDate,
+          status: row.doc.status,
+          landmarks: row.doc.landmarks,
+          pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
+          pricePerImageVerification: row.doc.pricePerImageVerification,
+          hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
+          hourlyRateVerification: row.doc.hourlyRateVerification,
+          annVer: row.doc.annVer,
+          workDoneInTime: row.doc.workDoneInTime,
+          images: row.doc.images,
+        } as Project));
+      }
+      resolve(projects);
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+}
+
+export async function statisticsInformation(): Promise<[number, number, number, number, number, number, number, number]> {
+  const projects = await getAllProjects();
+  console.log('number of projects', projects.length);
+  console.log(projects);
+  const users = await getAllUsers();
+  const totalNumberOfProjects = projects.length;
+  const numberOfActiveProjects = (projects.filter((project) => project.status === 'active'));
+  let totalSpendings = 0;
+  let totalHours = 0;
+  let averageProjectSpendings = 0;
+  let averageProjectHours = 0;
+  let averageProjectWorkers = 0;
+  if (totalNumberOfProjects !== 0) {
+    await Promise.all(Object.entries(projects).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      async ([key, value]) => {
+        const cost = await calculateTotalCost(value.id);
+        totalSpendings += cost[0];
+        const hours = await totalHoursOfWork(value.id);
+        totalHours += hours[0];
+      },
+    ));
+    averageProjectSpendings = totalSpendings / totalNumberOfProjects;
+    averageProjectHours = totalHours / totalNumberOfProjects;
+  }
+  averageProjectWorkers = users.length / totalNumberOfProjects;
+
+  return [totalNumberOfProjects, numberOfActiveProjects.length, totalSpendings, +totalHours.toFixed(2), (users.length), +averageProjectSpendings.toFixed(2), +averageProjectHours.toFixed(2), +averageProjectWorkers.toFixed(2)];
+}
 /**
  * Deletes a project:
  * it deletes the images from the database, 
