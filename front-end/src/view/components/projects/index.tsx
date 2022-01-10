@@ -76,12 +76,6 @@ export default function Dashboard() {
         to: Paths.Verification,
       },
     ],
-    finance: [
-      {
-        name: 'Generate Report',
-        to: Paths.Reports,
-      },
-    ],
   };
 
   return (

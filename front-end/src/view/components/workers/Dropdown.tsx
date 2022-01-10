@@ -8,7 +8,7 @@ import {
 import { Worker } from '../../../data';
 
 import { useDialog } from '../../../utils/modals';
-import { AwardBonusDialog, EditUserDialog, DeleteUserDialog } from '../shared/dialogs';
+import { AwardBonusDialog, EditUserDialog } from '../shared/dialogs';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
@@ -35,12 +35,14 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
         dialog.open(<AwardBonusDialog user={user} onClose={dialog.close} />);
       },
     },
+    /*
     {
       name: 'Delete User',
       action: () => {
         dialog.open(<DeleteUserDialog user={user} onClose={dialog.close} />);
       },
     },
+    */
   ];
 
   const dropDownOptions = options.map((option: {name: string, action: Function}) => ((
