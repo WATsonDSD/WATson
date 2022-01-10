@@ -81,6 +81,8 @@ export default function Dashboard() {
         to: Paths.Verification,
       },
     ],
+    finance: [
+    ],
   };
 
   return (
