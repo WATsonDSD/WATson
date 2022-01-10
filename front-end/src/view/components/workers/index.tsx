@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { getAllUsers } from '../../../data';
 
-import useData from '../../../data/hooks';
+import { useRefetchableData } from '../../../data/hooks';
 import Header from '../shared/header';
 import Hours from './Hours';
 
@@ -10,8 +10,15 @@ import OptionsIcon from '../../../assets/icons/options-black.svg';
 
 import Dropdown from './Dropdown';
 
+export const refetchWorkersData = () => {
+  refetcher?.();
+};
+let refetcher: Function | null = null;
+
 export default function Workers() {
-  const users = useData(async () => getAllUsers());
+  const [users, refetch] = useRefetchableData(async () => getAllUsers());
+
+  useEffect(() => { refetcher = refetch; return () => { refetcher = null; }; }, [refetch]);
 
   return (
     <>
@@ -40,7 +47,7 @@ export default function Workers() {
                 </div>
                 <span>{Object.entries(user.projects).length}</span>
                 <Hours user={user} />
-                <Dropdown user={user} icon={<img src={OptionsIcon} alt="Options" />} />
+                <Dropdown user={user} icon={<img src={OptionsIcon} alt="Options" />} refetch={refetch} />
               </div>
             ))
             : (
