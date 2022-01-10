@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Icon from '@mdi/react';
+import { mdiDelete } from '@mdi/js';
 import Header from '../shared/header';
 import {
   UserID,
@@ -173,31 +175,26 @@ export default function EditProject() {
                   </div>
                 ) : (
                   <div className="relative flex" key={`workers.user${worker.id}`}>
-                    <div className="w-5/6">
-                      <input
-                        className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight"
-                        id={`worker-${index}`}
-                        name={`users[${index}].id`}
-                        type="text"
-                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
-                        readOnly
-                      />
-                    </div>
-                    <div className="w-1/6">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const newState = Array.from(annotators);
-                          newState.splice(index, 1);
-                          await removeUserFromProject(idProject ?? '', worker.worker);
-                          if (newState.length === 0) newState.push({ id: 0, worker: '' });
-                          setAnnotators(newState);
-                        }}
-                        className=" bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        Remove
-                      </button>
-                    </div>
+                    <input
+                      className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight"
+                      id={`worker-${index}`}
+                      name={`users[${index}].id`}
+                      type="text"
+                      value={allUsers?.find((u) => u._id === worker.worker)?.name}
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const newState = Array.from(annotators);
+                        newState.splice(index, 1);
+                        await removeUserFromProject(idProject ?? '', worker.worker);
+                        if (newState.length === 0) newState.push({ id: 0, worker: '' });
+                        setAnnotators(newState);
+                      }}
+                    >
+                      <Icon path={mdiDelete} size={1} />
+                    </button>
                   </div>
                 )))}
               </label>
@@ -231,31 +228,26 @@ export default function EditProject() {
                   </div>
                 ) : (
                   <div className="relative flex" key={`workers.user${worker.id}`}>
-                    <div className="w-5/6">
-                      <input
-                        className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight"
-                        id={`worker-${index}`}
-                        name={`users[${index}].id`}
-                        type="text"
-                        value={allUsers?.find((u) => u._id === worker.worker)?.name}
-                        readOnly
-                      />
-                    </div>
-                    <div className="w-1/6">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const newState = Array.from(verifiers);
-                          delete newState[index];
-                          await removeUserFromProject(idProject ?? '', worker.worker);
-                          if (newState.length === 0) newState.push({ id: 0, worker: '' });
-                          setVerifiers(newState);
-                        }}
-                        className=" bg-red-600 hover:bg-red-700 text-white"
-                      >
-                        Remove
-                      </button>
-                    </div>
+                    <input
+                      className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight"
+                      id={`worker-${index}`}
+                      name={`users[${index}].id`}
+                      type="text"
+                      value={allUsers?.find((u) => u._id === worker.worker)?.name}
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const newState = Array.from(verifiers);
+                        delete newState[index];
+                        await removeUserFromProject(idProject ?? '', worker.worker);
+                        if (newState.length === 0) newState.push({ id: 0, worker: '' });
+                        setVerifiers(newState);
+                      }}
+                    >
+                      <Icon path={mdiDelete} size={1} />
+                    </button>
                   </div>
                 )))}
               </label>
