@@ -10,7 +10,7 @@ export function AwardBonusDialog(props: {onClose: VoidFunction, user: Worker}) {
   const snackBar = useSnackBar();
 
   async function onSave() {
-    addBonus(user, Number(bonus.current?.value));
+    addBonus(user, Number(bonus.current?.value)).then(() => onClose());
     console.log(user);
   }
 
