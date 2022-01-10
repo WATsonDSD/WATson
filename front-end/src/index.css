@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .selected-worker {
+    transform: rotate(45deg);
+  }
+}
+
 @import url('./assets/fonts/fonts.css');
 
 body {

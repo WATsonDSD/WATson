@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 import React, {
   useRef,
   useState,
@@ -15,9 +17,8 @@ import {
   UserID,
   Project,
   getAllUsers,
-  // useUserNotNull,
-  // createProject,
-  // addUserToProject,
+  useUserNotNull,
+  createProject,
   LandmarkSpecification,
 } from '../../../data';
 
@@ -32,10 +33,12 @@ import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnn
 import { Paths } from '../shared/routes/paths';
 
 export default function CreateProject() {
-  // const [user] = useUserNotNull();
+  const [user] = useUserNotNull();
   const navigate = useNavigate();
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [projectIsValid, updateProjectValidity] = useState<boolean>(false);
 
   const [project, setProject] = useState<Project>(
     {
@@ -80,7 +83,31 @@ export default function CreateProject() {
   });
 
   const handleValidation = () => {
-    console.log('validating');
+    const validGeneralInformation = project.name.length > 0 && project.client.length > 0 && project.endDate > project.startDate;
+    const validLandmarks = project.landmarks.length > 0;
+    const validAssets = files && files.length > 0;
+    const validWorkers = selectedAnnotators.current.length > 0 && selectedVerifiers.current.length > 0;
+    const validPricing = project.hourlyRateAnnotation > 0 && project.hourlyRateVerification > 0 && project.pricePerImageAnnotation > 0 && project.pricePerImageVerification > 0;
+
+    const validateStep = (step: string) => document.getElementById(step)?.classList.add('text-white', 'border-green-500', 'bg-green-500');
+    const invalidateStep = (step: string) => document.getElementById(step)?.classList.remove('text-white', 'border-green-500', 'bg-green-500');
+
+    if (validGeneralInformation) validateStep('step-1');
+    else invalidateStep('step-1');
+
+    if (validLandmarks) validateStep('step-2');
+    else invalidateStep('step-2');
+
+    if (validAssets) validateStep('step-3');
+    else invalidateStep('step-3');
+
+    if (validWorkers) validateStep('step-4');
+    else invalidateStep('step-4');
+
+    if (validPricing) validateStep('step-5');
+    else invalidateStep('step-5');
+
+    updateProjectValidity(validGeneralInformation && validLandmarks && validAssets && validWorkers && validPricing);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +116,37 @@ export default function CreateProject() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // const landmarks: LandmarkSpecification = currentLandMarks;
+
+    const images = files.map((file) => (
+      {
+        _id: uuid(),
+        _attachments: {
+          image: {
+            content_type: file.type,
+            data: new Blob([file]),
+          },
+        },
+        name: file.name,
+      }
+    ));
+
+    project.users = [...project.users, user._id, '75883cd5c22adf54dcacb5213e030550'];
+    project.images.imagesWithoutAnnotator = images.map((image) => image._id);
+
+    createProject(project, images).then(() => {
+      navigate(Paths.Projects);
+    });
+  };
+
+  useEffect(() => {
+    handleValidation();
+  }, [project, files]);
+
+  const landmarkColor = (id: number) => {
+    if (selectedLandmarks.current.includes(id)) {
+      return { fill: '#6EE7B7', stroke: '#000000' };
+    }
+    return { fill: '#FFFFFF', stroke: '#808080' };
   };
 
   function handleLandmarksButton(_event: React.MouseEvent<HTMLButtonElement, MouseEvent>, value: number) {
@@ -100,40 +157,6 @@ export default function CreateProject() {
     }
     setProject({ ...project, landmarks: selectedLandmarks.current });
   }
-
-  useEffect(() => {
-    // if (project && user) {
-    //   // the projectManager creating the project is assigned to it
-    //   createProject(project)
-    //     .then(async (id) => {
-    //       await addUserToProject(user._id, id);
-    //       await addUserToProject('75883cd5c22adf54dcacb5213e030550', id); // the finance users uuid.
-    //       for (let i = 0; i < project.users.length; i += 1) {
-    //         if (project.users[i] !== '') {
-    //           // eslint-disable-next-line no-await-in-loop
-    //           await addUserToProject(project.users[i], id);
-    //         }
-    //       }
-    //       navigate(Paths.Projects);
-    //     });
-    // }
-  }, [project, files]);
-
-  function handleLandmarksCheckbox(event: any, values: number[]) {
-    if (!event.target.checked) {
-      selectedLandmarks.current = selectedLandmarks.current.filter((value) => !values.includes(value));
-    } else {
-      selectedLandmarks.current = [...selectedLandmarks.current, ...values];
-    }
-    setProject({ ...project, landmarks: selectedLandmarks.current });
-  }
-
-  const landmarkColor = (id: number) => {
-    if (selectedLandmarks.current.includes(id)) {
-      return { fill: '#6EE7B7', stroke: '#000000' };
-    }
-    return { fill: '#FFFFFF', stroke: '#808080' };
-  };
 
   const landmarkButton = (i: number) => (
     <button
@@ -149,6 +172,15 @@ export default function CreateProject() {
       {i}
     </button>
   );
+
+  function handleLandmarksCheckbox(event: any, values: number[]) {
+    if (!event.target.checked) {
+      selectedLandmarks.current = selectedLandmarks.current.filter((value) => !values.includes(value));
+    } else {
+      selectedLandmarks.current = [...selectedLandmarks.current, ...values];
+    }
+    setProject({ ...project, landmarks: selectedLandmarks.current });
+  }
 
   const landmarkCheckbox = (landmarks: number[]) => (
     <input
@@ -172,12 +204,12 @@ export default function CreateProject() {
             <button
               id="submit"
               type="button"
-              // className={`justify-self-end col-start-2 py-2 px-6 border transition-all rounded-full ${
-              //   projectIsValid
-              //     ? 'border-black text-white bg-gray-700 hover:bg-black'
-              //     : 'border-gray-400 text-gray-500'
-              // }`}
-              // onClick={() => projectIsValid && inputRef?.current?.click()}
+              className={`justify-self-end col-start-2 py-2 px-6 border transition-all rounded-full ${
+                projectIsValid
+                  ? 'border-black text-white bg-gray-700 hover:bg-black'
+                  : 'border-gray-400 text-gray-500'
+              }`}
+              onClick={() => projectIsValid && inputRef?.current?.click()}
             >
               Create the project
             </button>
@@ -280,7 +312,7 @@ export default function CreateProject() {
               ) : ''}
             </div>
 
-            <div className="flex flex-col gap-y-4">
+            <div className={`flex flex-col gap-y-4 ${files && files.length > 0 && 'mb-4'}`}>
               <div className="flex gap-x-4 mx-6 py-2 text-sm text-gray-500 border-b">
                 <span className="w-full">File name</span>
                 <span className="w-1/6">Type</span>
@@ -386,7 +418,7 @@ export default function CreateProject() {
                       <PlusIcon
                         className={`w-8 h-8 p-2 rounded-full border transition-all ${
                           included
-                            ? 'selected-worker border-red-200'
+                            ? 'selected-worker border-red-600'
                             : 'border-gray-600'
                         }`}
                         stroke={included ? 'red' : 'black'}
@@ -464,7 +496,7 @@ export default function CreateProject() {
                       <PlusIcon
                         className={`w-8 h-8 p-2 rounded-full border transition-all ${
                           included
-                            ? 'selected-worker border-red-200'
+                            ? 'selected-worker border-red-600'
                             : 'border-gray-600'
                         }`}
                         stroke={included ? 'red' : 'black'}

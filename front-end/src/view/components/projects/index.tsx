@@ -18,6 +18,7 @@ import { Paths } from '../shared/routes/paths';
 export default function Dashboard() {
   const [user] = useUserNotNull();
   const { type } = useParams();
+
   const navigate = useNavigate();
 
   let projects;
@@ -53,10 +54,10 @@ export default function Dashboard() {
         name: 'Assign Images',
         to: Paths.ProjectAssign,
       },
-      {
-        name: 'Upload Images',
-        to: Paths.Project,
-      },
+      // {
+      //   name: 'Upload Images',
+      //   to: Paths.Project,
+      // },
       {
         name: 'Finance',
         to: Paths.ProjectFinance,
@@ -87,7 +88,7 @@ export default function Dashboard() {
   return (
     <>
       <Header title="Projects" />
-      <div id="content" className="h-full">
+      <div id="content">
         {projects && projects.length > 0 ? (
           <section className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {projects?.map((project) => (

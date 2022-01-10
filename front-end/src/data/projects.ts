@@ -14,8 +14,11 @@ import {
   findImageById,
   Block,
   findBlockOfProject,
+  nonWrappedImagesDB,
   // LandmarkSpecification,
 } from '.';
+
+import { FetchingError } from '../utils/errors';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
   return ProjectsDB.get(id);
@@ -26,43 +29,41 @@ export async function findProjectById(id: ProjectID): Promise<Project & {_id: st
 export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
   const user: Worker = await findUserById(userID);
 
-  const projects = await Promise.all(
-    Object.keys(user.projects).map((id) => findProjectById(id)),
-  );
-
-  return projects;
+  return new Promise((resolve, reject) => {
+    ProjectsDB.allDocs({
+      include_docs: true,
+      keys: Object.keys(user.projects),
+    }).then((response) => {
+      resolve(response.rows.filter((row) => row.doc !== undefined).map((row) => row.doc!));
+    }).catch(() => {
+      reject(new FetchingError('We could not fetch the projects as requested.'));
+    });
+  });
 }
 
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
  */
-export async function createProject(project: Project) : Promise<ProjectID> {
-  const id = uuid(); // unique id's.
+export async function createProject(project: Project, images: any) : Promise<ProjectID> {
+  const projectToCreate: Project = project;
 
-  // const project = {
-  //   _id: id,
-  //   users: [], // A newly created project has no users.
-  //   name,
-  //   client,
-  //   status: 'active', // A newly created project start in progress.
-  //   landmarks,
-  //   pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
-  //   pricePerImageVerification: financialModel.pricePerImageVerification,
-  //   hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
-  //   hourlyRateVerification: financialModel.hourlyRateVerification,
-  //   annVer: [],
-  //   workDoneInTime: {},
-  //   images: {
-  //     blocks: {},
-  //     imagesWithoutAnnotator: [],
-  //     done: [],
-  //   }, // A newly created project has no images.
+  projectToCreate._id = uuid();
 
-  // };
+  await ProjectsDB
+    .put(projectToCreate)
+    .catch((error) => {
+      console.log(error);
+    });
 
-  await ProjectsDB.put(project);
-  return id;
+  await nonWrappedImagesDB.bulkDocs(images)
+    .catch((error) => { throw error; });
+
+  await Promise.all(projectToCreate.users.map(async (userID) => {
+    await addUserToProject(userID, projectToCreate._id);
+  }));
+
+  return projectToCreate._id;
 }
 
 /**
@@ -131,7 +132,9 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     throw Error(`User ${user.name} is already in project ${project.name}`);
   }
 
-  project.users.push(userId);
+  if (!project.users.includes(userId)) {
+    project.users.push(userId);
+  }
 
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],

@@ -1,49 +1,56 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import { useNavigate, useParams } from 'react-router-dom';
+
+import Select from 'react-select';
+
 import {
+  Worker,
+  Image,
+  findProjectById,
+  getUsersOfProject,
   createAnnotatorVerifierLink,
-  findProjectById, getUsersOfProject, Image, Worker,
+  assignImagesToAnnotator,
+  getImagesOfProjectWithoutAnnotator,
 } from '../../../data';
+
 import useData from '../../../data/hooks';
-import { assignImagesToAnnotator, getImagesOfProjectWithoutAnnotator } from '../../../data/images';
-// import { findImageById } from '../../../data/images';
-import Header from '../shared/header';
-import { Paths } from '../shared/routes/paths';
+
 import ImageDnD from './ImageDnD';
 import UserCardDnD from './UserCardDnD';
+import BackIcon from '../../../assets/icons/back.svg';
+
+import { Paths } from '../shared/routes/paths';
 
 export default function ProjectAssign() {
+  const { idProject } = useParams();
+  const navigate = useNavigate();
+
+  if (!idProject) { throw Error('No project id!'); }
+
+  const project = useData(async () => findProjectById(idProject));
+
   const [toAnnotate, setToAnnotate] = useState([] as {user:string, image:string, data: Blob}[]);
   const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
   const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
   const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-  const [projectUsers, setProjectUsers] = useState([] as Worker[]);
+  const [projectUsers, setProjectUsers] = useState<Worker[]>([]);
 
-  const { idProject } = useParams();
-  const project = useData(async () => findProjectById(idProject ?? ''));
-  const navigate = useNavigate();
+  const annotators = projectUsers ? projectUsers.filter((user) => user.role === 'annotator') : [];
+  const verifiers = projectUsers ? projectUsers.filter((user) => user.role === 'verifier') : [];
 
-  console.log(imagesToAnnotate);
   useEffect(() => {
-    getImagesOfProjectWithoutAnnotator(idProject || '').then((result) => {
-      console.log(result);
-      setImagesToAnnotate(result!);
+    getImagesOfProjectWithoutAnnotator(idProject).then((result) => {
+      setImagesToAnnotate(result);
     });
-    getUsersOfProject(idProject || '').then((result) => { setProjectUsers(result!); });
-  }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const showAssignedImages = (images: Image[], role: string) => {
-    if (role === 'annotate') {
-      images.forEach((image: Image) => {
-        updateToAnnotate({ user: image.idAnnotator, image: image.id, data: image.data });
-      });
-    } else {
-      images.forEach((image: Image) => {
-        updateToVerify({ user: image.idVerifier, image: image.id, data: image.data });
-      });
-    }
-  };
+    getUsersOfProject(idProject).then((result) => {
+      setProjectUsers(result);
+    });
+  }, []);
 
   const handleAssign = async (event: any) => {
     event.preventDefault();
@@ -51,15 +58,10 @@ export default function ProjectAssign() {
     const annotator = event.target.annotator.value;
     const verifier = event.target.verifier.value;
     const nbImages = event.target.numberImages.value;
-    console.log(annotator);
-    console.log(verifier);
-    console.log(nbImages);
 
-    if (!idProject) { throw Error('no project id!'); }
-
-    await assignImagesToAnnotator(nbImages, annotator, idProject ?? '');
+    await assignImagesToAnnotator(nbImages, annotator, idProject);
     if (verifier !== '0') {
-      await createAnnotatorVerifierLink(idProject ?? '', annotator, verifier);
+      await createAnnotatorVerifierLink(idProject, annotator, verifier);
     }
   };
 
@@ -108,24 +110,122 @@ export default function ProjectAssign() {
     }
   };
 
+  // const handleSelectChange = () => {
+  //   // I need to remove the already selected verifiers from the list of possible verifiers
+  // };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // I need to subtract all the input numbers from the assets left
+    console.log(event.currentTarget.value);
+  };
+
   const handleSubmit = async () => {
-    for (let i = 0; i < toAnnotate.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      // await assignAnnotatorToImage(toAnnotate[i].image, toAnnotate[i].user, project?.id || '');
-    }
+    // navigate(Paths.Projects);
+  };
 
-    for (let i = 0; i < toVerify.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      // await assignVerifierToImage(toVerify[i].image, toVerify[i].user, project?.id || '');
+  const SelectStyles = {
+    control: (provided: any) => ({
+      ...provided,
+      minHeight: 0,
+      backgroundColor: 'transparent',
+      border: 0,
+      borderRadius: 0,
+      borderBottom: '1px solid rgb(229, 231, 235)',
+      boxShadow: 'none',
+      '&:focus': {
+        borderBottom: '1px solid black',
+      },
+      '&:hover': {
+        borderBottom: '1px solid black',
+      },
+    }),
+    valueContainer: (provided: any) => ({
+      ...provided,
+      padding: 0,
+    }),
+    option: (provided: any, state: any) => ({
+      ...provided,
+      color: state.isSelected ? 'black' : 'rgba(0, 0, 0, 0.4)',
+      backgroundColor: 'white',
+      '&:hover': {
+        color: 'black',
+      },
+    }),
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      padding: 0,
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      padding: 0,
+    }),
+    indicatorSeparator: () => ({}),
 
-    }
-
-    navigate(Paths.Projects);
   };
 
   return (
     <div className="min-h-full w-full">
-      <Header title={`Assigning images : ${project?.name ?? ''}`} />
+      <header id="create-project-header" className="sticky top-0 bg-gray-50">
+        <button type="button" onClick={() => navigate(Paths.Projects)} className="transition-opacity opacity-60 hover:opacity-100">
+          <img src={BackIcon} alt="Go Back" />
+        </button>
+        <h1 className="self-center text-2xl font-bold">Assign images to workers</h1>
+      </header>
+
+      <form className="px-14 py-8" onSubmit={handleSubmit}>
+        <div className="w-full rounded-lg border shadow-sm">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <h4 className="text-md font-medium">
+              Assets left:
+              {' '}
+              {project?.images.imagesWithoutAnnotator.length}
+            </h4>
+          </div>
+
+          <div className="flex flex-col">
+            <div className="grid grid-cols-3 px-6 py-2 text-sm text-gray-500 border-b">
+              <span>Annotator</span>
+              <span>Assigned verifier</span>
+              <span className="justify-self-end">N° of assigned assets</span>
+            </div>
+          </div>
+
+          {annotators && annotators.length > 0 ? annotators.map((user, index) => {
+            const isEven: boolean = index % 2 === 0;
+
+            return (
+              <div
+                key={user._id}
+                className={`grid grid-cols-3 items-center px-6 py-4 ${isEven ? 'bg-gray-50' : ''} transition-all`}
+              >
+                <span>{user.name}</span>
+                <Select
+                  name={`${user._id}-verifier`}
+                  isClearable
+                  // onChange={handleSelectChange}
+                  styles={SelectStyles}
+                  options={verifiers.map((verifier) => ({ value: verifier.name, label: verifier.name }))}
+                  className="w-full text-base"
+                />
+                <input
+                  id="assigned-assets"
+                  name={`${user._id}-assigned-assets`}
+                  type="number"
+                  min={0}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                  className="justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black"
+                />
+              </div>
+            );
+          }) : (
+            <div className="flex justify-center py-4 text-gray-400">
+              There are no annotators in the project.
+            </div>
+          )}
+        </div>
+      </form>
+
       <form className="w-full" onSubmit={handleAssign}>
         <div className="w-full flex flex-row space-x-4 md:w-2/3 px-3 mb-6 md:mb-0">
           <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
