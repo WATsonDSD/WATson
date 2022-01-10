@@ -425,6 +425,41 @@ export async function changeProjectName(projectID: ProjectID, name: string) {
 
 export async function closeProject(projectID: ProjectID) {
   const project = await findProjectById(projectID);
+
+  let csvContent = 'landmark,x,y,z,image\n';
+  let control = 0;
+  // landmarks: #,x,y,z,imageid
+  for (let i = 0; i < project.images.done.length; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const im = await findImageById(project.images.done[i].imageId);
+    const landmarks = Object.keys(im!.annotation as Object);
+    // eslint-disable-next-line no-loop-func
+    for (let j = 0; j < landmarks.length; j += 1) {
+    // landmarks.forEach((number) => {
+      const nr = landmarks[j] as unknown as number;
+      const { annotation } = im!;
+      csvContent += nr;
+      csvContent += ',';
+      csvContent += annotation![nr].x;
+      csvContent += ',';
+      csvContent += annotation![nr].y;
+      csvContent += ',';
+      csvContent += annotation![nr].z;
+      csvContent += ',';
+      csvContent += im.id;
+      csvContent += '\n';
+    }
+    control += 1;
+    console.log('Done landmarks');
+  }
+
+  if (control === project.images.done.length) {
+    const anchor = document.createElement('a');
+    anchor.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`;
+    anchor.target = '_blank';
+    anchor.download = 'landmarkData.csv';
+    anchor.click();
+  }
   project.status = 'closed';
   await ProjectsDB.put(project);
 }

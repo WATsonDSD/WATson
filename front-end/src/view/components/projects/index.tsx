@@ -5,6 +5,7 @@ import {
   useUserNotNull,
   deleteProject,
   getProjectsOfUser,
+  closeProject,
 } from '../../../data';
 
 import useData from '../../../data/hooks';
@@ -61,8 +62,8 @@ export default function Dashboard() {
         to: Paths.ProjectFinance,
       },
       {
-        name: 'Close',
-        action: () => null,
+        name: 'Close & Get Landmarks',
+        action: closeProject,
       },
       {
         name: 'Delete',
