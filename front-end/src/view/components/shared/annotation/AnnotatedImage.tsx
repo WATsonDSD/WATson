@@ -80,11 +80,11 @@ export default function AnnotatedImage(props: {
         });
         // points
         Object.entries(image.annotation).forEach(([id, point]) => {
-          const { fill, stroke } = landmarkColor(+id);
+          const { fill, stroke, big } = landmarkColor(+id);
           [ctx.fillStyle, ctx.strokeStyle] = [fill || '#00000000', stroke || '#00000000'];
 
           ctx.beginPath();
-          ctx.arc(point.x * canvas.width, point.y * canvas.height, 4 / (scale ?? 1), 0, 2 * Math.PI);
+          ctx.arc(point.x * canvas.width, point.y * canvas.height, (big ? 7 : 4) / (scale ?? 1), 0, 2 * Math.PI);
           if (fill) ctx.fill();
           if (stroke) ctx.stroke();
         });

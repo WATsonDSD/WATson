@@ -130,9 +130,9 @@ export default function CreateProject() {
 
   const landmarkColor = (id: number) => {
     if (selectedLandmarks.current.includes(id)) {
-      return { fill: '#525252' };
+      return { fill: '#6EE7B7', stroke: '#000000' };
     }
-    return { stroke: '#000000' };
+    return { fill: '#FFFFFF', stroke: '#808080' };
   };
 
   const landmarkButton = (i: number) => (

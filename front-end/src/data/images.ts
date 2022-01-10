@@ -1,6 +1,6 @@
 import {
   updateUser, ImageID, Image, ProjectID, UserID, findUserById,
-  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, Worker, BlockID,
+  findProjectById, Annotation, LandmarkSpecification, ProjectsDB, addBlock, findAnnotatorBlockOfProject, addImagesToBlock, Worker, BlockID, updateBlock,
 } from '.';
 import { ImagesDB } from './databases';
 import { DBDocument } from './PouchWrapper/PouchCache';
@@ -154,6 +154,7 @@ export async function saveAnnotation(
 
   // reflect the changes to the DB.
   await ProjectsDB.put(project);
+  await updateBlock(block, projectId);
   await ImagesDB.put(image);
   await updateUser(annotator);
 }

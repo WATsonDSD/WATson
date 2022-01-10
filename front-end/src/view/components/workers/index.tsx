@@ -1,60 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { getAllUsers } from '../../../data';
 
-import useData from '../../../data/hooks';
+import { useRefetchableData } from '../../../data/hooks';
 import Header from '../shared/header';
 import Hours from './Hours';
 
+import OptionsIcon from '../../../assets/icons/options-black.svg';
+
+import Dropdown from './Dropdown';
+
+export const refetchWorkersData = () => {
+  refetcher?.();
+};
+let refetcher: Function | null = null;
+
 export default function Workers() {
-  const users = useData(async () => getAllUsers());
+  const [users, refetch] = useRefetchableData(async () => getAllUsers());
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const options = [
-    {
-      text: 'Edit Worker',
-      onClick: () => {}, // TODO: implement update user data dialog
-    },
-    {
-      name: 'Award Bonus',
-      href: '/Workers/',
-    },
-    {
-      name: 'Delete User',
-      onClick: () => {}, // TODO: implement delete user dialog
-    },
-  ];
-
-  // const dropDownActions = actions.map((action: any) => {
-  //   if (action.href === '') {
-  //     return (
-  //       <button
-  //         id={`${action.text}-btn`}
-  //         type="button"
-  //         onClick={action.onClick}
-  //       >
-  //         {action.text}
-  //       </button>
-  //     );
-  //   }
-  //   return (
-  //     <Link
-  //       id={`${action.text}-btn`}
-  //       type="button"
-  //       onClick={(event) => event.stopPropagation()}
-  //       to={`${action.href}`}
-  //     >
-  //       {action.text}
-  //     </Link>
-  //   );
-  // });
-
-  const OptionsIcon = (
-    <svg width="5" height="14" viewBox="0 0 5 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="2.5" cy="2.5" r="2.5" fill="black" />
-      <circle cx="2.5" cy="11.5" r="2.5" fill="black" />
-    </svg>
-  );
+  useEffect(() => { refetcher = refetch; return () => { refetcher = null; }; }, [refetch]);
 
   return (
     <>
@@ -83,9 +47,7 @@ export default function Workers() {
                 </div>
                 <span>{Object.entries(user.projects).length}</span>
                 <Hours user={user} />
-                <button type="button" className="p-4 justify-self-center">
-                  {OptionsIcon}
-                </button>
+                <Dropdown user={user} icon={<img src={OptionsIcon} alt="Options" />} refetch={refetch} />
               </div>
             ))
             : (

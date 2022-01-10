@@ -85,13 +85,12 @@ export default function VerificationView() {
 
   const saveAsValid = async () => {
     if (edit) await modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
-    await acceptAnnotation(projectId ?? '', image.id);
+    else { await acceptAnnotation(projectId ?? '', image.id); }
     updateImage();
     setDoneCount(doneCount + 1);
   };
 
   const editImage = () => {
-    if (edit) modifyAnnotation(projectId ?? '', image.id, image.annotation ?? {});
     setEdit(!edit);
   };
 

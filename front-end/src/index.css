@@ -46,6 +46,10 @@ header {
   background-color: #f9f9f9;
 }
 
+#award-bonus {
+  width: 400px;
+}
+
 #account-settings {
   width: 800px;
 }
