@@ -236,9 +236,9 @@ export default function AnnotationView() {
       { rejectionMessage
         && (
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-        <div className="fixed h-100v w-100v bg-transparent z-10" onClick={() => setRejectionMessage(undefined)}>
-          <div className="fixed h-fill w-20v bg-gray-100 z-20 rounded-3xl p-5vh ml-56vw bottom-24">
-            <h1 className="-mt-4">This image was rejected for the following reasons:</h1>
+        <div className="fixed h-100v w-100v bg-transparent z-10 flex justify-center" onClick={() => setRejectionMessage(undefined)}>
+          <div className="fixed h-fill w-30v bg-red-200 z-20 rounded-3xl p-5vh top-15">
+            <h1 className="-mt-4 mb-3">This image was rejected for the following reasons:</h1>
             <p>{rejectionMessage}</p>
           </div>
         </div>
