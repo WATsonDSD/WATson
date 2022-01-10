@@ -105,7 +105,8 @@ export default function AnnotationView() {
       }
       const realImageId = updateImageId(result.length);
       if (result[realImageId].idVerifier !== undefined) {
-        getRejectedAnnotationByID(String(realImageId)).then((annotation) => {
+        getRejectedAnnotationByID(String(result[realImageId].id)).then((annotation) => {
+          console.log(annotation.comment);
           setRejectionMessage(annotation.comment);
         });
       }
@@ -238,7 +239,7 @@ export default function AnnotationView() {
         <div className="fixed h-100v w-100v bg-transparent z-10" onClick={() => setRejectionMessage(undefined)}>
           <div className="fixed h-fill w-20v bg-gray-100 z-20 rounded-3xl p-5vh ml-56vw bottom-24">
             <h1 className="-mt-4">This image was rejected for the following reasons:</h1>
-            <p>{}</p>
+            <p>{rejectionMessage}</p>
           </div>
         </div>
         )}
