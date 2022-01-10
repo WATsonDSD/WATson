@@ -358,7 +358,7 @@ export async function changeProjectName(projectID: ProjectID, name: string) {
 export async function closeProject(projectID: ProjectID) {
   const project = await findProjectById(projectID);
 
-  let csvContent = 'landmark,x,y,z,image';
+  let csvContent = 'landmark,x,y,z,image\n';
   let control = 0;
   // landmarks: #,x,y,z,imageid
   for (let i = 0; i < project.images.done.length; i += 1) {
