@@ -76,7 +76,7 @@ function notifySubscribers(userData: UserData) {
  * in the browser's cookies and updates the userData variable
  * to match the state of that session.
  */
-async function updateUserData(): Promise<UserData> {
+export async function updateUserData(): Promise<UserData> {
   return new Promise((resolve, reject) => {
     AuthDB.getSession(async (error, response) => {
       if (error) {
