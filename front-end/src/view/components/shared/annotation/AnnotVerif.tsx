@@ -100,7 +100,7 @@ export default (
   };
   const templateLandmarkColor = (id: number) => {
     if (!image.annotation || !image.annotation[id]) {
-      return { stroke: '#525252' };
+      return { fill: '#FFFFFF', stroke: '#000000' };
     }
     if (image.annotation[id].z === 0) {
       return { fill: '#FF0000' };

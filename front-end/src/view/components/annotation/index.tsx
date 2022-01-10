@@ -174,7 +174,7 @@ export default function AnnotationView() {
   const templateLandmarkColor = (id: number) => {
     // Highlight the current landmark
     if ((tool === 'normal' && id === landmarkId) || (tool === 'move' && id === movedLandmark)) {
-      return { fill: '#FFFF60', stroke: '#000000' };
+      return { fill: '#FFFF60', stroke: '#000000', big: true };
     }
     return defaultTemplateLandmarkColor(id);
   };
