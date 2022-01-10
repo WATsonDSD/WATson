@@ -11,6 +11,7 @@ import { CreateUserDialog } from '../dialogs';
 import UserSettings from '../sidebar/UserSettings';
 import PlusIcon from '../../../../assets/icons/plus.svg';
 import generateReport from '../../../../data/financier';
+import { refetchReport as refetchReports } from '../../projectFinanceSummary/ReportFinance';
 
 export default function Header(props: { title: string}) {
   const { title } = props;
@@ -52,6 +53,7 @@ export default function Header(props: { title: string}) {
       [Paths.Reports]: () => {
         generateReport().then((result) => {
           setRows(result.reportRow);
+          refetchReports();
         });
       },
     },

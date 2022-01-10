@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { CSVDownload, CSVLink } from 'react-csv';
 // eslint-disable-next-line import/no-unresolved
 import { BiDotsVertical } from 'react-icons/bi';
-import useData from '../../../data/hooks';
+import { useRefetchableData } from '../../../data/hooks';
 import { deleteReport, findReportById, getAllReports } from '../../../data/report';
 import { Role } from '../../../data/types';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/header';
 
+export const refetchReport = () => {
+  refetcher?.();
+};
+
+let refetcher = null as Function | null;
 export default function ReportFinance() {
   const headers = [
     { label: 'ID', key: 'id' },
@@ -20,9 +25,7 @@ export default function ReportFinance() {
     { label: 'Earnings', key: 'payment' },
     { label: 'Client', key: 'client' },
   ];
-  let reports = useData(async () => getAllReports());
-  reports = reports?.sort((a: any, b: any) => new Date(b.date).valueOf() - new Date(a.date).valueOf()) ?? [];
-  console.log(reports.length);
+  const [reports, refetch] = useRefetchableData(async () => getAllReports());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [rows, setRows] = useState< {user: string;
   name: string;
@@ -32,6 +35,8 @@ export default function ReportFinance() {
   hours: number;
   payment: number;
   client: string;}[]>([]);
+
+  useEffect(() => { refetcher = refetch; return () => { refetcher = null; }; });
 
   return (
     <div className="h-full w-full">
@@ -94,6 +99,7 @@ export default function ReportFinance() {
                           className="text-red-500 tag px-8"
                           onClick={async () => {
                             await deleteReport(report.reportID);
+                            refetch();
                           }}
                         >
                           Delete
