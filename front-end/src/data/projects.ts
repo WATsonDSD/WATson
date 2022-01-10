@@ -56,14 +56,32 @@ export async function createProject(project: Project, images: any) : Promise<Pro
   await ProjectsDB
     .put(projectToCreate)
     .catch((error) => {
+      console.log('We could not create the project');
       console.log(error);
     });
 
   await nonWrappedImagesDB.bulkDocs(images)
     .catch((error) => { throw error; });
 
-  await Promise.all(projectToCreate.users.map(async (userID) => {
-    await addUserToProject(userID, projectToCreate._id);
+  await Promise.all(project.users.map(async (userID) => {
+    const updatedUser = await findUserById(userID);
+
+    updateUser(
+      {
+        ...updatedUser,
+        projects: {
+          ...updatedUser.projects,
+          [project._id]: {
+            toAnnotate: [],
+            waitingForAnnotation: [],
+            annotated: [],
+            toVerify: [],
+            waitingForVerification: [],
+            verified: [],
+          },
+        },
+      },
+    );
   }));
 
   return projectToCreate._id;
