@@ -29,3 +29,13 @@ export default function useData<T>(accessor: () => Promise<T>) {
 
   return data;
 }
+
+export function useRefetchableData<T>(accessor: () => Promise<T>) {
+  const [data, setData] = useState<T| null>(null);
+
+  useEffect(() => {
+    accessor().then((result) => setData(result));
+  }, []);
+
+  return [data, () => { accessor().then((result) => setData(result)); }] as const;
+}

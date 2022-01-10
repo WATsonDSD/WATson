@@ -14,9 +14,9 @@ function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
+const Dropdown = (props: {user: Worker, icon: ReactElement, refetch: Function }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user, icon } = props;
+  const { user, icon, refetch } = props;
 
   const dialog = useDialog();
 
@@ -26,7 +26,7 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
     {
       name: 'Edit Worker',
       action: () => {
-        dialog.open(<EditUserDialog user={user} onClose={dialog.close} />);
+        dialog.open(<EditUserDialog user={user} onClose={() => { dialog.close(); refetch(); }} />);
       },
     },
     {
@@ -39,7 +39,7 @@ const Dropdown = (props: {user: Worker, icon: ReactElement}) => {
     {
       name: 'Delete User',
       action: () => {
-        dialog.open(<DeleteUserDialog user={user} onClose={dialog.close} />);
+        dialog.open(<DeleteUserDialog user={user} onClose={() => { dialog.close(); refetch(); }} />);
       },
     },
     */

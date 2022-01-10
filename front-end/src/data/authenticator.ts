@@ -17,6 +17,7 @@ import {
   InvalidCredentialsError,
   IncorrectCredentialsError,
 } from '../utils/errors';
+import { notifyReplicators } from './PouchWrapper/ReplicatedWrapper';
 
 /**
  * Defines the three possible states for the user session.
@@ -85,9 +86,12 @@ async function updateUserData(): Promise<UserData> {
         // Nobody's is logged in
         userData = [null, SessionState.NONE];
       } else {
+        notifyReplicators();
         // response.userCtx contains the current logged in user
         await findUserByAuthId(IDPrefix + response.userCtx.name)
-          .then((user) => { userData = [user, SessionState.AUTHENTICATED]; })
+          .then((user) => {
+            userData = [user, SessionState.AUTHENTICATED];
+          })
           .catch((err) => {
             userData = [null, SessionState.NONE];
             console.log(err);
