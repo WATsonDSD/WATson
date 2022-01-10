@@ -24,9 +24,7 @@ import { FetchingError } from '../utils/errors';
 import { calculateTotalCost, totalHoursOfWork } from './financier';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
-  const fetched = await ProjectsDB.get(id);
-
-  return { ...fetched, id: fetched._id };
+  return ProjectsDB.get(id);
 }
 /**
  * Finds and returns all projects of a user.

@@ -10,18 +10,14 @@ import Select from 'react-select';
 
 import {
   Worker,
-  // Image,
   findProjectById,
   getUsersOfProject,
-  createAnnotatorVerifierLink,
-  assignImagesToAnnotator,
-  // getImagesOfProjectWithoutAnnotator,
+  // createAnnotatorVerifierLink,
+  // assignImagesToAnnotator,
 } from '../../../data';
 
 import useData from '../../../data/hooks';
 
-// import ImageDnD from './ImageDnD';
-// import UserCardDnD from './UserCardDnD';
 import BackIcon from '../../../assets/icons/back.svg';
 
 import { Paths } from '../shared/routes/paths';
@@ -36,11 +32,6 @@ export default function ProjectAssign() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // const [toAnnotate, setToAnnotate] = useState([] as {user:string, image:string, data: Blob}[]);
-  // const [toVerify, setToVerify] = useState([] as {user:string, image:string, data: Blob}[]);
-  // const [imagesToAnnotate, setImagesToAnnotate] = useState([] as Image[]);
-  // const [imagesToVerify, setImagesToVerify] = useState([] as Image[]);
-
   const [projectUsers, setProjectUsers] = useState<Worker[]>([]);
 
   const [assignedAssets] = useState<number>(0);
@@ -51,68 +42,10 @@ export default function ProjectAssign() {
   const links: { [annotatorID: string]: {verifierID: string, numberOfAssets: number}} = {};
 
   useEffect(() => {
-    // getImagesOfProjectWithoutAnnotator(idProject).then((result) => {
-    //   setImagesToAnnotate(result);
-    // });
-
     getUsersOfProject(idProject).then((result) => {
       setProjectUsers(result);
     });
   }, []);
-
-  // const handleAssign = async (event: any) => {
-  //   event.preventDefault();
-
-  //   const annotator = event.target.annotator.value;
-  //   const verifier = event.target.verifier.value;
-  //   const nbImages = event.target.numberImages.value;
-
-  //   await assignImagesToAnnotator(nbImages, annotator, idProject);
-  //   if (verifier !== '0') {
-  //     await createAnnotatorVerifierLink(idProject, annotator, verifier);
-  //   }
-  // };
-
-  // const updateToAnnotate = (newElement: any) => {
-  //   setToAnnotate((prevState) => [...prevState, newElement]);
-  // };
-
-  // const updateToVerify = (newElement: any) => {
-  //   setToVerify((prevState) => [...prevState, newElement]);
-  // };
-
-  // const handleDrop = (index: number, item: { id: string}, userId: string, action: 'annotate' | 'verify') => {
-  //   const { id } = item;
-  //   if (action === 'annotate') {
-  //     // Remove pic from to annotate pictures
-  //     const newPictureList = Array.from(imagesToAnnotate);
-  //     const selected = newPictureList.find((e) => e.id === id);
-  //     const data = selected ? selected.data : toAnnotate.find((e) => e.image === id)?.data;
-  //     const imageIndex = newPictureList.findIndex((e) => e.id === id);
-  //     if (selected) {
-  //       newPictureList.splice(imageIndex, 1);
-  //     } else {
-  //       toAnnotate.splice(toAnnotate.findIndex((e) => e.image === id), 1);
-  //     }
-  //     setImagesToAnnotate(newPictureList);
-  //     // updateToAnnotate 
-  //     updateToAnnotate({ user: userId, image: id, data });
-  //   } else {
-  //     // Remove pic from to annotate pictures
-  //     const newPictureList = Array.from(imagesToVerify);
-  //     const selected = newPictureList.find((e) => e.id === id);
-  //     const data = selected ? selected.data : toVerify.find((e) => e.image === id)?.data;
-  //     const imageIndex = newPictureList.findIndex((e) => e.id === id);
-  //     if (selected) {
-  //       newPictureList.splice(imageIndex, 1);
-  //     } else {
-  //       toVerify.splice(toVerify.findIndex((e) => e.image === id), 1);
-  //     }
-  //     setImagesToVerify(newPictureList);
-  //     // update to verify
-  //     updateToVerify({ user: userId, image: id, data }); // remove picture from to verify list
-  //   }
-  // };
 
   const handleSelectChange = (option: any, meta: any) => {
     links[meta.name] = {
@@ -131,15 +64,18 @@ export default function ProjectAssign() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    Object.entries(links).map(async ([annotator, value]) => {
-      await assignImagesToAnnotator(value.numberOfAssets, annotator, idProject);
+    // // eslint-disable-next-line no-restricted-syntax
+    // for (const annotator of Object.entries(links)) {
+    //   // eslint-disable-next-line no-await-in-loop
+    //   await assignImagesToAnnotator(annotator[1].numberOfAssets, annotator[0], idProject);
 
-      if (value.verifierID) {
-        await createAnnotatorVerifierLink(idProject, annotator, value.verifierID);
-      }
-    });
+    //   if (annotator[1].verifierID) {
+    //     // eslint-disable-next-line no-await-in-loop
+    //     await createAnnotatorVerifierLink(idProject, annotator[0], annotator[1].verifierID);
+    //   }
+    // }
 
-    navigate(Paths.Projects);
+    // navigate(Paths.Projects);
   };
 
   const SelectStyles = {
@@ -256,111 +192,6 @@ export default function ProjectAssign() {
         </div>
         <input ref={inputRef} className="hidden" type="submit" />
       </form>
-
-      {/* <form className="w-full" onSubmit={handleAssign}>
-        <div className="w-full flex flex-row space-x-4 md:w-2/3 px-3 mb-6 md:mb-0">
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-            Number Of Images
-            {' '}
-            <div className="relative">
-              <input required className="appearance-none block w-full bg-gray-50 text-gray-700 border border-gray-50 rounded py-1 px-2 leading-tight" id="numberImages" name="numberImages" type="number" min="0" max={project?.images.imagesWithoutAnnotator.length} />
-              LEFT:
-              {' '}
-              {project?.images.imagesWithoutAnnotator.length}
-            </div>
-          </label>
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-            Annotators
-            <div className="relative">
-              <select
-                className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="annotator"
-                name="annotator"
-              >
-                <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'annotator').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
-              </div>
-            </div>
-          </label>
-
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-            Verifiers
-            <div className="relative">
-              <select
-                className="block appearance-none w-full bg-gray-50 border border-gray-50 text-gray-700 py-1 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="verifier"
-                name="verifier"
-              >
-                <option value={0}>Select a user</option>
-                {projectUsers?.filter((u) => u.role === 'verifier').map((u) => (<option key={u.name} value={u._id}>{`${u.name}`}</option>))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
-              </div>
-            </div>
-          </label>
-
-          <button type="submit" id="btn-assign" onClick={() => {}} className=" bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-2 rounded-l">
-            Assign
-          </button>
-        </div>
-      </form>
-      <h1 className="ml-2 pl-2 mt-3 text-gray-800 text-3xl font-bold ">Drag and drop to assign :</h1>
-      <div id="annotation" className="h-1/2 my-5">
-        <h2 className="ml-2 pl-2 mt-3 text-gray-800 text-2xl font-bold ">Annotation :</h2>
-
-        <div className="flex flex-row flex-wrap gap-4 h-full">
-          <div className="flex flex-col rounded-lg shadow-xl bg-gray-50 ">
-            <header className="font-semibold text-sm py-3 px-4">
-              Images to annotate
-            </header>
-            <div className="Pictures grow shrink flex flex-col gap-2">
-              {imagesToAnnotate.map((image) => <ImageDnD key={image.id} type="annotate" data={image.data} id={image.id} />)}
-            </div>
-          </div>
-          <div className="flex flex-row grow shrink gap-4">
-            { projectUsers.filter((user) => user.role === 'annotator' || user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user._id}-annotator`} userId={user._id} accept="annotate" images={toAnnotate.filter((e) => e.user === user._id)} onDrop={(item: any) => handleDrop(index, item, user._id, 'annotate')} />
-            ))}
-          </div>
-        </div>
-      </div>
-      <br />
-      <div id="verification" className="h-1/2 my-5">
-        <h2 className="ml-2 pl-2 mt-3 text-gray-800 text-2xl font-bold ">Verification :</h2>
-        <div className="flex flex-row flex-wrap gap-4 h-full">
-          <div className="flex flex-col rounded-lg shadow-xl bg-gray-50 ">
-            <header className="font-semibold text-sm py-3 px-4">
-              Images to verify
-            </header>
-            <div className="Pictures grow shrink flex flex-col gap-2">
-              {imagesToVerify.map((image) => <ImageDnD key={image.id} type="verify" data={image.data} id={image.id} />)}
-            </div>
-          </div>
-          <div className="flex grow shrink flex-row gap-4">
-            { projectUsers.filter((user) => user.role === 'verifier').map((user, index) => (
-              <UserCardDnD key={`${user._id}-verifier`} userId={user._id} accept="verify" images={toVerify.filter((e) => e.user === user._id)} onDrop={(item: any) => { handleDrop(index, item, user._id, 'verify'); }} />
-            ))}
-          </div>
-        </div>
-      </div>
-      <br />
-      <footer className="flex justify-end pb-8 pt-4">
-
-        <button
-          className="bg-black right-2 ml-auto hover:bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2"
-          type="button"
-          onClick={handleSubmit}
-        >
-          Assign images
-        </button>
-        <button type="button" id="cancel" onClick={onCancelClick} className="bg-gray-800 text-gray-200 font-bold rounded-full py-1 px-2">
-          Cancel
-        </button>
-      </footer> */}
     </div>
   );
 }
