@@ -10,7 +10,9 @@ import { calculateTotalCost, totalHoursOfWork } from './financier';
 import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
-  return ProjectsDB.get(id);
+  const fetched = await ProjectsDB.get(id);
+
+  return { ...fetched, id: fetched._id };
 }
 /**
  * Finds and returns all projects of a user.
