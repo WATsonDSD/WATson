@@ -12,6 +12,7 @@ export const Paths = {
   ProjectFinance: '/projectFinance',
   Reports: '/reports',
   Statistics: '/statistics',
+  NotFound: '/404',
 };
 
 export default { Paths };

@@ -22,6 +22,8 @@ import ReportFinance from '../../projectFinanceSummary/ReportFinance';
 import VerificationView from '../../verification';
 import WorkerFinance from '../../projectFinanceSummary/WorkerStatistics';
 
+import NotFound from '../../404';
+
 import { Paths } from './paths';
 
 export default () => (
@@ -51,9 +53,12 @@ export default () => (
       </Route>
       <Route path={Paths.Reports} element={<ReportFinance />} />
       <Route path={Paths.ProjectAssign} element={<ProjectAssign />}>
-        <Route path=":idProject" element={<ProjectAssign />} />
+        <Route path=":projectID" element={<ProjectAssign />} />
       </Route>
       <Route path={Paths.Finances} element={<WorkerFinance />} />
     </Route>
+
+    <Route path={Paths.NotFound} element={<NotFound />} />
+    <Route path="*" element={<NotFound />} />
   </Routes>
 );

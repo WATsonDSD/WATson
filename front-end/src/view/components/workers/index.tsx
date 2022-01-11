@@ -34,7 +34,7 @@ export default function Workers() {
             <span className="justify-self-center">Actions</span>
           </div>
 
-          {users && users.length > 0
+          {users && users.length > 2
             ? users.filter((user) => user.role !== 'projectManager' && user.role !== 'finance').map((user) => (
               <div key={user._id} className="grid grid-cols-9 items-center gap-x-4 py-4 text-gray-800 border-t">
                 <div className="flex items-center gap-x-4 col-span-2">

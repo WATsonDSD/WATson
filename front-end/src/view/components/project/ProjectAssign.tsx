@@ -1,81 +1,101 @@
 import React, {
+  useEffect,
   useRef,
   useState,
-  useEffect,
 } from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import Select from 'react-select';
 
 import {
-  Worker,
   findProjectById,
   getUsersOfProject,
-  // createAnnotatorVerifierLink,
-  // assignImagesToAnnotator,
+  assignImagesToAnnotator,
+  createAnnotatorVerifierLink,
 } from '../../../data';
 
-import useData from '../../../data/hooks';
+import { Paths } from '../shared/routes/paths';
+import { useSnackBar, SnackBarType } from '../../../utils/modals';
 
+import useData from '../../../data/hooks';
 import BackIcon from '../../../assets/icons/back.svg';
 
-import { Paths } from '../shared/routes/paths';
-
 export default function ProjectAssign() {
-  const { idProject } = useParams();
+  const { projectID } = useParams();
+
   const navigate = useNavigate();
+  const snackBar = useSnackBar();
 
-  if (!idProject) { throw Error('No project id!'); }
+  if (!projectID) return <Navigate to={Paths.NotFound} />;
 
-  const project = useData(async () => findProjectById(idProject));
+  const submitRef = useRef<HTMLInputElement>(null);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const project = useData(() => findProjectById(projectID ?? ''));
+  const workers = useData(() => getUsersOfProject(projectID ?? ''));
 
-  const [projectUsers, setProjectUsers] = useState<Worker[]>([]);
+  const totalAssets = project?.images.imagesWithoutAnnotator.length ?? 0;
 
-  const [assignedAssets] = useState<number>(0);
-
-  const annotators = projectUsers ? projectUsers.filter((user) => user.role === 'annotator') : [];
-  const verifiers = projectUsers ? projectUsers.filter((user) => user.role === 'verifier') : [];
-
-  const links: { [annotatorID: string]: {verifierID: string, numberOfAssets: number}} = {};
+  const [assetsLeft, setAssetsLeft] = useState<number>(0);
 
   useEffect(() => {
-    getUsersOfProject(idProject).then((result) => {
-      setProjectUsers(result);
-    });
-  }, []);
+    setAssetsLeft(project?.images.imagesWithoutAnnotator.length ?? 0);
+  }, [project]);
+
+  const annotators = workers ? workers.filter((user) => user.role === 'annotator') : [];
+  const verifiers = workers ? workers.filter((user) => user.role === 'verifier') : [];
+
+  const links: { [workerID: string]: { verifierID: string, numberOfAssets: number }} = {};
 
   const handleSelectChange = (option: any, meta: any) => {
     links[meta.name] = {
       ...links[meta.name],
-      numberOfAssets: Number(option?.value ?? ''),
+      numberOfAssets: Number(option?.value ?? 0),
     };
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    links[event.currentTarget.name] = {
-      ...links[event.currentTarget.name],
-      numberOfAssets: Number(event.currentTarget.value),
-    };
+    const assetsAssigned = (Object.values(
+      document.getElementsByClassName('assigned-assets'),
+    ) as HTMLInputElement[])
+      .map((input) => Number(input.value))
+      .reduce((acc, curr) => acc + curr);
+
+    setAssetsLeft(totalAssets - assetsAssigned);
+
+    if (totalAssets - assetsAssigned < 0) {
+      document.getElementById('assets-left')?.classList.remove('text-green-500');
+      document.getElementById('assets-left')?.classList.add('text-red-500');
+    } else {
+      document.getElementById('assets-left')?.classList.remove('text-red-500');
+      document.getElementById('assets-left')?.classList.add('text-green-500');
+
+      links[event.currentTarget.name] = {
+        ...links[event.currentTarget.name],
+        numberOfAssets: Number(event.currentTarget.value),
+      };
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // // eslint-disable-next-line no-restricted-syntax
-    // for (const annotator of Object.entries(links)) {
-    //   // eslint-disable-next-line no-await-in-loop
-    //   await assignImagesToAnnotator(annotator[1].numberOfAssets, annotator[0], idProject);
+    if (assetsLeft < 0) {
+      return snackBar({ title: 'Too many assets assigned', message: 'The assigned assets exceed the available ones.' }, SnackBarType.Error);
+    }
 
-    //   if (annotator[1].verifierID) {
-    //     // eslint-disable-next-line no-await-in-loop
-    //     await createAnnotatorVerifierLink(idProject, annotator[0], annotator[1].verifierID);
-    //   }
-    // }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const worker of Object.entries(links)) {
+      // eslint-disable-next-line no-await-in-loop
+      await assignImagesToAnnotator(worker[1].numberOfAssets, worker[0], projectID);
 
-    // navigate(Paths.Projects);
+      if (worker[1].verifierID) {
+        // eslint-disable-next-line no-await-in-loop
+        await createAnnotatorVerifierLink(projectID, worker[0], worker[1].verifierID);
+      }
+    }
+
+    return navigate(Paths.Projects);
   };
 
   const SelectStyles = {
@@ -131,7 +151,7 @@ export default function ProjectAssign() {
               id="submit"
               type="button"
               className="justify-self-end col-start-2 py-2 px-6 border border-black text-white bg-gray-700 hover:bg-black transition-all rounded-full"
-              onClick={() => inputRef?.current?.click()}
+              onClick={() => submitRef?.current?.click()}
             >
               Assign assets
             </button>
@@ -142,10 +162,10 @@ export default function ProjectAssign() {
       <form className="px-14 py-8" onSubmit={handleSubmit}>
         <div className="w-full rounded-lg border shadow-sm">
           <div className="flex items-center justify-between px-6 py-4 border-b">
-            <h4 className="text-md font-medium">
+            <h4 id="assets-left" className="text-md font-medium text-green-500">
               Assets left:
               {' '}
-              {project?.images.imagesWithoutAnnotator.length ?? 0 - assignedAssets}
+              {assetsLeft}
             </h4>
           </div>
 
@@ -157,7 +177,7 @@ export default function ProjectAssign() {
             </div>
           </div>
 
-          {annotators && annotators.length > 0 ? annotators.map((user, index) => {
+          {workers && workers.length > 0 ? [...annotators, ...verifiers].map((user, index) => {
             const isEven: boolean = index % 2 === 0;
 
             return (
@@ -166,20 +186,35 @@ export default function ProjectAssign() {
                 className={`grid grid-cols-3 items-center px-6 py-4 ${isEven ? 'bg-gray-50' : ''} transition-all`}
               >
                 <span>{user.name}</span>
-                <Select
-                  name={user._id}
-                  isClearable
-                  onChange={handleSelectChange}
-                  styles={SelectStyles}
-                  options={verifiers.map((verifier) => ({ value: verifier._id, label: verifier.name }))}
-                  className="w-full text-base"
-                />
+                {
+                  user.role === 'annotator'
+                    ? (
+                      <Select
+                        name={user._id}
+                        isClearable
+                        styles={SelectStyles}
+                        options={verifiers.map((verifier) => ({ value: verifier._id, label: verifier.name }))}
+                        onChange={handleSelectChange}
+                        className="w-full text-base"
+                      />
+                    ) : (
+                      <Select
+                        name={user._id}
+                        isClearable
+                        styles={SelectStyles}
+                        options={verifiers.filter((verifier) => verifier._id !== user._id).map((verifier) => ({ value: verifier._id, label: verifier.name }))}
+                        onChange={handleSelectChange}
+                        className="w-full text-base"
+                      />
+                    )
+                }
                 <input
                   name={user._id}
                   type="number"
-                  min={0}
-                  onChange={handleInputChange}
                   placeholder="0"
+                  min={0}
+                  required
+                  onChange={handleInputChange}
                   className="assigned-assets justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black"
                 />
               </div>
@@ -190,7 +225,7 @@ export default function ProjectAssign() {
             </div>
           )}
         </div>
-        <input ref={inputRef} className="hidden" type="submit" />
+        <input ref={submitRef} className="hidden" type="submit" />
       </form>
     </div>
   );
