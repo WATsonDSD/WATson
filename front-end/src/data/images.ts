@@ -173,7 +173,6 @@ export async function assignImagesToAnnotator(
   let blockId: BlockID = '';
   // create the block and assign images to annotator (and verifier if exists)
   const block = await findAnnotatorBlockOfProject(projectId, annotatorId);
-  console.log(block);
   if (!block) {
     blockId = await addBlock(size, annotatorId, projectId);
   } else {

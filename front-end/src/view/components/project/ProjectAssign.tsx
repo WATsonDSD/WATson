@@ -45,13 +45,14 @@ export default function ProjectAssign() {
   const annotators = workers ? workers.filter((user) => user.role === 'annotator') : [];
   const verifiers = workers ? workers.filter((user) => user.role === 'verifier') : [];
 
-  const links: { [workerID: string]: { verifierID: string, numberOfAssets: number }} = {};
+  const [links, setLinks] = useState<{ [workerID: string]: { verifierID: string, numberOfAssets: number }}>({});
 
   const handleSelectChange = (option: any, meta: any) => {
     links[meta.name] = {
       ...links[meta.name],
-      numberOfAssets: Number(option?.value ?? 0),
+      verifierID: option?.value ?? '',
     };
+    setLinks(links);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,16 +70,19 @@ export default function ProjectAssign() {
     } else {
       document.getElementById('assets-left')?.classList.remove('text-red-500');
       document.getElementById('assets-left')?.classList.add('text-green-500');
-
-      links[event.currentTarget.name] = {
-        ...links[event.currentTarget.name],
-        numberOfAssets: Number(event.currentTarget.value),
-      };
     }
+
+    links[event.currentTarget.name] = {
+      ...links[event.currentTarget.name],
+      numberOfAssets: Number((document.getElementsByClassName(event.currentTarget.name)[0] as HTMLInputElement).value),
+    };
+    setLinks(links);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    console.log(links);
 
     if (assetsLeft < 0) {
       return snackBar({ title: 'Too many assets assigned', message: 'The assigned assets exceed the available ones.' }, SnackBarType.Error);
@@ -215,7 +219,7 @@ export default function ProjectAssign() {
                   min={0}
                   required
                   onChange={handleInputChange}
-                  className="assigned-assets justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black"
+                  className={`${user._id} assigned-assets justify-self-end w-1/2 pb-1 text-right text-gray-800 text-base border-b bg-transparent focus:outline-none focus:border-black`}
                 />
               </div>
             );
