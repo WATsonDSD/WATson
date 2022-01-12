@@ -1,18 +1,30 @@
 import { v4 as uuid } from 'uuid';
+
 import {
+  UserID,
+  Worker,
   updateUser,
   findUserById,
-  LandmarkSpecification, Project, ProjectID, UserID, ImageData, ImageID, Worker, Block, findBlockOfProject, getAllUsers,
+  ProjectsDB,
+  Project,
+  ProjectID,
+  ImageID,
+  ImagesDB,
+  ImageData,
+  findImageById,
+  Block,
+  findBlockOfProject,
+  nonWrappedImagesDB,
+  getAllUsers,
+  // LandmarkSpecification,
 } from '.';
 
-import { ImagesDB, ProjectsDB } from './databases';
+import { FetchingError } from '../utils/errors';
+
 import { calculateTotalCost, totalHoursOfWork } from './financier';
-import { findImageById } from './images';
 
 export async function findProjectById(id: ProjectID): Promise<Project & {_id: string, _rev: string}> {
-  const fetched = await ProjectsDB.get(id);
-
-  return { ...fetched, id: fetched._id };
+  return ProjectsDB.get(id);
 }
 /**
  * Finds and returns all projects of a user.
@@ -20,58 +32,74 @@ export async function findProjectById(id: ProjectID): Promise<Project & {_id: st
 export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
   const user: Worker = await findUserById(userID);
 
-  const projects = await Promise.all(
-    Object.keys(user.projects).map((id) => findProjectById(id)),
-  );
-
-  return projects;
+  return new Promise((resolve, reject) => {
+    ProjectsDB.allDocs({
+      include_docs: true,
+      keys: Object.keys(user.projects),
+    }).then((response) => {
+      resolve(response.rows.filter((row) => row.doc !== undefined).map((row) => row.doc!));
+    }).catch(() => {
+      reject(new FetchingError('We could not fetch the projects as requested.'));
+    });
+  });
 }
 
 /**
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
  */
-export async function createProject(
-  name: string,
-  client: string,
-  landmarks: LandmarkSpecification,
-  startDate: Date,
-  endDate: Date,
-  financialModel: {
-  pricePerImageAnnotation: number
-  pricePerImageVerification: number,
-  hourlyRateAnnotation: number,
-  hourlyRateVerification: number,
-  },
-) : Promise<ProjectID> {
-  const id = uuid(); // unique id's.
+export async function createProject(project: Project, images: any[]) : Promise<ProjectID> {
+  const projectToCreate: Project = project;
 
-  const project = {
-    _id: id,
-    id,
-    users: [], // A newly created project has no users.
-    name,
-    client,
-    startDate: new Date().toJSON(),
-    endDate: '',
-    status: 'active', // A newly created project start in progress.
-    landmarks,
-    pricePerImageAnnotation: financialModel.pricePerImageAnnotation,
-    pricePerImageVerification: financialModel.pricePerImageVerification,
-    hourlyRateAnnotation: financialModel.hourlyRateAnnotation,
-    hourlyRateVerification: financialModel.hourlyRateVerification,
-    annVer: [],
-    workDoneInTime: {},
-    images: {
-      blocks: {},
-      imagesWithoutAnnotator: [],
-      done: [],
-    }, // A newly created project has no images.
+  projectToCreate._id = uuid();
 
-  } as Project & {_id: string};
+  await ProjectsDB
+    .put(projectToCreate)
+    .catch((error) => {
+      console.log('We could not create the project');
+      console.log(error);
+    });
 
-  await ProjectsDB.put(project);
-  return id;
+  // upload images
+  const CAP = 4500000;
+  let lastUploadedIndex = 0;
+  let totalSize = 0;
+  for (let i = 0; i < images.length; i += 1) {
+    const imageSize = images[i]._attachments.image.data.size;
+    if (totalSize + imageSize > CAP) {
+      // eslint-disable-next-line no-await-in-loop
+      await nonWrappedImagesDB.bulkDocs(images.slice(lastUploadedIndex, i))
+        .catch((error) => { throw error; });
+      lastUploadedIndex = i;
+      totalSize = 0;
+    }
+    totalSize += imageSize;
+  }
+  await nonWrappedImagesDB.bulkDocs(images.slice(lastUploadedIndex))
+    .catch((error) => { throw error; });
+
+  await Promise.all(project.users.map(async (userID) => {
+    const updatedUser = await findUserById(userID);
+
+    updateUser(
+      {
+        ...updatedUser,
+        projects: {
+          ...updatedUser.projects,
+          [project._id]: {
+            toAnnotate: [],
+            waitingForAnnotation: [],
+            annotated: [],
+            toVerify: [],
+            waitingForVerification: [],
+            verified: [],
+          },
+        },
+      },
+    );
+  }));
+
+  return projectToCreate._id;
 }
 
 /**
@@ -84,24 +112,7 @@ export async function getAllProjects(): Promise<Project[]> {
       include_docs: true,
     }).then((response) => {
       if (response) {
-        projects = response.rows.map((row: any) => ({
-          // eslint-disable-next-line no-underscore-dangle
-          id: row.doc._id,
-          users: row.doc.users,
-          name: row.doc.name,
-          client: row.doc.client,
-          startDate: row.doc.startDate,
-          endDate: row.doc.endDate,
-          status: row.doc.status,
-          landmarks: row.doc.landmarks,
-          pricePerImageAnnotation: row.doc.pricePerImageAnnotation,
-          pricePerImageVerification: row.doc.pricePerImageVerification,
-          hourlyRateAnnotation: row.doc.hourlyRateAnnotation,
-          hourlyRateVerification: row.doc.hourlyRateVerification,
-          annVer: row.doc.annVer,
-          workDoneInTime: row.doc.workDoneInTime,
-          images: row.doc.images,
-        } as Project));
+        projects = response.rows.map((row: any) => row.doc);
       }
       resolve(projects);
     }).catch((error) => {
@@ -126,9 +137,9 @@ export async function statisticsInformation(): Promise<[number, number, number, 
     await Promise.all(Object.entries(projects).map(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async ([key, value]) => {
-        const cost = await calculateTotalCost(value.id);
+        const cost = await calculateTotalCost(value._id);
         totalSpendings += cost[0];
-        const hours = await totalHoursOfWork(value.id);
+        const hours = await totalHoursOfWork(value._id);
         totalHours += hours[0];
       },
     ));
@@ -205,7 +216,9 @@ export async function addUserToProject(userId: UserID, projectId: ProjectID): Pr
     throw Error(`User ${user.name} is already in project ${project.name}`);
   }
 
-  project.users.push(userId);
+  if (!project.users.includes(userId)) {
+    project.users.push(userId);
+  }
 
   user.projects[projectId] = { // initally, the user is assigned no images.
     toAnnotate: [],

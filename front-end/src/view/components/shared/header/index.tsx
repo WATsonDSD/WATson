@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { CSVDownload } from 'react-csv';
-import { Paths } from '../routes';
+
+import { Paths } from '../routes/paths';
 import { useDialog } from '../../../../utils/modals';
 import { Role, useUserNotNull } from '../../../../data';
 import { CreateUserDialog } from '../dialogs';
@@ -11,7 +12,8 @@ import { CreateUserDialog } from '../dialogs';
 import UserSettings from '../sidebar/UserSettings';
 import PlusIcon from '../../../../assets/icons/plus.svg';
 import generateReport from '../../../../data/financier';
-import { refetchReport as refetchReports } from '../../projectFinanceSummary/ReportFinance';
+
+import { refetchReports } from '../../projectFinanceSummary/ReportFinance';
 
 export default function Header(props: { title: string}) {
   const { title } = props;

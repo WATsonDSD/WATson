@@ -14,8 +14,8 @@ export const AuthDB: PouchDB.Database = new PouchDB(`${baseURL}/_users`, { skip_
 export const RejectionsDB = new Replicated(new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`));
 export const WorkersDB = new Replicated(new PouchDB<Worker>(`${baseURL}/workers`));
 
-const remoteProjectDB: PouchDB.Database<Project> = new PouchDB<Project>(`${baseURL}/projects`);
-export const ProjectsDB = new Replicated(remoteProjectDB);
+export const nonWrappedProjectsDB: PouchDB.Database<Project> = new PouchDB<Project>(`${baseURL}/projects`);
+export const ProjectsDB = new Replicated(nonWrappedProjectsDB);
 
 export const nonWrappedImagesDB: PouchDB.Database<Image> = new PouchDB<Image>(`${baseURL}/images`);
 export const ImagesDB = new Replicated(nonWrappedImagesDB);

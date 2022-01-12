@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .selected-worker {
+    transform: rotate(45deg);
+  }
+}
+
 @import url('./assets/fonts/fonts.css');
 
 body {
@@ -40,11 +46,9 @@ header {
 }
 
 #side-menu {
-  flex-shrink: 0;
-  justify-content: flex-start;
   padding: 3rem 2.5rem;
-  width: 15%;
-  min-width: 300px;
+  width: 320px;
+  justify-content: flex-start;
   background-color: #f9f9f9;
 }
 
@@ -54,6 +58,21 @@ header {
 
 #account-settings {
   width: 800px;
+}
+
+#create-project {
+  padding: 2.5rem 4rem 5rem;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5rem;
+  row-gap: 2rem;
+}
+
+#create-project-header {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5rem;
+  z-index: 999;
 }
 
 /* Chrome, Safari, Edge, Opera */

@@ -5,7 +5,7 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineDashboard } from 'react-icons/md';
 
-import { Paths } from '../routes';
+import { Paths } from '../routes/paths';
 
 export const links = [
   {

@@ -9,7 +9,7 @@ import { Role } from '../../../data/types';
 import Dropdown from '../projects/Dropdown';
 import Header from '../shared/header';
 
-export const refetchReport = () => {
+export const refetchReports = () => {
   refetcher?.();
 };
 

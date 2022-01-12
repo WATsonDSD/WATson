@@ -6,7 +6,7 @@ import { ImStatsBars } from 'react-icons/im';
 import { MdOutlineDashboard } from 'react-icons/md';
 // import { HiOutlineDocumentReport } from 'react-icons/hi';
 
-import { Paths } from '../routes';
+import { Paths } from '../routes/paths';
 
 export const links = [
   {

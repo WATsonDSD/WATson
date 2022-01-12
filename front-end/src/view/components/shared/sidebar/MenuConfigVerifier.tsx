@@ -7,7 +7,7 @@ import {
 
 import { MdDomainVerification } from 'react-icons/md';
 
-import { Paths } from '../routes';
+import { Paths } from '../routes/paths';
 
 export const links = [
   {

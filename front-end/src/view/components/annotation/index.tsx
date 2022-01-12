@@ -39,7 +39,8 @@ import plusIcon from '../../../assets/icons/Plus.png';
 import mouseLeft from '../../../assets/icons/mouse-l.png';
 import mouseRight from '../../../assets/icons/mouse-r.png';
 import mouseScroll from '../../../assets/icons/mouse-s.png';
-import { Paths } from '../shared/routes';
+
+import { Paths } from '../shared/routes/paths';
 import { getRejectedAnnotationByID } from '../../../data/rejectedAnnotation';
 
 /* TODO: Keyboard shortcuts
