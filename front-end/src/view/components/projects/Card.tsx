@@ -8,7 +8,7 @@ import {
 
 } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserNotNull } from '../../../data';
+import { closeProject, Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes/paths';
 
@@ -28,6 +28,7 @@ const Card = (props: any) => {
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
+    if (project.status !== 'active') { if (user.role === 'projectManager') closeProject(project._id); return; }
     switch (user!.role) {
       case 'projectManager':
         navigate(`${Paths.ProjectFinance}/${project._id}`);
@@ -119,34 +120,33 @@ const Card = (props: any) => {
     );
   }
 
-  const dropDownOptions = options.map((option: {name: string, to?: string, action?: Function}) => (
-    option.to
-      ? (
-        <Link
-          id={`${option.name}-btn`}
-          className="block pl-6 pr-12 py-2 whitespace-nowrap"
-          type="button"
-          to={`${option.to}/${project._id}`}
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          {option.name}
-        </Link>
-      )
-      : (
-        <button
-          id={`${option.name}-btn`}
-          className="pl-6 pr-12 py-2 whitespace-nowrap"
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
+  const dropDownOptions = options.map((option: {name: string, to?: string, action?: Function}) => (option.to
+    ? (
+      <Link
+        id={`${option.name}-btn`}
+        className="block pl-6 pr-12 py-2 whitespace-nowrap"
+        type="button"
+        to={`${option.to}/${project._id}`}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
+      >
+        {option.name}
+      </Link>
+    )
+    : (
+      <button
+        id={`${option.name}-btn`}
+        className="pl-6 pr-12 py-2 whitespace-nowrap"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
             option.action!(project._id);
-          }}
-        >
-          {option.name}
-        </button>
-      )
+        }}
+      >
+        {option.name}
+      </button>
+    )
   ));
 
   return (
@@ -158,7 +158,7 @@ const Card = (props: any) => {
             <span className="uppercase text-sm font-bold">{project.client}</span>
             <h2 className="capitalize text-xl">{project.name}</h2>
           </div>
-          <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />
+          {project.status === 'active' && <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />}
         </div>
 
         <div className="flex flex-col gap-y-2">

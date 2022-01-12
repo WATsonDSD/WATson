@@ -81,6 +81,7 @@ export default function ReportFinance() {
                   <div className="py-1">
                     <button
                       type="button"
+                      className="bg-transparent hover:bg-gray-400 text-gray-700 font-semibold hover:text-white py-2 px-2 border border-gray-500 hover:border-transparent rounded items-center"
                       onClick={async () => {
                         const data = await findReportById(report.reportID);
                         setRows(data.reportRow);

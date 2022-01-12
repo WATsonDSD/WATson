@@ -48,7 +48,7 @@ export async function getProjectsOfUser(userID: UserID): Promise<Project[]> {
  * Creates a new `Project`.
  * @returns The newly created project's `id`, determined by the backend.
  */
-export async function createProject(project: Project, images: any) : Promise<ProjectID> {
+export async function createProject(project: Project, images: any[]) : Promise<ProjectID> {
   const projectToCreate: Project = project;
 
   projectToCreate._id = uuid();
@@ -60,7 +60,22 @@ export async function createProject(project: Project, images: any) : Promise<Pro
       console.log(error);
     });
 
-  await nonWrappedImagesDB.bulkDocs(images)
+  // upload images
+  const CAP = 4500000;
+  let lastUploadedIndex = 0;
+  let totalSize = 0;
+  for (let i = 0; i < images.length; i += 1) {
+    const imageSize = images[i]._attachments.image.data.size;
+    if (totalSize + imageSize > CAP) {
+      // eslint-disable-next-line no-await-in-loop
+      await nonWrappedImagesDB.bulkDocs(images.slice(lastUploadedIndex, i))
+        .catch((error) => { throw error; });
+      lastUploadedIndex = i;
+      totalSize = 0;
+    }
+    totalSize += imageSize;
+  }
+  await nonWrappedImagesDB.bulkDocs(images.slice(lastUploadedIndex))
     .catch((error) => { throw error; });
 
   await Promise.all(project.users.map(async (userID) => {
@@ -444,7 +459,7 @@ export async function closeProject(projectID: ProjectID) {
       csvContent += ',';
       csvContent += annotation![nr].z;
       csvContent += ',';
-      csvContent += im.id;
+      csvContent += (im as any).name ?? im.id;
       csvContent += '\n';
     }
     control += 1;
