@@ -28,6 +28,7 @@ const Card = (props: any) => {
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
+    if (project.status !== 'active') { return; }
     switch (user!.role) {
       case 'projectManager':
         navigate(`${Paths.ProjectFinance}/${project._id}`);
@@ -119,34 +120,33 @@ const Card = (props: any) => {
     );
   }
 
-  const dropDownOptions = options.map((option: {name: string, to?: string, action?: Function}) => (
-    option.to
-      ? (
-        <Link
-          id={`${option.name}-btn`}
-          className="block pl-6 pr-12 py-2 whitespace-nowrap"
-          type="button"
-          to={`${option.to}/${project._id}`}
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          {option.name}
-        </Link>
-      )
-      : (
-        <button
-          id={`${option.name}-btn`}
-          className="pl-6 pr-12 py-2 whitespace-nowrap"
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
+  const dropDownOptions = options.map((option: {name: string, to?: string, action?: Function}) => (option.to
+    ? (
+      <Link
+        id={`${option.name}-btn`}
+        className="block pl-6 pr-12 py-2 whitespace-nowrap"
+        type="button"
+        to={`${option.to}/${project._id}`}
+        onClick={(event) => {
+          event.stopPropagation();
+        }}
+      >
+        {option.name}
+      </Link>
+    )
+    : (
+      <button
+        id={`${option.name}-btn`}
+        className="pl-6 pr-12 py-2 whitespace-nowrap"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
             option.action!(project._id);
-          }}
-        >
-          {option.name}
-        </button>
-      )
+        }}
+      >
+        {option.name}
+      </button>
+    )
   ));
 
   return (
@@ -157,12 +157,14 @@ const Card = (props: any) => {
             <span className="uppercase text-sm text-gray-400 font-medium">{project.client}</span>
             <h2 className="capitalize text-xl text-white font-normal">{project.name}</h2>
           </div>
-          <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />
+          {project.status === 'active' && <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />}
         </div>
 
         <div className="flex flex-col gap-y-2">
           <div className="flex items-center gap-x-2">
-            <span className="block w-2 h-2 bg-green-500 rounded-full" />
+            {project.status === 'active'
+              ? <span className="block w-2 h-2 bg-green-500 rounded-full" />
+              : <span className="block w-2 h-2 bg-red-500 rounded-full" /> }
             <span className="capitalize text-sm text-white font-normal">{project.status}</span>
           </div>
           <div className="border-b border-gray-600" />
