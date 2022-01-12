@@ -42,6 +42,7 @@ import mouseScroll from '../../../assets/icons/mouse-s.png';
 
 import { Paths } from '../shared/routes/paths';
 import { getRejectedAnnotationByID } from '../../../data/rejectedAnnotation';
+import { load } from '../../LoadingOverlay';
 
 /* TODO: Keyboard shortcuts
 a - Go to previous image
@@ -97,7 +98,7 @@ export default function AnnotationView() {
   }, []);
 
   const updateImage = () => {
-    getImagesOfUser(projectId ?? '', 'toAnnotate', user!._id).then((result) => {
+    load(() => getImagesOfUser(projectId ?? '', 'toAnnotate', user!._id).then((result) => {
       if (result.length === 0) {
         console.warn('Every image is annotated');
         alert('You do not have any images to annotate in this project.');
@@ -116,7 +117,7 @@ export default function AnnotationView() {
       setLandmarkId(next);
       setTransform(defaultTransform);
       setRemainingCount(result.length);
-    });
+    }));
   };
   useEffect(updateImage, [imageId]);
 
