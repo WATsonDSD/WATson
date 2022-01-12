@@ -25,6 +25,7 @@ import AnnotVerif, {
 } from '../shared/annotation/AnnotVerif';
 // eslint-disable-next-line import/extensions
 import { splines } from '../shared/annotation/TemplateAnnotation.json';
+import { load } from '../../LoadingOverlay';
 
 let templateImage = emptyImage;
 
@@ -69,7 +70,7 @@ export default function VerificationView() {
   }, []);
 
   const updateImage = () => {
-    getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
+    load(() => getImagesOfUser(projectId ?? '', 'toVerify', user._id).then((result) => {
       if (result.length === 0) {
         alert('You do not have any images to verify in this project.');
         navigate(Paths.Projects);
@@ -79,7 +80,7 @@ export default function VerificationView() {
       setImage(result[realImageId]);
       setTransform(defaultTransform);
       setRemainingCount(result.length);
-    });
+    }));
   };
   useEffect(updateImage, [imageId]);
 

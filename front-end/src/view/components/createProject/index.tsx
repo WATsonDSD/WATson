@@ -31,6 +31,7 @@ import { templateImage } from '../shared/annotation/AnnotVerif';
 import { TemplateAnnotation, categories } from '../shared/annotation/TemplateAnnotation.json';
 
 import { Paths } from '../shared/routes/paths';
+import { load } from '../../LoadingOverlay';
 
 export default function CreateProject() {
   const [user] = useUserNotNull();
@@ -133,7 +134,7 @@ export default function CreateProject() {
     project.users = [...project.users, user._id, '75883cd5c22adf54dcacb5213e030550'];
     project.images.imagesWithoutAnnotator = images.map((image) => image._id);
 
-    createProject(project, images).then(() => {
+    load(() => createProject(project, images)).then(() => {
       navigate(Paths.Projects);
     });
   };
