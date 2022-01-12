@@ -8,7 +8,7 @@ import { Replicated } from './PouchWrapper';
 
 PouchDB.plugin(PouchDBAuthentication);
 
-const baseURL = 'https://watson.visagetechnologies.com/couchdb';
+const baseURL = 'https://watson.visagetechnologies.com:6984';
 
 export const AuthDB: PouchDB.Database = new PouchDB(`${baseURL}/_users`, { skip_setup: true, adapter: 'http' });
 export const RejectionsDB = new Replicated(new PouchDB<RejectedAnnotation>(`${baseURL}/rejections`));
