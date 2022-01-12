@@ -42,7 +42,7 @@ function Modal(props: { title: string, message: string, type: ModalType }) {
 
   return (
     visible ? (
-      <div id="modal" className="inset-0 flex items-center justify-center bg-black bg-opacity-25">
+      <div id="modal" className="inset-0 flex items-center justify-center bg-blend-darken">
         <div id="modal-content" className={`${type} flex flex-col px-8 py-6 rounded-md shadow-md ${type === ModalType.Alert ? 'bg-white' : ''}`}>
           <div className="flex flex-col gap-y-1">
             <h1 className="text-xl font-bold">{title}</h1>

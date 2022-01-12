@@ -20,6 +20,7 @@ import { useSnackBar, SnackBarType } from '../../../utils/modals';
 
 import useData from '../../../data/hooks';
 import BackIcon from '../../../assets/icons/back.svg';
+import { load } from '../../LoadingOverlay';
 
 export default function ProjectAssign() {
   const { projectID } = useParams();
@@ -87,17 +88,18 @@ export default function ProjectAssign() {
     if (assetsLeft < 0) {
       return snackBar({ title: 'Too many assets assigned', message: 'The assigned assets exceed the available ones.' }, SnackBarType.Error);
     }
-
+    await load(async () => {
     // eslint-disable-next-line no-restricted-syntax
-    for (const worker of Object.entries(links)) {
+      for (const worker of Object.entries(links)) {
       // eslint-disable-next-line no-await-in-loop
-      await assignImagesToAnnotator(worker[1].numberOfAssets, worker[0], projectID);
+        await assignImagesToAnnotator(worker[1].numberOfAssets, worker[0], projectID);
 
-      if (worker[1].verifierID) {
+        if (worker[1].verifierID) {
         // eslint-disable-next-line no-await-in-loop
-        await createAnnotatorVerifierLink(projectID, worker[0], worker[1].verifierID);
+          await createAnnotatorVerifierLink(projectID, worker[0], worker[1].verifierID);
+        }
       }
-    }
+    });
 
     return navigate(Paths.Projects);
   };
