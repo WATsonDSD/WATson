@@ -75,6 +75,13 @@ header {
   z-index: 999;
 }
 
+#not-found {
+  background-image: url('../src/assets/404_bg.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
