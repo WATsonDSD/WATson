@@ -25,7 +25,7 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
     <>
       <h1 className="text-xl font-medium mb-4">Edit your profile</h1>
 
-      <div className="flex items-center gap-x-6 px-6 py-4 border rounded-md">
+      {/* <div className="flex items-center gap-x-6 px-6 py-4 border rounded-md">
         <span className="block w-24 h-24 bg-blue-100 rounded-full" />
         <div className="flex flex-col gap-y-2">
           <div className="flex gap-x-2">
@@ -34,7 +34,7 @@ export function EditProfileDialog(props: {onClose: VoidFunction}) {
           </div>
           <p className="text-gray-400 text-sm text-center">Limit the size of your profile picture.</p>
         </div>
-      </div>
+      </div> */}
 
       <div className="px-2 mt-8 flex flex-col gap-y-6">
         <div className="flex justify-between">

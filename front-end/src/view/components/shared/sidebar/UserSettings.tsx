@@ -20,8 +20,7 @@ export default function UserSettings() {
       <Menu as="div" className="flex">
         <Menu.Button className="opacity-80 hover:opacity-100 transition-opacity">
           <div className="flex items-center gap-x-2 text-black rounded-full">
-            <p className="mr-2">{user ? user.name : 'loading...'}</p>
-            <span className="block h-12 w-12 bg-blue-200 rounded-full" />
+            <p>{user ? user.name : 'loading...'}</p>
             <img src={DownArrow} alt="Profile Options" />
           </div>
         </Menu.Button>
@@ -35,7 +34,7 @@ export default function UserSettings() {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="origin-top-right absolute right-16 flex flex-col items-start gap-y-4 mt-14 px-6 py-5 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
+          <Menu.Items className="origin-top-right absolute right-16 flex flex-col items-start gap-y-4 mt-10 px-6 py-5 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 bg-white focus:outline-none">
             <Menu.Item>
               <button className="block flex items-center gap-x-3 pr-8 text-gray-600 opacity-80 hover:opacity-100 transition-opacity" type="button" onClick={() => dialog.open(<EditProfileDialog onClose={dialog.close} />)}>
                 <img src={ProfileIcon} className="w-5" alt="Edit profile" />

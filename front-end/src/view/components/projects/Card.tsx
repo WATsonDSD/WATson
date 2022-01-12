@@ -12,7 +12,7 @@ import { Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes/paths';
 
-import OptionsIcon from '../../../assets/icons/options.svg';
+import OptionsIcon from '../../../assets/icons/options-black.svg';
 
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
@@ -54,17 +54,17 @@ const Card = (props: any) => {
 
   if (user.role === 'projectManager') {
     cardStats = (
-      <div className="flex justify-between text-lg w-full mt-2">
-        <span className="flex items-center gap-x-1 text-white text-left">
+      <div className="flex justify-between text-lg w-full mt-2 font-medium">
+        <span className="flex items-center gap-x-1 text-left">
           <AiOutlineRedo />
           {Math.floor(percentage * 100)}
           %
         </span>
-        <span className="flex items-center gap-x-1 text-white">
+        <span className="flex items-center gap-x-1">
           <AiOutlineRise />
           { totalSpending[0] }
         </span>
-        <span className="flex items-center gap-x-1 text-white">
+        <span className="flex items-center gap-x-1">
           <AiOutlineTeam />
           {numberOfWorkers}
         </span>
@@ -72,8 +72,8 @@ const Card = (props: any) => {
     );
   } else if (user.role === 'annotator') {
     cardStats = (
-      <div className="flex justify-between text-lg w-full mt-2">
-        <span className="flex items-center gap-x-1 text-white text-left">
+      <div className="flex justify-between text-lg w-full mt-2 font-medium">
+        <span className="flex items-center gap-x-1 text-left">
           <MdOutlineSwitchAccount />
           {user.projects[project._id].toAnnotate.length}
         </span>
@@ -82,8 +82,8 @@ const Card = (props: any) => {
   } else if (user.role === 'verifier') {
     if (verifierAction === 'annotate') {
       cardStats = (
-        <div className="flex justify-between text-lg w-full mt-2">
-          <span className="flex items-center gap-x-1 text-white text-left">
+        <div className="flex justify-between text-lg w-full mt-2 font-medium">
+          <span className="flex items-center gap-x-1 text-left">
             <MdOutlineSwitchAccount />
             {user.projects[project._id].toAnnotate.length}
           </span>
@@ -91,8 +91,8 @@ const Card = (props: any) => {
       );
     } else {
       cardStats = (
-        <div className="flex justify-between text-lg w-full mt-2">
-          <span className="flex items-center gap-x-1 text-white text-left">
+        <div className="flex justify-between text-lg w-full mt-2 font-medium">
+          <span className="flex items-center gap-x-1 text-left">
             <MdOutlineSwitchAccount />
             {user.projects[project._id].toVerify.length}
           </span>
@@ -101,17 +101,17 @@ const Card = (props: any) => {
     }
   } else {
     cardStats = (
-      <div className="flex justify-between text-lg w-full mt-2">
-        <span className="flex items-center gap-x-1 text-white text-left">
+      <div className="flex justify-between text-lg w-full mt-2 font-medium">
+        <span className="flex items-center gap-x-1 text-left">
           <AiOutlineRedo />
           {Math.floor(percentage * 100)}
           %
         </span>
-        <span className="flex items-center gap-x-1 text-white">
+        <span className="flex items-center gap-x-1">
           <AiOutlineRise />
           { totalSpending[0] }
         </span>
-        <span className="flex items-center gap-x-1 text-white">
+        <span className="flex items-center gap-x-1">
           <AiOutlineTeam />
           {numberOfWorkers}
         </span>
@@ -150,23 +150,24 @@ const Card = (props: any) => {
   ));
 
   return (
-    <div className="flex flex-col bg-gray-800 hover:bg-black cursor-pointer aspect-w-4 aspect-h-3  transition-all rounded-md" role="link" tabIndex={0} onClick={cardClickHandler} onKeyDown={() => { console.log('open project'); }}>
-      <div className="w-full flex flex-col justify-between px-8 py-6">
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+    <div key={project._id} className={`flex flex-col cursor-pointer aspect-w-4 aspect-h-3 ring-1 ring-black ring-opacity-5 transition-all rounded-md ${project.status === 'active' ? 'active-project' : 'closed-project'}`} role="link" tabIndex={0} onClick={cardClickHandler}>
+      <div className="w-full flex flex-col justify-between px-8 pt-6 pb-5 text-gray-700">
         <div className="flex">
           <div className="flex-grow">
-            <span className="uppercase text-sm text-gray-400 font-medium">{project.client}</span>
-            <h2 className="capitalize text-xl text-white font-normal">{project.name}</h2>
+            <span className="uppercase text-sm font-bold">{project.client}</span>
+            <h2 className="capitalize text-xl">{project.name}</h2>
           </div>
           <Dropdown elements={dropDownOptions} icon={<img src={OptionsIcon} alt="Options" />} />
         </div>
 
         <div className="flex flex-col gap-y-2">
           <div className="flex items-center gap-x-2">
-            <span className="block w-2 h-2 bg-green-500 rounded-full" />
-            <span className="capitalize text-sm text-white font-normal">{project.status}</span>
+            <span className={`block w-2 h-2 ${project.status === 'active' ? 'bg-green-500' : 'bg-gray-500'} rounded-full`} />
+            <span className="uppercase text-xs font-normal">{project.status}</span>
           </div>
-          <div className="border-b border-gray-600" />
-          {cardStats }
+          <div className="border-b-2 border-black opacity-5" />
+          {cardStats}
         </div>
       </div>
     </div>

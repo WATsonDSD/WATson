@@ -16,7 +16,7 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
 
   return (
     <div className="Dropdown">
-      <Menu as="div" className="z-10 relative inline-block text-left">
+      <Menu as="div" className="relative inline-block text-left">
         <Menu.Button>
           <span className="block p-4 -m-4">{icon}</span>
         </Menu.Button>
@@ -30,7 +30,7 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="origin-top-right absolute bg-gray-800 rounded-md shadow-lg py-2 focus:outline-none">
+          <Menu.Items className="z-10 origin-top-right absolute bg-white rounded-md shadow-lg py-2 focus:outline-none">
             {elements?.map((element : ReactElement) => {
               counter += 1;
               return (
@@ -39,7 +39,7 @@ const Dropdown = (props: {elements: ReactElement[], icon: ReactElement}) => {
                     <span
                       key={counter}
                       className={classNames(
-                        active ? 'bg-gray-700 text-white' : 'text-white',
+                        active ? 'text-black' : 'text-gray-500',
                         'block text-base',
                       )}
                     >

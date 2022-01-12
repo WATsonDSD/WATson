@@ -6,6 +6,22 @@
   .selected-worker {
     transform: rotate(45deg);
   }
+
+  .active-project {
+    background-color: #D1E8DD;
+  }
+
+  .active-project:hover {
+    background-color: #B4D2C4;
+  }
+
+  .closed-project {
+    background-color: rgb(249 250 251);
+  }
+
+  .closed-project:hover {
+    background-color: rgb(243 244 246);
+  }
 }
 
 @import url('./assets/fonts/fonts.css');
@@ -29,9 +45,10 @@ body {
 
 /* all except the side menu */
 #main-content {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  background-color: white;
   overflow-y: auto;
   
 }
