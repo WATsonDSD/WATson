@@ -8,7 +8,7 @@ import {
 
 } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
-import { Project, useUserNotNull } from '../../../data';
+import { closeProject, Project, useUserNotNull } from '../../../data';
 
 import { Paths } from '../shared/routes/paths';
 
@@ -28,7 +28,7 @@ const Card = (props: any) => {
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
-    if (project.status !== 'active') { return; }
+    if (project.status !== 'active') { if (user.role === 'projectManager') closeProject(project._id); return; }
     switch (user!.role) {
       case 'projectManager':
         navigate(`${Paths.ProjectFinance}/${project._id}`);
