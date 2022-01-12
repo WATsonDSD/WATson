@@ -459,7 +459,7 @@ export async function closeProject(projectID: ProjectID) {
       csvContent += ',';
       csvContent += annotation![nr].z;
       csvContent += ',';
-      csvContent += im.id;
+      csvContent += (im as any).name ?? im.id;
       csvContent += '\n';
     }
     control += 1;
