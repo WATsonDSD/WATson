@@ -17,6 +17,7 @@ import OptionsIcon from '../../../assets/icons/options.svg';
 import Dropdown from './Dropdown';
 import useData from '../../../data/hooks';
 import { calculateTotalCost, percentageOfImagesDone, totalWorkers } from '../../../data/financier';
+import { load } from '../../LoadingOverlay';
 
 const Card = (props: any) => {
   const { project, options, verifierAction }: { project: Project, options: any, verifierAction: string | undefined} = props;
@@ -28,7 +29,7 @@ const Card = (props: any) => {
   if (!totalSpending || percentage === null) return null;
 
   const cardClickHandler = () => {
-    if (project.status !== 'active') { if (user.role === 'projectManager') closeProject(project._id); return; }
+    if (project.status !== 'active') { if (user.role === 'projectManager') load(() => closeProject(project._id)); return; }
     switch (user!.role) {
       case 'projectManager':
         navigate(`${Paths.ProjectFinance}/${project._id}`);
@@ -141,7 +142,7 @@ const Card = (props: any) => {
         type="button"
         onClick={(event) => {
           event.stopPropagation();
-            option.action!(project._id);
+          load(() => option.action!(project._id));
         }}
       >
         {option.name}
