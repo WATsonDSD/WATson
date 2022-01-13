@@ -14,6 +14,7 @@ import PlusIcon from '../../../../assets/icons/plus.svg';
 import generateReport from '../../../../data/financier';
 
 import { refetchReports } from '../../projectFinanceSummary/ReportFinance';
+import { load } from '../../../LoadingOverlay';
 
 export default function Header(props: { title: string}) {
   const { title } = props;
@@ -53,10 +54,10 @@ export default function Header(props: { title: string}) {
     },
     finance: {
       [Paths.Reports]: () => {
-        generateReport().then((result) => {
+        load(() => generateReport().then((result) => {
           setRows(result.reportRow);
           refetchReports();
-        });
+        }));
       },
     },
   };
