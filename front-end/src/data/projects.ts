@@ -240,11 +240,11 @@ export async function addImageToProject(data: ImageData, projectId: ProjectID): 
 
 export async function numberOfImagesInProject(projectId: ProjectID): Promise <number> {
   const project = await findProjectById(projectId);
-  let totImages = project.images.imagesWithoutAnnotator.length + project.images.done.length;
+  let totImages = +project.images.imagesWithoutAnnotator.length + +project.images.done.length;
   Object.entries(project.images.blocks).forEach(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async ([key, value]) => {
-      totImages += value.block.toAnnotate.length + value.block.toVerify.length;
+      totImages += +value.block.toAnnotate.length + +value.block.toVerify.length;
     },
   );
   return totImages;
