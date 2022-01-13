@@ -57,12 +57,18 @@ export default function Dashboard() {
         to: Paths.Annotation,
       },
     ],
-    verifier: [
-      {
-        name: 'Verify Images',
-        to: Paths.Verification,
-      },
-    ],
+    verifier: type === 'verify'
+      ? [
+        {
+          name: 'Verify Images',
+          to: Paths.Verification,
+        }]
+      : [
+        {
+          name: 'Annotate Images',
+          to: Paths.Annotation,
+        },
+      ],
     finance: [],
   };
 
@@ -77,6 +83,7 @@ export default function Dashboard() {
                 key={project._id}
                 project={project}
                 options={projectOptions[user!.role]}
+                verifierAction={type}
               />
             ))}
           </section>
